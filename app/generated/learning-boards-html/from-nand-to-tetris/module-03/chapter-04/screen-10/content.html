@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Keyboard Loop</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Polling pattern</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-slate-100 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// conceptual loop
+(READ_KEY)
+@24576
+D = M         // D contains keyboard code or 0
+@READ_KEY
+D; JEQ         // if zero, jump back and keep polling
+// D != 0: handle key
+@DISPLAY_ADDR
+M = D         // store code for display routine
+// optionally wait for release
+(WAIT_RELEASE)
+@24576
+D = M
+@WAIT_RELEASE
+D; JNE        // loop until keyboard returns 0
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">This outline shows the polling loop and a simple debounce that waits for the key to be released before continuing detection.</div>
+    </div>
+
+    <div class="flex-1 card p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Display strategies</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>Display the raw ASCII as a number by converting digits and drawing them to the screen.</div>
+        <div>Or map printable ASCII to a bitmap font and draw the character pixels at a chosen screen location.</div>
+      </div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs font-medium text-slate-800">Polling is simple and works for small programs. For more complex input handling you would add buffering or interrupts, but those are beyond the Hack design used here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

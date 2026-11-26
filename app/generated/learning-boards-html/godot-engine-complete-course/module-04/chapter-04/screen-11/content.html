@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Signals & GDScript</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm overflow-hidden">
+      <div class="text-xl font-bold text-slate-800">Connecting signals in code</div>
+      <div class="text-sm text-slate-600 mt-2">Use @onready to reference nodes and connect signals in _ready for clear wiring.</div>
+
+      <div class="mt-4">
+        <pre><code>extends Control
+
+@onready var new_game_button = $VBoxContainer/NewGameButton
+@onready var options_button = $VBoxContainer/OptionsButton
+@onready var quit_button = $VBoxContainer/QuitButton
+@onready var version_label = $VersionLabel
+
+func _ready():
+  new_game_button.pressed.connect(_on_new_game_button_pressed)
+  options_button.pressed.connect(_on_options_button_pressed)
+  quit_button.pressed.connect(_on_quit_button_pressed)
+
+func _on_new_game_button_pressed():
+  print("Starting a new game!")
+  # get_tree().change_scene_to_file("res://scenes/game_level.tscn")
+
+func _on_options_button_pressed():
+  print("Opening options menu!")
+
+func _on_quit_button_pressed():
+  print("Quitting game!")
+  get_tree().quit()</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Common patterns</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc ml-5">
+        <li>Connect signals in _ready to ensure nodes exist.</li>
+        <li>Keep UI updates inside handlers, not in process loops.</li>
+        <li>Use print statements during testing to verify handlers are called.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 text-amber-800">
+        <div class="text-xs font-bold uppercase tracking-wider">Misconception</div>
+        <div class="text-sm mt-2">Signals must only be connected in the editor. You can connect them programmatically for clearer and versionable logic.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Programmatic signal connections in _ready make UI behavior explicit and easier to test across scenes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

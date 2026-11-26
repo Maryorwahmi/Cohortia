@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Locks &amp; Contention</span>
+  </div>
+  <div class='flex gap-4 h-[calc(100%-40px)]'>
+    <div class='w-1/2 rounded-2xl bg-white border p-4' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-xs font-bold uppercase text-slate-500 mb-2'>Comparison</div>
+      <p class='text-sm text-slate-700 mb-3'>Differentiate CPU/I/O waits from lock waits by inspecting pg_locks and session states.</p>
+      <pre style='white-space:pre-wrap;tab-size:2;background:#ffffff;padding:8px;border-radius:8px;border:1px solid rgba(226,232,240,0.9);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace'><code>SELECT a.pid, a.usename, a.query, a.query_start, l.granted,
+       pg_blocking_pids(a.pid) AS blocking_pids
+FROM pg_locks l
+JOIN pg_stat_activity a ON l.pid = a.pid
+WHERE l.granted = false
+ORDER BY a.query_start;
+
+-- Use pg_blocking_pids to find the blockers</code></pre>
+    </div>
+    <div class='w-1/2 rounded-2xl bg-white border p-4 flex flex-col justify-between' style='border-color:rgba(226,232,240,0.9)'>
+      <div>
+        <div class='text-sm font-semibold text-slate-800 mb-2'>Remediation patterns</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Use pg_cancel_backend() to stop a running query when appropriate.</li>
+          <li>Use pg_terminate_backend() only when you need to force cleanup.</li>
+          <li>Fix application behavior to avoid long transactions and idle-in-transaction states.</li>
+        </ul>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Common Mistake</div>
+          <p class='text-xs font-medium text-slate-800'>Killing OS processes can corrupt state; prefer database-level cancellation or termination functions for a safe cleanup.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

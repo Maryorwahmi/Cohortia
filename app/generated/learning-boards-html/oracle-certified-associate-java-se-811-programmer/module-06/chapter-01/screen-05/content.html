@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Definition & Example</div>
+  <h3 class="text-2xl font-bold text-slate-800 mb-1">Declaring generic classes: the Box example</h3>
+  <p class="text-sm text-slate-600 mb-4">Write Box&lt;T&gt; and use T just like a regular type inside the class definition.</p>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Code walkthrough</div>
+      <div class="bg-slate-900 text-slate-50 rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap;tab-size:2;">
+        <pre><code>public class Box<T> {
+  private T content;
+
+  public void setContent(T content) {
+    this.content = content;
+  }
+
+  public T getContent() {
+    return content;
+  }
+
+  public static void main(String[] args) {
+    Box<String> stringBox = new Box<>(); // diamond infers String
+    stringBox.setContent("Hello Generics");
+    String message = stringBox.getContent();
+    System.out.println(message);
+
+    Box<Integer> intBox = new Box<>();
+    intBox.setContent(123);
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation & tips</div>
+      <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Type parameter T is a placeholder that becomes a real type at instantiation.</li>
+        <li>The diamond operator <> lets the compiler infer type arguments, reducing repetition.</li>
+        <li>You cannot use new T() or instanceof T because type parameters are erased at runtime.</li>
+        <li>Generic classes can be nested: Box&lt;List&lt;String&gt;&gt; remains type-checked at compile time.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Declare placeholders after the class name and use them to express safe storage and retrieval contracts.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

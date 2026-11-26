@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}
+    pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Kernel & Journal</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">What to collect</div>
+      <div class="text-sm text-slate-600">Collect a dmesg snapshot and the relevant journal entries to find hardware errors or driver failures.</div>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Commands</div>
+        <pre class="code" style="white-space:pre-wrap;tab-size:2">sudo dmesg -T | tail -n 100
+sudo journalctl -b -1 --since "2024-11-01 09:50:00" --until "2024-11-01 10:05:00"
+sudo journalctl -u myapp.service --since "10 minutes ago"
+</pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc pl-5">
+          <li>Use dmesg for direct kernel output with human timestamps (-T).</li>
+          <li>Use journalctl for service logs, historical boots, and full timestamps.</li>
+          <li>Correlate timestamps from both sources to form an incident timeline.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example output and interpretation</div>
+      <pre class="bg-white p-2 rounded border text-sm" style="white-space:pre-wrap;tab-size:2">[Fri Nov 1 10:00:01] ata1.00: exception Emask 0x0 SAct 0x0
+[Fri Nov 1 10:00:01] ata1.00: failed command: READ FPDMA QUEUED
+[Fri Nov 1 10:00:02] EXT4-fs error (device sda1): ext4_internal_error:...
+</pre>
+      <div class="mt-2 text-sm text-slate-600">Interpretation: repeated ATA or EXT4 errors point to disk hardware or driver problems rather than an application bug.</div>
+
+      <div class="mt-3 p-3 rounded border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Always save dmesg and the relevant journal window before performing disruptive actions.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

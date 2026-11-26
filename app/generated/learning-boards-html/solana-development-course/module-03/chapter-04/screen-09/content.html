@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Test Example</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Test structure</div>
+      <p class="text-sm text-slate-700 mt-2">Provider, workspace, account generation, rpc calls, fetches, and assertions form a repeatable test pattern.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Key snippet</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm"><code>const provider = anchor.AnchorProvider.env();
+anchor.setProvider(provider);
+const program = anchor.workspace.MyCounterApp as Program<MyCounterApp>;
+const counterAccount = anchor.web3.Keypair.generate();
+
+await program.methods
+  .initialize()
+  .accounts({
+    counterAccount: counterAccount.publicKey,
+    user: provider.wallet.publicKey,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  })
+  .signers([counterAccount])
+  .rpc();</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Assertions and logs</div>
+      <div class="text-sm text-slate-700 mt-2">After actions, fetch the account and assert values. The test logs also show program msg! outputs which help trace logic during execution.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Error testing</div>
+        <div class="text-xs font-medium text-slate-800">To test an error path, temporarily adjust program logic to make the error reachable, then run anchor test and assert that the error message is thrown as expected.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">anchor test runs full integration tests against the local validator, letting you validate on-chain behavior with TypeScript assertions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.code{background:#0b1220;color:#dff3ff;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">SET and MAP</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">SET — Unique values</div>
+      <div class="mt-3 text-sm text-slate-800">Use sets for tags, roles, and other attributes that must be unique. Sets do not preserve order. They prevent duplicates automatically.</div>
+      <div class="mt-4 bg-white p-3 rounded-lg card-border code" style="white-space:pre-wrap;tab-size:2">
+-- tags as a set<text>
+CREATE TABLE user_keyspace.user_orders (
+  user_id uuid,
+  order_id uuid,
+  tags set&lt;text&gt;,
+  PRIMARY KEY ((user_id, order_id))
+);
+      </div>
+      <div class="mt-auto text-xs text-slate-600">Tip: prefer sets for small lists of categorical labels.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">MAP — Key-value pairs</div>
+      <div class="mt-3 text-sm text-slate-800">Maps let you store named attributes flexibly. Use them for configuration, shipping details, or product attribute maps where keys are known and bounded.</div>
+      <div class="mt-4 bg-white p-3 rounded-lg card-border code" style="white-space:pre-wrap;tab-size:2">
+-- shipping_details as map<text,text>
+CREATE TABLE user_keyspace.user_orders (
+  user_id uuid,
+  order_id uuid,
+  shipping_details map&lt;text,text&gt;,
+  PRIMARY KEY ((user_id, order_id))
+);
+
+-- lookup the carrier key
+SELECT shipping_details['carrier'] FROM user_keyspace.user_orders
+WHERE user_id = a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11 AND order_id = b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12;
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Misconception: Maps are not a substitute for arbitrary, unbounded attributes; use a separate table for that.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

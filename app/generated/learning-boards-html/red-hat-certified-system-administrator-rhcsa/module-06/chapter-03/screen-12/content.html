@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Activity: Implement and verify key-based SSH</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Client steps</div>
+        <ol class="mt-2 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+          <li>ssh-keygen -t rsa -b 4096 -C "my_admin_key@myclient"</li>
+          <li>eval "$(ssh-agent -s)" and ssh-add ~/.ssh/id_rsa</li>
+          <li>ssh-copy-id adminuser@&lt;REMOTE_SERVER_IP&gt;</li>
+        </ol>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Server steps</div>
+        <ol class="mt-2 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+          <li>Edit /etc/ssh/sshd_config to set PasswordAuthentication no and PermitRootLogin no</li>
+          <li>Optionally add AllowUsers adminuser</li>
+          <li>sudo systemctl restart sshd and test from another session</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="mt-4 text-sm text-slate-700">Remember: keep one session open as a rollback path until you confirm the new settings allow expected access. If a test fails, verify permissions on ~/.ssh and authorized_keys before changing sshd_config back.</div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example verification</div>
+      <p class="text-xs font-medium text-slate-800">Open a new terminal and run ssh adminuser@&lt;REMOTE_SERVER_IP&gt; to confirm you can connect with keys before making server hardening permanent.</p>
+    </div>
+  </div>
+</div>

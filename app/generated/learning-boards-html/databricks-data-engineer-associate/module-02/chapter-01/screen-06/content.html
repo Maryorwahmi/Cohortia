@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Magic Commands</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Example: Python to SQL</div>
+      <div class="text-sm text-slate-600 mt-2">Create a DataFrame in Python, register a temporary view, then query it with %sql.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded"><code># Python cell (default)
+data = [(1, 'Alice'), (2, 'Bob')]
+columns = ['id', 'name']
+users_df = spark.createDataFrame(data, schema=columns)
+users_df.createOrReplaceTempView('temp_users')
+print('temp view created')
+
+# Next cell begins with %sql to query the view
+%sql
+SELECT * FROM temp_users
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Notice the explicit createOrReplaceTempView call. Without that registration, SQL cells cannot access the DataFrame directly. This pattern supports language-appropriate processing while enabling shared data artifacts.</div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Common misconceptions</div>
+      <div class="text-sm text-slate-600 mt-2">You cannot assume local interpreter variables cross language boundaries. Use temp views or tables to share data across languages.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded bg-violet-50 text-violet-700">When to use %sql: Ad-hoc querying and quick aggregations on registered views.</div>
+        <div class="p-3 rounded bg-blue-50 text-blue-700">When to use %python: Complex transformations and integration with Python libraries.</div>
+        <div class="p-3 rounded bg-amber-50 text-amber-700">When to use %scala or %r: Use language-specific features or performance tests when needed.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+        <div class="text-sm text-slate-800">After creating a temp view, try selecting from it in a %sql cell. If you see no rows, ensure the cluster is attached and the view was registered in the same Spark session.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

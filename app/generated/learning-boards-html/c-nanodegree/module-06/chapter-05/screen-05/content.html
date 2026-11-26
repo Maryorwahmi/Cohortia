@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Writing and Appending Text Files</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Write or append safely</h3>
+      <div class="mt-4 flex gap-3">
+        <div class="flex-1 rounded-lg bg-blue-50 p-3">
+          <div class="font-semibold text-blue-700">1. Choose mode</div>
+          <p class="text-sm text-slate-700 mt-1">ofstream(filename) truncates. ofstream(filename, ios::app) appends.</p>
+        </div>
+        <div class="flex-1 rounded-lg bg-emerald-50 p-3">
+          <div class="font-semibold text-emerald-700">2. Open and check</div>
+          <p class="text-sm text-slate-700 mt-1">Call is_open and handle failures before writing.</p>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <div class="rounded-lg bg-white border p-3 flex-1">
+          <div class="font-semibold text-slate-800">3. Write data</div>
+          <p class="text-sm text-slate-700 mt-1">Use insertion operator and manipulators for formatting.</p>
+        </div>
+        <div class="rounded-lg bg-white border p-3 flex-1">
+          <div class="font-semibold text-slate-800">4. Check errors</div>
+          <p class="text-sm text-slate-700 mt-1">Check fail or bad after heavy writes to detect disk issues.</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <pre class="p-3 bg-slate-900 text-slate-100 rounded-md" style="font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2;">
+// Append example
+std::ofstream logFile("log.txt", std::ios::app);
+if (!logFile.is_open()) { /* handle error */ }
+logFile << "New entry" << std::endl;
+// logFile closed by RAII
+        </pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-amber-50 p-4">
+        <div class="text-sm font-semibold text-amber-700">Example Scenario</div>
+        <p class="text-sm text-slate-700 mt-2">Sensor logger: open with ios::app each run so data accumulates across program executions while preserving prior readings.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-sm text-slate-700">Opening without ios::app when you intended to append causes accidental truncation and data loss.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Use ios::app for logs; use default truncation when replacing files intentionally.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

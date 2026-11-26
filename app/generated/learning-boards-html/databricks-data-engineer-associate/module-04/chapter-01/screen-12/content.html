@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl card-border bg-white p-5">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Create table, update, and inspect history</div>
+      <div class="text-sm text-slate-600 mb-4">Follow these steps in a sandbox to generate versions and practice time travel.</div>
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Starter SQL</div>
+        <pre><code>CREATE TABLE IF NOT EXISTS sales_data (
+  id INT,
+  product STRING,
+  quantity INT,
+  price DOUBLE
+) USING DELTA;
+
+INSERT INTO sales_data VALUES (1, 'Laptop', 2, 1200.00);
+INSERT INTO sales_data VALUES (2, 'Mouse', 5, 25.00);
+
+-- Check history
+DESCRIBE HISTORY sales_data;
+
+-- Update to create a new version
+UPDATE sales_data SET price = 1250.00 WHERE id = 1;
+
+-- Inspect versions again
+DESCRIBE HISTORY sales_data;
+
+-- Time travel to prior version (replace N with the earlier version number)
+SELECT * FROM sales_data VERSION AS OF N;</code></pre>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Safety tips</div>
+      <ul class="text-xs text-slate-700 list-disc pl-4">
+        <li>Perform this activity in an isolated workspace or sandbox.</li>
+        <li>Run VACUUM only after you finish experiments and after a dry run.</li>
+        <li>Keep retention long enough to examine history for at least the duration of the exercise.</li>
+      </ul>
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs text-slate-800 mt-2">This sequence teaches how commits create versions, how to inspect those versions, and how to reproduce earlier results for auditing or recovery.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

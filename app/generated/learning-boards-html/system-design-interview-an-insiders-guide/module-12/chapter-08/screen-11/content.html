@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+      <span>›</span>
+      <span class="text-slate-700">Database Choices for Social Feed</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="bg-white rounded-xl p-4 shadow-sm card-border h-full overflow-auto">
+        <div class="text-lg font-bold text-slate-800">Starter comparison (filled)</div>
+        <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code># Option A: Relational Database (PostgreSQL)
+Pros:
+1. Strong consistency and transactional guarantees.
+2. Rich query capabilities for joins and complex filters.
+3. Familiar operational model for many teams.
+Cons:
+1. Harder to scale writes and to distribute globally without complex replication.
+2. Higher cost for multi-region active-active setups.
+3. Denormalization or complex caching may be required for very high read throughput.
+
+# Option B: NoSQL Wide-Column Store (Cassandra)
+Pros:
+1. High write and read throughput with efficient partitioning.
+2. Designed for multi-region replication and eventual consistency.
+3. Low per-node latency for append-style workloads.
+Cons:
+1. Weaker immediate consistency; conflict resolution is application-level.
+2. Query patterns must be designed up-front; joins are not native.
+3. Operational complexity for provisioning and repair.
+
+# Recommendation and Justification:
+Chosen Option: Wide-column store (Cassandra-style)
+Justification:
+* Read/write throughput and global scale are primary requirements, so a store optimized for those factors scores higher.
+* Trade-offs: accept eventual consistency and increased operational complexity.
+* Mitigations: use timestamps or vector clocks for ordering, idempotent writes, background reconciliation, and a cache or fan-out-on-write pattern to improve read latency.</code></pre>
+      </div>
+      <div class="flex flex-col gap-3">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Why this choice?</div>
+          <div class="text-xs text-slate-600 mt-2">The system's scale and read/write ratios make wide-column stores a natural fit. Justify the trade-off by linking to throughput and SLOs.</div>
+        </div>
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Mitigations</div>
+          <ul class="text-xs text-slate-600 mt-2 list-disc ml-4">
+            <li>Idempotent writes and versioned records for ordering.</li>
+            <li>Background reconciliation for eventual consistency.</li>
+            <li>Cache precomputed feeds for fast reads.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Match storage design to access patterns and scale; make trade-offs explicit and actionable with mitigation plans.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

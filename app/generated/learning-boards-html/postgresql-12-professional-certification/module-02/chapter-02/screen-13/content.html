@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Schema</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-4 border overflow-auto" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-900 mb-2">Create tables</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+CREATE TABLE customers (
+  customer_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  phone_number VARCHAR(20),
+  registration_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+  order_id SERIAL PRIMARY KEY,
+  customer_id INT NOT NULL REFERENCES customers(customer_id) ON DELETE RESTRICT,
+  order_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  total_amount NUMERIC(10, 2) NOT NULL CHECK (total_amount &gt;= 0),
+  status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','processing','shipped','delivered','cancelled'))
+);
+
+CREATE TABLE order_items (
+  order_item_id SERIAL PRIMARY KEY,
+  order_id INT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+  product_id INT NOT NULL REFERENCES products(product_id) ON DELETE RESTRICT,
+  quantity INT NOT NULL CHECK (quantity &gt; 0),
+  unit_price NUMERIC(10, 2) NOT NULL CHECK (unit_price &gt;= 0)
+);
+      </pre>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Ownership note</div>
+        <div class="text-sm text-slate-800 mt-2">order_items uses ON DELETE CASCADE for order_id because items are owned by the order. product_id uses RESTRICT to avoid accidental product deletion.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border" style="border-color: rgba(245,166,35,0.15)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Verification</div>
+        <div class="text-sm text-slate-800 mt-2">After running CREATE statements, use the describe command in psql to inspect table structure and confirm constraints are present.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+        <div class="text-xs font-medium text-slate-800">Insert sample rows and attempt violating operations to see constraints reject invalid data. This builds confidence in your schema design.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

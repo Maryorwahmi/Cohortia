@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel {border-radius:12px; border:1px solid rgba(226,232,240,0.9); background:white}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Many-to-many</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="panel p-4">
+        <div class="text-sm font-semibold text-slate-800">Pattern</div>
+        <div class="mt-2 text-sm text-slate-700">Use a Table for the association and relationships on both mapped classes pointing to one another via secondary.</div>
+
+        <div class="mt-3 code-panel rounded-md bg-slate-900 text-white p-3" style="font-size:13px; white-space:pre-wrap; tab-size:2;">
+<pre><code>from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
+
+student_course = Table(
+  'student_course', Base.metadata,
+  Column('student_id', Integer, ForeignKey('students.id')),
+  Column('course_id', Integer, ForeignKey('courses.id'))
+)
+
+class Student(Base):
+  __tablename__ = 'students'
+  id = Column(Integer, primary_key=True)
+  name = Column(String(50), nullable=False)
+  courses = relationship('Course', secondary=student_course, back_populates='students')
+
+class Course(Base):
+  __tablename__ = 'courses'
+  id = Column(Integer, primary_key=True)
+  title = Column(String(100), nullable=False)
+  students = relationship('Student', secondary=student_course, back_populates='courses')
+</code></pre>
+        </div>
+      </div>
+
+      <div class="panel p-4">
+        <div class="text-sm font-semibold text-slate-800">When to map the association</div>
+        <div class="mt-2 text-sm text-slate-700">If the association has metadata like enrollment date or role, map it as a class so you can store attributes; otherwise a lightweight Table is simpler and efficient.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="panel p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Example exercise</div>
+        <div class="mt-2 text-sm text-slate-700">Create students and courses, append a course to student.courses, commit, then query students with joinedload to fetch courses in one query for bulk reporting.</div>
+      </div>
+
+      <div class="panel p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-800">Model many-to-many with an association table for simple pairings; upgrade to a mapped association when you need attributes on the relation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

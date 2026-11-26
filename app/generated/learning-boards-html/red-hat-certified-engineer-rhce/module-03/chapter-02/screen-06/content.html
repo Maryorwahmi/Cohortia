@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .step{background:linear-gradient(90deg,#eef2ff,#fff)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-500">Chapter 3.2</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">States</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-40px)]">
+    <div class="w-6/12 grid grid-rows-4 gap-3">
+      <div class="rounded-xl p-3 card-border bg-white shadow-sm step">
+        <div class="font-bold text-slate-800">state: present</div>
+        <div class="mt-1 text-sm text-slate-700">Installs the package if missing but does not upgrade an installed package. Use when you want stability.</div>
+      </div>
+      <div class="rounded-xl p-3 card-border bg-white shadow-sm step">
+        <div class="font-bold text-slate-800">state: latest</div>
+        <div class="mt-1 text-sm text-slate-700">Installs and upgrades to the newest available version. Good for keeping systems patched, but test first in staging.</div>
+      </div>
+      <div class="rounded-xl p-3 card-border bg-white shadow-sm step">
+        <div class="font-bold text-slate-800">state: absent</div>
+        <div class="mt-1 text-sm text-slate-700">Removes the package from the system. Useful for decommissioning software across hosts.</div>
+      </div>
+      <div class="rounded-xl p-3 card-border bg-white shadow-sm step">
+        <div class="font-bold text-slate-800">state: reinstalled</div>
+        <div class="mt-1 text-sm text-slate-700">Forces a reinstall of a package that is already installed. Useful to repair corrupted installs.</div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example</div>
+      <div class="mt-3 bg-slate-800 text-white rounded-md p-3 font-mono text-sm">
+<pre><code>- name: Ensure wget is at the latest version
+  ansible.builtin.dnf:
+    name: wget
+    state: latest
+
+- name: Ensure tmux is installed without changing its version
+  ansible.builtin.dnf:
+    name: tmux
+    state: present
+</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <div class="mt-2 text-sm text-slate-700">Using state: latest everywhere avoids drift. In reality, it can introduce breaking changes. Prefer targeted updates for critical services and use staging tests.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

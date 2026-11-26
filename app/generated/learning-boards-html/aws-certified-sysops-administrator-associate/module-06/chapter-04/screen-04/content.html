@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Security Groups</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-semibold text-slate-800 mt-2">Security Groups</h3>
+      <p class="text-sm text-slate-600 mt-2">Stateful instance-level firewalls that only support allow rules. Use them for precise, service-level controls.</p>
+
+      <div class="mt-4 flex-1">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">How they behave</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc pl-5 space-y-1">
+            <li>Stateful: return traffic for allowed connections is automatically permitted.</li>
+            <li>Allow-only: no explicit deny entries are possible.</li>
+            <li>Attach to ENIs or resource types like EC2, RDS, and ALB.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase text-slate-500">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Allow SSH from 203.0.113.0/32 and HTTP from 0.0.0.0/0 to a web server for management and public access.</div>
+        </div>
+
+        <div class="rounded-md p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-xs font-bold uppercase text-rose-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Using wide CIDR ranges for management ports; Security Groups alone do not prevent application-layer attacks.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Use Security Groups for fine-grained, stateful controls and restrict sources to minimize exposure.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Reference pattern</div>
+        <div class="mt-2 mono text-sm text-slate-700"># Example: conceptual rule set
+Inbound: SSH tcp 22 from 203.0.113.5/32
+Inbound: HTTP tcp 80 from 0.0.0.0/0
+Outbound: all (default)
+# Attach WebServerSG to the instance ENI</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5 space-y-1">
+          <li>Why are Security Groups described as stateful and how does that change how you author rules?</li>
+          <li>When should you reference another security group instead of using CIDR ranges?</li>
+          <li>What risks arise from allowing management ports to 0.0.0.0/0?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.5</span><span>›</span><span class="text-slate-700">Kubernetes Peer Deployment</span></div><div class="flex flex-col lg:flex-row h-[calc(100%-4rem)] gap-6"><div class="flex-1 flex flex-col gap-6"><div class="flex-1 rounded-2xl bg-white p-6 shadow-lg border border-slate-200 flex flex-col justify-between"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Kubernetes Manifest</div><h3 class="text-2xl font-bold text-slate-900 mb-3 leading-tight">Simplified Peer Deployment</h3><p class="text-base text-slate-700 mb-4">A conceptual Kubernetes Deployment for a Fabric peer, highlighting key configurations.</p><pre class="bg-slate-800 text-white p-4 rounded-lg text-xs overflow-auto flex-grow" style="white-space: pre-wrap; tab-size: 2;"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-org1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer
+  template:
+    metadata:
+      labels:
+        component: peer
+    spec:
+      containers:
+      - name: peer
+        image: hyperledger/fabric-peer:2.5.4
+        env:
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: CORE_PEER_TLS_ENABLED
+          value: "true"
+        - name: CORE_PEER_LOCALMSPID
+          value: Org1MSP
+        volumeMounts:
+        - name: peer-msp
+          mountPath: /etc/hyperledger/msp/peer/msp
+        - name: peer-data
+          mountPath: /var/hyperledger/production
+        ports:
+        - containerPort: 7051
+        livenessProbe:
+          exec:
+            command: ["peer", "node", "status"]
+          initialDelaySeconds: 10
+        readinessProbe:
+          exec:
+            command: ["peer", "node", "status"]
+          initialDelaySeconds: 15
+      volumes:
+      - name: peer-msp
+        secret:
+          secretName: org1-peer0-msp
+      - name: peer-data
+        persistentVolumeClaim:
+          claimName: peer0-org1-pvc</code></pre></div></div><div class="flex-1 flex flex-col gap-6"><div class="flex-1 rounded-2xl bg-white p-6 shadow-lg border border-slate-200 flex flex-col justify-between"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">Key Elements Explained</div><h3 class="text-2xl font-bold text-slate-900 mb-3 leading-tight">Understanding the Manifest</h3><div class="space-y-4"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-sm">1</div><div><p class="font-semibold text-slate-800">`image` & `env`</p><p class="text-sm text-slate-600">Specifies the Fabric peer Docker image and configures its runtime behavior via environment variables.</p></div></div><div class="flex items-start gap-3"><div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-sm">2</div><div><p class="font-semibold text-slate-800">`volumeMounts` & `volumes`</p><p class="text-sm text-slate-600">Connects container paths to external storage (Secrets for crypto, PVCs for ledger data) for persistence and security.</p></div></div><div class="flex items-start gap-3"><div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-sm">3</div><div><p class="font-semibold text-slate-800">`livenessProbe` & `readinessProbe`</p><p class="text-sm text-slate-600">Enables Kubernetes to monitor the peer's health and readiness, automatically restarting or routing traffic as needed.</p></div></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Kubernetes manifests provide a declarative way to define, configure, and manage Fabric components, ensuring robust, scalable, and self-healing production deployments.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

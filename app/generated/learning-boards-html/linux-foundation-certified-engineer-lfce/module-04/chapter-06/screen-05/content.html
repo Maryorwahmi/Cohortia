@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Master Configuration</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Master: key configuration steps</div>
+      <div class="text-sm text-slate-700 mt-2">Follow this step flow to prepare the primary server for replication.</div>
+
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-blue-700 text-white w-8 h-8 flex items-center justify-center">1</div>
+          <div class="text-sm text-slate-800">Edit <span class="font-mono text-xs text-slate-700">/etc/my.cnf</span>: set <span class="font-semibold">log_bin = mysql-bin</span> and <span class="font-semibold">server_id = 1</span>.</div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-violet-600 text-white w-8 h-8 flex items-center justify-center">2</div>
+          <div class="text-sm text-slate-800">Restart MariaDB: <span class="font-mono text-xs text-slate-700">sudo systemctl restart mariadb</span>. Verify binlog files exist in the data directory.</div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-emerald-700 text-white w-8 h-8 flex items-center justify-center">3</div>
+          <div class="text-sm text-slate-800">Create a replication user and grant REPLICATION SLAVE privilege. Restrict host to the slave IP for safety.</div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-rose-500 text-white w-8 h-8 flex items-center justify-center">4</div>
+          <div class="text-sm text-slate-800">Lock tables for a consistent snapshot, run SHOW MASTER STATUS, note File and Position, then UNLOCK TABLES.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl bg-blue-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Safety note</div>
+          <p class="text-xs text-slate-800">Always use unique server_id values and avoid granting replication to '%' in production. Restrict replication user to specific IPs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Command examples</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># Edit /etc/my.cnf under [mysqld]
+log_bin = mysql-bin
+server_id = 1
+
+# Restart MariaDB
+sudo systemctl restart mariadb
+
+# Create replication user (example)
+CREATE USER 'repl_user'@'10.0.0.5' IDENTIFIED BY 'ReplicationP@ssw0rd!';
+GRANT REPLICATION SLAVE ON *.* TO 'repl_user'@'10.0.0.5';
+FLUSH PRIVILEGES;
+
+# Capture master position
+FLUSH TABLES WITH READ LOCK;
+SHOW MASTER STATUS;
+UNLOCK TABLES;</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A correct master config produces binary logs and a reliable File/Position for initializing slaves. Test the replication user can authenticate remotely before configuring the slave.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

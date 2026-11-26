@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; font-size:13px; white-space:pre-wrap; tab-size:2;}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900">Event — Simple signaling</div>
+      <div class="text-sm text-slate-600 mt-2">A flag that waiters block on until set; works across models with model-specific APIs.</div>
+
+      <div class="mt-4 rounded-xl bg-white card-border p-3 shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Explanation</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Waiters call wait(), blocking until set() is called by another unit.</li>
+          <li>Once set, is_set() returns true; clear() resets the flag for future cycles.</li>
+          <li>In multiprocessing use the multiprocessing.Event so the flag is visible across processes.</li>
+        </ul>
+        <div class="mt-3 text-sm font-semibold text-slate-800">Concrete Example</div>
+        <div class="mt-2 mono p-2 bg-slate-50 rounded">import threading
+import time
+
+event = threading.Event()
+
+def waiter(name):
+  print(f"Waiter {name}: Waiting for event to be set...")
+  event.wait()
+  print(f"Waiter {name}: Event received, proceeding!")
+
+def setter():
+  time.sleep(2)
+  print("Setter: Setting event...")
+  event.set()
+
+# Threads started; waiters block until setter sets the event
+</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Notes, Misconceptions, and Tips</div>
+        <div class="text-sm text-slate-600 space-y-3">
+          <div><strong>Misconception:</strong> Event is not a lock. It does not protect shared data; combine with a Lock if modifying shared state.</div>
+          <div><strong>Tip:</strong> Use clear() to reset when you need repeated cycles, or recreate the Event to avoid race conditions when resetting concurrently.</div>
+          <div><strong>Multiprocessing:</strong> Use multiprocessing.Event or Manager objects because ordinary threading.Event does not cross process memory boundaries.</div>
+          <div><strong>Asyncio:</strong> asyncio.Event has awaitable wait; it integrates with the event loop rather than blocking the thread.</div>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Event provides efficient broadcast signaling. Use it to tell many workers to proceed, but never rely on it for mutual exclusion.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

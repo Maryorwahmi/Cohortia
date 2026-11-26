@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .kbd{font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Dynamic ARP Inspection</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Dynamic ARP Inspection</h3>
+      <p class="text-sm text-slate-600 mt-2">DAI validates ARP requests and replies against DHCP snooping bindings to prevent ARP poisoning.</p>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div>1. DHCP client obtains address; switch records IP, MAC and VLAN in binding table.</div>
+        <div>2. A host sends an ARP packet; DAI checks mapping against the binding table.</div>
+        <div>3. If the mapping matches, the packet is forwarded; otherwise it is dropped.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">Enable for VLAN</div>
+        <div class="text-sm kbd mt-2">set ethernet-switching-options secure-access-port arp-inspection vlan USERS</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example</div>
+      <p class="text-sm text-slate-600 mt-2">If an attacker replies to ARP queries claiming the gateway IP, DAI prevents that forged mapping from being learned if it conflicts with DHCP bindings.</p>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">DAI alone does not create bindings; it requires DHCP snooping to populate the records used for validation.</p>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Enable DHCP snooping and DAI together, and mark non-DHCP hosts or upstream devices as trusted to avoid false positives.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

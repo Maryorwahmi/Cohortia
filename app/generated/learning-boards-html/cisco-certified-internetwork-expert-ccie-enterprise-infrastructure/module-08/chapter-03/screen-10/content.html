@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: R1 CoPP & MPP</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-8 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Starter commands</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm overflow-auto"><code>enable
+configure terminal
+
+! Step 1 & 2: Create ACLs
+ip access-list extended COPP_SSH
+ permit tcp any any eq 22
+ip access-list extended COPP_OSPF
+ permit ospf any any
+
+! Steps 3-5: Create Class-maps
+class-map match-any CM_SSH
+ match access-group name COPP_SSH
+class-map match-any CM_OSPF
+ match access-group name COPP_OSPF
+class-map match-any CM_DEFAULT_CP
+ match default-class
+
+! Step 6: Create Policy-map
+policy-map PM_COPP
+ class CM_SSH
+  police cir 8000 bc 8000 conform-action transmit exceed-action drop
+ class CM_OSPF
+  police cir 16000 bc 16000 conform-action transmit exceed-action drop
+ class CM_DEFAULT_CP
+  police cir 4000 bc 4000 conform-action drop exceed-action drop
+
+! Step 7: Apply Policy-map to Control Plane
+control-plane
+ service-policy input PM_COPP
+
+! Step 8: Configure MPP
+control-plane host
+ management-interface GigabitEthernet0/0/0 allow ssh snmp
+
+end
+write memory</code></pre>
+    </div>
+
+    <div class="col-span-4 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Lab tips</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Keep a console or out-of-band path open while testing.</li>
+        <li>Apply policies during a low-impact maintenance window if possible.</li>
+        <li>Document each change and expected verification steps.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="font-semibold text-amber-700">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">Run show policy-map control-plane and attempt SSH from allowed and disallowed interfaces to confirm MPP behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What is storage?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition</div>
+      <div class="text-sm text-slate-600 mt-2">Persistent contract-level storage that survives transactions and function calls.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 border rounded-lg bg-white">
+          <div class="text-sm font-semibold text-slate-700">Characteristics</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+            <li>Persistent across transactions and calls.</li>
+            <li>Expensive to write; reads cost gas too.</li>
+            <li>Reference semantics when using storage qualifiers.</li>
+          </ul>
+        </div>
+
+        <div class="p-3 border rounded-lg bg-white">
+          <div class="text-sm font-semibold text-slate-700">Misconception</div>
+          <div class="text-sm text-slate-600 mt-2">Treating storage as cheap temporary space leads to expensive and slow contracts.</div>
+        </div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Minimize storage writes. Use storage references to update in place rather than copying and rewriting full structs or arrays.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <div class="text-xs text-slate-600 mt-2">Mapping of users with a storage reference for deactivation.</div>
+
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// Access and modify a storage struct by reference
+User storage userToDeactivate = users[_userAddress];
+userToDeactivate.active = false; // modifies storage in-place
+      </pre>
+
+      <div class="mt-4 p-3 rounded-lg border card-border bg-white">
+        <div class="font-semibold text-slate-700 text-sm">Why it matters</div>
+        <div class="text-sm text-slate-600 mt-2">Updating via a storage reference avoids copying a struct into memory and reassigning it, saving gas and preventing accidental mismatches between copies.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg border card-border bg-rose-50">
+        <div class="font-semibold text-rose-700 text-sm">Common mistake</div>
+        <div class="text-sm text-rose-700 mt-2">Copying large arrays from storage to memory when unnecessary. This creates an expensive deep copy.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

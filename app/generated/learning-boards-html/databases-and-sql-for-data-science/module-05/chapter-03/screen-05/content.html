@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .panel { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 1rem; }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+  </style>
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+        <span>›</span>
+        <span>Chapter 5.3</span>
+        <span>›</span>
+        <span class="text-slate-700">String Concatenation vs Parameterized</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[70%]">
+    <div class="panel p-4">
+      <div class="text-sm font-bold text-rose-700 uppercase">Insecure: direct concatenation (do not use)</div>
+      <div class="code mt-3 text-sm text-slate-700">query = f"SELECT * FROM users WHERE username = '{user_input}'"  # vulnerable if user_input contains SQL</div>
+      <div class="text-sm text-slate-600 mt-3">Why this is dangerous: a crafted username can add OR conditions or terminate the string and append new statements, changing query behavior or causing schema changes.</div>
+    </div>
+
+    <div class="panel p-4">
+      <div class="text-sm font-bold text-emerald-700 uppercase">Secure: parameterized query (use this)</div>
+      <div class="code mt-3 text-sm text-slate-700">sql = "SELECT * FROM users WHERE username = ?;"
+cursor.execute(sql, (search_username,))  # values passed separately and treated as data</div>
+      <div class="text-sm text-slate-600 mt-3">Why this is safe: the driver binds the value into the query as data; special characters do not change SQL structure.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-slate-700">Analogy</div>
+      <div class="font-semibold mt-1">Blueprint vs Brick</div>
+      <div class="text-sm text-slate-600 mt-1">Keep the blueprint (SQL) fixed and place bricks (values) into pre-defined slots.</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-slate-700">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-1">Relying on replace or strip functions to sanitize input instead of parameterization.</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">Always separate SQL structure from values by using placeholders and supplying parameters separately to the adapter.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

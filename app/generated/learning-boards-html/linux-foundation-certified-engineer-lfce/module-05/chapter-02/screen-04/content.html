@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white card p-5">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-900">Server Identity</h3>
+      <p class="text-sm text-slate-600 mt-2">myhostname sets the FQDN Postfix advertises. mydomain defines the local internet domain used for local delivery decisions.</p>
+      <div class="mt-4">
+        <div class="bg-slate-50 p-3 rounded-md mono text-sm overflow-auto"># /etc/postfix/main.cf
+myhostname = mail.example.com
+mydomain = example.com</div>
+      </div>
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-md bg-blue-50">
+          <div class="font-bold text-blue-700 text-sm">Concrete example</div>
+          <div class="text-sm text-slate-700">If myhostname = mail.example.com and DNS has an A record for that name, other MTAs can resolve and connect to your server.</div>
+        </div>
+        <div class="p-3 rounded-md bg-rose-50">
+          <div class="font-bold text-rose-600 text-sm">Common misconception</div>
+          <div class="text-sm text-slate-700">Using only the system hostname or an internal name without a public A record will break remote delivery and can look suspicious to receiving servers.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white card p-5 flex flex-col">
+      <div>
+        <div class="text-sm font-bold text-slate-800">Verification steps</div>
+        <pre class="mono text-sm bg-slate-50 p-3 rounded-md mt-2">postconf -n
+# verify DNS
+dig A mail.example.com
+dig MX example.com</pre>
+      </div>
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Why it matters</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>HELO/EHLO name should match a resolvable A record to avoid rejections.</li>
+          <li>mydomain controls which destinations are considered local for delivery.</li>
+          <li>Misconfigured identity can cause reputation and routing issues.</li>
+        </ul>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always configure myhostname to an FQDN that has an A record; set mydomain to the domain you serve so local delivery rules align with DNS.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span class="text-slate-700">Node.js listener</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4 overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Example code (excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 p-3 rounded-md text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;line-height:1.3;">
+// register listener
+const listener = await contract.addContractListener('myEventListener', (event) =&gt; {
+  console.log('Chaincode Event:', event.eventName);
+  console.log('Payload:', event.payload ? event.payload.toString('utf8') : '');
+  console.log('Transaction ID:', event.transactionId);
+  // Validate payload, then enqueue processing for workers
+});
+</pre>
+      <div class="text-xs text-slate-500 mt-2">Note: This excerpt omits connection and wallet setup for brevity.</div>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Processing checklist</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Validate structure and types of the payload before acting.</li>
+        <li>Check external DB for existing records to ensure idempotency.</li>
+        <li>Push heavy work to an asynchronous worker or message queue.</li>
+        <li>Persist a checkpoint after successful processing to allow resume.</li>
+      </ul>
+
+      <div class="mt-auto pt-3 text-xs text-slate-500">Operational tip: Log transactionId and blockNumber for traceability.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

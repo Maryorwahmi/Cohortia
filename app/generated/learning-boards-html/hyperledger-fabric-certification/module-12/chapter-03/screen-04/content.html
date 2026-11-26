@@ -1,0 +1,53 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.step {border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Connection Profiles</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='rounded-2xl p-4 bg-white step shadow-sm h-full'>
+        <div class='text-sm font-bold text-slate-800 mb-2'>Connection Profile Process</div>
+        <div class='flex flex-col gap-3'>
+          <div class='flex items-start gap-3'><div class='w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold'>1</div><div class='text-sm text-slate-700'>Define peers, orderers, and CA entries in a JSON/YAML profile and include TLS CA certs or cert paths.</div></div>
+          <div class='flex items-start gap-3'><div class='w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold'>2</div><div class='text-sm text-slate-700'>Load the profile into the SDK at startup and pass it to the gateway connect call; avoid hardcoding values in code.</div></div>
+          <div class='flex items-start gap-3'><div class='w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold'>3</div><div class='text-sm text-slate-700'>Enable discovery where appropriate; use it to adapt to topology changes while still requiring TLS for secure channels.</div></div>
+        </div>
+      </div>
+
+      <div class='rounded-xl p-4 bg-white card-border shadow-sm'>
+        <div class='text-[10px] uppercase tracking-wider text-slate-500 mb-2'>Why this matters</div>
+        <div class='text-sm text-slate-700'>Profiles separate configuration from code, improving deployability and security. TLS protects confidentiality and integrity. Together they reduce brittle deployments and operational errors.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='rounded-2xl p-4 bg-white card-border shadow-sm h-2/3'>
+        <div class='text-sm font-bold text-slate-800 mb-2'>Example: minimal JSON snippet</div>
+        <pre class='mono text-sm p-3 bg-slate-50 rounded-lg overflow-auto' style='white-space:pre-wrap; tab-size:2;'>
+{
+  "name": "Org1",
+  "peers": {
+    "peer0.org1.example.com": {
+      "url": "grpcs://peer0.org1.example.com:7051",
+      "tlsCACerts": { "path": "ca.org1.example.com-cert.pem" }
+    }
+  },
+  "orderers": {
+    "orderer.example.com": { "url": "grpcs://orderer.example.com:7050" }
+  }
+}
+        </pre>
+      </div>
+
+      <div class='rounded-xl p-3 bg-white card-border shadow-sm h-1/3'>
+        <div class='text-[10px] uppercase tracking-wider text-slate-500 mb-2'>Common mistake</div>
+        <div class='text-sm text-slate-700'>Hardcoding endpoints or embedding TLS cert text in source code. This makes updates risky and leads to secret leakage. Use configuration files and protected storage instead.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Shared project scenario</span>
+    </div>
+
+    <div class="flex gap-6 h-[68%]">
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Scenario steps</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Setup and verification</h3>
+        <ol class="text-sm text-slate-700 mt-3 list-decimal pl-5 space-y-2">
+          <li>Ensure group exists and users exist; add alice to dev_team.</li>
+          <li>Create /srv/project_alpha, chown root:dev_team, chmod 2770 to set SGID.</li>
+          <li>Grant charlie read-only and default ACLs on the directory so future files inherit access.</li>
+          <li>Create report.txt and set setfacl for diana with rw only on that file.</li>
+          <li>Create a new file as alice and verify charlie can read it; remove diana's ACL when done.</li>
+        </ol>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Commands</div>
+        <pre class="p-3 mt-3" style="background:#0b1220;color:#e6eef8;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;">
+# Preconditions (create group/users as needed)
+sudo groupadd dev_team
+sudo useradd -m alice
+sudo useradd -m charlie
+sudo useradd -m diana
+sudo usermod -aG dev_team alice
+
+# Directory setup
+sudo mkdir -p /srv/project_alpha
+sudo chown root:dev_team /srv/project_alpha
+sudo chmod 2770 /srv/project_alpha
+
+# Grant charlie read-only and default ACL for future files
+sudo setfacl -m u:charlie:r-x /srv/project_alpha
+sudo setfacl -m d:u:charlie:r-x /srv/project_alpha
+
+# Give diana read-write to a single file
+sudo touch /srv/project_alpha/report.txt
+sudo setfacl -m u:diana:rw /srv/project_alpha/report.txt
+
+# Create file as alice and verify charlie can read
+sudo -u alice touch /srv/project_alpha/new_document.txt
+sudo -u charlie test -r /srv/project_alpha/new_document.txt && echo "Charlie can read" || echo "Charlie cannot read"
+
+# Remove diana's access
+sudo setfacl -x u:diana /srv/project_alpha/report.txt
+</pre>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use SGID for group ownership and default ACLs for predictable inheritance; always verify by simulating target users.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

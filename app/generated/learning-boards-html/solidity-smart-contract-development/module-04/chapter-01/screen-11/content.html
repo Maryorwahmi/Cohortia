@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100">Code Walkthrough</span>
+      <span>›</span>
+      <span class="text-slate-700">VulnerableToken (pre-0.8.0)</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mt-3">Underflow in transfer</h3>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-slate-900 text-slate-50 rounded-xl p-4" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+      <div class="text-xs text-slate-300 mb-2">Solidity example (vulnerable, older compiler)</div>
+      <pre class="text-sm leading-snug" style="white-space: pre-wrap; tab-size: 2; background: transparent; border: none;">
+<code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.7.0; // older compiler example
+
+contract VulnerableToken {
+    mapping(address =&gt; uint256) public balances;
+    uint256 public totalSupply;
+
+    constructor(uint256 initialSupply) {
+        totalSupply = initialSupply;
+        balances[msg.sender] = initialSupply;
+    }
+
+    function transfer(address _to, uint256 _amount) public returns (bool) {
+        require(balances[msg.sender] - _amount >= 0, "Insufficient balance"); // problematic
+
+        balances[msg.sender] -= _amount; // underflow possible
+        balances[_to] += _amount;
+        return true;
+    }
+}
+</code>
+      </pre>
+    </div>
+    <div class="w-1/3 bg-white rounded-xl p-4 card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Why this fails</div>
+      <div class="text-sm text-slate-600">The subtraction inside require can underflow before the comparison in compilers without automatic checks. The underflow produces a large value and the require condition succeeds, leading to incorrect state changes.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Test tip</div>
+          <p class="text-xs font-medium text-slate-800">Write a unit test that calls transfer with amount greater than sender balance and assert the transaction reverts in secure code.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

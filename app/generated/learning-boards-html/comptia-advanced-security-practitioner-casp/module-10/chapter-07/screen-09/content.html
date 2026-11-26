@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Rate Limiting</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Implementation</div>
+      <div class="text-sm font-semibold text-slate-800">Nginx example</div>
+      <pre class="text-xs bg-slate-900 text-white p-3 rounded mt-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+limit_req_zone $binary_remote_addr zone=mylimit:10m rate=5r/s;
+
+server {
+  listen 80;
+  location /api/login {
+    limit_req zone=mylimit burst=10 nodelay;
+    # proxy_pass to backend
+  }
+}
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Guidance</div>
+      <div class="flex-1 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Where to place limits</div>
+          <div class="text-xs text-slate-600 mt-1">At the gateway or load balancer so abusive traffic is filtered before reaching services.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Adjust for real traffic</div>
+          <div class="text-xs text-slate-700 mt-1">Tune rates to avoid false positives for legitimate bursts and consider authenticated vs anonymous clients separately.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Test approach</div>
+          <div class="text-xs text-slate-600 mt-1">Simulate repeated login attempts from a client and verify the gateway returns a rate-limited response while the backend stays protected.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Rate limiting preserves availability and directly reduces the impact of brute-force and volumetric attacks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

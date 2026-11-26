@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">Events & emit</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <h3 class="text-xl font-bold text-slate-800">What events are for</h3>
+        <p class="text-sm text-slate-600 mt-2">Events log information for off-chain systems. They are cheaper than on-chain storage and are indexable for efficient queries.</p>
+
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>• Declare with event and write with emit.</li>
+          <li>• Up to three parameters can be indexed to enable fast filtering by off-chain clients.</li>
+          <li>• Do not put secret data in events; logs are public forever.</li>
+        </ul>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Emission timing</div>
+        <div class="mt-1 text-sm text-slate-700">Emit after successful state changes to avoid logging an action that later reverts; for ownership transfers you may emit previous and new owner to record context.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Event example</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>event Deposit(address indexed user, uint amount, uint newBalance);
+
+function deposit() public payable {
+  require(msg.value &gt; 0, "Deposit amount must be greater than zero");
+  balances[msg.sender] += msg.value;
+  emit Deposit(msg.sender, msg.value, balances[msg.sender]);
+}</code></pre>
+        <div class="mt-3 text-sm text-slate-700">A frontend can listen for Deposit events to update UI immediately when new deposits happen without polling balances constantly.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Why it matters</div>
+        <div class="mt-1 text-sm text-slate-800">Events make your contract observable and integrate it with UIs and indexes efficiently while keeping on-chain state smaller and cheaper.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

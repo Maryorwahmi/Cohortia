@@ -1,0 +1,22 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Lucid Native Tokens</span></div><div class="flex flex-col h-full"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Advanced Capabilities</div><h1 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Sending Native Tokens with Lucid</h1><p class="text-md text-slate-600 mb-6">Beyond ADA: Managing custom assets</p><div class="flex flex-col lg:flex-row gap-6 h-full"><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-2xl p-6 text-white font-mono text-sm overflow-auto flex-grow" style="tab-size: 2; white-space: pre-wrap;"><pre><code>import { Lucid, fromText } from 'lucid-cardano';
+
+const sendToken = async (recipientAddress, policyId, assetName, quantity) => {
+  // ... wallet connection check ...
+
+  try {
+    const assetUnit = policyId + fromText(assetName); // Combine policy ID and hex-encoded asset name
+    const tx = await lucid
+      .newTx()
+      .payToAddress(recipientAddress, { [assetUnit]: BigInt(quantity) })
+      .complete();
+
+    const signedTx = await tx.sign().complete();
+    const txHash = await signedTx.submit();
+    console.log(`Token transaction submitted! Tx Hash: ${txHash}`);
+    return txHash;
+  } catch (error) {
+    console.error("Error sending token:", error);
+    alert("Token transaction failed: " + error.message);
+    return null;
+  }
+};</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Lucid enables native token transfers by constructing an `assetUnit` from the `policyId` and hex-encoded `assetName`, then specifying its `BigInt` quantity in `payToAddress()`.</p></div></div><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 flex-grow"><h3 class="text-lg font-semibold text-slate-900 mb-3">Native Token Essentials</h3><ul class="list-none space-y-3"><li><div class="flex items-center gap-3"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">01</span><p class="text-sm text-slate-800"><strong>Asset Unit:</strong> Combination of <code>policyId</code> and hex-encoded <code>assetName</code>.</p></div></li><li><div class="flex items-center gap-3"><span class="bg-violet-100 text-violet-700 text-xs font-bold px-3 py-1 rounded-full">02</span><p class="text-sm text-slate-800"><strong><code>fromText()</code>:</strong> Utility to convert string <code>assetName</code> to hexadecimal.</p></div></li><li><div class="flex items-center gap-3"><span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">03</span><p class="text-sm text-slate-800"><strong>Quantity:</strong> Specify the token amount as a <code>BigInt</code>.</p></div></li></ul></div><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200"><h3 class="text-lg font-semibold text-slate-900 mb-3">Example: Sending 'MYTOKEN'</h3><p class="text-sm text-slate-700">To send 100 'MYTOKEN' with <code>policyId</code> 'abc...', you'd use <code>{ ['abc...' + fromText('MYTOKEN')]: BigInt(100) }</code> in your <code>payToAddress()</code> call.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

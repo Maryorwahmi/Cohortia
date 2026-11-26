@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Verifications</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-2xl font-bold">Objective Verifications & Pitfalls</div>
+    <div class="text-sm text-slate-600 mt-2">Concrete checks and what to avoid when you implement</div>
+
+    <div class="mt-6 grid grid-cols-2 gap-4 h-[72%]">
+      <div class="rounded-xl p-4 bg-white card-border overflow-auto">
+        <div class="text-sm font-semibold">Design mapping verification</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Confirm S3 uses OAC and CloudFront is the only allowed principal for object access.</li>
+          <li>Verify dynamic routes are routed through CloudFront to your ALB or API Gateway origin and observe reduced latency on repeated requests.</li>
+          <li>Pitfall: a single caching rule reduces cache hit ratio or serves stale content.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border overflow-auto">
+        <div class="text-sm font-semibold">Caching verification</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Measure cache hit ratio and adjust TTLs for versioned static assets to months.</li>
+          <li>Forward only necessary headers, cookies, and query strings to consolidate cache keys.</li>
+          <li>Pitfall: forwarding unnecessary headers fragments the cache.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border overflow-auto">
+        <div class="text-sm font-semibold">Security verification</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Test signed URL expiry and verify direct origin access is denied after removing the signature.</li>
+          <li>Ensure key groups are created and public keys uploaded to CloudFront for verification.</li>
+          <li>Pitfall: leaving S3 public or not using OAC undermines signed URL controls.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border overflow-auto">
+        <div class="text-sm font-semibold">Edge & routing verification</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Deploy small edge functions and validate behavior at CloudFront edge locations.</li>
+          <li>For non‑HTTP traffic, test Global Accelerator routing and failover to secondary regions.</li>
+          <li>Pitfall: expecting Global Accelerator to act as a CDN; it optimizes path but does not cache.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

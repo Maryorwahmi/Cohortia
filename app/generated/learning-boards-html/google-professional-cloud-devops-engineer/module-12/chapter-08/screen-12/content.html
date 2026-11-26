@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:1rem}.code{background:#0b1220;color:#e6eef8;border-radius:0.5rem;padding:12px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Runbooks & Automation</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 panel p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Runbook</div>
+      <h3 class="text-xl font-bold mt-2 text-slate-800">Steps, checks, and safety</h3>
+      <p class="text-sm text-slate-700 mt-3">A runbook should list prerequisites, commands, verification steps, and rollback options. Keep it concise and link to scripts where possible.</p>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100 text-sm">
+        <div class="font-bold">Runbook example step</div>
+        <div class="mt-2">If checkout 5xx rate > 5% and recent deploy exists, prepare and execute rollback command, then monitor rollout status.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 panel p-5 flex flex-col">
+      <div class="text-sm font-bold">Automation example</div>
+      <div class="mt-3 code mono"><pre><code># Example bash script to restart a GKE deployment
+#!/bin/bash
+DEPLOYMENT_NAME=$1
+NAMESPACE=${2:-default} # Default to 'default' namespace
+
+if [ -z "$DEPLOYMENT_NAME" ]; then
+  echo "Usage: $0 &lt;deployment-name&gt; [namespace]"
+  exit 1
+fi
+
+echo "Restarting deployment $DEPLOYMENT_NAME in namespace $NAMESPACE..."
+kubectl rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+
+if [ $? -eq 0 ]; then
+  echo "Deployment restart initiated. Monitoring rollout status..."
+  kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE --timeout=5m
+else
+  echo "Failed to initiate deployment restart."
+fi</code></pre></div>
+
+      <div class="mt-3 text-sm text-slate-700">This script is a clear example of a small automation that can be part of a runbook. Keep permissions and logs in mind when running it in production.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

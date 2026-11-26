@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Implement Pinning & Huge Pages</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border p-4 overflow-auto">
+      <div class="font-semibold text-slate-800">Lab Steps (condensed)</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>Inspect CPU topology: <span class="font-medium">lscpu -e</span>.</li>
+        <li>Allocate huge pages: echo 1024 &gt; /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages.</li>
+        <li>Shut down VM: <span class="font-medium">virsh shutdown app-db-server</span>.</li>
+        <li>Edit VM XML: add vcpu placement and cputune vcpupin, and memoryBacking hugepages.</li>
+        <li>Start VM and verify with <span class="font-medium">virsh dumpxml</span>, /proc/meminfo and virt-top.</li>
+      </ol>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-4">
+      <div class="font-semibold text-slate-800">Example XML snippets</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-md p-3 mt-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;"><code>&lt;vcpu placement='static' cpuset='0-1'&gt;2&lt;/vcpu&gt;
+&lt;cputune&gt;
+  &lt;vcpupin vcpu='0' cpuset='0'/&gt;
+  &lt;vcpupin vcpu='1' cpuset='1'/&gt;
+&lt;/cputune&gt;
+
+&lt;memory unit='KiB'&gt;2097152&lt;/memory&gt;
+&lt;currentMemory unit='KiB'&gt;2097152&lt;/currentMemory&gt;
+&lt;memoryBacking&gt;
+  &lt;hugepages/&gt;
+&lt;/memoryBacking&gt;</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 bg-slate-50 rounded-xl border p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Reflection</div>
+    <p class="text-sm font-medium text-slate-800">After completing the steps, compare virt-top and host metrics pre- and post-change. Did latency fall and did TLB-related CPU overhead reduce? Consider rollback if host contention increased.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Query mechanics</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="panel p-4">
+        <div class="text-sm font-semibold text-slate-800">filter_by vs filter</div>
+        <div class="mt-2 text-sm text-slate-700">Use filter_by for equality-by-name and filter for SQL expressions: like(), comparisons, and composite conditions.</div>
+
+        <div class="mt-3 code-panel rounded-md bg-slate-900 text-white p-3" style="font-size:13px; white-space:pre-wrap; tab-size:2;">
+<pre><code># filter_by (keyword args)
+users = session.query(User).filter_by(username='alice').all()
+
+# filter (expressions)
+posts = session.query(Post).filter(Post.title.like('%SQLAlchemy%')).all()
+
+# lazy construction
+q = session.query(Post)
+if title:
+  q = q.filter(Post.title.like(f"%{title}%"))
+results = q.order_by(Post.published_date.desc()).all()
+</code></pre>
+        </div>
+      </div>
+
+      <div class="panel p-4">
+        <div class="text-sm font-semibold text-slate-800">Execution behavior</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Query is lazy until evaluated with .all(), .first(), or iteration.</li>
+          <li>Calling .all() in loops causes repeated queries; build the final Query and call .all() once.</li>
+          <li>.get(pk) is efficient for primary key retrievals.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="panel p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Debug tip</div>
+        <div class="mt-2 text-sm text-slate-700">Temporarily set echo=True in create_engine to inspect SQL during development, then tune your queries and revert to echo=False in production.</div>
+      </div>
+
+      <div class="panel p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-800">Construct queries dynamically, execute once, and prefer .get for single-key lookups to reduce unnecessary SQL.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

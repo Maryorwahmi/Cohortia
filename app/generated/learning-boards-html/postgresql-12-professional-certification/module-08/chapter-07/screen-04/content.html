@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Replication types</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-28px)]">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Physical streaming</h3>
+      <p class="text-sm text-slate-600 mt-2">Streams WAL records; standby replays the same WAL so it remains an exact copy.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">Symptoms</div>
+          <div class="text-sm text-slate-600 mt-1">LSN gaps, growing pg_wal, slow replay_lsn</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">Common checks</div>
+          <div class="text-sm text-slate-600 mt-1">pg_stat_replication, pg_stat_wal_receiver, iostat, htop</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Logical replication</h3>
+      <p class="text-sm text-slate-600 mt-2">Sends logical changes; subscriber applies DML statements and may diverge if local writes exist.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">Symptoms</div>
+          <div class="text-sm text-slate-600 mt-1">Subscription errors, conflict messages, stopped apply</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">Common checks</div>
+          <div class="text-sm text-slate-600 mt-1">pg_stat_subscription, subscriber logs, replication slots</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="col-span-2 rounded-xl p-3 border bg-emerald-50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+      <div class="text-sm text-slate-800 mt-1">A primary sends WAL quickly but replay_lsn on the standby is far behind; this indicates apply or I/O issues, not a network sending problem.</div>
+    </div>
+    <div class="rounded-xl p-3 border bg-rose-50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+      <div class="text-sm text-slate-800 mt-1">Treating a logical conflict as an I/O problem. Logical conflicts are data-level and must be resolved on the subscriber.</div>
+    </div>
+  </div>
+</div>

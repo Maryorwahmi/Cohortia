@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} .step{background:#eef2ff;padding:10px;border-radius:10px;} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#0b1220;color:#e6edf3;padding:12px;border-radius:10px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Chat server activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-800">Activity: Multi-client chat server</h3>
+    <p class="text-sm text-slate-600 mt-2">Step-by-step guide to extend a threaded echo server into a broadcast chat server with proper locking.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl p-3 step">
+        <div class="text-xs font-bold text-blue-700">Step 1 — Shared state</div>
+        <div class="text-sm text-slate-800 mt-1">Create a connected_clients list and a clients_lock. Add each conn to the list under the lock when accepted.</div>
+      </div>
+
+      <div class="rounded-xl p-3 step">
+        <div class="text-xs font-bold text-blue-700">Step 2 — Broadcast</div>
+        <div class="text-sm text-slate-800 mt-1">Implement a broadcast function that sends a message to other clients while holding the lock, removing failing sockets as needed.</div>
+      </div>
+
+      <div class="rounded-xl p-3 step">
+        <div class="text-xs font-bold text-blue-700">Step 3 — Cleanup</div>
+        <div class="text-sm text-slate-800 mt-1">Remove the client's socket under lock on disconnect and close it in the finally block of the handler.</div>
+      </div>
+
+      <div class="rounded-xl p-3 step">
+        <div class="text-xs font-bold text-blue-700">Step 4 — Test</div>
+        <div class="text-sm text-slate-800 mt-1">Run multiple client instances, send messages, and simulate disconnects to validate the broadcast and cleanup logic.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example snippet</div>
+      <pre class="code"># broadcast helper (see activity)
+with clients_lock:
+    for client_conn in connected_clients:
+        if client_conn != sender_conn:
+            try:
+                client_conn.sendall(message)
+            except socket.error:
+                client_conn.close()
+                connected_clients.remove(client_conn)
+</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

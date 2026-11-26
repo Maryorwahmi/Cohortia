@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card {border-radius:12px; border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Active Queries & Bottlenecks</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 bg-white card p-4 shadow-sm flex flex-col gap-3">
+      <div class="text-sm font-bold text-slate-800">Inspecting activity</div>
+      <div class="text-xs text-slate-500">Use system views to locate long-running or waiting queries</div>
+
+      <pre class="code text-xs bg-slate-50 p-3 rounded-md border border-slate-100 overflow-auto">-- PostgreSQL: see active queries
+SELECT pid, usename, state, query, now() - query_start AS duration
+FROM pg_stat_activity
+WHERE state <> 'idle'
+ORDER BY duration DESC LIMIT 10;</pre>
+
+      <div class="p-3 bg-white rounded-md border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Analyze a slow query</div>
+        <pre class="code text-xs">EXPLAIN ANALYZE
+SELECT * FROM large_table WHERE user_id = 42;</pre>
+      </div>
+
+      <div class="mt-auto p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <p class="text-sm text-slate-800">Combine activity views and resource metrics; plan fixes from EXPLAIN ANALYZE before rebuilding indexes or changing queries.</p>
+      </div>
+    </div>
+
+    <div class="w-6/12 flex flex-col gap-3">
+      <div class="p-3 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Resource indicators</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4">
+          <li>High disk I/O → look for table bloat or sequential scans.</li>
+          <li>High CPU with low I/O → check complex computations or missing vectorized operations.</li>
+          <li>Many waiting states → investigate locks or contention.</li>
+        </ul>
+      </div>
+
+      <div class="p-3 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">When to kill a query</div>
+        <p class="text-sm text-slate-700">Only kill queries when they cause immediate system harm and you have a rollback plan; prefer to capture their plan and explain it first.</p>
+      </div>
+
+      <div class="p-3 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Concrete fix</div>
+        <p class="text-sm text-slate-700">If EXPLAIN ANALYZE shows a sequential scan on a filtered column, consider adding an index or rewriting the query to use available indexes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

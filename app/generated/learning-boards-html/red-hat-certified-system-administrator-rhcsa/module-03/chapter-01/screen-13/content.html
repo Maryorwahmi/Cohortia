@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <div class="card p-4 h-[calc(100%-56px)]">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Step-by-step commands</div>
+      <pre class="rounded-md bg-slate-50 p-3"><code># 1. Create mount point
+sudo mkdir -p /data/projectX
+
+# 2. Partition the disk with gdisk (interactive):
+sudo gdisk /dev/sdb
+# type 'g', then 'n', then 'w'
+
+# 3. Format partition as XFS
+sudo mkfs.xfs /dev/sdb1
+
+# 4. Get UUID
+sudo blkid /dev/sdb1
+
+# 5. Add to /etc/fstab (replace &lt;UUID&gt; with actual value)
+echo "UUID=&lt;UUID&gt; /data/projectX xfs defaults 0 0" | sudo tee -a /etc/fstab
+
+# 6. Test mounts
+sudo mount -a
+df -h /data/projectX</code></pre>
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="p-3 rounded bg-emerald-50">Verify: df -h shows the mount</div>
+        <div class="p-3 rounded bg-amber-50">If mount -a fails: check /etc/fstab syntax</div>
+        <div class="p-3 rounded bg-rose-50">If umount fails: use lsof or fuser to find locks</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

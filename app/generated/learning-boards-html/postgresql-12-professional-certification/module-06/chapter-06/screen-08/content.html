@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4 h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Partition pruning and EXPLAIN</h3>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="p-3 bg-white rounded border">
+        <div class="text-sm font-semibold text-slate-800 mb-2">How it works</div>
+        <ul class="text-sm text-slate-600 list-disc list-inside space-y-1">
+          <li>Planner inspects WHERE clauses for partition key predicates.</li>
+          <li>Partitions that cannot satisfy the predicate are excluded.</li>
+          <li>EXPLAIN shows only the scanned partition children when pruning occurs.</li>
+        </ul>
+      </div>
+      <div class="p-3 bg-slate-50 rounded border mono">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Example EXPLAIN</div>
+        <pre class="p-3">EXPLAIN SELECT * FROM daily_sales
+WHERE sale_date BETWEEN '2023-02-01' AND '2023-02-28';
+-- Plan shows only daily_sales_2023_02 being scanned</pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+        <p class="text-xs text-slate-700">Pruning happens only when the partition key is present and can be analyzed; otherwise scanning occurs.</p>
+      </div>
+      <div class="p-3 card bg-amber-50 text-amber-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Pro-tip</div>
+        <p class="text-xs">Use simple comparisons and constants in filters to maximize pruning opportunities.</p>
+      </div>
+      <div class="p-3 card bg-emerald-50 text-emerald-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Key Takeaway</div>
+        <p class="text-xs">Always validate pruning with EXPLAIN for representative queries before rolling out partitioning.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

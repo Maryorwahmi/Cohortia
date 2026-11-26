@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Inspecting filesystem usage</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 rounded-2xl bg-white border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Command primer</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+df -h
+# shows mounted filesystems and usage
+
+du -sh --max-depth=1 /var
+# summarizes top-level directories under /var
+
+du -sh /var/log
+# size of a specific directory
+      </pre>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <div class="text-xs text-slate-600 mt-2">df -h reports /var at 100%. Running du finds /var/log/apache2 as the largest directory. Rotate or archive large logs and then confirm with df.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation and common mistakes</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 space-y-2">
+        <li>df uses filesystem metadata; du sums file sizes. They may differ when files are deleted but still open.</li>
+        <li>Always capture outputs before making changes so you can audit what was present.</li>
+        <li>Be cautious removing files in system directories; consider archiving or rotating logs instead.</li>
+      </ul>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Analogy</div>
+          <div class="text-sm text-slate-700 mt-1">df is the mailbox count; du is counting individual letters in folders.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-700 mt-1">Use both tools together and check for open-deleted files when results differ.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

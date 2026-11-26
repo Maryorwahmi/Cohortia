@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} .note{background:rgba(37,99,235,0.06);border-radius:8px;padding:8px;color:#1e40af}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+      <div class="text-sm font-bold text-slate-800">Sudoers lines to add (via visudo)</div>
+      <pre class="code mt-3"># 2. Demo full admin for alice (use with caution)
+alice ALL=(ALL) NOPASSWD: ALL
+
+# 3. bob restricted to nginx management
+Cmnd_Alias NGINX_MGMT = /usr/sbin/systemctl restart nginx, /usr/sbin/systemctl status nginx, /usr/bin/tail -f /var/log/nginx/access.log
+bob ALL=(root) NGINX_MGMT
+
+# 4. app_monitor service account with NOPASSWD for app service
+Cmnd_Alias APP_MGMT = /usr/bin/systemctl restart appservice, /usr/bin/systemctl status appservice
+app_monitor ALL=(root) NOPASSWD: APP_MGMT
+
+# 5. Enable sudo logging
+Defaults    logfile=/var/log/sudo.log
+Defaults    log_input
+Defaults    log_output</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+      <div class="text-sm font-bold text-slate-800">Testing commands</div>
+      <pre class="code mt-3"># Test alice (should not ask)
+sudo -u alice sudo -i
+
+# Test bob (should ask for password)
+sudo -u bob sudo systemctl status nginx
+
+# Test app_monitor (no password)
+sudo -u app_monitor sudo systemctl restart appservice
+
+# Check logs
+sudo tail /var/log/sudo.log</pre>
+
+      <div class="mt-4 note">Note: The alice NOPASSWD: ALL line is for demonstration only. Replace with a narrow alias for real environments.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);background:#fff}.step{background:#f8fafc;border-radius:.75rem;padding:.75rem}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Deploying a NAT Gateway</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[70%]">
+      <div class="card p-4 flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Step-by-step</div>
+        <div class="mt-3 space-y-3">
+          <div class="step">
+            <div class="text-sm font-semibold text-slate-800">1. Allocate Elastic IP</div>
+            <div class="text-sm text-slate-600 mt-1">Reserve a public Elastic IP that the NAT Gateway will use as its source address.</div>
+          </div>
+          <div class="step">
+            <div class="text-sm font-semibold text-slate-800">2. Create NAT Gateway</div>
+            <div class="text-sm text-slate-600 mt-1">Place it in a public subnet that has an Internet Gateway and choose the allocated Elastic IP.</div>
+          </div>
+          <div class="step">
+            <div class="text-sm font-semibold text-slate-800">3. Update route table</div>
+            <div class="text-sm text-slate-600 mt-1">Edit private route tables: 0.0.0.0/0 → NAT Gateway ID.</div>
+          </div>
+          <div class="step">
+            <div class="text-sm font-semibold text-slate-800">4. Test from private instance</div>
+            <div class="text-sm text-slate-600 mt-1">SSH via bastion host, run ping or package update commands to confirm outbound access.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Practical commands and checks</div>
+        <div class="mono text-sm bg-slate-50 p-3 rounded mt-3">Sample console actions you will perform:
+<pre style="white-space:pre-wrap; tab-size:2"># Allocate EIP in console
+# Create NAT Gateway in PublicSubnet-AZ1
+# Edit PrivateRT -> add route 0.0.0.0/0 -> nat-0abc1234
+# Associate PrivateSubnet with PrivateRT
+# Test from bastion -> private instance
+ping -c 3 google.com
+sudo yum update -y</pre>
+        </div>
+
+        <div class="mt-3 text-sm text-slate-700">
+          <div class="font-semibold">HA recommendation</div>
+          <div class="mt-1">Deploy a NAT Gateway per Availability Zone and configure private subnets to use the NAT in their AZ to avoid single-AZ failure impact.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

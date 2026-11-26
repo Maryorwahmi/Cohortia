@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Reporting and Data Export</span>
+  </div>
+
+  <div class="flex flex-grow">
+    <div class="w-1/2 pr-6 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-2">Data Export</div>
+      <h2 class="text-3xl font-bold text-slate-900 mb-2">Custom Reporting and Data Export</h2>
+      <p class="text-base text-slate-700 mb-6">Pulling Raw Metrics for Advanced Analysis</p>
+
+      <div class="space-y-4 flex-grow">
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <h3 class="font-semibold text-sm text-slate-800 mb-1">Why Export Data?</h3>
+          <p class="text-xs text-slate-600">Build custom reports, integrate with Business Intelligence (BI) tools, or perform advanced analysis beyond built-in capabilities.</p>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <h3 class="font-semibold text-sm text-slate-800 mb-1">Step 1: Discover Metrics</h3>
+          <p class="text-xs text-slate-600">Use <code>/api/metrics/search</code> to get a list of all available metric keys (e.g., bugs, vulnerabilities, coverage).</p>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <h3 class="font-semibold text-sm text-slate-800 mb-1">Step 2: Fetch Measures</h3>
+          <p class="text-xs text-slate-600">Use <code>/api/measures/component</code> with <code>component</code> (project key) and <code>metricKeys</code> to retrieve specific values.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-6 flex flex-col justify-center items-center">
+      <div class="bg-slate-800 text-white p-4 rounded-lg font-mono text-xs overflow-x-auto whitespace-pre-wrap w-full max-w-md">
+        <span class="text-blue-400">SONAR_HOST</span>="<span class="text-yellow-300">http://localhost:9000</span>"
+        <br>
+        <span class="text-blue-400">PROJECT_KEY</span>="<span class="text-yellow-300">my-java-project</span>"
+        <br>
+        <span class="text-blue-400">API_TOKEN</span>="<span class="text-yellow-300">YOUR_API_TOKEN</span>"
+        <br>
+        <br>
+        <span class="text-green-400"># Fetch all available metrics</span>
+        <br>
+        <span class="text-blue-400">METRICS</span>=$(<span class="text-cyan-400">curl</span> -s -u <span class="text-yellow-300">"${API_TOKEN}:"</span> \
+        <br>
+        <span class="text-yellow-300">"${SONAR_HOST}/api/metrics/search"</span> | <span class="text-cyan-400">jq</span> -r <span class="text-yellow-300">'.metrics[].key'</span> | <span class="text-cyan-400">tr</span> <span class="text-yellow-300">'
+'</span> <span class="text-yellow-300">','</span>)
+        <br>
+        <br>
+        <span class="text-green-400"># Fetch measures for the project</span>
+        <br>
+        <span class="text-cyan-400">curl</span> -s -u <span class="text-yellow-300">"${API_TOKEN}:"</span> \
+        <br>
+        <span class="text-yellow-300">"${SONAR_HOST}/api/measures/component?component=${PROJECT_KEY}&metricKeys=${METRICS}"</span> | <span class="text-cyan-400">jq</span> .
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6 w-full max-w-md">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">The two-step process of discovering metrics and fetching measures provides granular control for custom data export.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

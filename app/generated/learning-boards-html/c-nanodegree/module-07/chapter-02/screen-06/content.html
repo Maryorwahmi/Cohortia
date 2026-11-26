@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Manual lock and unlock</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;vector&gt;
+#include &lt;mutex&gt;
+
+int shared_counter = 0;
+std::mutex counter_mutex;
+
+void increment_counter() {
+  for (int i = 0; i &lt; 100000; ++i) {
+    counter_mutex.lock();
+    shared_counter++;
+    counter_mutex.unlock();
+  }
+}</pre>
+      <div class="mt-3 text-sm text-slate-600">This code works if unlock is always reached. But if an exception is thrown between lock and unlock, the mutex stays locked and other threads block indefinitely.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Hazards and checklist</div>
+      <ul class="list-disc pl-5 text-slate-600">
+        <li>Ensure every return path unlocks the mutex.</li>
+        <li>Avoid long operations between lock and unlock.</li>
+        <li>Prefer RAII when exceptions or early returns are possible.</li>
+      </ul>
+
+      <div class="mt-4 rounded p-3 bg-amber-50 text-amber-800">Misconception: manual control equals performance. In most cases RAII adds negligible overhead and prevents critical bugs.</div>
+
+      <div class="mt-auto">
+        <div class="rounded p-3 bg-white border border-[rgba(226,232,240,0.9)]">Pro tip: if manual unlock is required, keep the locked region minimal and well-documented.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

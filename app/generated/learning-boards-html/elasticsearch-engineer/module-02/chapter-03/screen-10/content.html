@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Deleting by ID</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Deleting Individual Documents</h2>
+      <p class="text-lg text-slate-700 mb-6">The straightforward way to remove a single document by its <code>_id</code>.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Delete a single document by its ID</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X DELETE "localhost:9200/products/_doc/product_105?pretty"</code></pre>
+        <div class="text-emerald-400 mt-4 mb-2"># Expected Response:</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">{
+  "_index": "products",
+  "_id": "product_105",
+  "_version": 1, <span class="text-slate-500"># Version increments to mark as deleted</span>
+  "result": "deleted",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 6,
+  "_primary_term": 1
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Method</div>
+        <p class="text-sm font-medium text-slate-800">Use the `DELETE` HTTP method targeting the specific document endpoint: `DELETE /&lt;index&gt;/_doc/&lt;id&gt;`.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Internal Process</div>
+        <p class="text-sm font-medium text-slate-800">Elasticsearch marks the document as deleted internally; it's not immediately removed from disk but will be during segment merges.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Version Increment</div>
+        <p class="text-sm font-medium text-slate-800">The document's `_version` increments, reflecting its new 'deleted' state, similar to an update operation.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Deleting by `_id` is precise and immediate for single documents, marking them for eventual physical removal.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

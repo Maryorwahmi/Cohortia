@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .arrow{color:#94a3b8}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.10</span>
+      <span>›</span>
+      <span class="text-slate-700">POI Search Architecture</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+        <div class="space-y-2 text-sm text-slate-700">
+          <div><span class="font-semibold">1. POI Data Ingestion:</span> Collect sources, validate, dedupe and publish to a queue.</div>
+          <div><span class="font-semibold">2. Indexing Pipeline:</span> Consume events, normalize, and write documents to a search cluster with geo fields.</div>
+          <div><span class="font-semibold">3. Search API & Caching:</span> Translate queries into text + spatial filters, cache hot queries.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Operational notes</div>
+        <ul class="pl-5 list-disc text-sm text-slate-700">
+          <li>Use a message queue to decouple ingestion spikes from indexing throughput.</li>
+          <li>Monitor index refresh lag and shard hot spots; tune refresh intervals for your freshness SLA.</li>
+          <li>Cache popular radius queries to reduce load on the search cluster.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Visual pipeline</div>
+      <div class="flex items-center gap-4 h-full">
+        <div class="flex-1 grid grid-rows-4 gap-3 h-full">
+          <div class="rounded-lg bg-slate-50 p-3 border border-slate-100 h-full">
+            <div class="text-sm font-semibold text-slate-800">1) Sources → Ingest</div>
+            <div class="text-xs text-slate-600 mt-2">Business directories, crowdsourcing, government feeds. Validate and publish events to a durable queue.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card-border h-full">
+            <div class="text-sm font-semibold text-slate-800">2) Queue → Indexer</div>
+            <div class="text-xs text-slate-600 mt-2">Consumers read events, normalize fields, generate geo_point coordinates and push to search cluster.</div>
+          </div>
+          <div class="rounded-lg bg-slate-50 p-3 border border-slate-100 h-full">
+            <div class="text-sm font-semibold text-slate-800">3) Search Cluster</div>
+            <div class="text-xs text-slate-600 mt-2">Distributed shards hold inverted text indexes and geospatial fields such as geo_point for fast queries.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card-border h-full">
+            <div class="text-sm font-semibold text-slate-800">4) API & Cache</div>
+            <div class="text-xs text-slate-600 mt-2">Translate user intent to text + geo filters; cache hot queries to serve spikes.</div>
+          </div>
+        </div>
+        <div class="w-1/4 h-full flex flex-col justify-center items-center">
+          <svg width="1" height="240" viewBox="0 0 24 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 10v220" stroke="#e6eefc" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-2">Decouple ingestion and indexing with a durable queue, and index geo-enabled documents so you can combine text relevance with spatial filters.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+          <div class="text-sm text-slate-700 mt-2">Name two advantages of buffering POI ingestion with a message queue before indexing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

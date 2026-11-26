@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span class="text-slate-700">ParallaxBackground & ParallaxLayer</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 border-[rgba(226,232,240,0.9)]">
+      <h3 class="text-xl font-bold text-slate-900">Roles and parenting</h3>
+      <ul class="mt-3 list-inside list-disc text-sm text-slate-700 space-y-2">
+        <li><strong>ParallaxBackground</strong>: container that exposes scroll_offset used by children.</li>
+        <li><strong>ParallaxLayer</strong>: holds textures and applies motion_scale and mirroring to create relative movement.</li>
+        <li>Common setup: ParallaxBackground as a child of Camera2D or updated from camera position in script.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-sm font-semibold text-amber-700">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-2">Placing TextureRect directly under ParallaxBackground bypasses motion_scale. Always nest visuals under ParallaxLayer.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl border p-5 border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-900">Architecture snapshot</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="font-medium text-slate-900">Camera2D (parent)</div>
+          <div class="text-xs text-slate-600">ParallaxBackground usually attached here so it follows camera automatically.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="font-medium text-slate-900">ParallaxBackground</div>
+          <div class="text-xs text-slate-600">Exposes scroll_offset to children. Update via script if not parented to camera.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="font-medium text-slate-900">ParallaxLayer → TextureRect</div>
+          <div class="text-xs text-slate-600">Each layer contains the visual element and uses motion_scale, motion_offset, and mirroring.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep ParallaxBackground as the coordinator and put visuals inside ParallaxLayer so motion_scale applies correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

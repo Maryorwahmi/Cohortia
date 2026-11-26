@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">The cache invalidation problem</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">What is staleness?</div>
+      <p class="text-sm text-slate-600 mb-3">Staleness occurs when a cached copy differs from the authoritative store after a change. The longer the lag, the higher the risk of incorrect behavior.</p>
+
+      <div class="mt-2 grid gap-2">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">A user updates their email; until the cache is invalidated, other services may see the old email and send notifications to the wrong address.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border mt-2">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Common misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Assuming one invalidation policy fits all keys. Different data types need different policies based on volatility and criticality.</div>
+        </div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Classify data by update frequency and correctness needs. Use that classification to pick an invalidation strategy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">How this guides design</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>Identify critical keys requiring immediate freshness, such as permissions or session tokens.</li>
+        <li>Label less critical data as candidates for TTL-based caching.</li>
+        <li>Design explicit invalidation for items needing precision after a write.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-blue-50 p-3 border card-border">
+        <div class="text-sm font-bold text-blue-700">Scenario card</div>
+        <div class="text-sm text-slate-700 mt-2">If an account's permissions change, a stale cache could grant or deny access incorrectly—this suggests explicit invalidation or write-through for that key.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border card-border">
+        <div class="text-sm font-bold text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Always consider failure modes: partial invalidations or dropped invalidation messages can leave inconsistent caches across layers.</div>
+      </div>
+    </div>
+  </div>
+</div>

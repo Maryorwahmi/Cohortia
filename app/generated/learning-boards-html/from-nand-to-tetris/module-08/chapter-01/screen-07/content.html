@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} .step{background:#f8fafc;padding:10px;border-radius:12px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory Management</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Linked-list free list</div>
+        <div class="mt-3 text-sm text-slate-700">Each free block stores its size and next pointer. Initialize one block covering the heap, then maintain the list as allocations and deallocations occur.</div>
+        <div class="mt-3 grid grid-cols-1 gap-2">
+          <div class="step">Init: free list = [block(start, size = heap_size)]</div>
+          <div class="step">Alloc request: search for smallest block with size >= request.</div>
+          <div class="step">If block bigger than needed, split; return pointer to allocated area.</div>
+          <div class="step">DeAlloc: add block back and coalesce adjacent free blocks when possible.</div>
+        </div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Tradeoffs</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-5 space-y-1">
+          <li>Best-fit reduces wasted space but requires full search time.</li>
+          <li>First-fit is faster on average but may leave larger holes.</li>
+          <li>Worst-fit tends to split big blocks and can create unusable fragments.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example scenario</div>
+        <div class="mt-3 text-sm text-slate-700">Request sequence: alloc(5), alloc(3), deAlloc(first), alloc(4). Best-fit will select smallest sufficient blocks, which can reduce leftover fragments and may allow the second allocation to use previously freed space if sizes match.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-2">Choose a strategy that balances run-time cost and space efficiency; the Hack platform favors simplicity and reasonable space use, which is why best-fit is chosen here.</p>
+      </div>
+    </div>
+  </div>
+</div>

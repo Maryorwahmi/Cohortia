@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9);} .cohortia-bg{background:#f8fafc;} pre code{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Authentication & Binding</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 bg-white rounded-2xl border" style="border-color:rgba(226,232,240,0.9);box-shadow:0 6px 18px rgba(15,23,42,0.04);">
+      <div class="p-5 h-full flex flex-col">
+        <div class="flex items-center gap-3 mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="M3 11v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div>
+            <div class="text-sm font-bold text-slate-700">Why this matters</div>
+            <div class="text-sm text-slate-500">Prevent unauthorized access and limit attack surface.</div>
+          </div>
+        </div>
+        <div class="flex-1 overflow-auto">
+          <div class="text-sm text-slate-700 mb-3">Quick rules</div>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li>Set a long, unique password with requirepass in redis.conf.</li>
+            <li>Bind to 127.0.0.1 if only local apps use Redis, or to specific internal IPs in production.</li>
+            <li>Combine binding with firewall/security-group rules for defense in depth.</li>
+            <li>Test changes by attempting unauthenticated and authenticated connections.</li>
+          </ul>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+            <p class="text-xs font-medium text-slate-800">Store the requirepass value in a secrets manager; never check it into source control.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 bg-white rounded-2xl border p-5" style="border-color:rgba(226,232,240,0.9);box-shadow:0 6px 18px rgba(15,23,42,0.04);">
+      <div class="text-sm font-bold text-slate-700 mb-2">Example redis.conf changes</div>
+      <pre class="rounded-lg bg-slate-50 p-3 text-sm"><code># BEFORE (potentially insecure)
+# bind 127.0.0.1 -::1
+bind 0.0.0.0
+# requirepass foobared
+
+# AFTER (secure)
+bind 127.0.0.1
+requirepass myStrongRedisPassword123!
+</code></pre>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Check</div>
+          <div class="text-sm text-slate-700">Attempt `redis-cli` without a password; expect rejection. Then connect with the password to confirm access.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-sm text-slate-700">Authentication + scoped binding reduce exposure dramatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

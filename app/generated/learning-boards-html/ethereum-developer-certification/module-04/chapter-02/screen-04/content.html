@@ -1,0 +1,56 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; white-space:pre-wrap; tab-size:2}</style>
+  <div class="h-full grid grid-cols-2 gap-5">
+    <div class="col-span-1 flex flex-col gap-4">
+      <div class="card p-4 bg-white shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-semibold text-slate-800 mt-2">Events as external signals</h3>
+        <p class="text-sm text-slate-700 mt-2">An event is a log that off-chain systems read. Tests must verify both that events fire and that their arguments match expected values.</p>
+      </div>
+      <div class="card p-4 bg-white shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete Example</div>
+        <div class="mt-2">
+          <pre class="rounded bg-slate-100 p-3"><code>// contracts/CounterWithEvents.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract CounterWithEvents {
+  uint public count;
+  event CountChanged(address indexed caller, uint newCount, string message);
+
+  constructor() { count = 0; }
+
+  function increment() public {
+    count++;
+    emit CountChanged(msg.sender, count, "Incremented count");
+  }
+
+  function decrement() public {
+    require(count > 0, "Count cannot go below zero");
+    count--;
+    emit CountChanged(msg.sender, count, "Decremented count");
+  }
+}
+</code></pre>
+        </div>
+      </div>
+      <div class="card p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Events are essential outputs. Tests should check both emission and argument correctness to protect integrations.</p>
+      </div>
+    </div>
+    <div class="col-span-1 p-4 bg-white card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why this matters</div>
+      <h3 class="text-lg font-semibold text-slate-800 mt-2">From internal state to external contract API</h3>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>State checks confirm storage; event checks confirm the messages your contract sends off-chain.</li>
+        <li>Indexers and front-ends subscribe to events rather than reading state continuously.</li>
+        <li>Event argument mismatches are a common integration failure mode when contracts evolve.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <p class="text-sm text-slate-700 mt-2">Relying only on state assertions can hide problems where the event payload differs from the stored value. Always assert both when the event is part of the contract's external API.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

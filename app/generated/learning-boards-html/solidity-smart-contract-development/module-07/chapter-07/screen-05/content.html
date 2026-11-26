@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2} .card{background:white;border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter: Emit CountChanged</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl card p-5">
+      <div class="text-lg font-bold text-slate-800">Updated Counter.sol</div>
+      <div class="text-sm text-slate-600 mt-1">Keep event args minimal and index the user for filtering.</div>
+
+      <div class="mt-4 mono rounded-lg bg-white border p-3">
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract Counter {
+  uint public count;
+
+  event CountChanged(address indexed user, uint256 newCount, string action);
+
+  constructor() {
+    count = 0;
+  }
+
+  function increment() public {
+    count++;
+    emit CountChanged(msg.sender, count, "incremented");
+  }
+
+  function decrement() public {
+    count--;
+    emit CountChanged(msg.sender, count, "decremented");
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-2">
+          <li>Index the address so UIs can query a specific user's changes quickly.</li>
+          <li>Keep the action string short; long strings increase log size unnecessarily.</li>
+          <li>Emit after state update so logs reflect the new state value.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl card p-5">
+      <div class="font-semibold text-slate-800">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">After deploying, call increment from two accounts. A listener can show a live feed of who changed the counter and how.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="font-semibold">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Emitting events before updating state can confuse off-chain consumers about the actual stored value. Always update state then emit.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="font-semibold">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-1">Use indexed for addresses or ids you will filter by; non-indexed fields carry the actual data payload.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Emit concise events after state changes. Index identity-like fields for fast queries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Threaded Echo Server</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 card p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-700 mb-2">Full example (excerpt)</div>
+      <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+# socketserver_threaded_echo_server.py (excerpt)
+import socketserver
+import threading
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        print(f"Connected by {self.client_address} in thread {threading.current_thread().name}")
+        while True:
+            try:
+                data = self.request.recv(1024)
+                if not data:
+                    break
+                print(f"[{self.client_address}] Received: {data.decode()}")
+                self.request.sendall(data)
+            except ConnectionResetError:
+                break
+            except Exception as e:
+                break
+        print(f"[{self.client_address}] Connection closed.")
+        </pre>
+    </div>
+
+    <div class="col-span-5 card p-4">
+      <div class="text-sm font-bold text-slate-700 mb-2">Notes & takeaway</div>
+      <div class="text-sm text-slate-600">Observe printed thread names to confirm the thread-per-connection model. Remember to protect shared state when handlers access global resources.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-600">Use allow_reuse_address = True during development to avoid waiting for socket timeouts between restarts.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

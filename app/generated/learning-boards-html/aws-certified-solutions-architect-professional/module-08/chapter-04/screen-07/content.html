@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+      <span>›</span>
+      <span>Chapter 8.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Lambda for Operations</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full overflow-auto">
+        <div class="text-lg font-bold text-slate-900">EC2SchedulerLambda (Python)</div>
+        <div class="text-sm text-slate-600 mt-2">This example shows configuration via environment variables, basic branching, and logging for start/stop actions.</div>
+
+        <pre class="mt-4 bg-slate-50 p-3 rounded-md text-xs" style="white-space: pre-wrap; tab-size: 2;"><code>import boto3
+import os
+
+ec2 = boto3.client('ec2')
+
+# Environment variable to specify the action (start or stop)
+# Set this in Lambda Configuration -> Environment variables
+# Key: ACTION, Value: start or stop
+ACTION = os.environ.get('ACTION', 'stop') # Default to stop
+
+# Environment variable for the EC2 instance ID to target
+# Key: INSTANCE_ID, Value: i-0abcdef1234567890
+INSTANCE_ID = os.environ.get('INSTANCE_ID')
+
+def lambda_handler(event, context):
+    if not INSTANCE_ID:
+        print("ERROR: INSTANCE_ID environment variable is not set.")
+        return {
+            'statusCode': 400,
+            'body': 'Instance ID not configured.'
+        }
+
+    if ACTION == 'start':
+        print(f"Attempting to start instance: {INSTANCE_ID}")
+        ec2.start_instances(InstanceIds=[INSTANCE_ID])
+        message = f"Successfully started instance {INSTANCE_ID}"
+    elif ACTION == 'stop':
+        print(f"Attempting to stop instance: {INSTANCE_ID}")
+        ec2.stop_instances(InstanceIds=[INSTANCE_ID])
+        message = f"Successfully stopped instance {INSTANCE_ID}"
+    else:
+        print(f"ERROR: Invalid ACTION specified: {ACTION}")
+        return {
+            'statusCode': 400,
+            'body': 'Invalid action configured.'
+        }
+
+    print(message)
+    return {
+        'statusCode': 200,
+        'body': message
+    }</code></pre>
+
+        <div class="mt-3 text-xs text-slate-500">Tip: Replace hardcoded instance IDs with tag-based discovery for dynamic targeting in production.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">IAM advice</div>
+        <div class="text-xs text-slate-600 mt-2">Grant only ec2:StartInstances, ec2:StopInstances, and ec2:DescribeInstances on specific instance ARNs when possible. Avoid using star (*) in production.</div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 border-l-4 border-l-rose-400 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Safety note</div>
+        <p class="text-xs font-medium text-slate-800">Use environment variables and tagging to avoid accidental actions against production instances. Test in an isolated account first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Event</div>
+      <div class="text-xl font-bold text-slate-800">accountsChanged</div>
+      <div class="text-sm text-slate-600 mt-2">React to account switches to preserve correctness of displayed address, signer, and user data.</div>
+
+      <div class="mt-4">
+        <pre class="mono bg-slate-50 rounded-lg p-3 border border-slate-100"><code>const handleAccountsChanged = (accounts) =&gt; {
+  if (accounts.length === 0) {
+    setAccount(null);
+    setSigner(null);
+    setError('Please connect to MetaMask.');
+  } else if (accounts[0] !== account) {
+    setAccount(accounts[0]);
+    if (provider) setSigner(provider.getSigner());
+    setError('');
+  }
+};
+
+window.ethereum.on('accountsChanged', handleAccountsChanged);</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4">
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Concrete Example</div>
+        <div class="text-sm text-slate-700 mt-2">A user switches from one address to another. Immediately re-query any balances or permissions tied to the previous address to ensure the UI reflects the new account.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700 mb-2">Mistake to Avoid</div>
+          <div class="text-sm text-rose-700 bg-rose-50 p-3 rounded-md border border-rose-100">Failing to update signer after accountsChanged leaves your app using the old signer, causing signing prompts to reference the incorrect account and confusing users.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check Yourself</div>
+          <p class="text-xs font-medium text-slate-800">After handling accountsChanged, does your UI show the new address and recent account-specific data like token balances?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

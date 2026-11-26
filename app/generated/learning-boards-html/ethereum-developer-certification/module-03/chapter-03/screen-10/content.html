@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Libraries and using for</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm h-full overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Library Example</div>
+      <pre class="bg-slate-50 p-3 rounded border"><code>// SPDX-License-Identifier: MIT
+library SafeMath {
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    require(c >= a, "SafeMath: addition overflow");
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    require(b <= a, "SafeMath: subtraction underflow");
+    uint256 c = a - b;
+    return c;
+  }
+}
+
+// Usage
+using SafeMath for uint256;
+uint256 x = a.add(b);
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Internal functions are inlined; public functions incur delegatecall. Prefer internal embedding for core utilities and audited deployed libraries for shared, upgradable code only when necessary.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Security considerations</div>
+      <ul class="text-sm text-slate-600 pl-4 list-disc">
+        <li>Delegatecall runs library code in the caller's storage context—audited libraries only.</li>
+        <li>Embedding internal functions avoids runtime external dependencies.</li>
+        <li>Test edge cases like underflow/overflow and unusual input sizes.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Pro Tip</div>
+        <p class="text-sm text-slate-800 mt-1">Use using for to make calls expressive and readable, and prefer internal functions so behavior is compiled into the contract where possible.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Libraries save gas and centralize trusted logic. Choose internal embeds for safety and audit public libraries before using their addresses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

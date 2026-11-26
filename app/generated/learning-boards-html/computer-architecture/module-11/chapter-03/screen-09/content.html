@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff;padding:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Dekker's Algorithm</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="text-xl font-bold text-slate-800">Dekker's example</div>
+      <pre class="card mt-2">/* P1 */
+flag1 = 1;
+if (flag2 == 0) enter_critical();
+
+/* P2 */
+flag2 = 1;
+if (flag1 == 0) enter_critical();</pre>
+      <div class="mt-3 text-sm text-slate-700">Under weak ordering, stores to flags can be delayed or bypassed, letting both threads see the other flag as zero and enter simultaneously.</div>
+    </div>
+
+    <div class="w-1/2 panel p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Fenced fix</div>
+      <pre class="mt-3">/* P1 */
+flag1 = 1;
+fence;              // ensure store is visible
+if (flag2 == 0) enter_critical();</pre>
+      <div class="mt-3 text-sm text-slate-700">The fence forces ordering so the reader cannot observe the writer's store out of sequence. Alternatively, a release on the writer and an acquire on the reader achieve the same effect with potentially lower overhead.</div>
+
+      <div class="mt-4 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+      <div class="mt-2 text-sm text-slate-800">Prove algorithms under the target memory model or add the minimal synchronization to preserve their invariants under weaker models.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

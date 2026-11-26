@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe Editing</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-4 card-border h-full">
+        <div class="font-bold text-slate-900">Step-by-step</div>
+        <ol class="mt-3 text-sm text-slate-700 space-y-2 list-decimal list-inside">
+          <li>Backup: cp pg_hba.conf pg_hba.conf.bak</li>
+          <li>Edit: add specific allow rules above general ones</li>
+          <li>Reload: pg_ctl reload -D /path/to/data or SELECT pg_reload_conf();</li>
+          <li>Test: psql local and remote attempts to confirm expected results</li>
+          <li>Cleanup: remove temporary recovery rules</li>
+        </ol>
+      </div>
+    </div>
+    <div class="w-1/2">
+      <div class="rounded-xl bg-white p-4 card-border h-full">
+        <div class="font-bold text-slate-900">Testing examples</div>
+        <pre class="mt-3 rounded bg-slate-50 p-3"><code># Test local peer as postgres
+psql -U postgres -d postgres
+
+# Test remote SCRAM (ensure SSL configured for hostssl)
+psql -h &lt;your_db_host&gt; -U web_app_user -d app_db
+
+# Test a denied connection (should fail)
+psql -h &lt;your_db_host&gt; -U postgres -d app_db</code></pre>
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Editing remotely without a recovery entry can lock you out. Keep a local peer or temporary superuser trust rule until verified.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#f8fafc;} pre{white-space:pre-wrap;tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}.card{border-color:rgba(226,232,240,0.9);} .code-header{background:#eef2ff;border-left:4px solid #2563eb;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Masking Policy Code Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full"> 
+    <div class="col-span-8 bg-white rounded-2xl p-6 border card"> 
+      <div class="text-lg font-semibold text-slate-800">Create and attach a masking policy</div>
+      <p class="text-sm text-slate-600 mt-2">This example matches the chapter source. Run as a role with the required privileges and then apply to the SSN column.</p>
+
+      <div class="mt-4 code-header rounded p-3"> 
+        <pre class="text-xs"><code>-- Create a masking policy
+CREATE OR REPLACE MASKING POLICY ssn_mask_policy AS (val VARCHAR) RETURNS VARCHAR -&gt;
+    CASE
+        WHEN CURRENT_ROLE() = 'SECURITY_OFFICER' THEN val
+        WHEN CURRENT_ROLE() = 'DATA_ANALYST' THEN '***-**-' || SUBSTR(val, 7, 4)
+        ELSE '********'
+    END;
+
+-- Apply to column (role must have APPLY MASKING POLICY and ownership)
+ALTER TABLE customer_info MODIFY COLUMN ssn SET MASKING POLICY ssn_mask_policy;</code></pre>
+      </div>
+
+      <div class="mt-5"> 
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Testing steps</div>
+        <ol class="text-sm text-slate-600 mt-2 list-decimal ml-5">
+          <li>USE ROLE data_analyst; SELECT customer_id, customer_name, ssn FROM customer_info; confirm masked output.</li>
+          <li>USE ROLE security_officer; run the same SELECT; confirm full SSNs.</li>
+          <li>If results differ, check APPLY privileges and table ownership.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl p-4 border card"> 
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+      <div class="text-sm text-slate-600 mt-2">Keep masking logic simple and predictable. Use CURRENT_ROLE() checks when roles are well-defined, or session attributes for more dynamic rules.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+        <div class="text-sm text-slate-600 mt-2">Complex subqueries or nested functions inside the mask can increase query cost. Test with realistic queries before rollout.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

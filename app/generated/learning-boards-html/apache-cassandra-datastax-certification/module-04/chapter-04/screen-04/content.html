@@ -1,0 +1,73 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Time-Series Data Modeling</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-2/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">What is time-series modeling?</div>
+      <p class="text-sm text-slate-600 mt-3">Grouping time-ordered events into bounded partitions using a bucketed partition key and using timestamps as clustering keys to preserve order.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold text-amber-700">Example pattern</div>
+          <div class="text-sm text-slate-800 mt-1">PRIMARY KEY ((sensor_id, date_bucket), timestamp)</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold text-slate-700">Key trade-off</div>
+          <div class="text-sm text-slate-600 mt-1">Bucket size vs. number of partitions to scan for wide-range queries.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Select a bucket that keeps partitions manageable for common query windows; use the timestamp as the clustering key for ordered access.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Bucket selection illustration</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-grow">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold text-slate-700">High volume sensor</div>
+          <p class="text-sm text-slate-600 mt-2">Use hourly or daily buckets if a sensor produces thousands of points per hour to avoid very wide partitions.</p>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold text-slate-700">Low volume sensor</div>
+          <p class="text-sm text-slate-600 mt-2">Monthly buckets may be sufficient when fewer events are produced, reducing the number of partitions to query for monthly reports.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold text-slate-700">Concrete example</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>CREATE TABLE readings_by_sensor (
+  sensor_id uuid,
+  date_bucket text,
+  ts timestamp,
+  value double,
+  PRIMARY KEY ((sensor_id, date_bucket), ts)
+) WITH CLUSTERING ORDER BY (ts DESC);</code></pre>
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <div class="rounded-lg bg-rose-50 p-3 border card-border w-1/2">
+          <div class="text-xs font-bold text-rose-700">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Using only sensor_id as partition key for high-volume sensors, producing very wide partitions.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3 border card-border w-1/2">
+          <div class="text-xs font-bold text-emerald-700">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-1">Match the bucket to the most common query window: choose month/day/hour based on event rate and query patterns.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Unbounded Collections</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why collections fail at scale</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Every update can rewrite the entire collection, causing write amplification.</li>
+        <li>Large collections inflate row sizes and contribute to wide partitions.</li>
+        <li>Collections are not efficient for frequent append-heavy workloads.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold text-rose-700">Common anti-pattern</div>
+          <div class="text-sm text-slate-600 mt-1">articles table with a LIST<frozen<comment_udt>> for comments on popular posts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Correct pattern</div>
+      <div class="mt-3 text-sm text-slate-600">Create a comments_by_article table where each comment is a row. Example schema:</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>CREATE TABLE comments_by_article (
+  article_id uuid,
+  comment_time timestamp,
+  comment_id timeuuid,
+  user_id uuid,
+  comment_text text,
+  PRIMARY KEY ((article_id), comment_time, comment_id)
+) WITH CLUSTERING ORDER BY (comment_time DESC);</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When the number of related items is unbounded, use a table of rows instead of a collection column.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

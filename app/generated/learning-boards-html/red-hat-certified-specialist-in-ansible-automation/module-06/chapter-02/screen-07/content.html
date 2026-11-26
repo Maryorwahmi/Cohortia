@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Iterating dictionaries: dict2items and with_dict</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-5 shadow-sm border card">
+      <div class="text-sm font-semibold text-slate-800">Why normalize a dict</div>
+      <div class="text-sm text-slate-600 mt-3">Normalization creates a consistent item structure so subsequent tasks can rely on item.key and item.value. It also enables sorting and filtering before iteration.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">When to sort:</div>
+        <p class="mt-2">If the order of operations matters, convert and sort the list to avoid unpredictable iteration ordering across Python versions or Ansible runs.</p>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example conversion</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+- name: Convert mapping to items
+  set_fact:
+    users_list: "{{ users_map | dict2items }}"
+
+- name: Create users from mapping
+  ansible.builtin.user:
+    name: "{{ item.key }}"
+    state: "{{ item.value.state | default('present') }}"
+    groups: "{{ item.value.groups | default([]) | join(',') }}"
+  loop: "{{ users_list }}"
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">This approach uses item.key for the username and item.value for properties, keeping semantics explicit.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+    <p class="text-xs font-medium text-slate-800">Don't assume dict iteration preserves a desired order; if you need stability, convert and sort explicitly before looping.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

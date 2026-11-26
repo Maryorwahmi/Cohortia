@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Trace: factorial</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-700">VM program excerpt</div>
+      <pre class="mono mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;">
+function Main.factorial 0
+push argument 0
+push constant 1
+eq
+if-goto BASE
+push argument 0
+push argument 0
+push constant 1
+sub
+call Main.factorial 1
+mult
+return
+label BASE
+push constant 1
+return
+      </pre>
+      <p class="text-sm text-slate-600 mt-3">Trace the frames for factorial(3) and record SP, ARG, LCL, and return addresses at each depth.</p>
+    </div>
+
+    <div class="w-1/2 p-4 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Guided trace steps</div>
+        <ol class="ml-5 mt-2 text-slate-600 list-decimal">
+          <li>Frame 1: factorial(3) — argument 3 pushed, call saved five values.</li>
+          <li>Frame 2: factorial(2) — argument 2 pushed, repeat saves.</li>
+          <li>Frame 3: factorial(1) — argument 1 pushed.</li>
+          <li>Frame 4: factorial(0) — base case returns 1; begin unwinding.</li>
+        </ol>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Reflection prompt</div>
+        <p class="text-sm text-slate-600 mt-2">How many frames are active at deepest point? Four. What must be restored exactly so the caller can multiply and return correctly? ARG, LCL, THIS, THAT and the return address.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

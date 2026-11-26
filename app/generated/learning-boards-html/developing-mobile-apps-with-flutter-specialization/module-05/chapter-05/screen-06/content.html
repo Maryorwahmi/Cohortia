@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Upload files</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-full">
+      <div class="card p-5">
+        <div class="text-sm font-semibold text-slate-900">Code walkthrough: uploadProfilePicture()</div>
+        <pre class="code mt-3 rounded-md p-3 bg-slate-50 text-slate-800">import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final FirebaseStorage _storage = FirebaseStorage.instance;
+final ImagePicker _picker = ImagePicker();
+
+Future<String?> uploadProfilePicture() async {
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser == null) return null;
+
+  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  if (image == null) return null;
+
+  File file = File(image.path);
+  String fileName = 'profile_pictures/${currentUser.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+  Reference ref = _storage.ref().child(fileName);
+
+  try {
+    UploadTask uploadTask = ref.putFile(file);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  } on FirebaseException catch (e) {
+    return null;
+  }
+}
+</pre>
+      </div>
+
+      <div class="card p-5 flex flex-col">
+        <div class="text-sm font-semibold text-slate-900">Explanation & example</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-5 space-y-2">
+          <li>Use image_picker to let the user choose an image file from the gallery or camera.</li>
+          <li>Create a unique path with the user's uid and a timestamp to avoid filename collisions.</li>
+          <li>Await the UploadTask and then call getDownloadURL to obtain a usable URL.</li>
+        </ul>
+
+        <div class="mt-4 text-sm font-semibold text-slate-900">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Calling getDownloadURL before the upload completes or using non-unique filenames can return stale URLs or overwrite files.</p>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check your understanding</div>
+          <p class="text-sm text-slate-600 mt-2">How will you ensure uploaded files don't collide and how will you report progress to the user?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

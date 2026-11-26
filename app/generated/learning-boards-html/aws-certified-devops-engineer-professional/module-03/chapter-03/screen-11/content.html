@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">StackSet CLI</span>
+  </div>
+
+  <div class="card p-4 h-full overflow-auto">
+    <div class="text-sm font-bold text-slate-800">Create a StackSet (example)</div>
+    <pre class="mono text-sm bg-slate-50 p-3 mt-2" style="white-space:pre-wrap; tab-size:2">aws cloudformation create-stack-set \
+  --stack-set-name MyOrgBaselineStackSet \
+  --template-body file://baseline-vpc.yaml \
+  --capabilities CAPABILITY_IAM \
+  --permission-model SERVICE_MANAGED \
+  --auto-deployment Enabled=true,RetainStacksOnAccountRemoval=false \
+  --description "Deploys baseline VPC and network config across accounts"</pre>
+
+    <div class="text-sm font-bold text-slate-800 mt-4">Create instances (example)</div>
+    <pre class="mono text-sm bg-slate-50 p-3 mt-2" style="white-space:pre-wrap; tab-size:2">aws cloudformation create-stack-instances \
+  --stack-set-name MyOrgBaselineStackSet \
+  --accounts '["111122223333", "444455556666"]' \
+  --regions '["us-east-1", "eu-west-1"]'</pre>
+
+    <div class="mt-4 text-xs text-slate-500">Tip: Monitor stack instance status and ensure the execution role exists in each target account when not using service-managed permissions.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

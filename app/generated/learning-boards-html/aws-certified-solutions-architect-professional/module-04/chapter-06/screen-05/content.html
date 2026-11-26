@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Serverless API Pattern</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 h-full">
+      <div class="step h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">API Gateway → Lambda → DynamoDB</h3>
+        <div class="mt-4 grid grid-cols-1 gap-3 flex-grow">
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="font-semibold text-slate-800">Step 1: API Gateway</div>
+            <div class="text-sm text-slate-700 mt-1">Handles routing, auth, quotas, and optional caching before invoking Lambda.</div>
+          </div>
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="font-semibold text-slate-800">Step 2: Lambda</div>
+            <div class="text-sm text-slate-700 mt-1">Executes validation and business logic with scoped IAM role to access DynamoDB.</div>
+          </div>
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="font-semibold text-slate-800">Step 3: DynamoDB</div>
+            <div class="text-sm text-slate-700 mt-1">Low-latency NoSQL storage suitable for single-key and single-table designs.</div>
+          </div>
+        </div>
+        <div class="mt-4 text-sm text-slate-700">Design tip: use SQS for buffered writes and EventBridge for integrating multiple consumers without coupling Lambda to downstream services.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full">
+      <div class="step h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <h4 class="text-lg font-semibold text-slate-900 mt-2">Product read request</h4>
+        <div class="mono bg-slate-50 rounded p-3 mt-3">GET /products/{product_id}
+→ API Gateway validates auth
+→ Lambda queries DynamoDB by product_id and returns item</div>
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-md bg-emerald-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+            <div class="text-sm text-slate-800 mt-1">This pattern gives clear separation of concerns and easy scaling for reads and writes when designed with decoupling.</div>
+          </div>
+          <div class="rounded-md bg-rose-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+            <div class="text-sm text-slate-800 mt-1">Directly chaining many synchronous services in a single function, which increases failure blast radius.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

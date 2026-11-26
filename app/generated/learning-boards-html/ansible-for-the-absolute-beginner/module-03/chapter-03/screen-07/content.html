@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Ansible Facts</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">What setup returns</div>
+      <pre class="rounded-lg p-3 bg-slate-50 border"># run locally to inspect facts
+ansible webservers -m setup -i inventory.ini
+
+# common facts you may use
+ansible_os_family
+ansible_distribution
+ansible_hostname
+ansible_default_ipv4.address</pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold mb-1">Practical tip</div>
+        <div>Run the setup module once when writing playbooks to learn which facts exist on your managed hosts and their exact names.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Using facts in conditionals</div>
+      <pre class="rounded-lg p-3 bg-slate-50 border">- name: Install Nginx on Debian-based systems
+  ansible.builtin.package:
+    name: nginx
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Apache on RedHat-based systems
+  ansible.builtin.package:
+    name: httpd
+    state: present
+  when: ansible_os_family == "RedHat"</pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl p-3 bg-rose-50 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Gotcha</div>
+          <div class="text-sm text-slate-800">Some minimal or containerized hosts may not provide all facts. Confirm gather_facts isn't disabled if you expect facts to be present.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

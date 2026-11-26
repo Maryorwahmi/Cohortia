@@ -1,0 +1,30 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Hands-on Activity</div>
+  <h3 class='text-2xl font-extrabold text-slate-900'>Configure Route 53 Failover for Two ALBs</h3>
+  <div class='mt-4 grid grid-cols-1 gap-4 h-full'>
+    <div class='rounded-xl bg-white card-border shadow-sm p-4 flex-1 overflow-hidden'>
+      <div class='text-sm font-semibold text-slate-800'>Step-by-step</div>
+      <ol class='list-decimal list-inside text-sm text-slate-600 mt-3 space-y-2'>
+        <li>Create a hosted zone for your domain if needed.</li>
+        <li>Create PrimaryALBHealthCheck: protocol HTTP, domain = primary ALB DNS, path = /index.html, fast interval for quicker detection.</li>
+        <li>Create Primary record: name app, type A, alias to ALB in us-east-1, routing policy = Failover, record type = Primary, associate the health check, TTL = 60.</li>
+        <li>Create Secondary record: same name app, type A, alias to ALB in us-west-2, routing policy = Failover, record type = Secondary, TTL = 60.</li>
+        <li>Test: resolve app.yourdomain, simulate primary failure, watch health check become unhealthy, and re-resolve after TTL to confirm secondary answers.</li>
+      </ol>
+    </div>
+    <div class='rounded-xl bg-white card-border shadow-sm p-4'>
+      <div class='text-sm font-semibold text-slate-800'>Checks & pitfalls</div>
+      <ul class='list-disc list-inside text-sm text-slate-600 mt-3 space-y-2'>
+        <li>Ensure the health check path returns success only when the app is healthy.</li>
+        <li>Avoid very high TTLs when you need fast failover.</li>
+        <li>Optionally create a health check for the secondary to detect its problems too.</li>
+      </ul>
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Follow the lab steps exactly, then simulate failure to confirm both the health check and TTL behave as expected.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-border{border:1px solid rgba(226,232,240,0.9);background:#0f172a;color:#e6edf3}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">RollupBridge Walkthrough</span>
+  </div>
+
+  <div class="flex gap-4 h-[calc(100%-68px)]"> 
+    <div class="w-7/12 rounded-2xl bg-white p-5 card-border shadow-sm overflow-hidden"> 
+      <div class="text-lg font-bold text-slate-800">Starter contract (conceptual)</div>
+      <div class="text-sm text-slate-600 mt-2">This code models L1 locked balances, deposit events, and a two-step withdrawal lifecycle used to simulate a rollup bridge.</div>
+
+      <div class="mt-4 overflow-auto"> 
+        <pre class="rounded-xl p-3 code-border" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract RollupBridge {
+  mapping(address =&gt; uint256) public l1Deposits; // Tracks funds locked on L1
+  address public rollupContractAddress; // Placeholder for the L2 contract
+
+  event DepositInitiated(address indexed user, uint256 amount);
+  event WithdrawalInitiated(address indexed user, uint256 amount, uint256 withdrawalId);
+  event WithdrawalFinalized(address indexed user, uint256 amount, uint256 withdrawalId);
+
+  constructor(address _rollupContractAddress) {
+    rollupContractAddress = _rollupContractAddress;
+  }
+
+  function depositETH() public payable {
+    require(msg.value &gt; 0, "Deposit amount must be greater than zero.");
+    l1Deposits[msg.sender] += msg.value;
+    emit DepositInitiated(msg.sender, msg.value);
+    // In production this also sends a message to L2 to credit the account there.
+  }
+
+  function initiateWithdrawal(uint256 amount, uint256 withdrawalId) public {
+    require(l1Deposits[msg.sender] &gt;= amount, "Insufficient L1 locked funds for withdrawal.");
+    l1Deposits[msg.sender] -= amount;
+    emit WithdrawalInitiated(msg.sender, amount, withdrawalId);
+  }
+
+  function finalizeWithdrawal(uint256 amount, uint256 withdrawalId) public {
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Failed to send ETH during withdrawal.");
+    emit WithdrawalFinalized(msg.sender, amount, withdrawalId);
+  }
+}
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col"> 
+      <div class="text-sm font-semibold text-slate-800">Walkthrough highlights</div>
+      <ul class="text-sm text-slate-600 list-disc pl-5 mt-2">
+        <li>depositETH locks value on L1 and emits an event used by L2 to credit accounts.</li>
+        <li>initiateWithdrawal models the L1-side initiation after L2 processing and possible challenge windows.</li>
+        <li>finalizeWithdrawal sends the funds back to the user once L1 accepts the withdrawal.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Security question</div>
+        <p class="text-xs font-medium text-slate-800">How would a seven-day challenge period change when finalizeWithdrawal may be called in an Optimistic Rollup?</p>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This conceptual contract highlights how L1 tracks locked funds and how withdrawals require coordinated L2-to-L1 messaging and dispute handling.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

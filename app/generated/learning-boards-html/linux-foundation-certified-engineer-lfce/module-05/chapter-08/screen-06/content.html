@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Dovecot Logs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Authentication and delivery traces</h3>
+      <p class="text-sm text-slate-600 mt-2">Use Dovecot logs to identify authentication backends, reasons for failure, and mailbox delivery or permission errors.</p>
+
+      <div class="mt-3 text-xs font-bold uppercase tracking-wider text-slate-500">Useful commands</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>sudo journalctl -u dovecot -n 50
+sudo journalctl -u dovecot -f
+sudo journalctl -u dovecot | grep "authentication failed"</code></pre>
+
+      <div class="mt-3 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm text-slate-800">Example: 'authentication failed' followed by 'user not found in passwd-file' points to the authentication backend or virtual user database rather than network connectivity.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-2">
+        <li>Confirm user exists in the configured authentication backend.</li>
+        <li>Verify mailbox path and ownership (Maildir exists and is accessible).</li>
+        <li>Check disable_plaintext_auth and TLS requirements when testing with clients.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Use a short reproducer: connect with openssl s_client or telnet, attempt a login, and observe the dovecot journal simultaneously to capture the exact failure text.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Dovecot logs show the authentication reason—backend mismatches and mailbox permissions are frequent root causes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

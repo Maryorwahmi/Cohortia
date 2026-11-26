@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0f1724;color:#e6eef8;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Session Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="rounded-lg border border-slate-100 bg-white p-4">
+        <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+        <pre class="code mt-3" style="white-space:pre-wrap; tab-size:2">-- Check account default
+USE ROLE ACCOUNTADMIN;
+SHOW PARAMETERS IN ACCOUNT;
+
+-- Check current session value
+SHOW PARAMETERS IN SESSION;
+
+-- Temporarily increase session timeout to 30 minutes
+ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = 1800;
+
+-- Verify session value
+SHOW PARAMETERS LIKE 'STATEMENT_TIMEOUT_IN_SECONDS' IN SESSION;
+
+-- Reset to default when done
+ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = DEFAULT;
+SHOW PARAMETERS LIKE 'STATEMENT_TIMEOUT_IN_SECONDS' IN SESSION;
+        </pre>
+      </div>
+
+      <div class="rounded-lg border border-slate-100 bg-white p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-2">Session-level changes are ideal for temporary tuning. Always confirm changes with SHOW and reset when finished.</p>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-lg border border-slate-100 bg-white p-4 h-full">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <div class="text-sm text-slate-700 mt-2">An analyst running a complex transform increases session timeout to allow long-running steps, then resets it after completion so other sessions retain safe defaults.</div>
+      </div>
+
+      <div class="rounded-lg border border-slate-100 bg-white p-3">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Forgetting to reset a session or relying on session changes for persistent needs. Use ALTER ACCOUNT SET for permanent change when appropriate.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

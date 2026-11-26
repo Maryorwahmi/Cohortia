@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Sending Instructions</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Chainable API</div>
+      <p class="text-sm text-slate-700 mt-2">The builder pattern helps you assemble an instruction with accounts, signers, and finally send it with rpc.</p>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Concrete example</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm"><code>// initialize a counter account
+await program.methods
+  .initialize()
+  .accounts({
+    counterAccount: counterAccount.publicKey,
+    user: provider.wallet.publicKey,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  })
+  .signers([counterAccount])
+  .rpc();</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Fetch and verify</div>
+      <p class="text-sm text-slate-700 mt-2">After sending an instruction, fetch the account to check state changes:</p>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>const account = await program.account.counter.fetch(counterAccount.publicKey);
+console.log(account.count.toString());</code></pre>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700">Providing the wrong account public key or forgetting a required account will cause the transaction to fail at runtime with an account validation error.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Construct instructions using the IDL-driven builder and always verify state with a fetch after rpc completes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

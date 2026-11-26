@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Feed Cache Operations</span>
+  </div>
+  <div class="flex gap-6 h-[76%]">
+    <div class="w-1/2 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Commands</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># Add a post ID with timestamp score
+redis_client.zadd(f"user:feed:{user_id}", {post_id: timestamp_score})
+# Get latest 20 post IDs
+redis_client.zrevrange(f"user:feed:{user_id}", 0, 19)
+# Trim old posts beyond max size
+redis_client.zremrangebyrank(f"user:feed:{user_id}", 0, -(max_size + 1))</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Keep these operations instrumented and bounded. Trimming prevents unbounded growth.</div>
+    </div>
+    <div class="w-1/2 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Common pitfalls</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Not trimming sorted sets leading to memory pressure.</li>
+        <li>Using overly-long TTLs and serving stale content.</li>
+        <li>Forgetting to ZREM when posts must be removed for unfollows or deletions.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre.tty{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;font-size:13px;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab — Publish & Anomaly</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Terminal demo pattern</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">Publish sample metric points with AWS CLI</div>
+        <pre class="tty"><code># Publish a few data points for the custom metric
+aws cloudwatch put-metric-data \
+  --metric-name "OrderProcessingLatency" \
+  --namespace "Custom/MyApp" \
+  --value 150.5 \
+  --dimensions Name=InstanceId,Value=your-instance-id \
+  --unit Milliseconds
+
+aws cloudwatch put-metric-data \
+  --metric-name "OrderProcessingLatency" \
+  --namespace "Custom/MyApp" \
+  --value 160.2 \
+  --dimensions Name=InstanceId,Value=your-instance-id \
+  --unit Milliseconds
+
+# Later, publish out-of-band value to trigger alarm
+aws cloudwatch put-metric-data \
+  --metric-name "OrderProcessingLatency" \
+  --namespace "Custom/MyApp" \
+  --value 500.0 \
+  --dimensions Name=InstanceId,Value=your-instance-id \
+  --unit Milliseconds</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Console steps</div>
+        <ol class="text-sm text-slate-600 list-decimal pl-5 mt-3 space-y-2">
+          <li>Open CloudWatch → Metrics → All metrics and find Custom/MyApp.</li>
+          <li>Select the metric and create an Anomaly detection model from Graphed metrics.</li>
+          <li>Create an alarm using Anomaly detection condition and attach an SNS action.</li>
+          <li>Test by publishing an out-of-band value and confirm ALARM and email receipt.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">The lab demonstrates a full feedback loop: instrument, allow the model to learn, create an alarm, then validate the notification path by injecting a test value.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

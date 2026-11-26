@@ -1,0 +1,27 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Rate Limiting</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Fixed-window flow</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>On request, INCR the counter key for the client.</li>
+        <li>If the key is new, set EXPIRE to the window length (e.g., 60 seconds).</li>
+        <li>If the counter > limit, reject the request and return 429 with Retry-After.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <pre class="mt-3"># Key: rate_limit:client:web_app:60s
+INCR rate_limit:client:web_app:60s
+EXPIRE rate_limit:client:web_app:60s 60 NX</pre>
+      <div class="mt-3 text-sm text-slate-600">Use a pipeline to group these commands so that EXPIRE is set only when appropriate and avoid missing TTLs on new keys.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What is calldata?</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition & behavior</div>
+      <div class="text-sm text-slate-600 mt-2">Immutable, read-only region used for external function arguments. Most efficient for large, read-only inputs.</div>
+
+      <div class="mt-4 p-3 border rounded-lg">
+        <div class="font-semibold text-slate-700">When to use</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+          <li>External functions that only read arguments.</li>
+          <li>Large arrays or structs passed from off-chain callers.</li>
+          <li>Batch validation routines where no modification is required.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer calldata for large external inputs to avoid copies into memory and reduce gas usage.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// External function using calldata for efficiency
+function processExternalArray(uint[] calldata _data) external pure returns (uint product) {
+  product = 1;
+  for (uint i = 0; i &lt; _data.length; i++) {
+    product *= _data[i];
+  }
+}
+      </pre>
+
+      <div class="mt-4 p-3 rounded-lg border card-border bg-white">
+        <div class="font-semibold text-slate-700 text-sm">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Declaring a parameter without calldata on an external function may cause an implicit copy to memory, increasing gas cost unexpectedly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

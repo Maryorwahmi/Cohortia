@@ -1,0 +1,26 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.3</span><span>›</span><span class="text-slate-700">Gateway Connection</span></div><div class="flex flex-col h-full"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Step-by-Step</div><h2 class="text-3xl font-bold text-slate-900 mb-2">Establishing Gateway Connection</h2><p class="text-lg text-slate-700">Loading connection profiles and user identities for network access.</p></div><div class="flex-1 grid grid-cols-2 gap-6"><div class="flex flex-col bg-slate-900 rounded-2xl p-6 font-mono text-sm text-slate-200 shadow-xl"><pre><code class="language-javascript" style="white-space: pre-wrap; tab-size: 2;">const { Gateway, Wallets } = require('fabric-network');
+const path = require('path');
+const fs = require('fs');
+
+async function connectToGateway(userIdentity) {
+    const ccpPath = path.resolve(__dirname, 'connection-org1.json');
+    const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    const identityExists = await wallet.get(userIdentity);
+    if (!identityExists) {
+        console.log(`Identity "${userIdentity}" does not exist in the wallet.`);
+        return;
+    }
+
+    const gateway = new Gateway();
+    await gateway.connect(ccp, {
+        wallet,
+        identity: userIdentity,
+        discovery: { enabled: true, asLocalhost: true }
+    });
+    console.log(`Successfully connected to Fabric Gateway as ${userIdentity}.`);
+    return gateway;
+}</code></pre></div><div class="flex flex-col justify-between"><div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 mb-4"><h3 class="text-lg font-semibold text-slate-900 mb-2">Explanation</h3><ul class="list-disc list-inside text-base text-slate-700 space-y-2"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Import SDK:** Bring in `Gateway` and `Wallets` from `fabric-network`.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Load CCP:** Read the connection profile (`connection-org1.json`) to understand network topology.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Load Wallet:** Access the file system wallet containing user identities.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Check Identity:** Verify the specified `userIdentity` exists in the wallet for authentication.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Connect Gateway:** Establish the connection using the CCP, wallet, and identity, enabling network discovery.</span></li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">A successful gateway connection is the prerequisite for all chaincode interactions, ensuring authenticated access to the Fabric network.</p></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Pro Tip</div><p class="text-xs font-medium text-slate-800">For development, `discovery: { enabled: true, asLocalhost: true }` simplifies connecting to local test networks.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

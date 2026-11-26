@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">std::bad_alloc</span>
+  </div>
+
+  <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">When allocation fails</div>
+      <div class="text-sm text-slate-600 mt-2">new throws an exception on allocation failure. Handle it or use RAII to avoid leaks during unwinding.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <ul class="list-disc ml-4 space-y-2">
+          <li>Default new throws std::bad_alloc; nothrow variant returns nullptr.</li>
+          <li>If an exception occurs after an allocation and you did not free, a leak can happen.</li>
+          <li>Encapsulating resources in objects ensures destructors run during stack unwinding.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 pl-4">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Scenario</div>
+      <div class="text-sm text-slate-600">Allocate A with new, then allocate B. If B fails and throws, A must be freed or wrapped so it is cleaned automatically. This is the heart of exception-safety concerns and the motivation for RAII.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception check</div>
+        <div class="text-sm text-slate-700 mt-2">Incorrect: assuming new returns nullptr on failure in modern C++. Correct: handle std::bad_alloc or use nothrow form and check for nullptr.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Design allocation so that resources are either freed in every path or owned by RAII objects that free themselves.</p>
+      </div>
+    </div>
+  </div>
+</div>

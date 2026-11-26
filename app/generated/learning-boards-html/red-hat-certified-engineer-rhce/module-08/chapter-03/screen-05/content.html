@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Connectivity: ping</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-700 font-bold">Process</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Ping IP → Ping hostname → TCP test</div>
+      <div class="text-sm text-slate-600 mt-3">Start with an IP. If that works, the network path is healthy and name resolution is suspect. If the IP fails, trace the path with traceroute and check routing.</div>
+      <div class="mono text-sm bg-slate-50 p-3 rounded-md border card mt-4" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>$ ping -c 4 8.8.8.8
+$ ping -c 4 example.com
+$ nc -zvw3 example.com 80  # TCP port check</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Supporting points</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>Successful ping to an IP isolates DNS as the likely cause of a hostname failure.</li>
+          <li>ICMP may be filtered; follow up with TCP checks to verify service reachability.</li>
+          <li>Ping timing and loss percentages give clues about latency and packet loss during triage.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <div class="text-sm text-slate-600 mt-2">If web clients fail to load a site, ping the server IP. If that succeeds, run dig against your DNS server. If dig fails, update /etc/resolv.conf or flush local caches before changing firewall rules.</div>
+      </div>
+      <div class="rounded-lg p-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use ping as a quick triage. Pair it with name and TCP checks to accurately isolate DNS, path, or service-level issues.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

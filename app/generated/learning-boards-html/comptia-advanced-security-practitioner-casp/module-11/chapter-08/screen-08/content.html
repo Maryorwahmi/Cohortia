@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">IaC Scanning</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <h4 class="text-lg font-bold text-slate-900">Terminal demo: Scan with Checkov</h4>
+      <p class="text-sm text-slate-600 mt-2">Run Checkov against your Terraform directory to reveal misconfigurations before deployment.</p>
+
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto" style="min-height:160px;">
+        <pre><code># Run Checkov on the terraform directory
+checkov -d .
+
+# Expected output lines will include rule IDs and brief descriptions,
+# for example: CKV_AWS_18 S3 Bucket should not have public ACL
+# and CKV_AWS_24 Security group allows ingress from 0.0.0.0/0
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-white p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Fix pattern</div>
+        <ol class="text-sm text-slate-700 mt-2 pl-5 list-decimal space-y-1">
+          <li>Change bucket ACLs to private and add public access block resource.</li>
+          <li>Restrict security group ingress to specific ports and CIDR ranges.</li>
+          <li>Re-run Checkov until no high-severity findings remain.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Sample Terraform (vulnerable)</div>
+      <div class="mt-2 bg-slate-50 rounded-md p-3 overflow-auto" style="min-height:160px;">
+        <pre><code class="text-sm">resource "aws_s3_bucket" "my_insecure_bucket" {
+  bucket = "my-unique-insecure-bucket-name-123456"
+  acl    = "public-read" # Insecure: Public Read Access
+}
+
+resource "aws_security_group" "my_insecure_sg" {
+  name = "my-insecure-security-group"
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] # Insecure
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Outcome</div>
+        <p class="text-sm text-slate-800 mt-2">Fixing code prevents insecure resources from being provisioned, lowering remediation cost and reducing incidents in production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

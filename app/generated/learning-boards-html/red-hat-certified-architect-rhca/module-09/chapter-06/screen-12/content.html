@@ -1,0 +1,26 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">HAProxy + Keepalived</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Typical deployment pattern</div>
+      <div class="mt-3 text-sm text-slate-700">Two HAProxy nodes run in active/standby. Keepalived manages a VIP so clients always connect to the same IP. HAProxy performs health checks and distributes traffic to backend servers. On primary failure, Keepalived migrates the VIP to the standby, which accepts connections immediately.</div>
+      <div class="mt-4 text-sm text-slate-700">Ensure draining and coordinated health checks so sessions complete gracefully and VIP moves only when the host truly cannot serve traffic.</div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Scenario: maintenance</div>
+        <div class="mt-2 text-sm text-slate-700">Drain the primary HAProxy, remove the VIP, perform maintenance, then return the VIP. Clients experience no DNS change and traffic continues via the standby while you maintain the primary.</div>
+      </div>
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-700">Relying solely on VIP failover without HAProxy-level health checks can let unhealthy backends continue receiving traffic. Coordinate both layers for resilience.</div>
+      </div>
+    </div>
+  </div>
+</div>

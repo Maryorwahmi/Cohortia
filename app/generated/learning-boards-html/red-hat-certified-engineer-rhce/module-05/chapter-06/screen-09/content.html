@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .card-border{border-color:rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <h2 class="text-2xl font-bold text-slate-900 mt-2">Network Troubleshooting Playbook</h2>
+    <div class="text-sm text-slate-600 mt-1">A playbook that gathers facts, inspects ports, pings, and conditionally runs traceroute</div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-white border p-4" style="border-color:var(--card-border); height:calc(100% - 100px); overflow:hidden;">
+    <pre class="mono text-sm" style="height:100%; overflow:auto;">---
+- name: Network Troubleshooting Playbook
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Gather network facts (if not already gathered)
+      ansible.builtin.setup
+      when: ansible_facts is not defined or not ansible_facts.keys()
+
+    - name: Display primary IP and gateway
+      ansible.builtin.debug:
+        msg: "Primary IP: {{ ansible_facts.default_ipv4.address }}, Gateway: {{ ansible_facts.default_ipv4.gateway }}"
+
+    - name: Check open ports on the server
+      ansible.builtin.command: "ss -tulpn"
+      register: open_ports_output
+      changed_when: false
+
+    - name: Display open ports
+      ansible.builtin.debug:
+        var: open_ports_output.stdout_lines
+
+    - name: Test connectivity to an external host (e.g., google.com)
+      ansible.builtin.command: "ping -c 3 google.com"
+      register: ping_google_output
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Display ping results
+      ansible.builtin.debug:
+        var: ping_google_output.stdout_lines
+
+    - name: Run traceroute if ping to external host failed
+      ansible.builtin.command: "traceroute google.com"
+      register: traceroute_output
+      when: ping_google_output.rc != 0
+      changed_when: false
+
+    - name: Display traceroute results
+      ansible.builtin.debug:
+        var: traceroute_output.stdout_lines
+      when: ping_google_output.rc != 0</pre>
+
+    <div class="mt-3">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This playbook pattern combines facts, registered outputs, and when conditionals to collect evidence and run follow-up diagnostics only when necessary.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

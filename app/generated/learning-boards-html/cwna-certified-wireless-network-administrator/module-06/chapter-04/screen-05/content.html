@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">DHCP failure and APIPA</h3>
+      <p class="text-sm text-slate-700 mt-2">APIPA addresses show DHCP negotiation did not complete. Use this as a starting point to inspect DHCP server, relay, scope, firewall, and client adapter state.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-bold">Common causes</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+            <li>DHCP server down or unreachable</li>
+            <li>Scope exhaustion — no free leases</li>
+            <li>DHCP relay misconfigured or down</li>
+            <li>Firewall blocking UDP 67/68</li>
+            <li>Client driver or NIC issues</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Pro Tip</div>
+          <div class="text-sm text-slate-800 mt-1">APIPA is a fast indicator. Once seen, focus on DHCP path rather than wireless signal strength.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="mt-2 text-sm text-slate-700">A laptop shows 169.254.23.18 after associating. Running ipconfig /all shows no DHCP server listed. After ipconfig /renew the client reports timeout trying to contact DHCP. This confirms a server or relay problem rather than a transient radio issue.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Check list</div>
+        <div class="grid gap-2">
+          <div class="rounded-lg bg-white p-3 border card-border">
+            <div class="text-sm font-bold">Verify server reachability</div>
+            <div class="text-sm text-slate-700 mt-1">Can you ping the DHCP server from a management host? If not, inspect routing and relay agents.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 border card-border">
+            <div class="text-sm font-bold">Inspect scope usage</div>
+            <div class="text-sm text-slate-700 mt-1">Is the lease pool exhausted? Expand the pool or reclaim stale leases if necessary.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-sm text-slate-800">Restarting association often doesn't fix DHCP root causes; it only retriggers the same failed negotiation unless the server or relay is addressed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

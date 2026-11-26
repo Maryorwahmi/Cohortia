@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">ConcreteBookShelf: Inner Class Iterator</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete aggregate snippet</div>
+      <pre class="mono bg-slate-50 p-3 rounded-md mt-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>class ConcreteBookShelf implements BookShelfAggregate {
+  private Book[] books;
+  private int lastAdded = 0;
+  private int modCount = 0; // simple modification counter
+
+  public ConcreteBookShelf(int maxSize) {
+    this.books = new Book[maxSize];
+  }
+
+  public void addBook(Book book) {
+    if (lastAdded &lt; books.length) {
+      books[lastAdded++] = book;
+      modCount++;
+    }
+  }
+
+  public BookIterator createIterator() { return new BookShelfIterator(); }
+
+  private class BookShelfIterator implements BookIterator {
+    private int index = 0;
+    private final int expectedMod = modCount;
+
+    public boolean hasNext() { return index &lt; lastAdded; }
+
+    public Book next() {
+      if (expectedMod != modCount) throw new java.util.ConcurrentModificationException();
+      if (!hasNext()) throw new java.util.NoSuchElementException();
+      return books[index++];
+    }
+  }
+}</code></pre>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation cards</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 flex-grow">
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">modCount pattern: capture on creation, verify each next(), throw on mismatch to fail fast.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-800">NoSuchElementException: defensive check when client calls next() but no elements remain.</div>
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800">Inner class access: allows iterator to reach private books[] and lastAdded directly without extra getters.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Keep iterator responsibility narrow: step and return. Avoid mutation logic in next().</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

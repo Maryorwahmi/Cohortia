@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Subqueries — types</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl p-5 card">
+      <div class="text-lg font-bold text-slate-800">Scalar Subquery</div>
+      <div class="mt-3 text-sm text-slate-600">Returns one value. Useful for comparing a column to an aggregate like average or max.</div>
+      <div class="mt-4 p-3 bg-white border border-slate-100 rounded-lg">
+        <pre style="white-space: pre-wrap; tab-size: 2; margin:0"><code>SELECT FirstName, LastName, Salary
+FROM Employees
+WHERE Salary &gt; (SELECT AVG(Salary) FROM Employees);</code></pre>
+      </div>
+    </div>
+    <div class="rounded-2xl p-5 card">
+      <div class="text-lg font-bold text-slate-800">Table & Correlated</div>
+      <div class="mt-3 text-sm text-slate-600">Table subqueries return a derived table in FROM; correlated subqueries reference the outer row and often use EXISTS to test per-row conditions.</div>
+      <div class="mt-4 p-3 bg-white border border-slate-100 rounded-lg">
+        <pre style="white-space: pre-wrap; tab-size: 2; margin:0"><code>-- Table subquery as derived table
+SELECT AVG(Sub.Salary) AS AvgSalary2022
+FROM (
+  SELECT Salary
+  FROM Employees
+  WHERE HireDate BETWEEN '2022-01-01' AND '2022-12-31'
+) AS Sub;
+
+-- Correlated example uses EXISTS:
+SELECT DISTINCT DepartmentID
+FROM Employees E1
+WHERE EXISTS (
+  SELECT 1 FROM Employees E2 WHERE E2.DepartmentID = E1.DepartmentID AND E2.Salary &gt; 80000
+);</code></pre>
+      </div>
+    </div>
+    <div class="col-span-2 mt-4 p-4 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <div class="text-sm text-slate-800">Choose the subquery shape that matches the data you need: a single value, a row, a derived table, or a per-row existence test.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

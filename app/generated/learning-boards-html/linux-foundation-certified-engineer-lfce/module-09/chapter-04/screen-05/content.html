@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-slate-50 text-slate-700 border">Definition</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/3 bg-white rounded-2xl p-4 shadow-sm border flex flex-col" style="min-height:0;">
+      <h3 class="text-xl font-bold text-slate-800">Parts of the architecture</h3>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li><strong>Control node:</strong> Runs Ansible CLI and playbooks; requires Python and Ansible.</li>
+        <li><strong>Inventory:</strong> Hosts file or dynamic source that groups managed nodes.</li>
+        <li><strong>Managed nodes:</strong> Targets reachable via SSH; modules execute briefly and return results.</li>
+        <li><strong>Communication:</strong> SSH with keys is recommended for secure, passwordless operation.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-md bg-amber-50 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-1">Ansible installs an agent — false. Modules are copied and run momentarily; no persistent agent is required.</div>
+      </div>
+    </div>
+
+    <div class="w-2/3 bg-white rounded-2xl p-4 shadow-sm border flex flex-col" style="min-height:0;">
+      <div class="text-sm font-semibold text-slate-800">Execution flow</div>
+      <div class="mt-3 grid grid-cols-3 gap-3 flex-1">
+        <div class="p-3 rounded-md bg-slate-50 border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">1. Command</div>
+          <div class="mt-2 text-sm text-slate-700">You run ansible or ansible-playbook from control node.</div>
+        </div>
+        <div class="p-3 rounded-md bg-slate-50 border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">2. Push module</div>
+          <div class="mt-2 text-sm text-slate-700">Ansible copies a module payload to managed nodes over SSH.</div>
+        </div>
+        <div class="p-3 rounded-md bg-slate-50 border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">3. Execute & return</div>
+          <div class="mt-2 text-sm text-slate-700">The module runs and returns a result to the control node for reporting.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-white p-3 border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-2">Running <span class="font-mono text-xs text-slate-800">ansible webservers -m ping</span> connects to each host in the webservers group, executes a small ping module, and reports success or failure back to the control node.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Secure SSH and inventory validation are prerequisites for reliable automation; modules are ephemeral and do not leave agents behind.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

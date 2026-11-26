@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">$facet: Purpose</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Behavior</div>
+      <p class="text-sm text-slate-700 mt-2">Each named sub-pipeline processes the same input set and produces an array. The $facet output is one document with fields matching sub-pipeline names.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-lg bg-violet-50">Good for dashboards that need multiple related metrics at once.</div>
+        <div class="p-3 rounded-lg bg-amber-50">Remember to reduce input with top-level $match where possible.</div>
+        <div class="p-3 rounded-lg bg-rose-50">Be aware of memory usage for large inputs.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre><code>db.products.aggregate([
+  { $facet: {
+      "salesByCategory": [
+        { $group: { _id: "$category", totalQuantity: { $sum: "$quantity" } } },
+        { $sort: { totalQuantity: -1 } }
+      ],
+      "top5Products": [
+        { $sort: { quantity: -1 } },
+        { $limit: 5 },
+        { $project: { _id: 0, name: 1, quantity: 1 } }
+      ],
+      "avgPricePerCategory": [
+        { $group: { _id: "$category", averagePrice: { $avg: "$price" } } }
+      ]
+    }
+  }
+])</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">$facet returns a single document of arrays. Use it to produce multiple consistent views in one query, but watch input size and memory.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

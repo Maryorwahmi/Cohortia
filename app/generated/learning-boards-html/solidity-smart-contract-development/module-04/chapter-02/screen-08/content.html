@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tiny text-slate-500 mb-2">Comparison</div>
+      <div class="text-2xl font-bold text-slate-800">Pull vs Push</div>
+      <div class="mt-3 grid gap-2 text-sm text-slate-700">
+        <div class="rounded-lg p-3 bg-emerald-50">Pull: recipients call withdraw; contract stores balances; avoids unbounded loops.</div>
+        <div class="rounded-lg p-3 bg-amber-50">Push: contract iterates and sends; can be simpler but vulnerable to gas limits.</div>
+        <div class="rounded-lg p-3 bg-blue-50">Batch: process a slice of items per transaction with start and count parameters.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <div class="text-sm text-slate-700">Prefer pull payments for high-cardinality payouts; use batching when pull semantics are unsuitable for UX reasons.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Pattern: simple withdraw</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3 overflow-auto"><code>// Conceptual withdraw pattern
+mapping(address => uint256) public balances;
+
+function depositFor(address to) internal {
+  balances[to] += msg.value;
+}
+
+function withdraw() public {
+  uint256 amount = balances[msg.sender];
+  require(amount > 0, "No funds");
+  balances[msg.sender] = 0; // effects first
+  (bool success, ) = msg.sender.call{value: amount}("");
+  require(success, "Transfer failed");
+}
+</code></pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Common tests</div>
+        <div class="text-sm text-slate-700">Assert balances zero after withdraw, assert only intended recipient can withdraw their balance, simulate failed transfers and ensure state remains consistent.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

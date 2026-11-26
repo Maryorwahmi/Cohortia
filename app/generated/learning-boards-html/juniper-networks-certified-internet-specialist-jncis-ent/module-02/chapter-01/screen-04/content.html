@@ -1,0 +1,49 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border-radius:12px;border:1px solid rgba(226,232,240,0.9)}.badge{font-size:10px;letter-spacing:.08em}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 badge text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Core Concept</span>
+      <span class='text-slate-700'>MAC Address Learning</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='text-xl font-bold text-slate-900'>How a switch learns MACs</div>
+      <div class='text-sm text-slate-600'>The switch records source MACs and associated ingress ports. The MAC table drives selective forwarding and limits unnecessary traffic.</div>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Process explained</div>
+        <ul class='text-sm text-slate-700 space-y-2'>
+          <li>Inspect source MAC on every received frame and record port↔MAC mapping.</li>
+          <li>Use table entries to forward frames only to the port where the destination resides.</li>
+          <li>If destination unknown, flood within the broadcast domain until response builds the table.</li>
+          <li>MAC entries age out and are refreshed by traffic from the same device.</li>
+        </ul>
+      </div>
+      <div class='grid grid-cols-2 gap-3'>
+        <div class='card p-3'>
+          <div class='text-[10px] font-bold uppercase text-slate-500 mb-1'>Example</div>
+          <div class='text-sm text-slate-700'>A workstation sends ARP after boot. The switch learns the workstation's MAC from that ARP and records its port.</div>
+        </div>
+        <div class='card p-3'>
+          <div class='text-[10px] font-bold uppercase text-rose-500 mb-1'>Common mistake</div>
+          <div class='text-sm text-slate-700'>Assuming switches learn destination MACs or that entries never expire. Both lead to incorrect troubleshooting steps.</div>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Visual: MAC table (annotated)</div>
+        <div class='text-sm text-slate-700'>A compact table shows columns: VLAN, MAC address, Port, Age. Watching this table while devices start up illustrates learning in real time.</div>
+        <div class='mt-3 bg-slate-50 border border-slate-100 rounded-lg p-3 font-mono text-sm' style='white-space:pre-wrap; tab-size:2'>
+VLAN   MAC Address        Port     Age
+10     aa:bb:cc:11:22:33  ge-0/0/0  00:05
+10     aa:bb:cc:44:55:66  ge-0/0/1  00:02
+</div>
+      </div>
+      <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>MAC learning is reactive: traffic from a device creates the table entry you then rely on for efficient forwarding.</p>
+      </div>
+    </div>
+  </div>
+</div>

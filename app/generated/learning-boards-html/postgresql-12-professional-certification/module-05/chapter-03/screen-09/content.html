@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Selective restoration</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Quick example</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space: pre-wrap; tab-size: 2;"># Create database
+createdb -U postgres sales_db_restore_selective
+
+# Restore only the products table
+pg_restore -U postgres -d sales_db_restore_selective --table=products /tmp/sales_db_custom.dump
+
+# Verify
+psql -U postgres -d sales_db_restore_selective -c "\dt"
+psql -U postgres -d sales_db_restore_selective -c "SELECT COUNT(*) FROM products;"</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">When to use</div>
+          <div class="text-xs text-slate-700">Recover a single corrupted table, or move only the data needed for a patch or test environment.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Use the contents list</div>
+      <div class="text-sm text-slate-700 mb-3">For fine-grained control, list archive contents and build a use-list that pg_restore can apply.</div>
+      <div class="bg-slate-50 p-3 rounded border card-border text-xs text-slate-700">pg_restore -l /tmp/sales_db_custom.dump</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-lg p-3 bg-amber-50 border card-border">
+          <div class="text-sm font-semibold text-amber-700">Misconception</div>
+          <div class="text-xs text-slate-700">Restoring a table alone may miss dependent objects. Check and include constraints, indexes, and related sequences if needed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

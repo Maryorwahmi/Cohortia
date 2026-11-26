@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px; }</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Live Coding</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Demo: raise, custom, assert</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[76%]">
+      <div class="card p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step 1 — Raise built-in</div>
+        <pre class="p-3 bg-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size: 2;"><code>def check_age(age):
+  if not isinstance(age, int):
+    raise ValueError("age must be an integer")
+  if age &lt; 0:
+    raise ValueError("Age cannot be negative")</code></pre>
+
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mt-3">Step 2 — Custom exception</div>
+        <pre class="p-3 bg-slate-100 rounded-lg mt-2" style="white-space: pre-wrap; tab-size: 2;"><code>class InvalidCredentialsError(Exception):
+  def __init__(self, username, reason):
+    self.username = username
+    self.reason = reason
+    super().__init__(f"Invalid credentials for {username}: {reason}")
+
+def login(user, password):
+  # Simulated check
+  if user != 'admin' or password != 'secret':
+    raise InvalidCredentialsError(user, "invalid username or password")</code></pre>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step 3 — Assert for dev checks</div>
+        <pre class="p-3 bg-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size: 2;"><code>def process_token(token):
+  assert len(token) &gt; 0, "token must not be empty"
+  # Further processing assuming token exists</code></pre>
+
+        <div class="mt-3 text-sm text-slate-700">Catch the custom exception and inspect attributes for logging or UI messages. Use assert only to document invariants during development, not as a substitute for raise.</div>
+
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 mt-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Learner exercise</div>
+          <p class="text-xs font-medium text-slate-800">Complete the TODO in the InvalidCredentialsError initializer by storing attributes and calling super as shown.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

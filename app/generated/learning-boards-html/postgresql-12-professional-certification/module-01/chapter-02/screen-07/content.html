@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">systemctl Management</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm border-slate-100 flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Essential systemctl commands</div>
+        <pre class="flex-1 overflow-auto bg-slate-50 p-3 rounded-lg text-sm text-slate-800" style="white-space: pre-wrap; tab-size: 2;"><code>sudo systemctl status postgresql    # Check running state and recent log lines
+sudo systemctl start postgresql     # Start the service
+sudo systemctl stop postgresql      # Stop the service
+sudo systemctl restart postgresql   # Full restart of the service
+sudo systemctl reload postgresql    # Re-read config files without a full restart
+sudo systemctl enable postgresql    # Start on boot
+sudo systemctl disable postgresql   # Do not start on boot
+
+# Inspect logs for errors
+sudo journalctl -u postgresql.service --no-pager | tail -n 50</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-4 shadow-sm border-slate-100 flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">When to reload vs restart</div>
+        <p class="text-sm text-slate-700">Use reload after safe editing of parameters that can be applied without reinitializing processes, such as pg_hba.conf changes. Use restart when low-level process state must be reset or when instructed by major upgrades.</p>
+
+        <div class="mt-3 grid grid-cols-1 gap-3">
+          <div class="rounded-xl bg-white p-3 border border-slate-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Example</div>
+            <div class="text-sm text-slate-800">After changing listen_addresses, run sudo systemctl reload postgresql; if the server doesn't accept the new address, check logs and consider a restart.</div>
+          </div>
+
+          <div class="rounded-xl bg-rose-50 p-3 border border-slate-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+            <div class="text-sm text-slate-800">Forgetting to check journalctl when systemctl reports failed prevents you from seeing the underlying permission or configuration errors.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use systemctl and journalctl together: control the service, then inspect logs to diagnose startup and reload problems.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

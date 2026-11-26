@@ -1,0 +1,80 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#f8fafc;">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Token Bucket Simulation (Conceptual Python)</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 card p-5 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter code</div>
+      <div class="mt-3 bg-slate-100 rounded-lg p-3 text-sm text-slate-800" style="max-height:420px;">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">import time
+from collections import deque
+
+class TokenBucket:
+    def __init__(self, capacity, fill_rate):
+        """
+        Initializes a Token Bucket.
+        :param capacity: Maximum number of tokens the bucket can hold.
+        :param fill_rate: Number of tokens added per second.
+        """
+        self.capacity = capacity
+        self.fill_rate = fill_rate
+        self.tokens = capacity # Start with a full bucket
+        self.last_fill_time = time.time()
+
+    def _refill_tokens(self):
+        now = time.time()
+        time_elapsed = now - self.last_fill_time
+        tokens_to_add = time_elapsed * self.fill_rate
+
+        self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+        self.last_fill_time = now
+
+    def try_consume(self, num_tokens=1):
+        """
+        Attempts to consume tokens.
+        :param num_tokens: Number of tokens to consume for the request.
+        :return: True if tokens were consumed, False otherwise.
+        """
+        self._refill_tokens() # Always refill before attempting to consume
+
+        if self.tokens >= num_tokens:
+            self.tokens -= num_tokens
+            print(f"Consumed {num_tokens} token(s). Remaining: {self.tokens:.2f}")
+            return True
+        else:
+            print(f"Failed to consume {num_tokens} token(s). Not enough tokens. Remaining: {self.tokens:.2f}")
+            return False
+        </pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Instructions: run the script to observe initial bursts, wait intervals, and refill behavior. Change capacity and fill_rate to see their effects. To adapt for distributed systems, move token state to Redis and use atomic operations to update token counts across gateways.</div>
+    </div>
+
+    <div class="w-1/2 card p-5 flex flex-col gap-3">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">What to observe</div>
+        <ul class="mt-2 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Initial full-bucket burst allows multiple immediate requests.</li>
+          <li>Waiting refills tokens at the configured rate.</li>
+          <li>Short bursts are allowed if tokens are available; long bursts are denied.</li>
+        </ul>
+      </div>
+
+      <div class="p-3 bg-amber-50 rounded-lg">
+        <div class="text-xs font-bold text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Simulate backend processing time to see how bursts interact with concurrency limits; combine token bucket with a concurrency throttle to avoid overload.</div>
+      </div>
+
+      <div class="p-3 bg-emerald-50 rounded-lg border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the simulation to pick capacity and fill rate that balance UX and system capacity. Then plan a Redis-based adaptation for distributed gateways.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

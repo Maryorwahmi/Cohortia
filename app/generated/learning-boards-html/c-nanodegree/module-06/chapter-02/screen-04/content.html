@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code { background:#0f172a; color:#e6eef8; border-radius:10px; padding:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">The noexcept specifier</span>
+    </div>
+    <div class="flex gap-4 h-full">
+      <div class="w-1/2 h-full flex flex-col">
+        <div class="text-xl font-bold text-slate-900">noexcept: a non-throwing contract</div>
+        <div class="text-sm text-slate-600 mt-2">Declare functions that are guaranteed not to throw, and enable runtime and container optimizations.</div>
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-xl border bg-blue-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Definition</div>
+            <div class="text-sm text-slate-800">A function declared noexcept promises no exceptions will escape. If one does, std::terminate() is called.</div>
+          </div>
+          <div class="rounded-xl border bg-white p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete example</div>
+            <div class="text-sm text-slate-700">Mark a move constructor noexcept so containers can move elements instead of copying during reallocation, improving performance.</div>
+          </div>
+          <div class="rounded-xl border bg-white p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common misconception</div>
+            <div class="text-sm text-slate-700">noexcept does not suppress exceptions. It is a promise; violating it causes termination, not recovery.</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-1/2 h-full flex flex-col">
+        <div class="code h-full overflow-auto">
+&lt;!-- Example adapted from chapter content --&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+
+void doSomethingNonThrowing() noexcept {
+  std::cout &lt;&lt; "Inside doSomethingNonThrowing." &lt;&lt; std::endl;
+  // throwing here would call std::terminate()
+}
+
+void doSomethingPotentiallyThrowing(int value) {
+  if (value &lt; 0) {
+    throw std::runtime_error("Negative value encountered.");
+  }
+  std::cout &lt;&lt; "Working with value: " &lt;&lt; value &lt;&lt; std::endl;
+}
+
+// If doSomethingNonThrowing threw, the program would terminate.
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use noexcept when you can guarantee no exceptions and you want clearer intent and better performance.</p>
+          </div>
+          <div class="rounded-lg border bg-white p-3">
+            <div class="text-xs font-semibold text-slate-700">Pro tip</div>
+            <div class="text-xs text-slate-500 mt-1">Prefer noexcept for destructors and for move operations that do not allocate or throw.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

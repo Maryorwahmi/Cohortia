@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">HTTP Cloud Function</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-full">
+      <div class="card p-5">
+        <div class="text-sm font-semibold text-slate-900">functions/index.js</div>
+        <pre class="code mt-3 rounded-md p-3 bg-slate-50 text-slate-800">const functions = require('firebase-functions');
+
+exports.helloWorld = functions.https.onRequest((request, response) => {
+  functions.logger.info("Hello logs!", {structuredData: true});
+  response.send("Hello from Firebase!");
+});
+</pre>
+        <div class="mt-3 text-sm text-slate-600">Deploy with firebase deploy --only functions. After deployment, use the console to find the function URL and call it from your app or the browser to verify it responds.</div>
+      </div>
+
+      <div class="card p-5">
+        <div class="text-sm font-semibold text-slate-900">Calling from Flutter</div>
+        <pre class="code mt-3 rounded-md p-3 bg-slate-50 text-slate-800">import 'package:http/http.dart' as http;
+
+Future<void> callHelloWorldFunction() async {
+  final String functionUrl = 'YOUR_CLOUD_FUNCTION_HTTP_URL';
+  final response = await http.get(Uri.parse(functionUrl));
+  if (response.statusCode == 200) {
+    print('Cloud Function response: ${response.body}');
+  }
+}
+</pre>
+        <div class="mt-3 text-sm text-slate-600">Or use FirebaseFunctions.instance.httpsCallable for callable functions that manage auth context automatically.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

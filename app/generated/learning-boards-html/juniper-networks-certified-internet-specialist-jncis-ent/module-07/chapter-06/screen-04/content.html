@@ -1,0 +1,53 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff;'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-4/12 card p-4 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Core Concept</div>
+      <div class='text-xl font-bold text-slate-900 mb-2'>Logical AND in 'from'</div>
+      <div class='text-sm text-slate-600 mb-3'>Each additional field restricts the matched packets. Understand this to prevent accidental broad matches.</div>
+      <div class='mt-2 p-3 rounded-lg bg-blue-50 border border-blue-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-blue-700 mb-1'>Example</div>
+        <div class='text-sm text-slate-800'>Match source 192.168.100.0/24 + protocol tcp + destination-port 22. Only management TCP SSH from that network matches.</div>
+      </div>
+      <div class='mt-3 p-3 rounded-lg bg-rose-50 border border-rose-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-rose-700 mb-1'>Common mistake</div>
+        <div class='text-sm text-slate-800'>Assuming 'from' fields are ORed. That causes rules to be too permissive or too restrictive if used incorrectly.</div>
+      </div>
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Combine fields only when you intend to narrow the match. Use separate terms for alternate OR branches.</p>
+        </div>
+      </div>
+    </div>
+    <div class='flex-1 p-4'>
+      <div class='h-full rounded-lg border border-slate-100 bg-white p-4 flex flex-col'>
+        <div class='font-bold text-slate-800 mb-3'>Annotated example</div>
+        <pre class='bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto' style='font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;'>firewall {
+  family inet {
+    filter EXAMPLE {
+      term MANAGEMENT_SSH {
+        from {
+          source-address 192.168.100.0/24;
+          protocol tcp;
+          destination-port 22;
+        }
+        then accept;
+      }
+    }
+  }
+}
+</pre>
+        <div class='mt-3 grid grid-cols-2 gap-3'>
+          <div class='p-3 rounded-lg bg-white border'>
+            <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>What matches</div>
+            <div class='text-sm text-slate-700'>TCP packets from the management network with destination port 22.</div>
+          </div>
+          <div class='p-3 rounded-lg bg-white border'>
+            <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>What does not</div>
+            <div class='text-sm text-slate-700'>UDP to port 22, TCP from other source networks, or SSH from other ports will not match.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

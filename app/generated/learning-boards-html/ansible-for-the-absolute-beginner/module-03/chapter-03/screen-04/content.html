@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Why variables matter</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-xl font-bold text-slate-800 mb-2">Concept and example</div>
+      <p class="text-sm text-slate-700 mb-3">Variables let you replace repeated literal values with a single named source of truth. Below is a compact play vars example that defines the Nginx port and application version for the play.</p>
+      <pre class="rounded-lg p-3 bg-slate-50 border">- name: Example play with play variables
+  hosts: webservers
+  vars:
+    nginx_port: 8080
+    app_version: 1.2.3
+  tasks:
+    - name: Configure Nginx to listen on custom port
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/default</pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <div class="text-sm text-slate-800">Variables are not always global. A play vars section is local to that play; host and group vars have different scopes and precedence.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+          <div class="text-sm text-slate-800">Start with group_vars for similar hosts and only use host_vars when a host truly needs a different value.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Practical steps</div>
+      <ul class="list-disc ml-5 text-sm text-slate-700 space-y-2">
+        <li>Identify repeated literal values in your playbook, such as ports, package names, or paths.</li>
+        <li>Choose an appropriate scope: play, group, or host, based on how widely the value should apply.</li>
+        <li>Define the variable and replace literal occurrences with Jinja2 expressions like {{ package_name }}.</li>
+        <li>Run the playbook and verify the change appears across targets.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Centralize values with variables so updates are quick, consistent, and low-risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

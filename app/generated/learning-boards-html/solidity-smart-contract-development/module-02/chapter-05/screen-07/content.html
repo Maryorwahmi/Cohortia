@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Deposit Function Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-full rounded-xl bg-white border p-5 shadow-sm border-gray-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Payable deposit with validation</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+contract ExampleDeposit {
+  mapping(address =&gt; uint) public balances;
+  event Deposit(address indexed sender, uint amount, uint balance);
+  error InvalidInput(uint input);
+
+  function depositFunds() public payable {
+    if (msg.value == 0) {
+      revert InvalidInput(0);
+    }
+    balances[msg.sender] += msg.value;
+    emit Deposit(msg.sender, msg.value, balances[msg.sender]);
+  }
+}</code></pre>
+
+      <div class="mt-4 text-sm text-slate-700">Run in Remix, send a small value, then inspect the transaction logs to confirm the Deposit event and the updated balances mapping. If msg.value is zero, the function reverts with a custom error payload that clients can parse.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

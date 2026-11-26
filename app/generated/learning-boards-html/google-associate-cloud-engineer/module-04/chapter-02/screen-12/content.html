@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4.2</span><span>›</span><span>Chapter: Subnets, IP Addresses, and Routes</span><span>›</span><span class="text-slate-700">Deploying VM with Static IP</span></div><div class="flex flex-col h-full w-full gap-6"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Practical Application</div><h3 class="text-3xl font-bold text-slate-900 mb-4">Deploying a VM with a Static IP</h3><p class="text-base text-slate-700 mb-6">Attaching a reserved IP to a new instance and verifying its configuration for public access.</p><div class="flex flex-col lg:flex-row flex-grow gap-6"><div class="flex-1 bg-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Terminal: gcloud CLI</div><pre class="text-emerald-300 text-sm leading-relaxed" style="white-space: pre-wrap; tab-size: 2;"><code><span class="text-blue-400"># Create VM and assign the static IP</span>
+gcloud compute instances create <span class="text-yellow-300">my-web-server</span> \
+  --zone=<span class="text-yellow-300">us-central1-a</span> \
+  --machine-type=<span class="text-yellow-300">e2-medium</span> \
+  --image-family=<span class="text-yellow-300">debian-11</span> \
+  --image-project=<span class="text-yellow-300">debian-cloud</span> \
+  --network=<span class="text-yellow-300">my-custom-vpc</span> \
+  --subnet=<span class="text-yellow-300">my-subnet-us-central1</span> \
+  --address=<span class="text-yellow-300">my-app-static-ip</span> \
+  --tags=<span class="text-yellow-300">http-server</span> \
+  --metadata=startup-script="<span class="text-yellow-300">#! /bin/bash
+    sudo apt update
+    sudo apt install -y apache2
+    echo '&lt;!doctype html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from my-web-server!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;' | sudo tee /var/www/html/index.html</span>"
+
+<span class="text-blue-400"># Verify the VM's IP addresses</span>
+gcloud compute instances describe <span class="text-yellow-300">my-web-server</span> \
+  --zone=<span class="text-yellow-300">us-central1-a</span> \
+  --format='get(networkInterfaces[0].networkIP,networkInterfaces[0].accessConfigs[0].natIP)'
+
+<span class="text-blue-400"># Expected Output:</span>
+<span class="text-green-400">10.10.16.2,34.123.45.67</span>
+</code></pre></div><div class="flex-1 flex flex-col gap-4"><div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Command Breakdown</div><ul class="list-disc list-inside text-sm text-slate-600 space-y-2"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><div><code>gcloud compute instances create</code>: Command to create a new VM instance.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><div><code>--address=my-app-static-ip</code>: Crucial flag to assign the previously reserved static IP.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><div><code>--metadata=startup-script</code>: Installs Apache and creates a simple web page for testing.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><div><code>gcloud compute instances describe --format</code>: Used to extract and display the internal and external IP addresses.</div></li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Verifying IP assignment after VM creation is a critical step to ensure your resources are correctly configured for both internal and external communication.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

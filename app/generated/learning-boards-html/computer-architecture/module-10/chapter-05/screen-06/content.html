@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+      <span>›</span>
+      <span>Chapter 10.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Loop-Carried Dependencies</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[68%]">
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <h4 class="font-bold text-lg">What it is</h4>
+        <p class="text-sm text-slate-700 mt-2">A loop-carried dependency means iteration i depends on results from iteration i-1 or earlier, preventing parallel execution.</p>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-3 text-xs" style="white-space:pre-wrap; tab-size:2;">for (int i = 1; i &lt; N; i++) {
+  a[i] = a[i-1] + 1;
+}</pre>
+        <div class="mt-3 text-sm text-slate-600">This example is inherently serial; the value of a[i] cannot be computed until a[i-1] is known.</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <h4 class="font-bold text-lg">Options and misconceptions</h4>
+        <ul class="text-sm text-slate-700 list-disc pl-5 space-y-2 mt-2">
+          <li>Some dependent patterns require algorithmic transforms such as parallel scan; compilers do not automatically rewrite to parallel algorithms.</li>
+          <li>If the dependency is incidental, a code rewrite may expose independent iterations that a compiler can vectorize.</li>
+          <li>Do not assume compiler heuristics will hide a fundamental serial dependency.</li>
+        </ul>
+        <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Trying to force vectorization with pragmas on a truly dependent loop will not preserve correctness.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

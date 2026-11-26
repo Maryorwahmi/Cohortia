@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-[rgba(239,102,117,0.06)] text-rose-700 border border-[rgba(239,102,117,0.04)]">Definition</span>
+      <span class="text-slate-700">Validator Script</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-2">A pure function that decides if a spend is allowed</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">What the validator sees</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li><strong>Redeemer</strong> — user-supplied action or proof for this transaction.</li>
+        <li><strong>Datum</strong> — the on-chain state attached to the consumed UTXO.</li>
+        <li><strong>Script Context</strong> — full transaction info: signers, inputs, outputs, validity interval, and more.</li>
+      </ul>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Illustrative pseudocode</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-- Pseudocode: validator(redeemer, datum, ctx)
+-- returns true when conditions are met
+validate(redeemer, datum, ctx) =
+  -- check deadline
+  if currentTimeIn(ctx) &gt;= datum.deadline then
+    return false
+  -- check signer
+  if datum.sender not in ctx.signers then
+    return false
+  -- check that an output pays the receiver
+  if not exists output in ctx.outputs where output.address == datum.receiver and output.value &gt;= datum.amount then
+    return false
+  return true
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This code shows the three checks: time, signer, and output payment. Validators combine datum, redeemer and script context assertions to produce a single deterministic decision.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

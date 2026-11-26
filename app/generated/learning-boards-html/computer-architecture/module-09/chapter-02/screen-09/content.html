@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulator Starter</span>
+  </div>
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-800 mb-2">Simulator Starter Code</div>
+    <div class="text-sm text-slate-600 mb-4">A minimal structure for tracing and evaluation.</div>
+    <div class="rounded-xl bg-white card-border p-3 mb-4">
+      <pre class="text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+# Trace format: address direction outcome
+# direction: backward|forward
+# outcome: T | N
+# Example lines:
+# 0x100 backward T
+# 0x104 forward N
+
+# Training pass (for profile-guided):
+for line in training_trace:
+  addr, dir, outcome = parse(line)
+  table[addr].count[outcome] += 1
+
+# Evaluation pass:
+for line in test_trace:
+  addr, dir, outcome = parse(line)
+  predict_always_taken = 'T'
+  predict_always_not = 'N'
+  predict_btfnt = 'T' if dir == 'backward' else 'N'
+  predict_profile = table[addr].most_common() if addr in table else 'T' # fallback
+  # compare each predict to actual and count matches
+</pre>
+    </div>
+    <div class="grid grid-cols-3 gap-3">
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">Example traces</div>
+        <div class="text-sm text-slate-600 mt-2">Loop: repeated backward taken entries. Binary search: predictable changes. Quicksort: data-dependent decisions.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Using the same trace for training and testing inflates profile-guided accuracy. Use separate runs or cross-validation.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">Key takeaway</div>
+        <div class="text-sm text-slate-600 mt-2">A small simulator reveals how each rule behaves on targeted workloads and clarifies trade-offs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

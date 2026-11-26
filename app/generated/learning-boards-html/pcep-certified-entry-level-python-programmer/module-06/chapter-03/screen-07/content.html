@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 3</span>
+      <span>›</span>
+      <span class="text-slate-700">InvalidTemperatureError</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg">class InvalidTemperatureError(ValueError):
+    """Raised when a temperature value is outside a valid range."""
+    def __init__(self, message="Temperature is outside valid range", temperature=None):
+        super().__init__(message)
+        self.temperature = temperature
+
+def set_room_temperature(temp):
+    if not isinstance(temp, (int, float)):
+        raise TypeError("Temperature must be a number.")
+    if not (18 &lt;= temp &lt;= 25):
+        raise InvalidTemperatureError(f"Temperature {temp}°C is not within the acceptable range (18-25°C).", temp)
+    print(f"Room temperature set to {temp}°C.")
+
+try:
+    set_room_temperature(22)
+    set_room_temperature(15)
+except InvalidTemperatureError as e:
+    print(f"Custom error caught: {e}. Invalid temperature was: {e.temperature}")</pre>
+      <div class="mt-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-sm font-bold text-slate-800">Handler benefit</div>
+          <div class="text-sm text-slate-600 mt-1">The handler can access e.temperature directly, avoiding brittle message parsing.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-5/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Notes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Inherit from a relevant built-in to keep semantics intuitive.</li>
+        <li>Keep exceptions lightweight: store context, avoid heavy logic.</li>
+        <li>Document the custom exception so callers know to catch it.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Adding behavior to exception classes makes them harder to serialize or handle; prefer simple context storage.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

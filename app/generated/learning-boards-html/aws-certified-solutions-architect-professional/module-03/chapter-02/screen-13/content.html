@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f1724;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm overflow-hidden flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">CLI snippet (create table & GSI)</div>
+      <div class="mt-3">
+        <pre class="code"><code># Create UserProfile table (us-east-1)
+aws dynamodb create-table \
+  --table-name UserProfile \
+  --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=email,AttributeType=S \
+  --key-schema AttributeName=userId,KeyType=HASH \
+  --billing-mode PROVISIONED \
+  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+  --region us-east-1
+
+# Add GSI for email
+aws dynamodb update-table \
+  --table-name UserProfile \
+  --attribute-definitions AttributeName=email,AttributeType=S \
+  --global-secondary-index-updates '[{"Create":{"IndexName":"EmailIndex","KeySchema":[{"AttributeName":"email","KeyType":"HASH"}],"Projection":{"ProjectionType":"ALL"},"ProvisionedThroughput":{"ReadCapacityUnits":5,"WriteCapacityUnits":5}}}]' \
+  --region us-east-1</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Enable Streams, TTL, and Global Table</div>
+      <pre class="code"><code># Enable Streams
+aws dynamodb update-table --table-name UserProfile --stream-specification StreamEnabled=true,StreamViewType=NEW_AND_OLD_IMAGES --region us-east-1
+
+# Configure TTL
+aws dynamodb update-time-to-live --table-name UserProfile --time-to-live-specification Enabled=true,AttributeName=lastActive --region us-east-1
+
+# Switch to ON_DEMAND before globalization
+aws dynamodb update-table --table-name UserProfile --billing-mode ON_DEMAND --region us-east-1
+
+# Add replica (example: eu-west-1)
+aws dynamodb update-table --table-name UserProfile --replica-updates '[{"Create":{"RegionName":"eu-west-1"}}]' --region us-east-1</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Use a short Python script to insert a profile, query by userId, query EmailIndex, and check that the record shows up in the replica region after replication.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow sequence: create table, add GSI, enable Streams & TTL, switch billing, create replica, validate replication with a test write.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

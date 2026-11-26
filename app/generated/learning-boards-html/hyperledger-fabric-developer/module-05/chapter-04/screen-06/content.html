@@ -1,0 +1,24 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>.cohortia-bg{background-color:#f8fafc;}.card-shadow{box-shadow:0 4px 6px rgba(0,0,0,0.05);}.border-light-slate{border-color:rgba(226,232,240,0.9);}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Config Update: Fetching and Decoding</span></div><div class="flex flex-col flex-grow"><div class="mb-6"><span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Terminal Demo</span><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">Config Update: Fetching and Decoding</h2><p class="text-lg text-slate-700">Preparing to modify the channel configuration</p></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 text-white p-4 rounded-xl font-mono text-sm overflow-auto card-shadow flex-grow"><pre><code style="white-space: pre-wrap; tab-size: 2;"># 1. Fetch the current channel configuration block
+peer channel fetch config config_block.pb \
+  -o orderer.example.com:7050 \
+  --ordererTLSHostnameOverride orderer.example.com \
+  -c mychannel --tls \
+  --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+# Output (truncated):
+# 2023-10-27 10:00:00.123 UTC [channelCmd] InitCmdFactory -> INFO 001 ...
+# 2023-10-27 10:00:00.456 UTC [channelCmd] executeFetch -> INFO 002 ...
+# Fetched config block for channel "mychannel" as config_block.pb
+
+# 2. Decode the config block to JSON
+configtxlator proto_decode \
+  --input config_block.pb \
+  --type common.Block \
+  --output config.json
+
+# Output (no direct console output, creates config.json)
+
+# 3. Extract the config envelope for easier modification
+jq .data.data[0].payload.data.config config.json > config.json
+
+# Output (no direct console output, overwrites config.json with simplified structure)</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="p-4 rounded-xl bg-white border border-light-slate card-shadow"><h3 class="text-base font-semibold text-slate-900 mb-2">Command Breakdown</h3><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><code>peer channel fetch config</code>: Retrieves the latest configuration block.</li><li><code>-o</code>: Specifies the orderer endpoint.</li><li><code>--ordererTLSHostnameOverride</code>: Ensures correct TLS hostname validation.</li><li><code>-c</code>: Specifies the channel name.</li><li><code>--tls --cafile</code>: Provides TLS credentials for secure communication.</li><li><code>configtxlator proto_decode</code>: Converts protobuf binary to human-readable JSON.</li><li><code>jq .data.data[0].payload.data.config</code>: Extracts the relevant configuration part from the decoded JSON.</li></ul></div><div class="p-4 rounded-xl bg-amber-50 border border-amber-100 card-shadow"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div><p class="text-xs font-medium text-slate-800">Always ensure your environment variables (like <code>CORE_PEER_MSPCONFIGPATH</code>) are correctly set for the organization performing the fetch operation to avoid authorization errors.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Fetching and decoding the channel configuration is the foundational step for any dynamic update, providing a modifiable JSON representation of the network's current state.</p></div></div></div></div><script>gsap.from('.cohortia-bg > div', {opacity: 0, y: 20, duration: 0.8, stagger: 0.1, ease: 'power3.out'});</script><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

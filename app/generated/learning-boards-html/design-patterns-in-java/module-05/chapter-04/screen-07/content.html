@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,Menlo,monospace;font-size:13px}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Library Aggregate</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card-border shadow-sm p-4">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <div class="mt-3 text-sm text-slate-700">
+        The Library stores Book objects and exposes addBook, getBook, and getNumberOfBooks. It implements Iterable so it can be used with the enhanced for-loop by returning an iterator instance.
+      </div>
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Design tip</div>
+        <div class="text-sm text-slate-800">Keep accessors minimal and targeted for iterator use to maintain encapsulation.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border shadow-sm p-4">
+      <div class="text-sm font-bold text-slate-800">Code excerpt</div>
+      <pre><code>&lt;!-- Library: key methods --&gt;
+class Library implements BookCollection, Iterable&lt;Book&gt; {
+  private List&lt;Book&gt; books = new ArrayList&lt;&gt;();
+  public void addBook(Book book) { books.add(book); }
+  public Book getBook(int index) { return books.get(index); }
+  public int getNumberOfBooks() { return books.size(); }
+  public Iterator&lt;Book&gt; createIterator() { return new LibraryIterator(this); }
+  @Override public Iterator&lt;Book&gt; iterator() { return createIterator(); }
+}
+</code></pre>
+      <div class="mt-2 text-xs text-slate-600">This excerpt shows the aggregate methods the iterator relies on rather than exposing the list directly.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

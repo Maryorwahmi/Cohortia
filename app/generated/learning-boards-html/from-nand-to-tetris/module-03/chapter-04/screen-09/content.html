@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Pixel Update</span>
+    <span>›</span>
+    <span class="text-slate-700">Process</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="card p-4 w-1/2 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Steps to change one pixel</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Compute wordIndex = row*32 + (col/16) and address = 16384 + wordIndex.</li>
+        <li>Read M at that address into D.</li>
+        <li>Create mask = 1 &lt;&lt; (col % 16).</li>
+        <li>Set: D = D | mask. Clear: D = D & ~mask.</li>
+        <li>Write D back: M = D.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-700">This preserves the other 15 bits controlled by the same memory word.</div>
+    </div>
+
+    <div class="flex-1 card p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Analogy</div>
+      <div class="mt-3 text-sm text-slate-700">Think of a word as a row of 16 light switches in a single box. To flip one switch you open the box, change the single switch, and close it again. Replacing the whole box would change all switches.</div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <div class="text-xs font-medium text-slate-800">Writing a mask directly to a screen address overwrites 15 neighboring pixels; always merge with the current word.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

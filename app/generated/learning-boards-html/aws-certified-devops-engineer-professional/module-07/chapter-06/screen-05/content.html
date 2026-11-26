@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Cross-Region Read Replica</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 bg-white shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+      <ol class="list-decimal pl-4 text-sm text-slate-700 mt-3 space-y-2">
+        <li>Ensure automated backups and compatible engine on the primary instance.</li>
+        <li>Select Create read replica and pick the DR Region and instance class.</li>
+        <li>Wait for the replica to become available and check endpoints and security groups.</li>
+        <li>Run writes on primary and confirm reads appear on replica after a short delay.</li>
+        <li>On disaster, promote the replica to a standalone primary and update application config.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Example SQL (visual)</div>
+        <pre class="code mt-2">CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL
+);
+
+INSERT INTO products (name, price) VALUES ('Laptop', 1200.00);
+INSERT INTO products (name, price) VALUES ('Mouse', 25.00);
+
+-- On primary: insert a row, then on replica after a short delay run:
+SELECT * FROM products;</pre>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 bg-white shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Verification & Gotchas</div>
+      <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Replica is read-only; promotion is required to accept writes.</li>
+        <li>Promotion breaks replication; plan for failback to re-establish replication later.</li>
+        <li>Network and security groups in the DR Region must permit connections from app servers.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border border-[rgba(16,185,129,0.12)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Test replica creation and test promotion in a sandbox. Monitoring replication lag helps set realistic RPO expectations.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

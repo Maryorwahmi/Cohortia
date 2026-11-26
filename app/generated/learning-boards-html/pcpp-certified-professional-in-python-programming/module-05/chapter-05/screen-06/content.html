@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#f1f5f9;color:#0f172a;padding:12px;border-radius:10px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Socket options & cleanup</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <h4 class="text-lg font-bold text-slate-800">SO_REUSEADDR and binding</h4>
+      <p class="text-sm text-slate-600 mt-2">Set the reuse-address option on the listening socket to allow immediate port reuse after restarting the server. This is especially helpful during development and iterative testing.</p>
+
+      <pre class="code mt-3">s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind((HOST, PORT))
+s.listen(5)</pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50">
+        <div class="text-xs font-bold text-amber-700">Why it matters</div>
+        <div class="text-sm text-slate-800 mt-1">Avoids address-in-use errors caused by sockets in TIME_WAIT state during rapid restarts.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <h4 class="text-lg font-bold text-slate-800">Handler cleanup and errors</h4>
+      <p class="text-sm text-slate-600 mt-2">Wrap handler logic in try-except and close the socket in finally. This prevents leaks and ensures the server does not accumulate unusable file descriptors.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-xs font-bold text-slate-500">Example pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">If you leave a disconnected socket in the global clients list, broadcast attempts will fail and resources will remain allocated until process exit.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-xs font-bold text-slate-500">Practical check</div>
+          <div class="text-sm text-slate-700 mt-1">Simulate abrupt client termination and verify that the server removes the socket from shared structures and closes it.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

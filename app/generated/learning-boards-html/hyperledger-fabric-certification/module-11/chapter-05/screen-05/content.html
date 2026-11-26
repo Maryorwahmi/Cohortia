@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Config Update Flow</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+    <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Process</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Seven-step update flow</h3>
+
+    <div class="mt-4 grid grid-cols-7 gap-3 items-start">
+      <div class="col-span-7 flex gap-3">
+        <div class="rounded-xl bg-blue-50 p-3 w-full">
+          <div class="text-sm font-bold text-blue-700">1. Fetch latest config block</div>
+          <div class="text-sm text-slate-700 mt-1">Guarantees you are editing the current state before compute_update.</div>
+        </div>
+        <div class="rounded-xl bg-violet-50 p-3 w-full">
+          <div class="text-sm font-bold text-violet-700">2. Decode to JSON</div>
+          <div class="text-sm text-slate-700 mt-1">Use configtxlator proto_decode to inspect and extract the config envelope.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-xl bg-amber-50 p-3">
+        <div class="text-sm font-bold text-amber-700">3. Edit config JSON</div>
+        <div class="text-sm text-slate-700 mt-1">Add the new org and AnchorPeers under Application.groups.</div>
+      </div>
+      <div class="rounded-xl bg-emerald-50 p-3">
+        <div class="text-sm font-bold text-emerald-700">4. Encode and compute delta</div>
+        <div class="text-sm text-slate-700 mt-1">Compute the precise ConfigUpdate with configtxlator compute_update.</div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold text-slate-800">5-7. Wrap, sign, submit</div>
+        <div class="text-sm text-slate-700 mt-1">Wrap in an envelope, collect required signatures, and submit the signed envelope to the orderer.</div>
+      </div>
+    </div>
+
+    <div class="mt-5 grid grid-cols-2 gap-3">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+        <p class="text-sm text-slate-700 mt-2">Submitting raw modified JSON without computing the delta will not produce a valid configuration transaction; Fabric requires the computed update format.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Each step reduces risk: exact deltas and signatures preserve auditability and enforce policies.</p>
+      </div>
+    </div>
+  </div>
+</div>

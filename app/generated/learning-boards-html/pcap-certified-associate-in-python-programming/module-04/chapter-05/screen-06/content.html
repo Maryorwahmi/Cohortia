@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6eef8;border-radius:.75rem;padding:1rem;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Binary copy example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-[72vh]">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Example Code</div>
+        <pre class="code mt-3"># Create a dummy binary file
+with open("source.bin", "wb") as f:
+  f.write(b'\x47\x49\x46\x38\x39\x61\x01\x00')
+
+try:
+  with open("source.bin", "rb") as infile:
+    binary_data = infile.read()
+    print(f"Read {len(binary_data)} bytes from source.bin")
+
+  with open("destination.bin", "wb") as outfile:
+    outfile.write(binary_data)
+    print("Successfully copied source.bin to destination.bin")
+
+except FileNotFoundError:
+  print("Error: Binary file not found.")
+except Exception as e:
+  print(f"An error occurred: {e}")</pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Line-by-line Notes</div>
+        <ul class="mt-3 text-sm text-slate-600 list-disc ml-5 space-y-2">
+          <li>The first block creates a small binary file using wb so the written object is bytes.</li>
+          <li>Reading with rb returns a bytes object; checking len confirms the number of bytes read.</li>
+          <li>Writing to wb writes raw bytes unchanged to the destination.</li>
+          <li>Try/except handles missing files and other unexpected errors without crashing the program.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Misconception</div>
+        <p class="text-sm text-slate-800">Do not decode binary data to strings for simple copying; decoding is only for textual data with a known encoding.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

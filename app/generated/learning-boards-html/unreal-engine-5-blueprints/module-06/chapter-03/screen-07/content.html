@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{background:#fff;border-radius:1rem;border:1px solid rgba(226,232,240,0.9);padding:1rem}.code{background:#071029;color:#dbeafe;border-radius:.75rem;padding:1rem;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span>
+    <span>›</span>
+    <span>Pool Manager Setup</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 panel flex flex-col">
+      <div class="text-lg font-bold text-slate-800">BeginPlay Pre-population</div>
+      <div class="text-sm text-slate-700 mt-2">Spawn N projectiles, hide and deactivate them, and store references in ProjectilePool Array. This moves allocation cost to load time.</div>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Design choices</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-1">
+        <li>Fixed pool: predictable memory; no expansion.</li>
+        <li>Expandable pool: avoids misses but may allocate later.</li>
+        <li>Pool ownership: GameMode, Manager actor, or subsystem.</li>
+      </ul>
+      <div class="mt-auto text-sm text-slate-700">Test by firing many shots and comparing profiler timelines between spawn/destroy and pooling.</div>
+    </div>
+    <div class="w-1/2 panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">GetPooledProjectile pseudo-code</div>
+      <div class="mt-2 code">
+// Function GetPooledProjectile -> BP_Projectile
+// For Each Loop (ProjectilePool)
+//  If Is Hidden In Game == True
+//    Set Hidden In Game (False)
+//    Set Enable Collision (True)
+//    Set Tick Enabled (True)
+//    Set Actor Location/Rotation
+//    Activate Projectile Movement
+//    Return Array Element
+// If none found and allow expansion:
+//  Spawn Actor From Class (BP_Projectile)
+//  Add to ProjectilePool
+//  Activate and Return
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

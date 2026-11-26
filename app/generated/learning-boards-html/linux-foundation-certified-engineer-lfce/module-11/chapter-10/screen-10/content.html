@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space: pre-wrap; tab-size:2;} .card{border:1px solid rgba(226,232,240,0.9); background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.10</span>
+    <span>›</span>
+    <span class="text-slate-700">eBPF & bpftrace</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-0">
+    <div class="card rounded-2xl p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Quick tour</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">bpftrace one-liners</div>
+      <p class="text-sm text-slate-600 mb-3">bpftrace offers terse expressions to attach to tracepoints, kprobes, or uprobes and print arguments or timestamps. They are ideal for short, live diagnostics.</p>
+
+      <pre class="mono p-3 rounded-lg bg-slate-50 border border-slate-100 text-sm"><code># Print process and filename for every open syscall
+sudo bpftrace -e 'tracepoint:syscalls:sys_enter_openat { printf("%s %s
+", comm, str(args->filename)); }'
+
+# Show top functions by count for 10 seconds
+sudo bpftrace -e 'kprobe:do_sys_open { @[comm]++ } interval:s:10 { exit() }'
+</code></pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-2 border border-slate-100 bg-white">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Run</div>
+          <div class="text-sm text-slate-700">Use sudo; prefer dev or staging for experiments.</div>
+        </div>
+        <div class="rounded-lg p-2 border border-slate-100 bg-white">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Output</div>
+          <div class="text-sm text-slate-700">Live lines printed for each matched event; aggregated maps for counts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card rounded-2xl p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Comparing choices</div>
+      <div class="flex-1 flex flex-col gap-2">
+        <div class="p-3 rounded-lg border border-slate-100 bg-white">
+          <div class="text-sm font-semibold text-slate-800">When to choose bpftrace</div>
+          <div class="text-sm text-slate-600">Low-overhead, live tracing for I/O, syscalls, and sched events; concise diagnostics in production-safe mode.</div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-100 bg-white">
+          <div class="text-sm font-semibold text-slate-800">Safety note</div>
+          <div class="text-sm text-slate-600">Avoid heavy loops in probes; prefer maps and post-processing. Validate on non-production kernels first.</div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-100 bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800">Use bpftrace aggregated maps for counts and export results rather than printing million lines in high-frequency paths.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

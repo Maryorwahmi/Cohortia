@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Repair & Merkle Trees</span>
+  </div>
+  <div class="rounded-2xl bg-white shadow-sm card-border p-6 h-full flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-800">Repair: ensure replicas converge</h3>
+    <p class="text-sm text-slate-600 mt-2">Definition, mechanism, and safe usage patterns for nodetool repair.</p>
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <div class="bg-slate-50 p-4 rounded-lg card-border overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">How it works</div>
+        <div class="text-sm text-slate-600 mt-2">Cassandra builds Merkle trees per token range on each replica, compares tree hashes to detect mismatches, and streams only the differing partitions between replicas to synchronize state.</div>
+        <ul class="text-sm text-slate-600 mt-3 space-y-2">
+          <li>Efficient comparison with Merkle trees avoids full data scans.</li>
+          <li>Streaming sends only missing or newer data to out-of-sync replicas.</li>
+          <li>Use -pr to restrict repair to a node's primary ranges and -dc to limit by datacenter.</li>
+        </ul>
+      </div>
+      <div class="bg-white p-4 rounded-lg card-border">
+        <div class="text-sm font-semibold text-slate-800">Operational guidance</div>
+        <div class="text-xs text-slate-600 mt-2">Run repair regularly (weekly or bi-weekly depending on workload) and avoid running it cluster-wide simultaneously. For incremental repair, track previous repair markers to reduce repeated work.</div>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+          <div class="text-xs text-rose-700 mt-1">Repair is not only for failed nodes; it is preventive. Skipping repairs risks long-term inconsistencies that complicate recovery after failures.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 flex gap-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Repair keeps replicas consistent by streaming differences detected via Merkle trees; schedule targeted repairs and monitor their resource usage.</p>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border w-80">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Prefer one-node-at-a-time repairs or token-range repairs to avoid saturating cluster resources.</div>
+      </div>
+    </div>
+  </div>
+</div>

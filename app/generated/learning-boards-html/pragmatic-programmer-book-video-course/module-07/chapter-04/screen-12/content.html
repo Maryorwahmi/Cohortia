@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;} .code-bg{background:#0f1724;color:#e6eef8;border-radius:12px;padding:14px;} .card-border{border-color:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Introduce Constants</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border card-border h-full">
+      <div class="text-lg font-bold text-slate-800">Why replace magic numbers</div>
+      <div class="text-sm text-slate-700 mt-3">Named constants explain purpose, reduce duplication, and make tuning safe. Prefer semantic names over value-based names.</div>
+      <div class="mt-4 text-sm text-slate-700">Group related constants in a config area so adjustments are visible and centralized.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 border card-border h-full overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter function with magic numbers</div>
+      <div class="mt-3 code-bg">
+        <pre><code>def calculate_user_score(user_activities):
+    """
+    Calculates a user's total score based on their activities.
+    user_activities is a list of dictionaries, each with 'type' and 'points'/'duration'/'count'.
+    """
+    total_score = 0
+    bonus_multiplier = 1.0
+
+    # Process login activity
+    for activity in user_activities:
+        if activity['type'] == 'login':
+            total_score += 5 # Points for each login
+
+    # Process quiz completions
+    for activity in user_activities:
+        if activity['type'] == 'quiz_complete':
+            total_score += activity['points'] * 1.5 # Bonus for quizzes
+
+    # Process video watch time
+    for activity in user_activities:
+        if activity['type'] == 'video_watch':
+            total_score += activity['duration'] // 60 * 10 # 10 points per minute watched
+
+    # Check for streak bonus
+    login_count = sum(1 for activity in user_activities if activity['type'] == 'login')
+    if login_count >= 7: # If user logged in at least 7 times
+        bonus_multiplier = 1.2 # 20% overall bonus
+
+    # Apply bonus
+    total_score = total_score * bonus_multiplier
+
+    # Cap score at 1000 for display purposes
+    if total_score > 1000:
+        total_score = 1000
+
+    return total_score</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-500">Refactor idea: extract LOGIN_POINTS = 5, QUIZ_MULTIPLIER = 1.5, VIDEO_POINTS_PER_MIN = 10, STREAK_THRESHOLD = 7, STREAK_MULTIPLIER = 1.2</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,59 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff;'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>Delete pattern and updating local state</span>
+    </div>
+  </div>
+
+  <div class='rounded-2xl bg-white p-6 card shadow-sm h-full flex gap-4'>
+    <div class='w-1/2 min-h-0'>
+      <div class='text-xs uppercase tracking-wider text-slate-600 font-bold mb-2'>Process</div>
+      <h3 class='text-xl font-bold text-slate-900 mb-2'>DELETE and optimistic UI</h3>
+      <p class='text-sm text-slate-700 mb-3'>Implement optimistic removal with rollback to make deletions feel instant while remaining safe on failure.</p>
+
+      <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#071022; color:#e6f7ea; padding:12px; border-radius:8px;'><code>const deleteTodo = async (id) =&gt; {
+  const previous = todos;
+  setTodos(prev =&gt; prev.filter(t =&gt; t.id !== id)); // optimistic
+  try {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    // success: keep state updated
+  } catch (e) {
+    // rollback on failure
+    setTodos(previous);
+    Alert.alert('Delete failed', e.message);
+  }
+};
+</code></pre>
+
+      <div class='mt-3 rounded-xl p-3 bg-white card border border-slate-100'>
+        <div class='font-semibold'>Scenario</div>
+        <div class='text-sm text-slate-700 mt-1'>User taps Delete; the app removes the item and attempts the network call. If the call fails, the item is restored and the user is informed.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 min-h-0 flex flex-col'>
+      <div class='rounded-lg p-3 bg-slate-50 flex-1'>
+        <div class='font-semibold mb-2'>UX trade-offs</div>
+        <div class='text-sm text-slate-700'>Optimistic updates give immediate feedback but require rollback logic. Pessimistic updates wait for server confirmation but feel slower.</div>
+      </div>
+
+      <div class='mt-3 grid grid-cols-1 gap-3'>
+        <div class='rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro Tip</div>
+          <p class='text-xs font-medium text-slate-800'>Show a small spinner or disable the delete control while the request is in progress to avoid duplicate requests.</p>
+        </div>
+
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Use optimistic removal with clear rollback rules or wait for server confirmation if rollback complexity is high.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

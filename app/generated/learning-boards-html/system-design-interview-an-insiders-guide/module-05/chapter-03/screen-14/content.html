@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Design checklist</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Quick checklist</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>Classify data by volatility and correctness needs.</li>
+        <li>Select strategy and document trade-offs.</li>
+        <li>Plan invalidation delivery and retries.</li>
+        <li>Mitigate stampedes with coalescing or soft expiry.</li>
+        <li>Monitor, reconcile, and test failure modes.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Run this checklist as part of any caching design review to avoid common mistakes and ensure predictable behavior.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Code example (explicit invalidation)</div>
+      <div class="bg-slate-900 text-white rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2">
+<pre><code>// After committing the DB transaction
+db.commit();
+// Publish an invalidation event to durable queue
+queue.publish({ type: 'invalidate', key: 'user:123' });
+// Optionally, call cache delete for local cache
+cache.delete('user:123');
+</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-bold text-amber-700">Note</div>
+        <div class="text-sm text-slate-700 mt-1">Make invalidation idempotent and ensure it is published after the DB commit to preserve ordering.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

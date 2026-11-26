@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.field{background:#f8fafc;padding:8px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Redis Hashes</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Definition</div>
+        <div class="text-sm text-slate-600">A hash stores a mapping of string fields to string values within a single Redis key. Ideal for objects like profiles or product records.</div>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Benefits</div>
+        <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+          <li>Fewer top-level keys to manage.</li>
+          <li>Atomic updates on individual fields.</li>
+          <li>Field-level increments with HINCRBY.</li>
+        </ul>
+
+        <div class="mt-4 text-sm text-slate-600">When fields are many and frequently updated, hash storage is more memory and CPU efficient than separate string keys.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Use hashes when you need grouped fields and frequent per-field updates. They keep related data together and allow atomic field changes.</p>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">User profile example</div>
+        <div class="grid grid-cols-1 gap-2">
+          <div class="field">
+            <div class="text-sm font-semibold text-slate-800">HSET user:456 name "John Doe" email "john.doe@example.com" age 30 city "New York"</div>
+          </div>
+          <div class="field">
+            <div class="text-sm text-slate-700">HGET user:456 name  → returns the name field only</div>
+          </div>
+          <div class="field">
+            <div class="text-sm text-slate-700">HGETALL user:456  → returns all fields and values (use carefully for very large hashes)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Misconception</div>
+        <div class="text-sm text-slate-600">Hashes are not always superior; if you only ever store a static, deep document and always read/write it whole, a single string may be simpler. Choose based on access patterns.</div>
+      </div>
+    </div>
+  </div>
+</div>

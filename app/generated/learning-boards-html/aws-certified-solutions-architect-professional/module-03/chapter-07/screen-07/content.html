@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.7</span>
+    <span>›</span>
+    <span class="text-slate-700">DMS CLI walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Command sequence (conceptual)</div>
+      <div class="mt-3 text-sm text-slate-700">Create the replication instance, then the source and target endpoints, prepare table-mappings and task settings JSON, create the replication task, and start it. Monitor CloudWatch for replication throughput and lag.</div>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-lg border card-border text-sm text-slate-700">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;" aria-hidden="true">aws dms create-replication-instance \
+  --replication-instance-identifier my-dms-instance \
+  --replication-instance-class dms.t3.medium \
+  --engine-version 3.4.6 \
+  --vpc-security-group-ids sg-xxxxxxxx \
+  --replication-subnet-group-identifier my-dms-subnet-group \
+  --no-publicly-accessible \
+  --region us-east-1
+
+aws dms create-endpoint --endpoint-identifier onprem-mysql-source --endpoint-type source --engine-name mysql --server-name <ON_PREM_MYSQL_ENDPOINT> --port 3306 --username <USER> --password <PASSWORD>
+
+aws dms create-endpoint --endpoint-identifier aurora-mysql-target --endpoint-type target --engine-name mysql --server-name <AURORA_ENDPOINT> --port 3306 --username admin --password <PASSWORD>
+
+# Create replication task using table-mappings.json and migration-task-settings.json
+aws dms create-replication-task --replication-task-identifier mysql-to-aurora-task --source-endpoint-arn <SOURCE_ARN> --target-endpoint-arn <TARGET_ARN> --replication-instance-arn <REPL_ARN> --migration-type full-load-and-cdc --table-mappings file://table-mappings.json --replication-task-settings file://migration-task-settings.json</pre>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-600">Replace placeholders after creating endpoints and the replication instance. Validate each created resource's ARN before creating dependent resources.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Example pitfalls to watch</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Not validating network routes from the replication instance to your on-premises database.</li>
+        <li>Using an under-sized replication instance for workloads with large row-change rates.</li>
+        <li>Forgetting to configure table mappings and task settings for repeatable tests.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Script and validate each step so your migration can be repeated in test and production safely.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

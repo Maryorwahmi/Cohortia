@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Fixed-window Rate Limiting</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-800">Fixed-window rate limiter</div>
+    <div class="text-sm text-slate-600 mt-2">INCR + EXPIRE per client key enforces request limits per time window.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-bold text-slate-700">How it works</div>
+        <ol class="mt-2 text-sm text-slate-600 list-decimal ml-5">
+          <li>Create a key per client and window, e.g., api_limit:{client}:{window}.</li>
+          <li>INCR the key when a request arrives.</li>
+          <li>Set EXPIRE for the key to the window length if the key is new.</li>
+          <li>Reject if count &gt; limit.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-bold text-slate-700">Trade-offs</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-5">
+          <li>Simple to implement and low overhead.</li>
+          <li>Can allow bursts at window edges.</li>
+          <li>Use pipelines or Lua to avoid missing EXPIRE on crashes.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example key</div>
+      <div class="text-sm text-slate-700 mt-1">api_limit:client:web_app:60s — INCR and set EXPIRE 60 seconds if not present.</div>
+    </div>
+  </div>
+</div>

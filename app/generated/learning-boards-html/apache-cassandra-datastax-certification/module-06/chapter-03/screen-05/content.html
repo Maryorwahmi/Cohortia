@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-100">Process Flow</span>
+      <span class="text-slate-700">Kafka → Cassandra</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Kafka as the ingestion backbone</h3>
+    <p class="text-sm text-slate-600 mt-1">Kafka provides durable topics and decouples producers from Cassandra-consuming processes.</p>
+  </div>
+  <div class="flex gap-4 h-full mt-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 text-sm text-slate-600 space-y-2 list-decimal ml-5">
+        <li>Producer publishes events to a topic (e.g., iot_sensor_data).</li>
+        <li>Kafka stores events durably and supports replay if needed.</li>
+        <li>Kafka Sink Connector consumes topic messages and maps fields to Cassandra columns.</li>
+        <li>Connector writes into Cassandra tables with configured contact points and keyspace.</li>
+      </ol>
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border">
+        <div class="text-xs font-bold text-slate-700">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Incorrect field mappings or missing schema evolution handling can break ingestion. Test thoroughly in staging.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <p class="text-sm text-slate-600 mt-2">Imagine user activity events streaming into a topic. A Sink Connector maps userId, eventType, and eventTime into a user_events table so application queries can retrieve recent actions quickly.</p>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>// conceptual snippet (configuration style)
+name=cassandra-sink-connector
+connector.class=com.datastax.kafka.connect.CassandraSinkConnector
+topics=iot_sensor_data,user_activity_logs
+contactPoints=cassandra-node1,cassandra-node2
+port=9042
+keyspace=iot_data
+field.mapping.iot_sensor_data=sensor_id=value.sensorId,timestamp=value.timestamp,temperature=value.temperature
+</code></pre>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Start with one topic and one table, validate mappings with sample messages, then scale connector tasks and topics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .check{background:#f8fafc;border:1px solid rgba(226,232,240,0.9)} .cmd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#0b1220;color:#dbeafe;padding:10px;border-radius:8px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class="text-slate-700">How you'll demonstrate competency</span>
+    </div>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="flex flex-col gap-4">
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">Host check</div>
+          <div class="mt-2 text-sm text-slate-700">Confirm libvirtd is enabled and running and that the virtualization package group exists.</div>
+          <div class="mt-3 cmd"><pre>sudo systemctl enable --now libvirtd
+sudo systemctl status libvirtd</pre></div>
+        </div>
+
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">Networking check</div>
+          <div class="mt-2 text-sm text-slate-700">After creating a bridge, verify it has an address and the slave is attached.</div>
+          <div class="mt-3 cmd"><pre>ip a show br0
+sudo brctl show</pre></div>
+        </div>
+
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">Storage check</div>
+          <div class="mt-2 text-sm text-slate-700">Create an image and list it to confirm thin provisioning or inspect LV presence.</div>
+          <div class="mt-3 cmd"><pre>sudo qemu-img create -f qcow2 /var/lib/libvirt/images/test.qcow2 10G
+ls -lh /var/lib/libvirt/images/test.qcow2</pre></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">SELinux check</div>
+          <div class="mt-2 text-sm text-slate-700">Verify file contexts and fix images outside the default path.</div>
+          <div class="mt-3 cmd"><pre>ls -Z /var/lib/libvirt/images
+sudo chcon -t svirt_image_t /data/kvm_images/myvm.qcow2</pre></div>
+        </div>
+
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">Firewall check</div>
+          <div class="mt-2 text-sm text-slate-700">Confirm host zones permit bridge traffic or libvirt management if required.</div>
+          <div class="mt-3 cmd"><pre>sudo firewall-cmd --get-active-zones
+sudo firewall-cmd --list-all --zone=public</pre></div>
+        </div>
+
+        <div class="rounded-xl p-4 check">
+          <div class="text-xs font-bold uppercase text-slate-600">Final test</div>
+          <div class="mt-2 text-sm text-slate-700">Boot a small test VM and verify DHCP or network connectivity and that the disk mounts correctly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

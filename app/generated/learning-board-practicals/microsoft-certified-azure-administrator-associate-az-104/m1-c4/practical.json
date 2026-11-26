@@ -1,0 +1,1339 @@
+{
+  "courseId": "microsoft-certified-azure-administrator-associate-az-104",
+  "moduleNumber": 1,
+  "chapterNumber": 4,
+  "practical": {
+    "schemaVersion": 1,
+    "practicalId": "practical-microsoft-certified-azure-administrator-associate-az-104-m1-c4",
+    "source": {
+      "sourceKey": "microsoft-certified-azure-administrator-associate-az-104/1/4",
+      "category": "Cloud Console Lab",
+      "sourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "sourceHash": "sha256:0bbc7015348ab1f95f1c1aa9d8592bf587304c309790d4d0d2dee7b0d9561144"
+    },
+    "category": "Cloud Console Lab",
+    "experienceType": "cloud_console_lab",
+    "categoryProfile": {
+      "experience": "cloud_console_lab",
+      "workspaceFamily": "safe_cloud_console",
+      "defaultMode": "cloud_portal",
+      "learnerArtifact": "safe command plan and verification log",
+      "teacherRole": "supportive practical mentor"
+    },
+    "activityKind": "cloud_console_walkthrough",
+    "experience": {
+      "experienceType": "cloud_console_lab",
+      "workspaceFamily": "safe_cloud_console",
+      "learnerArtifact": "safe command plan and verification log",
+      "requiredUi": [
+        "mission",
+        "resource_map",
+        "command_plan",
+        "verification_log"
+      ]
+    },
+    "title": "Deploying a Storage Account with an ARM Template via Azure CLI",
+    "summary": "In this activity, you will create a simple ARM template to deploy an Azure Storage Account and then deploy it using the Azure CLI, demonstrating the power of Infrastructure as Code.",
+    "teachViewOpening": {
+      "subtitle": "In this activity, you will create a simple ARM template to deploy an Azure Storage Account and then deploy it using the Azure CLI, demonstrating the power of Infrastructure as Code.",
+      "inThisPractical": "In this activity, you will create a simple ARM template to deploy an Azure Storage Account and then deploy it using the Azure CLI, demonstrating the power of Infrastructure as Code.",
+      "comingUp": "You will create the Storage Account ARM Template and produce safe command plan and verification log.",
+      "whyItMatters": "Reliable cloud work depends on understanding the starting resource state, making one safe change, and verifying the resulting state. This practical turns Deploying a Storage Account with an ARM Template via Azure CLI into that repeatable o…",
+      "quickOrientation": [
+        "Explain the principles and benefits of Infrastructure as Code (IaC) and the specific role of Azure Resource Manager (ARM) templates.",
+        "Understand the fundamental structure and key components of an ARM template, including schema, parameters, variables, resources, and outputs.",
+        "Deploy ARM templates effectively using the Azure Portal, Azure CLI, and Azure PowerShell."
+      ],
+      "keyConcepts": [
+        {
+          "title": "Infrastructure as Code (IaC)",
+          "description": "Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration."
+        },
+        {
+          "title": "Azure Resource Manager (ARM) Template",
+          "description": "A JSON file that declaratively defines the infrastructure and configuration for your Azure solution."
+        },
+        {
+          "title": "Declarative Syntax",
+          "description": "Describing the desired state of infrastructure, rather than the sequence of steps to achieve it."
+        }
+      ],
+      "conceptMap": {
+        "title": "Cloud Infrastructure Map",
+        "subtitle": "Azure > resources > configuration > verification",
+        "nodes": [
+          {
+            "label": "Create the Storage Account ARM Template",
+            "value": "Launch the Azure Cloud Shell editor and create a new file named storage-template.json. Paste the provided ARM template content into this file."
+          },
+          {
+            "label": "Define Deployment Parameters",
+            "value": "Create a new file named storage-parameters.json. Paste the provided parameter file content and customize the storageAccountName value to be globally unique."
+          },
+          {
+            "label": "Deploy and Verify the Storage Account",
+            "value": "First, create a resource group. Then, perform a 'what-if' deployment to preview changes, and finally execute the actual ARM template deployment. Verify the storage account's creation."
+          },
+          {
+            "label": "Clean Up Azure Resources",
+            "value": "Delete the resource group created during this activity to avoid incurring unnecessary costs."
+          }
+        ]
+      },
+      "gettingReady": "Open the Azure management console, inspect the starting resources, and verify each change against the expected state."
+    },
+    "level": "Intermediate",
+    "labType": "simulation",
+    "mode": "cloud_portal",
+    "workspace": {
+      "type": "cloud",
+      "cloud": {
+        "provider": "Azure",
+        "region": "eastus",
+        "initialResources": [],
+        "allowedActions": [],
+        "forbiddenActions": [],
+        "commandTemplates": [],
+        "expectedState": [],
+        "verificationChecks": []
+      }
+    },
+    "language": "javascript",
+    "sourceActivity": "Deploying a Storage Account with an ARM Template via Azure CLI",
+    "lessonContext": {
+      "courseIntroduction": "This chapter belongs to Microsoft Certified: Azure Administrator Associate (AZ-104).",
+      "chapterIntroduction": "In the modern cloud era, manually deploying and configuring resources can be time-consuming, error-prone, and inconsistent, especially for complex environments. This is where Infrastructure as Code (IaC) becomes invaluable. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than physical hardware configuration or interactive configuration tools. It brings the benefits of software development practices – version control, automation, testing, and repeatability – to your infrastructure. Azure e…",
+      "learningObjectives": [
+        "Explain the principles and benefits of Infrastructure as Code (IaC) and the specific role of Azure Resource Manager (ARM) templates.",
+        "Understand the fundamental structure and key components of an ARM template, including schema, parameters, variables, resources, and outputs.",
+        "Deploy ARM templates effectively using the Azure Portal, Azure CLI, and Azure PowerShell.",
+        "Utilize parameters and variables within ARM templates to create flexible, reusable, and dynamic infrastructure deployments."
+      ],
+      "keyConcepts": [
+        "Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration.",
+        "Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution.",
+        "Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it.",
+        "Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result.",
+        "Parameters:** Values provided to an ARM template at deployment time, allowing for template customization and reusability.",
+        "Variables:** Values defined within an ARM template to simplify expressions and avoid repetition.",
+        "Resources:** The section in an ARM template where Azure services (e.g., storage accounts, virtual machines) are defined.",
+        "Outputs:** Values returned by an ARM template after deployment, useful for chaining deployments or providing information."
+      ],
+      "lessonScreens": [
+        {
+          "id": "screen-1",
+          "order": 1,
+          "title": "Learning objectives",
+          "summary": "Explain the principles and benefits of Infrastructure as Code (IaC) and the specific role of Azure Resource Manager (ARM) templates. Understand the fundamental structure and key components of an ARM template, including schema, parameters, variables, resources, and outputs. Deploy ARM templates effectively using the Azure Portal, Azure CLI, and Azure PowerSh…"
+        },
+        {
+          "id": "screen-2",
+          "order": 2,
+          "title": "Detailed lesson content",
+          "summary": "In the modern cloud era, manually deploying and configuring resources can be time-consuming, error-prone, and inconsistent, especially for complex environments. This is where Infrastructure as Code (IaC) becomes invaluable. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than physical hardwar…"
+        },
+        {
+          "id": "screen-3",
+          "order": 3,
+          "title": "Key concepts",
+          "summary": "Infrastructure as Code (IaC): Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager (ARM) Template: A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. Declarative Syntax: Describing the desired state of infrastructure, rat…"
+        },
+        {
+          "id": "screen-4",
+          "order": 4,
+          "title": "Hands-on activity",
+          "summary": "Deploying a Storage Account with an ARM Template via Azure CLI In this activity, you will create a simple ARM template to deploy an Azure Storage Account and then deploy it using the Azure CLI, demonstrating the power of Infrastructure as Code. Part 1: Create the ARM Template File 1. Launch Azure Cloud Shell (Bash): Access the Cloud Shell from the Azure Por…"
+        },
+        {
+          "id": "screen-5",
+          "order": 5,
+          "title": "Assessment idea",
+          "summary": "1. Question: You are reviewing an ARM template and notice a section defined as \"parameters\": { ... }. What is the primary purpose of this section within an ARM template? A) To define internal reusable values that simplify template expressions. B) To specify the Azure resources that will be deployed by the template. C) To provide values that can be customize…"
+        }
+      ]
+    },
+    "activityMapping": [
+      {
+        "activityStepId": "activity-step-1",
+        "order": 1,
+        "sourceTitle": "Launch Azure Cloud Shell (Bash): Access the Cloud Shell from the Azure Portal.",
+        "taskId": "task-1-create-template",
+        "teachingStepNumbers": [
+          1
+        ],
+        "lessonScreenIds": [
+          "screen-1"
+        ],
+        "concepts": [
+          "Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration.",
+          "Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-2",
+        "order": 2,
+        "sourceTitle": "Create a new file named storage-template.json:",
+        "taskId": "task-2-create-parameters",
+        "teachingStepNumbers": [
+          2
+        ],
+        "lessonScreenIds": [
+          "screen-2"
+        ],
+        "concepts": [
+          "Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution.",
+          "Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-3",
+        "order": 3,
+        "sourceTitle": "Paste the following ARM template content into the editor:",
+        "taskId": "task-3-deploy-verify",
+        "teachingStepNumbers": [
+          3
+        ],
+        "lessonScreenIds": [
+          "screen-3"
+        ],
+        "concepts": [
+          "Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it.",
+          "Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-4",
+        "order": 4,
+        "sourceTitle": "Save the file: Press Ctrl+S (or Cmd+S on Mac) and then Ctrl+Q to close the editor.",
+        "taskId": "task-4-cleanup",
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-4"
+        ],
+        "concepts": [
+          "Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result.",
+          "Parameters:** Values provided to an ARM template at deployment time, allowing for template customization and reusability."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-1-2",
+        "order": 1,
+        "sourceTitle": "Create a new file named storage-parameters.json:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": [
+          "Parameters:** Values provided to an ARM template at deployment time, allowing for template customization and reusability.",
+          "Variables:** Values defined within an ARM template to simplify expressions and avoid repetition."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-2-2",
+        "order": 2,
+        "sourceTitle": "Paste the following content, customizing the value for storageAccountName to be globally unique (e.g., mystorage<yourinitialsarm):",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": [
+          "Variables:** Values defined within an ARM template to simplify expressions and avoid repetition.",
+          "Resources:** The section in an ARM template where Azure services (e.g., storage accounts, virtual machines) are defined."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-3-2",
+        "order": 3,
+        "sourceTitle": "Save and close the file.",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": [
+          "Resources:** The section in an ARM template where Azure services (e.g., storage accounts, virtual machines) are defined.",
+          "Outputs:** Values returned by an ARM template after deployment, useful for chaining deployments or providing information."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-1-3",
+        "order": 1,
+        "sourceTitle": "Create a Resource Group for the deployment:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": [
+          "Outputs:** Values returned by an ARM template after deployment, useful for chaining deployments or providing information."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-2-3",
+        "order": 2,
+        "sourceTitle": "Perform a \"What-If\" deployment (safety check):",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-3-3",
+        "order": 3,
+        "sourceTitle": "Execute the actual deployment:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-4-2",
+        "order": 4,
+        "sourceTitle": "Verify the deployment:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-5",
+        "order": 5,
+        "sourceTitle": "Clean up:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": []
+      }
+    ],
+    "objectives": [
+      "Explain the principles and benefits of Infrastructure as Code (IaC) and the specific role of Azure Resource Manager (ARM) templates.",
+      "Understand the fundamental structure and key components of an ARM template, including schema, parameters, variables, resources, and outputs.",
+      "Deploy ARM templates effectively using the Azure Portal, Azure CLI, and Azure PowerShell.",
+      "Utilize parameters and variables within ARM templates to create flexible, reusable, and dynamic infrastructure deployments."
+    ],
+    "learningObjectives": [
+      "Explain the principles and benefits of Infrastructure as Code (IaC) and the specific role of Azure Resource Manager (ARM) templates.",
+      "Understand the fundamental structure and key components of an ARM template, including schema, parameters, variables, resources, and outputs.",
+      "Deploy ARM templates effectively using the Azure Portal, Azure CLI, and Azure PowerShell.",
+      "Utilize parameters and variables within ARM templates to create flexible, reusable, and dynamic infrastructure deployments."
+    ],
+    "prerequisites": [],
+    "instructions": "Follow the steps to create an ARM template and a parameter file, then deploy an Azure Storage Account using the Azure CLI. You will also perform a 'what-if' deployment for safety and finally clean up the resources.",
+    "narratorGuide": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
+    "teachingPlaylist": [
+      {
+        "id": "teaching-phase-1",
+        "title": "Teaching phase 1",
+        "category": "Cloud Console Lab",
+        "description": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+        "durationSeconds": 37,
+        "learningGoal": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+        "narratorScript": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+        "workedExample": "Infrastructure as Code (IaC) Defined\n- Managing infrastructure via definition files\n- Not manual configuration\nAzure Resource Manager (ARM) Templates\n- JSON files for Azure infrastructure\n- Declarative syntax: describe 'what' not 'how' · Key Benefits: · - Consistency: Identical environments every time · - Repeatability: Automated, reduced errors",
+        "scenario": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+        "learnerPrompt": "What are two key benefits of using Infrastructure as Code for deploying cloud resources?",
+        "commonMistake": "Confusing IaC with traditional scripting. IaC focuses on the desired state (declarative), while scripts often focus on the sequence of commands (imperative).",
+        "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+        "phase": "orientation",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          1
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          1
+        ]
+      },
+      {
+        "id": "teaching-phase-2",
+        "title": "Teaching phase 2",
+        "category": "Cloud Console Lab",
+        "description": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+        "durationSeconds": 47,
+        "learningGoal": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+        "narratorScript": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+        "workedExample": "ARM Template Structure:\n- `$schema`: JSON schema for validation\n- `contentVersion`: Template version\n- `parameters`: Customizable values at deployment (e.g., storageAccountName, location)\n- `resources`: Core section defining Azure services (e.g., Microsoft.Storage/storageAccounts)\n- `outputs`: Values returned post-deployment · Example: Storage Account Resource · - `type`: 'Microsoft.Storage/storageAccounts' · - `name`: '[parameters('storageAccountName')]' · - `location`: '[parameters('location')]' · - `sku`: '{ \"name\": \"[parameters('storageSku')]\" }'",
+        "scenario": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+        "learnerPrompt": "How do 'parameters' contribute to the reusability of an ARM template?",
+        "commonMistake": "Hardcoding values directly into the `resources` section instead of using parameters, which limits template flexibility.",
+        "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+        "phase": "worked_example",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          2
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          2
+        ]
+      },
+      {
+        "id": "teaching-phase-3",
+        "title": "Teaching phase 3",
+        "category": "Cloud Console Lab",
+        "description": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+        "durationSeconds": 46,
+        "learningGoal": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+        "narratorScript": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+        "workedExample": "Parameter Files for Deployment:\n- Separate JSON file (e.g., `storage-parameters.json`)\n- Maps values to template parameters\n- Enhances reusability and organization\nAzure CLI Deployment Command:\n- `az deployment group create` · - `--resource-group <name>` · - `--template-file <template.json>` · - `--parameters @<parameters.json>` · Safety Check: 'What-If' Deployment · - Add `--what-if` flag to the deployment command · - Simulates deployment, shows planned changes · - Prevents unintended resource modifications",
+        "scenario": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+        "learnerPrompt": "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?",
+        "commonMistake": "Skipping the 'what-if' step, leading to unexpected resource changes or deletions in a live environment.",
+        "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+        "phase": "guided_practice",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          3
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          3
+        ]
+      },
+      {
+        "id": "teaching-phase-4",
+        "title": "Teaching phase 4",
+        "category": "Cloud Console Lab",
+        "description": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+        "durationSeconds": 59,
+        "learningGoal": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+        "narratorScript": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+        "workedExample": "Execute Actual Deployment:\n- `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`\n- Wait for deployment to complete\nVerify Deployment:\n- Azure Portal: Navigate to `MyARMTemplate-RG`\n- Azure CLI: `az storage account show --resource-group <RG> --name <SA_Name>` · Resource Cleanup: · - Essential to avoid costs · - Delete the resource group: `az group delete --name MyARMTemplate-RG --yes --no-wait` · - `--yes` confirms deletion; `--no-wait` allows immediate return",
+        "scenario": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+        "learnerPrompt": "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?",
+        "commonMistake": "Forgetting to clean up resources after a lab, leading to unexpected charges.",
+        "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+        "phase": "transfer",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          4
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          4
+        ]
+      }
+    ],
+    "codeWalkthrough": [],
+    "teachingSteps": [
+      {
+        "stepNumber": 1,
+        "phase": "orientation",
+        "title": "Teaching phase 1",
+        "speakerText": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+        "explanation": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+        "learnerPrompt": "What are two key benefits of using Infrastructure as Code for deploying cloud resources?",
+        "commonMistake": "Confusing IaC with traditional scripting. IaC focuses on the desired state (declarative), while scripts often focus on the sequence of commands (imperative).",
+        "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+        "durationSeconds": 37,
+        "displayText": "Infrastructure as Code (IaC) Defined\n- Managing infrastructure via definition files\n- Not manual configuration\nAzure Resource Manager (ARM) Templates\n- JSON files for Azure infrastructure\n- Declarative syntax: describe 'what' not 'how' · Key Benefits: · - Consistency: Identical environments every time · - Repeatability: Automated, reduced errors"
+      },
+      {
+        "stepNumber": 2,
+        "phase": "worked_example",
+        "title": "Teaching phase 2",
+        "speakerText": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+        "explanation": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+        "learnerPrompt": "How do 'parameters' contribute to the reusability of an ARM template?",
+        "commonMistake": "Hardcoding values directly into the `resources` section instead of using parameters, which limits template flexibility.",
+        "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+        "durationSeconds": 47,
+        "displayText": "ARM Template Structure:\n- `$schema`: JSON schema for validation\n- `contentVersion`: Template version\n- `parameters`: Customizable values at deployment (e.g., storageAccountName, location)\n- `resources`: Core section defining Azure services (e.g., Microsoft.Storage/storageAccounts)\n- `outputs`: Values returned post-deployment · Example: Storage Account Resource · - `type`: 'Microsoft.Storage/storageAccounts' · - `name`: '[parameters('storageAccountName')]' · - `location`: '[parameters('location')]' · - `sku`: '{ \"name\": \"[parameters('storageSku')]\" }'"
+      },
+      {
+        "stepNumber": 3,
+        "phase": "guided_practice",
+        "title": "Teaching phase 3",
+        "speakerText": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+        "explanation": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+        "learnerPrompt": "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?",
+        "commonMistake": "Skipping the 'what-if' step, leading to unexpected resource changes or deletions in a live environment.",
+        "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+        "durationSeconds": 46,
+        "displayText": "Parameter Files for Deployment:\n- Separate JSON file (e.g., `storage-parameters.json`)\n- Maps values to template parameters\n- Enhances reusability and organization\nAzure CLI Deployment Command:\n- `az deployment group create` · - `--resource-group <name>` · - `--template-file <template.json>` · - `--parameters @<parameters.json>` · Safety Check: 'What-If' Deployment · - Add `--what-if` flag to the deployment command · - Simulates deployment, shows planned changes · - Prevents unintended resource modifications"
+      },
+      {
+        "stepNumber": 4,
+        "phase": "transfer",
+        "title": "Teaching phase 4",
+        "speakerText": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+        "explanation": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+        "learnerPrompt": "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?",
+        "commonMistake": "Forgetting to clean up resources after a lab, leading to unexpected charges.",
+        "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+        "durationSeconds": 59,
+        "displayText": "Execute Actual Deployment:\n- `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`\n- Wait for deployment to complete\nVerify Deployment:\n- Azure Portal: Navigate to `MyARMTemplate-RG`\n- Azure CLI: `az storage account show --resource-group <RG> --name <SA_Name>` · Resource Cleanup: · - Essential to avoid costs · - Delete the resource group: `az group delete --name MyARMTemplate-RG --yes --no-wait` · - `--yes` confirms deletion; `--no-wait` allows immediate return"
+      }
+    ],
+    "teaching": {
+      "opening": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "phase": "orientation",
+          "title": "Teaching phase 1",
+          "speakerText": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+          "explanation": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+          "learnerPrompt": "What are two key benefits of using Infrastructure as Code for deploying cloud resources?",
+          "commonMistake": "Confusing IaC with traditional scripting. IaC focuses on the desired state (declarative), while scripts often focus on the sequence of commands (imperative).",
+          "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+          "durationSeconds": 37,
+          "displayText": "Infrastructure as Code (IaC) Defined\n- Managing infrastructure via definition files\n- Not manual configuration\nAzure Resource Manager (ARM) Templates\n- JSON files for Azure infrastructure\n- Declarative syntax: describe 'what' not 'how' · Key Benefits: · - Consistency: Identical environments every time · - Repeatability: Automated, reduced errors"
+        },
+        {
+          "stepNumber": 2,
+          "phase": "worked_example",
+          "title": "Teaching phase 2",
+          "speakerText": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+          "explanation": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+          "learnerPrompt": "How do 'parameters' contribute to the reusability of an ARM template?",
+          "commonMistake": "Hardcoding values directly into the `resources` section instead of using parameters, which limits template flexibility.",
+          "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+          "durationSeconds": 47,
+          "displayText": "ARM Template Structure:\n- `$schema`: JSON schema for validation\n- `contentVersion`: Template version\n- `parameters`: Customizable values at deployment (e.g., storageAccountName, location)\n- `resources`: Core section defining Azure services (e.g., Microsoft.Storage/storageAccounts)\n- `outputs`: Values returned post-deployment · Example: Storage Account Resource · - `type`: 'Microsoft.Storage/storageAccounts' · - `name`: '[parameters('storageAccountName')]' · - `location`: '[parameters('location')]' · - `sku`: '{ \"name\": \"[parameters('storageSku')]\" }'"
+        },
+        {
+          "stepNumber": 3,
+          "phase": "guided_practice",
+          "title": "Teaching phase 3",
+          "speakerText": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+          "explanation": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+          "learnerPrompt": "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?",
+          "commonMistake": "Skipping the 'what-if' step, leading to unexpected resource changes or deletions in a live environment.",
+          "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+          "durationSeconds": 46,
+          "displayText": "Parameter Files for Deployment:\n- Separate JSON file (e.g., `storage-parameters.json`)\n- Maps values to template parameters\n- Enhances reusability and organization\nAzure CLI Deployment Command:\n- `az deployment group create` · - `--resource-group <name>` · - `--template-file <template.json>` · - `--parameters @<parameters.json>` · Safety Check: 'What-If' Deployment · - Add `--what-if` flag to the deployment command · - Simulates deployment, shows planned changes · - Prevents unintended resource modifications"
+        },
+        {
+          "stepNumber": 4,
+          "phase": "transfer",
+          "title": "Teaching phase 4",
+          "speakerText": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+          "explanation": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+          "learnerPrompt": "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?",
+          "commonMistake": "Forgetting to clean up resources after a lab, leading to unexpected charges.",
+          "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+          "durationSeconds": 59,
+          "displayText": "Execute Actual Deployment:\n- `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`\n- Wait for deployment to complete\nVerify Deployment:\n- Azure Portal: Navigate to `MyARMTemplate-RG`\n- Azure CLI: `az storage account show --resource-group <RG> --name <SA_Name>` · Resource Cleanup: · - Essential to avoid costs · - Delete the resource group: `az group delete --name MyARMTemplate-RG --yes --no-wait` · - `--yes` confirms deletion; `--no-wait` allows immediate return"
+        }
+      ],
+      "playlist": [
+        {
+          "id": "teaching-phase-1",
+          "title": "Teaching phase 1",
+          "category": "Cloud Console Lab",
+          "description": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+          "durationSeconds": 37,
+          "learningGoal": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+          "narratorScript": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+          "workedExample": "Infrastructure as Code (IaC) Defined\n- Managing infrastructure via definition files\n- Not manual configuration\nAzure Resource Manager (ARM) Templates\n- JSON files for Azure infrastructure\n- Declarative syntax: describe 'what' not 'how' · Key Benefits: · - Consistency: Identical environments every time · - Repeatability: Automated, reduced errors",
+          "scenario": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+          "learnerPrompt": "What are two key benefits of using Infrastructure as Code for deploying cloud resources?",
+          "commonMistake": "Confusing IaC with traditional scripting. IaC focuses on the desired state (declarative), while scripts often focus on the sequence of commands (imperative).",
+          "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+          "phase": "orientation",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            1
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            1
+          ]
+        },
+        {
+          "id": "teaching-phase-2",
+          "title": "Teaching phase 2",
+          "category": "Cloud Console Lab",
+          "description": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+          "durationSeconds": 47,
+          "learningGoal": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+          "narratorScript": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+          "workedExample": "ARM Template Structure:\n- `$schema`: JSON schema for validation\n- `contentVersion`: Template version\n- `parameters`: Customizable values at deployment (e.g., storageAccountName, location)\n- `resources`: Core section defining Azure services (e.g., Microsoft.Storage/storageAccounts)\n- `outputs`: Values returned post-deployment · Example: Storage Account Resource · - `type`: 'Microsoft.Storage/storageAccounts' · - `name`: '[parameters('storageAccountName')]' · - `location`: '[parameters('location')]' · - `sku`: '{ \"name\": \"[parameters('storageSku')]\" }'",
+          "scenario": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+          "learnerPrompt": "How do 'parameters' contribute to the reusability of an ARM template?",
+          "commonMistake": "Hardcoding values directly into the `resources` section instead of using parameters, which limits template flexibility.",
+          "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+          "phase": "worked_example",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            2
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            2
+          ]
+        },
+        {
+          "id": "teaching-phase-3",
+          "title": "Teaching phase 3",
+          "category": "Cloud Console Lab",
+          "description": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+          "durationSeconds": 46,
+          "learningGoal": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+          "narratorScript": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+          "workedExample": "Parameter Files for Deployment:\n- Separate JSON file (e.g., `storage-parameters.json`)\n- Maps values to template parameters\n- Enhances reusability and organization\nAzure CLI Deployment Command:\n- `az deployment group create` · - `--resource-group <name>` · - `--template-file <template.json>` · - `--parameters @<parameters.json>` · Safety Check: 'What-If' Deployment · - Add `--what-if` flag to the deployment command · - Simulates deployment, shows planned changes · - Prevents unintended resource modifications",
+          "scenario": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+          "learnerPrompt": "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?",
+          "commonMistake": "Skipping the 'what-if' step, leading to unexpected resource changes or deletions in a live environment.",
+          "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+          "phase": "guided_practice",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            3
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            3
+          ]
+        },
+        {
+          "id": "teaching-phase-4",
+          "title": "Teaching phase 4",
+          "category": "Cloud Console Lab",
+          "description": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+          "durationSeconds": 59,
+          "learningGoal": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+          "narratorScript": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+          "workedExample": "Execute Actual Deployment:\n- `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`\n- Wait for deployment to complete\nVerify Deployment:\n- Azure Portal: Navigate to `MyARMTemplate-RG`\n- Azure CLI: `az storage account show --resource-group <RG> --name <SA_Name>` · Resource Cleanup: · - Essential to avoid costs · - Delete the resource group: `az group delete --name MyARMTemplate-RG --yes --no-wait` · - `--yes` confirms deletion; `--no-wait` allows immediate return",
+          "scenario": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+          "learnerPrompt": "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?",
+          "commonMistake": "Forgetting to clean up resources after a lab, leading to unexpected charges.",
+          "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+          "phase": "transfer",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            4
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            4
+          ]
+        }
+      ],
+      "taskGuidance": [
+        {
+          "taskId": "task-1-create-template",
+          "narratorGuide": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+          "teaching": {
+            "learningGoal": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+            "teacherTalk": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+            "chapterConnection": "In chapter 4, you learned about Infrastructure as Code (IaC). This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Infrastructure as Code (IaC) means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A create the storage account arm template workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "What are two key benefits of using Infrastructure as Code for deploying cloud resources?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. is working.",
+              "misconception": "Let's compare the output with the rule for Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+            "transferTask": "Apply Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Use the `code` command to open the editor.",
+            "Remember to save the file after pasting the content.",
+            "The ARM template defines the desired state of the storage account, including its name, location, and SKU."
+          ],
+          "structuredHints": {
+            "nudge": "Did you use `code storage-template.json` to open the editor and paste the template content?",
+            "concept": "ARM templates are JSON files that declaratively define your Azure infrastructure. The `resources` section specifies the Azure services to deploy, while `parameters` allow for customization.",
+            "walkthrough": "1. In the Cloud Shell, type `code storage-template.json` and press Enter. 2. Copy the entire ARM template JSON from the activity instructions. 3. Paste the content into the editor. 4. Press `Ctrl+S` to save, then `Ctrl+Q` to close the editor."
+          }
+        },
+        {
+          "taskId": "task-2-create-parameters",
+          "narratorGuide": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+          "teaching": {
+            "learningGoal": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+            "teacherTalk": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+            "chapterConnection": "In chapter 4, you learned about Azure Resource Manager (ARM) Template. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Azure Resource Manager (ARM) Template means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A define deployment parameters workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "How do 'parameters' contribute to the reusability of an ARM template?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. is working.",
+              "misconception": "Let's compare the output with the rule for Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+            "transferTask": "Apply Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Ensure your storage account name is unique across all of Azure.",
+            "A parameter file separates configuration values from the main template.",
+            "The `storageAccountName` parameter must be between 3 and 24 characters, and only contain lowercase letters and numbers."
+          ],
+          "structuredHints": {
+            "nudge": "Have you created `storage-parameters.json` and updated the `storageAccountName` to be unique?",
+            "concept": "Parameter files provide values for the parameters defined in your ARM template. This makes your templates more flexible and reusable, as you can deploy the same template with different configurations.",
+            "walkthrough": "1. In the Cloud Shell, type `code storage-parameters.json` and press Enter. 2. Copy the parameter file JSON. 3. Paste the content into the editor. 4. Modify the `value` for `storageAccountName` to something unique, like `mystorage<yourinitials>arm`. 5. Press `Ctrl+S` to save, then `Ctrl+Q` to close the editor."
+          }
+        },
+        {
+          "taskId": "task-3-deploy-verify",
+          "narratorGuide": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+          "teaching": {
+            "learningGoal": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+            "teacherTalk": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+            "chapterConnection": "In chapter 4, you learned about Declarative Syntax. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Declarative Syntax means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A deploy and verify the storage account workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. is working.",
+              "misconception": "Let's compare the output with the rule for Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+            "transferTask": "Apply Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "The `az group create` command is used to create a new resource group.",
+            "The `--what-if` flag is crucial for safety, showing you what changes will occur without actually making them.",
+            "After deployment, use `az storage account show` to verify the resource details."
+          ],
+          "structuredHints": {
+            "nudge": "Did you create the resource group, run the 'what-if' deployment, and then the actual deployment?",
+            "concept": "Azure CLI commands like `az group create` and `az deployment group create` are used to manage resources and deploy ARM templates. The `--what-if` flag provides a dry run, while the actual deployment creates or updates resources.",
+            "walkthrough": "1. Create a resource group: `az group create --name MyARMTemplate-RG --location eastus`. 2. Run 'what-if': `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json --what-if`. 3. Execute deployment: `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`. 4. Verify using `az storage account show --resource-group MyARMTemplate-RG --name <your-unique-name>`."
+          }
+        },
+        {
+          "taskId": "task-4-cleanup",
+          "narratorGuide": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+          "teaching": {
+            "learningGoal": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+            "teacherTalk": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+            "chapterConnection": "In chapter 4, you learned about Idempotence. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Idempotence means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A clean up azure resources workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. is working.",
+              "misconception": "Let's compare the output with the rule for Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+            "transferTask": "Apply Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Always clean up resources after completing a lab.",
+            "The `--yes` flag confirms the deletion without prompting.",
+            "The `--no-wait` flag allows the command to return immediately while the deletion happens in the background."
+          ],
+          "structuredHints": {
+            "nudge": "Did you use `az group delete` to remove the resource group?",
+            "concept": "Resource groups are logical containers for Azure resources. Deleting a resource group removes all resources contained within it, which is a common practice for cleanup.",
+            "walkthrough": "1. In the Cloud Shell, type `az group delete --name MyARMTemplate-RG --yes --no-wait` and press Enter. This command will initiate the deletion of the resource group and all its contents."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "taskId": "task-1-create-template",
+          "tier": 1,
+          "text": "Use the `code` command to open the editor."
+        },
+        {
+          "taskId": "task-1-create-template",
+          "tier": 2,
+          "text": "Remember to save the file after pasting the content."
+        },
+        {
+          "taskId": "task-1-create-template",
+          "tier": 3,
+          "text": "The ARM template defines the desired state of the storage account, including its name, location, and SKU."
+        },
+        {
+          "taskId": "task-2-create-parameters",
+          "tier": 1,
+          "text": "Ensure your storage account name is unique across all of Azure."
+        },
+        {
+          "taskId": "task-2-create-parameters",
+          "tier": 2,
+          "text": "A parameter file separates configuration values from the main template."
+        },
+        {
+          "taskId": "task-2-create-parameters",
+          "tier": 3,
+          "text": "The `storageAccountName` parameter must be between 3 and 24 characters, and only contain lowercase letters and numbers."
+        },
+        {
+          "taskId": "task-3-deploy-verify",
+          "tier": 1,
+          "text": "The `az group create` command is used to create a new resource group."
+        },
+        {
+          "taskId": "task-3-deploy-verify",
+          "tier": 2,
+          "text": "The `--what-if` flag is crucial for safety, showing you what changes will occur without actually making them."
+        },
+        {
+          "taskId": "task-3-deploy-verify",
+          "tier": 3,
+          "text": "After deployment, use `az storage account show` to verify the resource details."
+        },
+        {
+          "taskId": "task-4-cleanup",
+          "tier": 1,
+          "text": "Always clean up resources after completing a lab."
+        },
+        {
+          "taskId": "task-4-cleanup",
+          "tier": 2,
+          "text": "The `--yes` flag confirms the deletion without prompting."
+        },
+        {
+          "taskId": "task-4-cleanup",
+          "tier": 3,
+          "text": "The `--no-wait` flag allows the command to return immediately while the deletion happens in the background."
+        }
+      ],
+      "checkpoints": [
+        {
+          "taskId": "task-1-create-template",
+          "question": "What are two key benefits of using Infrastructure as Code for deploying cloud resources?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-2-create-parameters",
+          "question": "How do 'parameters' contribute to the reusability of an ARM template?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-3-deploy-verify",
+          "question": "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-4-cleanup",
+          "question": "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?",
+          "waitForLearner": true
+        }
+      ],
+      "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+      "transferTask": "Apply Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change."
+    },
+    "completionRule": "learner_submission",
+    "environment": {
+      "adapter": "manual-simulation",
+      "runtime": "unspecified",
+      "workingDirectory": "/workspace",
+      "requiredTools": [],
+      "network": "disabled",
+      "resourceLimits": {
+        "timeoutSeconds": 60,
+        "memoryMb": 256,
+        "outputKb": 64
+      },
+      "resetStrategy": "fresh-workspace"
+    },
+    "files": [],
+    "tasks": [
+      {
+        "id": "task-1-create-template",
+        "title": "Create the Storage Account ARM Template",
+        "instruction": "Launch the Azure Cloud Shell editor and create a new file named `storage-template.json`. Paste the provided ARM template content into this file.",
+        "narratorGuide": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+        "teaching": {
+          "learningGoal": "Introduction to IaC and ARM templates, highlighting their role in cloud resource management and key benefits.",
+          "teacherTalk": "In the cloud era, manually deploying resources can be slow and error-prone. This is where Infrastructure as Code, or IaC, becomes essential. IaC is the practice of managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. Azure Resource Manager, or ARM, templates are Azure's way of doing IaC, using JSON files to declaratively define your infrastructure. This approach offers significant benefits like consistency and repeatability in your deployments.",
+          "chapterConnection": "In chapter 4, you learned about Infrastructure as Code (IaC). This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Infrastructure as Code (IaC) means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A create the storage account arm template workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "What are two key benefits of using Infrastructure as Code for deploying cloud resources?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. is working.",
+            "misconception": "Let's compare the output with the rule for Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "IaC and ARM templates bring consistency and repeatability to Azure deployments by defining infrastructure declaratively.",
+          "transferTask": "Apply Infrastructure as Code (IaC):** Managing and provisioning infrastructure through machine-readable definition files, rather than manual configuration. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "modify",
+        "requiredConcepts": [],
+        "hints": [
+          "Use the `code` command to open the editor.",
+          "Remember to save the file after pasting the content.",
+          "The ARM template defines the desired state of the storage account, including its name, location, and SKU."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggest-code-template",
+            "label": "Open editor for template",
+            "text": "code storage-template.json"
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you use `code storage-template.json` to open the editor and paste the template content?",
+          "concept": "ARM templates are JSON files that declaratively define your Azure infrastructure. The `resources` section specifies the Azure services to deploy, while `parameters` allow for customization.",
+          "walkthrough": "1. In the Cloud Shell, type `code storage-template.json` and press Enter. 2. Copy the entire ARM template JSON from the activity instructions. 3. Paste the content into the editor. 4. Press `Ctrl+S` to save, then `Ctrl+Q` to close the editor."
+        },
+        "checkIds": [
+          "task-1-create-template-check-1",
+          "task-1-create-template-check-2"
+        ]
+      },
+      {
+        "id": "task-2-create-parameters",
+        "title": "Define Deployment Parameters",
+        "instruction": "Create a new file named `storage-parameters.json`. Paste the provided parameter file content and customize the `storageAccountName` value to be globally unique.",
+        "narratorGuide": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+        "teaching": {
+          "learningGoal": "Detailed explanation of ARM template structure, focusing on parameters for customization and resources for defining Azure services.",
+          "teacherTalk": "An ARM template is a structured JSON file. Key sections include $schema, contentVersion, parameters, resources, and outputs. The parameters section allows you to customize your template at deployment time, making it reusable. For example, you can define a parameter for the storage account name or its location. The resources section is the core, where you define the actual Azure services you want to deploy, like a storage account, specifying its type, API version, name, location, and properties such as the SKU. This declarative approach ensures Azure deploys exactly what you specify.",
+          "chapterConnection": "In chapter 4, you learned about Azure Resource Manager (ARM) Template. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Azure Resource Manager (ARM) Template means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A define deployment parameters workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "How do 'parameters' contribute to the reusability of an ARM template?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. is working.",
+            "misconception": "Let's compare the output with the rule for Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "ARM templates use parameters for customization and resources to define the desired Azure services.",
+          "transferTask": "Apply Azure Resource Manager (ARM) Template:** A JSON file that declaratively defines the infrastructure and configuration for your Azure solution. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "modify",
+        "requiredConcepts": [],
+        "hints": [
+          "Ensure your storage account name is unique across all of Azure.",
+          "A parameter file separates configuration values from the main template.",
+          "The `storageAccountName` parameter must be between 3 and 24 characters, and only contain lowercase letters and numbers."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggest-code-parameters",
+            "label": "Open editor for parameters",
+            "text": "code storage-parameters.json"
+          },
+          {
+            "id": "suggest-unique-name",
+            "label": "Example unique name",
+            "text": "\"value\": \"mystorageunique123\""
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Have you created `storage-parameters.json` and updated the `storageAccountName` to be unique?",
+          "concept": "Parameter files provide values for the parameters defined in your ARM template. This makes your templates more flexible and reusable, as you can deploy the same template with different configurations.",
+          "walkthrough": "1. In the Cloud Shell, type `code storage-parameters.json` and press Enter. 2. Copy the parameter file JSON. 3. Paste the content into the editor. 4. Modify the `value` for `storageAccountName` to something unique, like `mystorage<yourinitials>arm`. 5. Press `Ctrl+S` to save, then `Ctrl+Q` to close the editor."
+        },
+        "checkIds": [
+          "task-2-create-parameters-check-1",
+          "task-2-create-parameters-check-2"
+        ]
+      },
+      {
+        "id": "task-3-deploy-verify",
+        "title": "Deploy and Verify the Storage Account",
+        "instruction": "First, create a resource group. Then, perform a 'what-if' deployment to preview changes, and finally execute the actual ARM template deployment. Verify the storage account's creation.",
+        "narratorGuide": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+        "teaching": {
+          "learningGoal": "Introduction to parameter files for complex deployments and the importance of the `--what-if` flag for safety checks.",
+          "teacherTalk": "While you can pass parameters directly in the CLI, using a separate parameter file, typically named storage-parameters.json, is recommended for complex deployments. This file also follows a JSON structure and maps values to the parameters defined in your template. Before executing a full deployment, it's a critical safety step to perform a 'what-if' deployment. The az deployment group create command with the --what-if flag simulates the deployment and shows you exactly what changes Azure Resource Manager will make without actually deploying anything. This helps prevent unintended modifications or deletions.",
+          "chapterConnection": "In chapter 4, you learned about Declarative Syntax. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Declarative Syntax means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A deploy and verify the storage account workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "Why is it important to use the `--what-if` flag before executing an actual ARM template deployment?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. is working.",
+            "misconception": "Let's compare the output with the rule for Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Parameter files enhance template reusability, and the `--what-if` flag provides a crucial safety preview before deployment.",
+          "transferTask": "Apply Declarative Syntax:** Describing the desired state of infrastructure, rather than the sequence of steps to achieve it. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "verify",
+        "requiredConcepts": [],
+        "hints": [
+          "The `az group create` command is used to create a new resource group.",
+          "The `--what-if` flag is crucial for safety, showing you what changes will occur without actually making them.",
+          "After deployment, use `az storage account show` to verify the resource details."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggest-create-rg",
+            "label": "Create Resource Group",
+            "text": "az group create --name MyARMTemplate-RG --location eastus"
+          },
+          {
+            "id": "suggest-whatif",
+            "label": "Perform What-If deployment",
+            "text": "az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json --what-if"
+          },
+          {
+            "id": "suggest-deploy",
+            "label": "Execute actual deployment",
+            "text": "az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json"
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you create the resource group, run the 'what-if' deployment, and then the actual deployment?",
+          "concept": "Azure CLI commands like `az group create` and `az deployment group create` are used to manage resources and deploy ARM templates. The `--what-if` flag provides a dry run, while the actual deployment creates or updates resources.",
+          "walkthrough": "1. Create a resource group: `az group create --name MyARMTemplate-RG --location eastus`. 2. Run 'what-if': `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json --what-if`. 3. Execute deployment: `az deployment group create --resource-group MyARMTemplate-RG --template-file storage-template.json --parameters @storage-parameters.json`. 4. Verify using `az storage account show --resource-group MyARMTemplate-RG --name <your-unique-name>`."
+        },
+        "checkIds": [
+          "task-3-deploy-verify-check-1",
+          "task-3-deploy-verify-check-2",
+          "task-3-deploy-verify-check-3"
+        ]
+      },
+      {
+        "id": "task-4-cleanup",
+        "title": "Clean Up Azure Resources",
+        "instruction": "Delete the resource group created during this activity to avoid incurring unnecessary costs.",
+        "narratorGuide": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+        "teaching": {
+          "learningGoal": "Guidance on executing the actual deployment, verifying resource creation, and the importance of cleaning up resources.",
+          "teacherTalk": "After reviewing the 'what-if' output and confirming the planned changes are correct, you can proceed with the actual deployment. You'll use the same az deployment group create command, but this time without the --what-if flag. Once the deployment completes, it's essential to verify that your resources have been created as expected. You can do this by navigating to the resource group in the Azure Portal or by using Azure CLI commands like az storage account show. Finally, to avoid unnecessary costs and maintain a clean Azure environment, always remember to clean up the resources you've deployed by deleting the resource group using az group delete. This ensures you only pay for what you use.",
+          "chapterConnection": "In chapter 4, you learned about Idempotence. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Idempotence means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A clean up azure resources workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "What Azure CLI command would you use to delete the resource group and all its contents after verifying your deployment?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. is working.",
+            "misconception": "Let's compare the output with the rule for Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Execute deployment, verify resources, and always clean up by deleting the resource group.",
+          "transferTask": "Apply Idempotence:** The property of an operation that, when executed multiple times with the same input, produces the same result. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "experiment",
+        "requiredConcepts": [],
+        "hints": [
+          "Always clean up resources after completing a lab.",
+          "The `--yes` flag confirms the deletion without prompting.",
+          "The `--no-wait` flag allows the command to return immediately while the deletion happens in the background."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggest-delete-rg",
+            "label": "Delete Resource Group",
+            "text": "az group delete --name MyARMTemplate-RG --yes --no-wait"
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you use `az group delete` to remove the resource group?",
+          "concept": "Resource groups are logical containers for Azure resources. Deleting a resource group removes all resources contained within it, which is a common practice for cleanup.",
+          "walkthrough": "1. In the Cloud Shell, type `az group delete --name MyARMTemplate-RG --yes --no-wait` and press Enter. This command will initiate the deletion of the resource group and all its contents."
+        },
+        "checkIds": [
+          "task-4-cleanup-check-1"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "task-1-create-template-check-1",
+        "type": "file_exists",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "path": "storage-template.json"
+        }
+      },
+      {
+        "id": "task-1-create-template-check-2",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "task-2-create-parameters-check-1",
+        "type": "file_exists",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "path": "storage-parameters.json"
+        }
+      },
+      {
+        "id": "task-2-create-parameters-check-2",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "task-3-deploy-verify-check-1",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "Checks if the resource group 'MyARMTemplate-RG' exists.",
+        "passCondition": {
+          "expected": "true"
+        }
+      },
+      {
+        "id": "task-3-deploy-verify-check-2",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": "mystorage.*arm"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-3-deploy-verify-check-3",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": "Standard_GRS"
+        }
+      },
+      {
+        "id": "task-4-cleanup-check-1",
+        "type": "manual",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "Checks if the resource group 'MyARMTemplate-RG' has been deleted.",
+        "passCondition": {
+          "expected": "false"
+        }
+      }
+    ],
+    "hints": [],
+    "evidence": [
+      {
+        "id": "practical-result",
+        "type": "artifact",
+        "label": "Practical result",
+        "required": true,
+        "redactSecrets": true
+      }
+    ],
+    "safety": {
+      "profile": "simulation-isolated",
+      "networkAccess": "disabled",
+      "hostAccess": "none",
+      "requiresManualReview": true,
+      "prohibitedOperations": [
+        "accessing the host filesystem",
+        "reading credentials or secrets",
+        "privileged operations",
+        "network access outside declared fixtures"
+      ],
+      "learnerWarning": "This practical runs in an isolated workspace. Do not use real credentials or production resources."
+    },
+    "cleanup": {
+      "strategy": "discard-workspace",
+      "instructions": "Discard the isolated workspace after completion."
+    },
+    "completionRules": {
+      "requiredChecks": [
+        "task-1-create-template-check-1",
+        "task-1-create-template-check-2",
+        "task-2-create-parameters-check-1",
+        "task-2-create-parameters-check-2",
+        "task-3-deploy-verify-check-1",
+        "task-3-deploy-verify-check-2",
+        "task-3-deploy-verify-check-3",
+        "task-4-cleanup-check-1"
+      ],
+      "minimumScore": 1,
+      "requiresEvidence": true,
+      "manualReview": true
+    },
+    "generator": {
+      "generatorVersion": "phase5.3-prediction-checkpoints",
+      "classifierVersion": "phase3.1"
+    },
+    "metadata": {
+      "courseId": "microsoft-certified-azure-administrator-associate-az-104",
+      "moduleNumber": 1,
+      "chapterNumber": 4,
+      "model": "gemini-2.5-flash",
+      "generatedAt": "2026-11-19T11:43:11.712Z",
+      "activitySourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "lessonSourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "activitySourceHash": "sha256:0bbc7015348ab1f95f1c1aa9d8592bf587304c309790d4d0d2dee7b0d9561144",
+      "lessonSourceHash": "sha256:81c60fbd41d992f7a3364fab46f840eda5774863073f86fe9afea2c6b3addae4"
+    }
+  }
+}

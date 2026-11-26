@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <style>.code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#071028;color:#dbeafe;padding:12px;border-radius:10px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">USTRUCT Example</span>
+  </div>
+  <div class="flex h-[76vh] gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-lg font-bold text-slate-800">Why USTRUCT?</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Exposes grouped data to Blueprints and Editor.</li>
+        <li>Is value-type; copying semantics apply.</li>
+        <li>Good for serializable, lightweight game data.</li>
+      </ul>
+      <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Design tip</div>
+        <div class="text-sm text-slate-800 mt-1">Use USTRUCT for small, composable data packets like stats or hit info.</div>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Example struct</div>
+      <pre class="code mt-3">// MyStruct.h
+#pragma once
+
+#include "CoreMinimal.h"
+#include "MyStruct.generated.h"
+
+USTRUCT(BlueprintType)
+struct FMyCustomData
+{
+  GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Data")
+  int32 ID;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Data")
+  FString Name;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Data")
+  float Value;
+
+  FMyCustomData()
+    : ID(0)
+    , Name(TEXT("Default"))
+    , Value(0.0f)
+  {}
+};</pre>
+    </div>
+  </div>
+  <div class="mt-3 grid grid-cols-2 gap-3">
+    <div class="p-3 border rounded-lg">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600">Common mistake</div>
+      <div class="text-sm text-slate-700 mt-2">Treating a USTRUCT like a UObject reference leads to bugs; remember it copies when assigned.</div>
+    </div>
+    <div class="p-3 border-l-4 border-l-emerald-500 bg-emerald-50 rounded-lg">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm font-medium text-slate-800 mt-1">USTRUCTs are ideal for editable, serializable data that designers and Blueprints can use safely.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

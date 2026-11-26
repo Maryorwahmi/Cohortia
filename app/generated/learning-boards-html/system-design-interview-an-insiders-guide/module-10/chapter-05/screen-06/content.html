@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Materialized Views</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex gap-6">
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Clear definition</div>
+      <p class="mt-3 text-sm text-slate-600">A persisted table that stores the pre-computed results of a query, updated incrementally to serve fast reads.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 card-border">
+          <div class="text-sm font-semibold text-emerald-700">Production pattern</div>
+          <div class="text-sm text-slate-700 mt-1">A stream job computes aggregates and issues UPSERT operations into the view table when counts change.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Example schema</div>
+          <pre class="mt-2 p-3 bg-slate-50 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">CREATE TABLE daily_unique_users_by_country (
+  report_date DATE,
+  country VARCHAR(255),
+  unique_user_count BIGINT,
+  last_updated TIMESTAMP,
+  PRIMARY KEY (report_date, country)
+);</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">If updates are not idempotent, retries or out-of-order events will corrupt the materialized view.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Materialized views give predictable read performance, but require careful update logic to remain correct.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <div class="mt-3 rounded-lg bg-white card-border p-4 flex-1">
+        <p class="text-sm text-slate-600">Daily unique users by country is a common view: the stream job groups logins by date and country, maintains a distinct count per key, and upserts the count. The database then serves dashboard queries directly from this table.</p>
+
+        <div class="mt-4 text-sm text-slate-700">
+          <div class="font-semibold">Best practice:</div>
+          <ul class="list-disc ml-5 mt-2 text-slate-700">
+            <li>Design a primary key to support efficient upserts.</li>
+            <li>Emit last_updated so consumers can reason about freshness.</li>
+            <li>Make updates idempotent so retries are safe.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

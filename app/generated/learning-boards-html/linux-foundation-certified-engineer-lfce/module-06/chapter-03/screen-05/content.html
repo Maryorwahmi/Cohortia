@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Core</span>
+    <span>›</span>
+    <span class="text-slate-700">Sets & Maps</span>
+  </div>
+
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Process: Create and use sets</div>
+      <p class="text-sm text-slate-600 mt-2">Steps to define a set, add elements, and reference it in a rule.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-xs font-semibold text-slate-600">1. Declare a set</div>
+          <div class="text-sm text-slate-800 mt-1">Use the correct family and type, e.g. type ipv4_addr for IPv4 subnets.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-xs font-semibold text-slate-600">2. Add elements</div>
+          <div class="text-sm text-slate-800 mt-1">Add multiple addresses together instead of repeating rules.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-xs font-semibold text-slate-600">3. Reference in rules</div>
+          <div class="text-sm text-slate-800 mt-1">Use @set_name syntax to match addresses in rules.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example commands</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+sudo nft add set inet filter trusted_internal_ips { type ipv4_addr; flags interval; }
+sudo nft add element inet filter trusted_internal_ips { 192.168.50.0/24 }
+sudo nft add rule inet filter input ip saddr @trusted_internal_ips tcp dport 8080 accept
+        </pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use sets to centralize address lists and maps when matches must yield values, improving clarity and performance.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Maps: match to value</div>
+      <p class="text-sm text-slate-600 mt-2">Maps let you translate a match into a returned value for dynamic policy behavior.</p>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="font-semibold">Analogy</div>
+        <div class="mt-2">Think of a set as a membership list and a map as a dictionary that returns a concrete action based on the lookup key.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-2">Hardcoding many similar rules instead of centralizing values into a set makes audits and updates error-prone. Always consider whether a set or map simplifies maintenance.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

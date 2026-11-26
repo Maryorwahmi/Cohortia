@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Model & Create Tables</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border p-4 bg-white mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code</div>
+      <pre class="mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import declarative_base
+
+engine = create_engine('sqlite:///orm_example.db')
+Base = declarative_base()
+
+class User(Base):
+  __tablename__ = 'users'
+  id = Column(Integer, primary_key=True)
+  name = Column(String(50), nullable=False)
+  email = Column(String(100), unique=True, nullable=False)
+
+Base.metadata.create_all(engine)
+print("Table 'users' created or already exists via ORM model.")</code></pre>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white">
+      <div class="text-sm font-semibold text-slate-800">Explanation & check</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>create_engine sets up the DB connection object used for DDL and DML.</li>
+        <li>Base.metadata.create_all(engine) inspects Base's registry and issues CREATE TABLE where missing.</li>
+        <li>create_all will not migrate existing tables — use migrations for schema evolution.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 text-amber-700">
+        <div class="text-xs font-bold uppercase">Pro tip</div>
+        <div class="text-sm mt-1">Run create_all in development or tests. In production, prefer migrations to manage schema changes safely.</div>
+      </div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">Defining models and calling create_all gives you a quick way to materialize tables during development. For production changes, use migrations.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

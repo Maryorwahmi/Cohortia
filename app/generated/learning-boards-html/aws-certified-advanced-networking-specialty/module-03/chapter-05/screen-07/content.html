@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Routing with DX Gateway</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800">Routing sequence</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>On-prem advertises corporate prefixes via BGP to the DX Gateway.</li>
+        <li>DX Gateway shares on-prem prefixes with associated VGWs/TGWs.</li>
+        <li>VGWs/TGWs propagate these routes to their VPC route tables.</li>
+        <li>VPCs advertise their CIDRs back through VGWs/TGWs to DX Gateway and on-prem.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete scenario</div>
+        <p class="text-sm text-slate-700 mt-1">If on-premises advertises 10.0.0.0/8 and a VPC has 10.1.0.0/16, ensure VPC route table points 10.0.0.0/8 to its VGW so return traffic flows correctly.</p>
+      </div>
+    </div>
+
+    <div class="w-2/5 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Checks</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Verify BGP adjacency status and learned prefixes on your router.</li>
+        <li>Confirm each VPC route table has a route to on-prem via VGW or TGW.</li>
+        <li>Remember DX Gateway does not perform NAT; routing must use private addresses.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Routing depends on BGP advertisements both ways and correct VPC route tables for return paths.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Sessions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border p-4 bg-white">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why use a Session?</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Persist headers and cookies across requests without repeating code.</li>
+          <li>Connection pooling reuses TCP connections for the same host.</li>
+          <li>Use as a context manager to ensure resources are closed.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pattern</div>
+        <pre class="code"><code>with requests.Session() as session:
+    session.headers.update({'User-Agent': 'MyApp/1.0'})
+    login_response = session.post('https://example.com/login', data=login_payload)
+    profile_response = session.get('https://example.com/profile')
+    profile_response.raise_for_status()
+    data = profile_response.json()
+</code></pre>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use sessions to simplify repeated authenticated requests and improve performance through connection reuse.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white border p-4 h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common Mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Recreating sessions for every request loses connection reuse benefits. Create a session per logical workflow instead.</p>
+
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mt-4">Scenario</div>
+        <div class="text-sm text-slate-700 mt-2">A background worker making many requests to the same API should reuse a session for efficiency; a short script that runs once may simply use requests directly.</div>
+
+        <div class="mt-6 text-sm text-slate-600">Reflect: when will a session improve both security and performance in your services?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

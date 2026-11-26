@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Console steps (summary)</div>
+      <ol class="mt-3 list-decimal list-inside text-slate-700 space-y-3">
+        <li>Create two minimal web servers and ALBs in Region A and Region B, each serving a region-specific page.</li>
+        <li>Create a Global Accelerator, note the two static IP addresses.</li>
+        <li>Add a TCP listener for port 80 and create endpoint groups for each region.</li>
+        <li>Register each ALB as an endpoint in its region and set traffic dials as required.</li>
+        <li>Test: curl the static IP and observe the region-specific response; simulate an outage and validate automatic failover.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold">Testing tip</div>
+        <div class="mt-2 text-sm text-slate-700">Use curl to verify the body content shows the region identifier and stop one backend to watch rerouting behavior. Check that health probes are permitted through security groups.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="text-sm font-bold">Terminal-style command examples</div>
+      <div class="mt-3 text-sm text-slate-700">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#f8fafc; padding:12px; border-radius:8px;">curl -v http://&lt;GLOBAL_ACCELERATOR_IP&gt;
+# Expect body: "Hello from Region A" or "Hello from Region B"
+
+# Simulate failure by stopping instance in Region A
+# Then curl again and observe response from Region B</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Validate that the static IP returns region-specific responses and that failover happens when endpoints become unhealthy.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

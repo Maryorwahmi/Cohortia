@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Architecture</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Check → Process → Record (atomic)</h3>
+        <div class="mt-3 text-sm text-slate-700">Include a unique transaction ID in each message. Consumer logic: within a single atomic database transaction, check if the ID exists; if not, perform processing and insert ID as processed. This combination avoids duplicates even if the message is redelivered.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="font-semibold text-slate-800">Examples of idempotent designs</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>Use upserts to set a status instead of incrementing counters.</li>
+          <li>Store processed IDs in a compact, TTL-enabled table for housekeeping.</li>
+        </ul>
+        <div class="mt-3 text-xs text-slate-500">Misconception: Exactly-once eliminates idempotency — never rely solely on broker claims.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design consumers to perform atomic check-and-record operations or use idempotent updates so duplicates are safe to process.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Architecture snippet (pseudocode)</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">BEGIN TRANSACTION
+IF processed_ids NOT CONTAINS message.id:
+  process_business_logic(message.payload)
+  INSERT message.id INTO processed_ids
+COMMIT
+ACK message</pre>
+        <div class="mt-3 text-sm text-slate-600">Keep the processed_ids store durable and compact. Consider TTLs or range-based cleanup once business rules allow.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

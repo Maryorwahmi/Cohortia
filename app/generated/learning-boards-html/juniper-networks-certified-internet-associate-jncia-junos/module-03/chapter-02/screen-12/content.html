@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Walkthrough: Configure, exercise, view, and cleanup</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Step-by-step commands</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>edit system syslog
+set host 192.168.1.100 any warning
+set file system-events daemon info
+set file system-events size 1m files 2
+up
+commit
+
+edit protocols ospf
+set traceoptions file ospf-trace.log size 5m files 3
+set traceoptions flag packets
+set area 0.0.0.0 interface ge-0/0/0.0 traceoptions flag packets
+up
+commit</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="p-3 rounded-xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-xs font-bold uppercase text-slate-500">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">Use show log system-events and show log ospf-trace.log to inspect messages and trace output after reproducing the event.</div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Critical cleanup</div>
+        <div class="text-xs font-medium text-slate-800">Delete protocols ospf traceoptions and commit to stop tracing and free resources.</div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always bound traces with size and files, verify outputs, then remove traces immediately after the investigation.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

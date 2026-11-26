@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Troubleshooting</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm border-slate-100 flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Quick diagnostic checklist</div>
+        <ol class="text-sm text-slate-700 list-decimal pl-5 space-y-2">
+          <li>Validate the repository and signing key: apt-cache policy postgresql-12.</li>
+          <li>Check PGDATA ownership and contents: ls -ld /var/lib/postgresql/12/main.</li>
+          <li>Inspect service logs: sudo journalctl -u postgresql.service --no-pager | tail -n 100.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3 border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Example error</div>
+        <div class="text-sm text-slate-800">If initdb fails with permission denied, ensure the postgres user owns PGDATA and that SELinux or AppArmor profiles are not blocking writes.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm border-slate-100 flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Commands to gather evidence</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>apt-cache policy postgresql-12
+ls -ld /var/lib/postgresql/12/main
+sudo -i -u postgres ls -la /var/lib/postgresql/12/main
+sudo journalctl -u postgresql.service --no-pager | tail -n 100
+sudo systemctl status postgresql</code></pre>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Diagnose in order: repository and keys, file system ownership, then logs. This order quickly narrows the root cause of installation failures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

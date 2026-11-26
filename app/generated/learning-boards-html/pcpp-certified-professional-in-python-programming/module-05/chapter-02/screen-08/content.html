@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <style> .editor { background:#0f1724; color:#e6edf3; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; } .meta { background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px } pre code { white-space: pre-wrap; tab-size:2 } </style>  
+
+  <div class="mb-4">    
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">      
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>      
+      <span>›</span>      
+      <span>Chapter 5.2</span>      
+      <span>›</span>      
+      <span class="text-slate-700">Using Python's socket module</span>    
+    </div>  
+  </div>
+
+  <div class="flex gap-4 h-full">    
+    <div class="w-1/2 meta">      
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code walkthrough</div>      
+      <pre class="editor"><code>import socket
+
+def create_and_inspect_socket(address_family, socket_type, description):
+  print(f"--- Creating {description} Socket ---")
+  try:
+    s = socket.socket(address_family, socket_type)
+    print("Socket created successfully!")
+    print(f"  Address Family: {s.family} ({'AF_INET' if s.family == socket.AF_INET else 'AF_INET6' if s.family == socket.AF_INET6 else 'Unknown'})")
+    print(f"  Socket Type: {s.type} ({'SOCK_STREAM' if s.type == socket.SOCK_STREAM else 'SOCK_DGRAM' if s.type == socket.SOCK_DGRAM else 'Unknown'})")
+    s.close()
+    print("Socket closed.")
+  except Exception as e:
+    print(f"Error creating/inspecting socket: {e}")
+  print("-" * 40)
+
+if __name__ == "__main__":
+  create_and_inspect_socket(socket.AF_INET, socket.SOCK_STREAM, "IPv4 TCP")
+  create_and_inspect_socket(socket.AF_INET, socket.SOCK_DGRAM, "IPv4 UDP")
+  # Optional IPv6 test
+  # create_and_inspect_socket(socket.AF_INET6, socket.SOCK_STREAM, "IPv6 TCP")</code></pre>
+    
+    </div>
+
+    <div class="w-1/2 meta flex flex-col">      
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Explanation</div>      
+      <div class="text-sm text-slate-700">This code creates sockets with specified address family and type, prints the socket's numeric family and type along with a human-friendly label, and ensures the socket is closed. The optional IPv6 test should only be run if your system supports IPv6.</div>
+
+      <div class="mt-3 rounded-xl p-3 bg-emerald-50 border border-emerald-100">        
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>        
+        <div class="text-sm text-slate-700 mt-1">Creating an IPv4 TCP socket shows family equals AF_INET and type equals SOCK_STREAM. The printed values help map numeric attributes to constants.</div>      
+      </div>
+
+      <div class="mt-3 rounded-xl p-3 bg-amber-50 border border-amber-100">        
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>        
+        <div class="text-sm text-slate-700 mt-1">Wrap socket creation in try/except and always close sockets to avoid resource exhaustion and address-in-use errors.</div>      
+      </div>
+    
+    </div>
+  
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

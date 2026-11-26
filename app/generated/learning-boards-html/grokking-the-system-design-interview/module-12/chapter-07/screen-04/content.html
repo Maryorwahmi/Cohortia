@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.7</span>
+    <span>›</span>
+    <span class="text-slate-700">What makes geospatial data different</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Spatial primitives and queries</h3>
+      <p class="text-sm text-slate-600 mt-3">Geospatial systems operate on points, lines, and polygons and support spatial relationships such as contains, intersects, and distance.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Why indexing is needed</div>
+          <ul class="list-disc pl-4 text-sm text-slate-600 mt-2">
+            <li>Exact geometry checks are compute-heavy for large sets.</li>
+            <li>Indexes provide fast coarse pruning using bounding shapes.</li>
+            <li>Most queries benefit from a two-stage filter-then-verify approach.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Concrete example</div>
+          <p class="text-sm text-slate-600 mt-2">A '5km radius' query first selects candidate bounding boxes that overlap the circle, then computes exact distances only for those candidates to return precise results.</p>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(239,102,117,0.06)]">
+          <div class="font-semibold text-rose-700">Common mistake</div>
+          <p class="text-sm text-rose-700 mt-2">Treating lat and lon as independent columns and relying on full scans ignores topology and leads to slow queries at scale.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 flex-1 flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Visual: layered filtering</div>
+        <div class="mt-3 text-sm text-slate-600">Imagine many complex polygons each represented by a simple minimum bounding rectangle. A spatial index stores those rectangles so a search can quickly reject non-overlapping MBRs and only run exact polygon checks on the remainder.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="p-3 rounded-lg bg-[rgba(16,185,129,0.06)] border border-[rgba(16,185,129,0.08)]">
+            <div class="text-xs uppercase tracking-wider text-emerald-700 font-bold">Takeaway</div>
+            <div class="text-sm text-slate-800 mt-2">Plan queries as filter then verify. Indexes reduce geometry work dramatically.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Try this</div>
+            <div class="text-sm text-slate-700 mt-2">List the spatial operations your application needs and classify them by whether they require exact topology or can use approximate filters.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

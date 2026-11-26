@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;} .err{background:#fff1f2;border:1px solid rgba(239,102,117,0.12);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Operational Mistakes</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] h-full">
+    <h3 class="text-xl font-bold text-slate-900">Common operational mistakes and recovery</h3>
+    <p class="text-sm text-slate-700 mt-2">Recognize frequent errors and the safe steps to fix them without causing data loss or extended downtime.</p>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="p-4 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Mistake: too few masters</div>
+        <p class="text-sm text-slate-700 mt-2">Running fewer than three masters prevents quorum and reliable failover. Recovery: add masters and reshard slots to reach three or more masters.</p>
+      </div>
+
+      <div class="p-4 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Mistake: shared config file</div>
+        <p class="text-sm text-slate-700 mt-2">Using the same cluster-config-file across instances breaks node identity. Recovery: stop misconfigured instances, correct redis.conf to unique files, restart and rejoin nodes properly.</p>
+      </div>
+
+      <div class="p-4 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Mistake: del-node too soon</div>
+        <p class="text-sm text-slate-700 mt-2">Attempting to delete a master with slots causes failure. Recovery: reshard its slots away, confirm zero slots, then run del-node.</p>
+      </div>
+
+      <div class="p-4 rounded-lg bg-white border err">
+        <div class="text-sm font-semibold text-rose-700">Mistake: reshard without monitoring</div>
+        <p class="text-sm text-slate-700 mt-2">Resharding during peak load can cause lag. Recovery: perform during off-peak times and watch replication lag metrics while moving slots.</p>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Sequence and monitoring are how you prevent and recover from cluster operational issues.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Stack Execution Model</span>
+  </div>
+  <div class="flex-grow grid grid-cols-12 gap-6">
+    <div class="col-span-5 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Pop, compute, push</h3>
+      <p class="text-sm text-slate-600 mt-3">SP in RAM[0] always points at the next free location. Push writes then increments. Pop decrements then reads.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Push (example)</div>
+          <div class="text-sm text-slate-600 mt-1">push constant 3: RAM[SP] = 3; SP = SP + 1. If SP starts at 256, 3 ends up at RAM[256].</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Pop (behavior)</div>
+          <div class="text-sm text-slate-600 mt-1">A pop first decrements SP, then reads from RAM[SP]. That guarantees the top value is consumed and SP always points to next free slot.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-sm font-semibold text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-600 mt-1">Do not assume operations use named registers. The VM always reads from the stack via SP; operand ordering depends on stack positions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-7 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Example: add</h3>
+      <div class="mt-3 bg-slate-50 rounded-lg p-3 code text-sm">
+        Stack before: [..., x, y]
+        Stack after:  [..., x+y]
+
+        SP manipulation summary:
+        1. AM = M - 1 -> address y
+        2. D = M -> D = y
+        3. AM = M - 1 -> address x
+        4. D = D + M -> D = x + y
+        5. M = D -> store result
+        6. M = M + 1 -> increment SP
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3 flex-grow">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+          <div class="text-sm text-slate-800 mt-1">push constant 3; push constant 5; add → stack holds 8 at top.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Keep SP updates paired with memory accesses to prevent off-by-one stack errors.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold">Check your understanding</div>
+        <ul class="mt-2 ml-3 list-disc space-y-1">
+          <li>When add executes, which value is treated as x and which as y?</li>
+          <li>Why must pop decrement SP before reading RAM[SP]?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

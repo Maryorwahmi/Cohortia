@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+    <h3 class="text-xl font-bold text-slate-900">Program ID — the program's immutable address</h3>
+    <p class="text-sm text-slate-600 mt-1">The unique public key that identifies the deployed program on a cluster.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm text-slate-700 mb-3">Definition</div>
+      <div class="rounded-lg p-3 bg-blue-50 text-blue-700 font-semibold">Program ID = program's public key (immutable address)</div>
+
+      <div class="mt-4 text-sm text-slate-700">Concrete example</div>
+      <div class="mt-2 p-3 border rounded bg-white" style="border-color:rgba(226,232,240,0.9);">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;">// Example: using a Program ID in code
+const programID = new PublicKey("YOUR_PROGRAM_ID_HERE");
+const program = new Program(idl as any, programID, provider);
+</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Common misconception</div>
+        <ul class="list-disc list-inside text-sm text-slate-600 mt-2">
+          <li>Thinking the IDL alone routes calls. The IDL describes interface; only the Program ID routes them to the on‑chain address.</li>
+          <li>Assuming redeploy keeps same address. Redeploying often produces a new Program ID unless you manage a fixed address.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario</div>
+        <div class="text-sm text-slate-800 font-semibold mt-1">Devnet counter</div>
+        <div class="text-sm text-slate-600 mt-2">If your counter program is at address A, your DApp must use address A exactly to call increment. Using a different address targets the wrong program or fails.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Treat the Program ID as immutable config. Store and update it when you redeploy to avoid broken integrations.</div>
+      </div>
+
+      <div class="card p-3 bg-rose-50 border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Using an outdated Program ID leads to silent routing errors or transaction rejections; always confirm the address after deployment.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

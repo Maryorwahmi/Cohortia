@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Comparisons & Booleans</span>
+  </div>
+  <div class="flex-grow grid grid-cols-12 gap-6">
+    <div class="col-span-6 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Comparison semantics</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">eq, gt, lt push boolean values</h3>
+      <p class="text-sm text-slate-600 mt-3">Compute x - y and use the ALU’s result to decide between -1 (true) and 0 (false). The translator emits jump logic that writes the chosen value and then increments SP.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-800">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">push constant 5; push constant 3; gt → stack top is -1 (true) because 5 &gt; 3.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Why -1?</div>
+          <div class="text-sm text-slate-700 mt-1">-1 is all ones in two's complement; it composes naturally with bitwise operations and can be produced directly by the ALU.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-sm font-semibold text-rose-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Do not use 1 for true. Some operations expect a mask of all ones to propagate truth in bitwise logic.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example sequence</div>
+      <pre class="code bg-slate-50 p-3 rounded-lg text-sm">push constant 5
+push constant 3
+gt  // pushes -1
+push constant 5
+push constant 5
+eq  // pushes -1</pre>
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="font-semibold">Key takeaway</div>
+        <div class="mt-2">Always ensure the translator writes -1 or 0 explicitly in your generated assembly. When testing, check the simulator’s RAM at the stack address to verify the exact bit pattern.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

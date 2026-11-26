@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Cache side channels and timing attacks</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-700">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">How cache timing reveals speculative accesses</h3>
+
+    <div class="flex gap-4 mt-4 h-full">
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="font-semibold text-slate-800">Step 1 — Prepare probe array</div>
+          <p class="text-sm text-slate-600 mt-1">Allocate an array where each possible secret value corresponds to a separate cache line to observe later by timing reads.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="font-semibold text-slate-800">Step 2 — Train predictor</div>
+          <p class="text-sm text-slate-600 mt-1">Execute the vulnerable branch many times with in-bounds inputs so the predictor expects the branch to be taken or not taken consistently.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="font-semibold text-slate-800">Step 3 — Trigger speculative access</div>
+          <p class="text-sm text-slate-600 mt-1">Use an out-of-bounds index or poisoned BTB to cause the processor to speculatively access secret-dependent memory and touch the probe array line tied to the secret.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border mt-auto">
+          <div class="font-semibold text-slate-800">Step 4 — Measure timings</div>
+          <p class="text-sm text-slate-600 mt-1">Probe each candidate entry and time reads. The fastest read maps to the cache-resident line and reveals the secret value.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col">
+        <div class="rounded-lg bg-blue-50 p-4 card-border">
+          <div class="text-sm font-semibold text-blue-700">Concrete timing method — flush+reload</div>
+          <p class="text-sm text-slate-700 mt-2">Flush the probe array from cache, trigger the speculative access, then read probe entries and record access times. A notably lower time indicates a loaded line.</p>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-4 card-border mt-3">
+          <div class="text-sm font-semibold text-amber-700">Alternative techniques</div>
+          <p class="text-sm text-slate-700 mt-2">Eviction-based probing and cross-core attacks can substitute for flush+reload, depending on cache sharing and attacker's privileges.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Check your understanding</div>
+          <p class="text-sm text-slate-600 mt-2">Why is a high-resolution timer useful, and how might mitigations reduce an attacker's ability to observe timing differences?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Starter code</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full overflow-auto">
+    <div class="text-sm font-semibold text-slate-700">legacy_calculator.py (excerpt)</div>
+    <div class="mt-3 bg-slate-100 rounded p-3 font-mono text-sm" style="white-space: pre-wrap; tab-size: 2;">
+<pre><code>class TaxService:
+    def get_tax_rate(self, country_code):
+        # Imagine this makes a slow external API call
+        if country_code == "US":
+            return 0.08
+        elif country_code == "CA":
+            return 0.12
+        return 0.0
+
+class DiscountService:
+    def get_discount_percentage(self, customer_id):
+        # Imagine this queries a database
+        if customer_id % 2 == 0: # Even IDs get a discount
+            return 0.10
+        return 0.0
+
+class PriceCalculator:
+    def calculate_final_price(self, base_price, customer_id, country_code):
+        tax_service = TaxService() # Hard-coded dependency
+        discount_service = DiscountService() # Hard-coded dependency
+
+        tax_rate = tax_service.get_tax_rate(country_code)
+        discount_percentage = discount_service.get_discount_percentage(customer_id)
+
+        price_after_discount = base_price * (1 - discount_percentage)
+        final_price = price_after_discount * (1 + tax_rate)
+        return round(final_price, 2)
+</code></pre>
+    </div>
+
+    <div class="mt-4 text-sm text-slate-600">Task: write characterization tests for representative cases, then refactor to inject services and ensure tests still pass.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

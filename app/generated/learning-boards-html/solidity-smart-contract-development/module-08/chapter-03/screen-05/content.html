@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre code{white-space:pre-wrap; tab-size:2;}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-xl font-bold text-slate-800">Initialize an Ethers Provider</div>
+      <div class="text-sm text-slate-600 mt-2">Create an adapter that routes your dApp's blockchain calls through the user's wallet provider.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Example Code</div>
+        <pre class="mono bg-slate-50 rounded-lg p-3 border border-slate-100"><code>// Create a BrowserProvider from the injected object
+const ethProvider = new ethers.BrowserProvider(window.ethereum);
+setProvider(ethProvider);
+
+// Later you can check the network
+const currentNetwork = await ethProvider.getNetwork();
+setNetwork(currentNetwork.name);
+</code></pre>
+
+        <div class="mt-3 text-sm text-slate-700">Use the provider for read-only calls and for acquiring signer after the user grants access. Do not assume the provider can sign transactions without a signer.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">BrowserProvider standardizes RPC forwarding through the wallet; check network details via getNetwork() and use getSigner() only after account access.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4">
+      <div class="card p-3">
+        <div class="text-sm font-bold text-slate-700">Why this matters</div>
+        <div class="text-sm text-slate-700 mt-2">Using BrowserProvider ensures your app uses the same transport and permission model as the user's wallet, avoiding low-level RPC differences between wallets and nodes.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700 mb-2">Misconception</div>
+          <div class="text-sm text-rose-700 bg-rose-50 p-3 rounded-md border border-rose-100">Treating the provider as the signer leads to attempts to sign without permission. Always request accounts and get a signer for signing operations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

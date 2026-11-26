@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code { background:#0f1724; color:#e6eefc; border-radius:12px; padding:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2; }</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 03</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Fargate Pattern</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Snippet</div>
+      <div class="code h-full">
+&lt;!-- TypeScript snippet (escaped) --&gt;
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+
+export class FargateAppStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, 'MyVpc', { maxAzs: 2 });
+    const cluster = new ecs.Cluster(this, 'MyCluster', { vpc });
+
+    new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'MyFargateService', {
+      cluster,
+      cpu: 256,
+      memoryLimitMiB: 512,
+      desiredCount: 1,
+      taskImageOptions: {
+        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        containerPort: 80,
+      },
+      publicLoadBalancer: true,
+    });
+  }
+}
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation & Checks</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Create VPC and cluster explicitly to reuse or reference elsewhere.</li>
+        <li>Pass simple properties to pattern: CPU, memory, count, and image.</li>
+        <li>Verify synth output for generated security groups, listener rules, and IAM roles.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Don't assume the pattern enforces every security control. Review and adjust the generated security groups and IAM roles as required by your policy.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

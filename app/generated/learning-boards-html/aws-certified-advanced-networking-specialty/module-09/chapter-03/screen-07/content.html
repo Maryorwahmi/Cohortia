@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">SSM Documents</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-full">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Example document snippet</div>
+      <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700 overflow-auto">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular,Menlo,monospace">schemaVersion: '2.2'
+description: "Ensure specific sysctl setting for network performance"
+parameters:
+  SysctlKey:
+    type: String
+    default: "net.ipv4.tcp_tw_reuse"
+  SysctlValue:
+    type: String
+    default: "1"
+mainSteps:
+  - action: aws:runShellScript
+    name: EnsureSysctlSetting
+    inputs:
+      commands:
+        - "CURRENT_VALUE=$(sysctl -n {{SysctlKey}})"
+        - "if [ \"$CURRENT_VALUE\" != \"{{SysctlValue}}\" ]; then"
+        - "  sudo sysctl -w {{SysctlKey}}={{SysctlValue}}"
+        - "  echo \"{{SysctlKey}}={{SysctlValue}}\" | sudo tee -a /etc/sysctl.conf"
+        - "else"
+        - "  echo \"{{SysctlKey}} is already {{SysctlValue}}\""
+        - "fi"</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">This example demonstrates parameterization and a persistence step that appends to sysctl.conf. When writing documents, include checks that avoid applying changes unnecessarily and ensure idempotence so State Manager can reapply safely.</div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Best practices</div>
+        <ul class="text-sm text-slate-700 list-disc ml-4">
+          <li>Parameterize values for reuse.</li>
+          <li>Make scripts idempotent and non-destructive.</li>
+          <li>Include persistence steps for changes that must survive reboot.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Testing</div>
+        <div class="text-sm text-slate-700">Validate documents in a staging account and capture outputs so you can roll back or iterate without impacting production networks.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

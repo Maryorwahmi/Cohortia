@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <style> pre{white-space:pre-wrap;tab-size:2;background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;} .card{border:1px solid rgba(226,232,240,0.9);} </style> <div> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span> <span>›</span> <span>Chapter 6.3</span> <span>›</span> <span class="text-slate-700">Fan-Out Simulation</span> </div> <div class="flex gap-6 h-[60vh]"> <div class="w-1/2 rounded-2xl p-5 bg-white card shadow-sm"> <div class="text-lg font-bold text-slate-900">Python walk-through</div> <div class="text-sm text-slate-700 mt-3">This starter script models a broker that publishes to multiple subscriber queues and consumers that run in separate threads. Key takeaways: independent queues, stop signals, and the cost of copying payloads.</div> <div class="mt-4 p-3 rounded-lg bg-slate-50"> <div class="text-sm font-semibold">Concrete example</div> <div class="text-sm text-slate-700 mt-1">A ProfilePictureUploaded event is published; Resizer, Moderator, and Logger receive and process it on their own pace.</div> </div> <div class="mt-4"> <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3"> <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div> <p class="text-xs font-medium text-slate-800">Copying large binaries into each subscriber queue multiplies resource usage; prefer references to external storage.</p> </div> </div> </div> <div class="w-1/2 rounded-2xl p-5 bg-white card shadow-sm overflow-y-auto"> <div class="text-sm font-semibold text-slate-900">Starter code excerpt</div> <pre><code>import queue
+import threading
+import time
+import random
+
+class EventBroker:
+  def __init__(self):
+    self.subscribers = []  # Each subscriber has its own queue
+
+  def subscribe(self, consumer_queue):
+    self.subscribers.append(consumer_queue)
+
+  def publish(self, event_message):
+    print(f"Publishing: '{event_message}' to {len(self.subscribers)} subscribers.")
+    for q in self.subscribers:
+      q.put(event_message)
+
+# Consumers run on separate threads and drain their own queue.
+</code></pre> <div class="mt-3 text-sm text-slate-700">This block demonstrates the core publish loop and the concept of per-subscriber queues. In real brokers, persistence and delivery guarantees replace the in-memory structures used here.</div> </div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

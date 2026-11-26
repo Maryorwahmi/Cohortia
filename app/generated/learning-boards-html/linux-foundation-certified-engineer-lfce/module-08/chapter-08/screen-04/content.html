@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>
+    .card { background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:14px; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Daemonless Architecture</span>
+  </div>
+  <div class="flex gap-4 h-full"> 
+    <div class="w-1/2 flex flex-col gap-3"> 
+      <div class="card p-4 h-full"> 
+        <div class="text-xs uppercase tracking-wider text-slate-700 mb-1">Core Claim</div>
+        <h3 class="text-xl font-bold text-slate-900">Daemonless design reduces privileged attack surface</h3>
+        <p class="text-sm text-slate-600 mt-2">Podman manages containers as normal user processes with conmon monitoring, while Docker relies on a privileged dockerd daemon. This architecture changes how failures and exploits propagate.</p>
+        <div class="mt-3 grid gap-2 text-sm"> 
+          <div class="p-2 rounded bg-blue-50">Podman: no long-running root daemon; per-user containers.</div>
+          <div class="p-2 rounded bg-amber-50">Docker: dockerd runs as a service and manages all containers centrally.</div>
+          <div class="p-2 rounded bg-emerald-50">Result: fewer host-level privileges required for everyday container lifecycle tasks.</div>
+        </div>
+      </div>
+      <div class="card p-4"> 
+        <div class="text-xs uppercase tracking-wider text-slate-700 mb-1">Example Scenario</div>
+        <div class="text-sm text-slate-800">On a multi-user build server, Alice and Bob run their own rootless containers with Podman. A vulnerable image exploited in Alice's container cannot directly compromise the host root or Bob's containers because namespaces and subuid mappings isolate processes to each user.</div>
+        <div class="mt-2 text-xs text-slate-500">Common misconception: Rootless eliminates all risk — it reduces but does not remove risks from insecure images or privileged mounts.</div>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4"> 
+      <div class="text-xs uppercase tracking-wider text-slate-700 mb-1">Side-by-side</div>
+      <div class="grid grid-cols-2 gap-3"> 
+        <div class="p-3 rounded bg-slate-50"> 
+          <div class="text-sm font-bold text-slate-800">Docker</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-4"> 
+            <li>Central dockerd service</li>
+            <li>Daemon runs with elevated privileges</li>
+            <li>Single point for lifecycle management</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded bg-slate-50"> 
+          <div class="text-sm font-bold text-slate-800">Podman</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-4"> 
+            <li>No persistent daemon</li>
+            <li>Containers are user processes</li>
+            <li>Conmon monitors each container</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-4"> 
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Daemonless operation narrows the escalation path by avoiding a single privileged daemon, but maintain image and runtime hygiene to minimize risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

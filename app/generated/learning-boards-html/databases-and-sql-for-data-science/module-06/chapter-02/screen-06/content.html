@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Create a read-only analyst</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-900">Terminal script (create table & user)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;">
+CREATE TABLE public.sensor_readings (
+  id SERIAL PRIMARY KEY,
+  device_id VARCHAR(50) NOT NULL,
+  temperature DECIMAL(5, 2),
+  humidity DECIMAL(5, 2),
+  timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO public.sensor_readings (device_id, temperature, humidity) VALUES
+('sensor_001', 22.5, 60.1),
+('sensor_002', 23.1, 58.7),
+('sensor_001', 22.7, 60.5);
+
+CREATE USER junior_ds WITH PASSWORD 'SecurePasswordForDS!';
+CREATE ROLE read_only_analyst;
+GRANT SELECT ON public.sensor_readings TO read_only_analyst;
+GRANT USAGE ON SCHEMA public TO read_only_analyst;
+GRANT read_only_analyst TO junior_ds;
+</pre>
+      <div class="mt-3 text-sm text-slate-700">Testing: connect as the new user and verify SELECT succeeds while INSERT and UPDATE fail with permission denied.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-900">Verification checklist</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Connect as junior_ds using psql and the provided password.</li>
+        <li>Run SELECT * FROM public.sensor_readings; — expect rows returned.</li>
+        <li>Try INSERT or UPDATE and expect a permission denied error.</li>
+        <li>Revoke the role to confirm the user loses read access.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Granting only schema USAGE without SELECT on tables will not allow read queries. Grant both where appropriate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

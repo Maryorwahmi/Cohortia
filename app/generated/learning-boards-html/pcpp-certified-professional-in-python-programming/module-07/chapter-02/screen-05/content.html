@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900">Update a fixed-width record</div>
+      <div class="text-sm text-slate-600 mt-1">Compute offsets and overwrite in place.</div>
+
+      <div class="mt-4 rounded-2xl bg-white border p-4 shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center font-bold">01</div>
+          <div class="text-sm font-semibold text-slate-800">Compute byte offset</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">If records are fixed-length, offset = record_index * record_size. Use binary mode for absolute correctness.</p>
+
+        <div class="mt-3 flex items-center gap-3">
+          <div class="w-10 h-10 rounded bg-violet-50 text-violet-700 flex items-center justify-center font-bold">02</div>
+          <div class="text-sm font-semibold text-slate-800">Open file read/write</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Open with a mode that permits writing at arbitrary positions. Binary avoids encoding surprises.</p>
+
+        <div class="mt-3 flex items-center gap-3">
+          <div class="w-10 h-10 rounded bg-amber-50 text-amber-800 flex items-center justify-center font-bold">03</div>
+          <div class="text-sm font-semibold text-slate-800">Seek and write</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Call seek(offset) then write the replacement record. Pad or truncate the new data to match the record size.</p>
+
+        <div class="mt-3 flex items-center gap-3">
+          <div class="w-10 h-10 rounded bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">04</div>
+          <div class="text-sm font-semibold text-slate-800">Flush and verify</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Flush to ensure buffered data is written, then read back to confirm correctness. Consider file locks if concurrent writes are possible.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">Example: To update record 8 of 128-byte records: seek(8*128); write exactly 128 bytes; flush.</div>
+          <div class="rounded-lg bg-rose-50 p-3 text-sm text-slate-700">Mistake to avoid: calculating offsets with character counts in text mode when multi-byte encodings are present.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Scenario</div>
+        <p class="text-sm text-slate-600 mt-2">You maintain a large fixed-width record file storing user snapshots. Rewriting the whole file is too slow, so you use seek to update a specific record in-place without reloading gigabytes of data.</p>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Check your understanding</div>
+          <ol class="text-sm text-slate-700 mt-2 list-decimal pl-5 space-y-2">
+            <li>Why open the file in binary mode for offset arithmetic?</li>
+            <li>What do you do if the new record is shorter than the original?</li>
+            <li>How would you protect against concurrent writes?</li>
+          </ol>
+        </div>
+
+        <div class="mt-6">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Fixed-width records combine small math with seek and a consistent byte representation to enable fast in-place updates.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

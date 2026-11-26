@@ -1,0 +1,1603 @@
+{
+  "courseId": "microsoft-certified-azure-administrator-associate-az-104",
+  "moduleNumber": 1,
+  "chapterNumber": 3,
+  "practical": {
+    "schemaVersion": 1,
+    "practicalId": "practical-microsoft-certified-azure-administrator-associate-az-104-m1-c3",
+    "source": {
+      "sourceKey": "microsoft-certified-azure-administrator-associate-az-104/1/3",
+      "category": "Cloud Console Lab",
+      "sourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "sourceHash": "sha256:429a54d98a440f0415d50c6d884edfba4c698b3dc1ab2e676e7e489977bf12ba"
+    },
+    "category": "Cloud Console Lab",
+    "experienceType": "cloud_console_lab",
+    "categoryProfile": {
+      "experience": "cloud_console_lab",
+      "workspaceFamily": "safe_cloud_console",
+      "defaultMode": "cloud_portal",
+      "learnerArtifact": "safe command plan and verification log",
+      "teacherRole": "supportive practical mentor"
+    },
+    "activityKind": "cloud_console_walkthrough",
+    "experience": {
+      "experienceType": "cloud_console_lab",
+      "workspaceFamily": "safe_cloud_console",
+      "learnerArtifact": "safe command plan and verification log",
+      "requiredUi": [
+        "mission",
+        "resource_map",
+        "command_plan",
+        "verification_log"
+      ]
+    },
+    "title": "Implementing Resource Groups, Tags, and a Simple Policy",
+    "summary": "In this activity, you will create a new resource group, apply tags to it, and then assign a simple Azure Policy to enforce a standard within that resource group.",
+    "teachViewOpening": {
+      "subtitle": "In this activity, you will create a new resource group, apply tags to it, and then assign a simple Azure Policy to enforce a standard within that resource group.",
+      "inThisPractical": "In this activity, you will create a new resource group, apply tags to it, and then assign a simple Azure Policy to enforce a standard within that resource group.",
+      "comingUp": "You will create a Resource Group and Apply Initial Tags and produce safe command plan and verification log.",
+      "whyItMatters": "Reliable cloud work depends on understanding the starting resource state, making one safe change, and verifying the resulting state. This practical turns Implementing Resource Groups, Tags, and a Simple Policy into that repeatable operatio…",
+      "quickOrientation": [
+        "Understand the role of Azure subscriptions in billing, access control, and service limits, and how to manage them.",
+        "Implement and effectively utilize resource groups for logical organization, lifecycle management, and access control of Azure resources.",
+        "Apply resource tags comprehensively to Azure resources and resource groups for categorization, cost allocation, and automation."
+      ],
+      "keyConcepts": [
+        {
+          "title": "Azure Subscription",
+          "description": "A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources."
+        },
+        {
+          "title": "Management Group",
+          "description": "A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate."
+        },
+        {
+          "title": "Resource Group",
+          "description": "A logical container for related Azure resources, facilitating their collective management, deployment, and deletion."
+        }
+      ],
+      "conceptMap": {
+        "title": "Cloud Infrastructure Map",
+        "subtitle": "Azure > resources > configuration > verification",
+        "nodes": [
+          {
+            "label": "Create a Resource Group and Apply Initial Tags",
+            "value": "Use the Azure Cloud Shell (Bash) to create a new resource group named MyPolicyDemo-RG in the eastus location. Apply the following tags: Environment=Dev, Project=ComplianceDemo, and Owner=YourName. Remember to replace YourName with your actual name or initials."
+          },
+          {
+            "label": "Verify Applied Tags",
+            "value": "Verify that the tags were successfully applied to your MyPolicyDemo-RG resource group. Use the az group show command to query the tags."
+          },
+          {
+            "label": "Assign an Azure Policy to Restrict Locations",
+            "value": "Navigate to the Azure Portal and assign the 'Allowed locations' policy to your MyPolicyDemo-RG resource group. Configure the policy to only allow resources in East US and West US. Set the scope to your subscription and then specifically to the MyPolicyDemo-RG resource group."
+          },
+          {
+            "label": "Test Policy: Attempt Disallowed Resource Creation",
+            "value": "Using the Azure Cloud Shell, attempt to create a storage account named mydeniedstorage<yourinitials> within MyPolicyDemo-RG in the northcentralus region. Observe the expected policy denial error message."
+          }
+        ]
+      },
+      "gettingReady": "Open the Azure management console, inspect the starting resources, and verify each change against the expected state."
+    },
+    "level": "Intermediate",
+    "labType": "database",
+    "mode": "cloud_portal",
+    "workspace": {
+      "type": "cloud",
+      "cloud": {
+        "provider": "Azure",
+        "region": "eastus",
+        "initialResources": [],
+        "allowedActions": [],
+        "forbiddenActions": [],
+        "commandTemplates": [
+          {},
+          {}
+        ],
+        "expectedState": [],
+        "verificationChecks": []
+      }
+    },
+    "language": "sql",
+    "sourceActivity": "Implementing Resource Groups, Tags, and a Simple Policy",
+    "lessonContext": {
+      "courseIntroduction": "This chapter belongs to Microsoft Certified: Azure Administrator Associate (AZ-104).",
+      "chapterIntroduction": "As you progress in your Azure administration journey, managing the organizational structure of your resources becomes paramount. At the core of this structure are Azure Subscriptions. Think of a subscription as a container that links your Azure services to an Azure account, serving as the primary billing unit. All the resources you deploy – virtual machines, storage accounts, databases – are associated with a single subscription, and their costs are aggregated under that subscription. Beyond billing, subscriptions also define a boundary for Role-Based A…",
+      "learningObjectives": [
+        "Understand the role of Azure subscriptions in billing, access control, and service limits, and how to manage them.",
+        "Implement and effectively utilize resource groups for logical organization, lifecycle management, and access control of Azure resources.",
+        "Apply resource tags comprehensively to Azure resources and resource groups for categorization, cost allocation, and automation.",
+        "Configure and assign Azure Policies to enforce organizational standards, compliance, and governance across your Azure environment."
+      ],
+      "keyConcepts": [
+        "Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources.",
+        "Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate.",
+        "Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion.",
+        "Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation.",
+        "Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources.",
+        "Role-Based Access Control (RBAC):** A system that allows you to manage who has access to Azure resources, what they can do with those resources, and what areas they can access."
+      ],
+      "lessonScreens": [
+        {
+          "id": "screen-1",
+          "order": 1,
+          "title": "Learning objectives",
+          "summary": "Understand the role of Azure subscriptions in billing, access control, and service limits, and how to manage them. Implement and effectively utilize resource groups for logical organization, lifecycle management, and access control of Azure resources. Apply resource tags comprehensively to Azure resources and resource groups for categorization, cost allocat…"
+        },
+        {
+          "id": "screen-2",
+          "order": 2,
+          "title": "Detailed lesson content",
+          "summary": "As you progress in your Azure administration journey, managing the organizational structure of your resources becomes paramount. At the core of this structure are Azure Subscriptions. Think of a subscription as a container that links your Azure services to an Azure account, serving as the primary billing unit. All the resources you deploy – virtual machines…"
+        },
+        {
+          "id": "screen-3",
+          "order": 3,
+          "title": "Key concepts",
+          "summary": "Azure Subscription: A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. Management Group: A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. Resource Group: A logical container for related Azure resources, facilitating their collect…"
+        },
+        {
+          "id": "screen-4",
+          "order": 4,
+          "title": "Hands-on activity",
+          "summary": "Implementing Resource Groups, Tags, and a Simple Policy In this activity, you will create a new resource group, apply tags to it, and then assign a simple Azure Policy to enforce a standard within that resource group. Part 1: Create a Resource Group and Apply Tags 1. Launch Azure Cloud Shell (Bash): Access the Cloud Shell from the Azure Portal. 2. Create a…"
+        },
+        {
+          "id": "screen-5",
+          "order": 5,
+          "title": "Assessment idea",
+          "summary": "1. Question: Your company has a strict financial policy requiring all Azure resources to be clearly associated with a specific department (e.g., \"Sales\", \"Marketing\", \"IT\") for accurate cost reporting. Which Azure management feature is best suited to enforce this categorization across all resources? A) Azure Resource Groups B) Azure Subscriptions C) Azure R…"
+        },
+        {
+          "id": "screen-6",
+          "order": 6,
+          "title": "AI generation note",
+          "summary": "Create a 15-minute mixed format lesson: an 8-minute animated video followed by a 7-minute interactive lab. The video should use clear diagrams to illustrate the hierarchy of management groups, subscriptions, and resource groups, explaining their respective roles in billing, access, and organization. Visually demonstrate the concept of policy inheritance. Th…"
+        }
+      ]
+    },
+    "activityMapping": [
+      {
+        "activityStepId": "activity-step-1",
+        "order": 1,
+        "sourceTitle": "Launch Azure Cloud Shell (Bash): Access the Cloud Shell from the Azure Portal.",
+        "taskId": "task-1",
+        "teachingStepNumbers": [
+          1
+        ],
+        "lessonScreenIds": [
+          "screen-1"
+        ],
+        "concepts": [
+          "Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources.",
+          "Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-2",
+        "order": 2,
+        "sourceTitle": "Create a Resource Group with Initial Tags:",
+        "taskId": "task-2",
+        "teachingStepNumbers": [
+          2
+        ],
+        "lessonScreenIds": [
+          "screen-2"
+        ],
+        "concepts": [
+          "Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate.",
+          "Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-3",
+        "order": 3,
+        "sourceTitle": "Verify Tags (Optional):",
+        "taskId": "task-3",
+        "teachingStepNumbers": [
+          3
+        ],
+        "lessonScreenIds": [
+          "screen-3"
+        ],
+        "concepts": [
+          "Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion.",
+          "Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-1-2",
+        "order": 1,
+        "sourceTitle": "Navigate to Azure Policy in the Portal:",
+        "taskId": "task-4",
+        "teachingStepNumbers": [
+          4
+        ],
+        "lessonScreenIds": [
+          "screen-4"
+        ],
+        "concepts": [
+          "Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation.",
+          "Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-2-2",
+        "order": 2,
+        "sourceTitle": "Create a Policy Assignment:",
+        "taskId": "task-5",
+        "teachingStepNumbers": [
+          5
+        ],
+        "lessonScreenIds": [
+          "screen-5"
+        ],
+        "concepts": [
+          "Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources.",
+          "Role-Based Access Control (RBAC):** A system that allows you to manage who has access to Azure resources, what they can do with those resources, and what areas they can access."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-3-2",
+        "order": 3,
+        "sourceTitle": "Configure Assignment:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": [
+          "Role-Based Access Control (RBAC):** A system that allows you to manage who has access to Azure resources, what they can do with those resources, and what areas they can access."
+        ]
+      },
+      {
+        "activityStepId": "activity-step-4",
+        "order": 4,
+        "sourceTitle": "Parameters:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-5",
+        "order": 5,
+        "sourceTitle": "Review + create: Click \"Review + create,\" then \"Create.\"",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-1-3",
+        "order": 1,
+        "sourceTitle": "Attempt to create a Storage Account in a disallowed region:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-2-3",
+        "order": 2,
+        "sourceTitle": "Attempt to create a Storage Account in an allowed region:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": []
+      },
+      {
+        "activityStepId": "activity-step-3-3",
+        "order": 3,
+        "sourceTitle": "Clean up:",
+        "taskId": null,
+        "teachingStepNumbers": [
+          6
+        ],
+        "lessonScreenIds": [
+          "screen-6"
+        ],
+        "concepts": []
+      }
+    ],
+    "objectives": [
+      "Understand the role of Azure subscriptions in billing, access control, and service limits, and how to manage them.",
+      "Implement and effectively utilize resource groups for logical organization, lifecycle management, and access control of Azure resources.",
+      "Apply resource tags comprehensively to Azure resources and resource groups for categorization, cost allocation, and automation.",
+      "Configure and assign Azure Policies to enforce organizational standards, compliance, and governance across your Azure environment."
+    ],
+    "learningObjectives": [
+      "Understand the role of Azure subscriptions in billing, access control, and service limits, and how to manage them.",
+      "Implement and effectively utilize resource groups for logical organization, lifecycle management, and access control of Azure resources.",
+      "Apply resource tags comprehensively to Azure resources and resource groups for categorization, cost allocation, and automation.",
+      "Configure and assign Azure Policies to enforce organizational standards, compliance, and governance across your Azure environment."
+    ],
+    "prerequisites": [],
+    "instructions": "This practical guides you through creating an Azure resource group, applying descriptive tags for organization, and then enforcing governance using an Azure Policy. You will use the Azure Cloud Shell for resource group and tag management, and the Azure Portal for policy assignment. Finally, you'll test the policy's effectiveness by attempting to deploy resources in both allowed and disallowed regions. This hands-on experience will solidify your understanding of how these core Azure management features work together to maintain organizational standards and compliance.",
+    "narratorGuide": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
+    "teachingPlaylist": [
+      {
+        "id": "teaching-phase-1",
+        "title": "Teaching phase 1",
+        "category": "Cloud Console Lab",
+        "description": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+        "durationSeconds": 53,
+        "learningGoal": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+        "narratorScript": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+        "workedExample": "Resource Groups: Logical containers for Azure resources.\nTags: Key-value pairs for categorization.\nExample RG: MyPolicyDemo-RG in East US.\nInitial Tags:\n- Environment=Dev\n- Project=ComplianceDemo · - Owner=YourName",
+        "scenario": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+        "learnerPrompt": "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+        "commonMistake": "A common mistake is neglecting to tag resources, which can lead to difficulties in cost allocation and resource identification in large environments. Without tags, it's hard to filter and report on resources effectively.",
+        "recap": "Resource groups organize resources, while tags categorize them for better management and cost tracking.",
+        "phase": "orientation",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          1
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          1
+        ]
+      },
+      {
+        "id": "teaching-phase-2",
+        "title": "Teaching phase 2",
+        "category": "Cloud Console Lab",
+        "description": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+        "durationSeconds": 58,
+        "learningGoal": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+        "narratorScript": "Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+        "workedExample": "Azure Policy: Enforces standards and compliance.\nPolicy Definition: 'Allowed locations' (restricts regions).\nPolicy Effect: Deny (prevents non-compliant requests).\nScope: Management Group, Subscription, or Resource Group.\nOur Scope: MyPolicyDemo-RG resource group.",
+        "scenario": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+        "learnerPrompt": "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?",
+        "commonMistake": "A common mistake is creating overly restrictive 'Deny' policies without proper testing, which can inadvertently block legitimate deployments and cause operational friction. Always test policies in non-production environments first.",
+        "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+        "phase": "worked_example",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          2
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          2
+        ]
+      },
+      {
+        "id": "teaching-phase-3",
+        "title": "Teaching phase 3",
+        "category": "Cloud Console Lab",
+        "description": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+        "durationSeconds": 48,
+        "learningGoal": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+        "narratorScript": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+        "workedExample": "Command: az group create\n--name MyPolicyDemo-RG\n--location eastus\n--tags Environment=Dev Project=ComplianceDemo Owner=YourName\nParameters:\n- --name: Resource Group name · - --location: Metadata region · - --tags: Key-value pairs",
+        "scenario": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+        "learnerPrompt": "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful.",
+        "commonMistake": "Forgetting to replace placeholder values like 'YourName' or misspelling resource group names can lead to errors or inconsistent tagging. Always double-check your command parameters.",
+        "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+        "phase": "worked_example",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          3
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          3
+        ]
+      },
+      {
+        "id": "teaching-phase-4",
+        "title": "Teaching phase 4",
+        "category": "Cloud Console Lab",
+        "description": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+        "durationSeconds": 54,
+        "learningGoal": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+        "narratorScript": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+        "workedExample": "Azure Portal Steps:\n1. Search 'Policy' in the portal.\n2. Go to 'Assignments', then '+ Assign policy'.\n3. Set Scope: Your Subscription > MyPolicyDemo-RG.\n4. Policy definition: Search for 'Allowed locations'.\n5. Parameters: Select 'East US' and 'West US'. · 6. Review + create, then 'Create'.",
+        "scenario": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+        "learnerPrompt": "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?",
+        "commonMistake": "Incorrectly setting the policy scope or forgetting to specify the allowed locations in the parameters tab are common errors. An incorrect scope could lead to unintended restrictions across your entire subscription, or the policy not applying where intended.",
+        "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+        "phase": "worked_example",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          4
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          4
+        ]
+      },
+      {
+        "id": "teaching-phase-5",
+        "title": "Teaching phase 5",
+        "category": "Cloud Console Lab",
+        "description": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+        "durationSeconds": 55,
+        "learningGoal": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+        "narratorScript": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+        "workedExample": "Test Command: az storage account create\n--name mydeniedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location northcentralus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command fails. · Error Message: 'Resource deployment was disallowed by policy'.",
+        "scenario": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+        "learnerPrompt": "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?",
+        "commonMistake": "Misspelling the region or resource group name can lead to different error messages or unexpected success if the command doesn't target the policy-protected resource group. Always verify your command syntax.",
+        "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+        "phase": "verification",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          5
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          5
+        ]
+      },
+      {
+        "id": "teaching-phase-6",
+        "title": "Teaching phase 6",
+        "category": "Cloud Console Lab",
+        "description": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+        "durationSeconds": 56,
+        "learningGoal": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+        "narratorScript": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+        "workedExample": "Allowed Command: az storage account create\n--name myallowedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location eastus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command succeeds. · Cleanup: az group delete --name MyPolicyDemo-RG --yes --no-wait. · Safety Note: Deleting a resource group is destructive.",
+        "scenario": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+        "learnerPrompt": "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?",
+        "commonMistake": "Forgetting to clean up resources can lead to unexpected Azure costs. Also, accidentally deleting the wrong resource group is a significant risk, especially in production environments. Always verify the resource group name before deletion.",
+        "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+        "phase": "transfer",
+        "activityStepIds": [],
+        "lessonScreenIds": [],
+        "teachingStepNumbers": [
+          6
+        ],
+        "interactionGate": "listen_and_predict",
+        "codeSteps": [
+          6
+        ]
+      }
+    ],
+    "codeWalkthrough": [],
+    "teachingSteps": [
+      {
+        "stepNumber": 1,
+        "phase": "orientation",
+        "title": "Teaching phase 1",
+        "speakerText": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+        "explanation": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+        "learnerPrompt": "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+        "commonMistake": "A common mistake is neglecting to tag resources, which can lead to difficulties in cost allocation and resource identification in large environments. Without tags, it's hard to filter and report on resources effectively.",
+        "recap": "Resource groups organize resources, while tags categorize them for better management and cost tracking.",
+        "durationSeconds": 53,
+        "displayText": "Resource Groups: Logical containers for Azure resources.\nTags: Key-value pairs for categorization.\nExample RG: MyPolicyDemo-RG in East US.\nInitial Tags:\n- Environment=Dev\n- Project=ComplianceDemo · - Owner=YourName"
+      },
+      {
+        "stepNumber": 2,
+        "phase": "worked_example",
+        "title": "Teaching phase 2",
+        "speakerText": "Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+        "explanation": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+        "learnerPrompt": "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?",
+        "commonMistake": "A common mistake is creating overly restrictive 'Deny' policies without proper testing, which can inadvertently block legitimate deployments and cause operational friction. Always test policies in non-production environments first.",
+        "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+        "durationSeconds": 58,
+        "displayText": "Azure Policy: Enforces standards and compliance.\nPolicy Definition: 'Allowed locations' (restricts regions).\nPolicy Effect: Deny (prevents non-compliant requests).\nScope: Management Group, Subscription, or Resource Group.\nOur Scope: MyPolicyDemo-RG resource group."
+      },
+      {
+        "stepNumber": 3,
+        "phase": "worked_example",
+        "title": "Teaching phase 3",
+        "speakerText": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+        "explanation": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+        "learnerPrompt": "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful.",
+        "commonMistake": "Forgetting to replace placeholder values like 'YourName' or misspelling resource group names can lead to errors or inconsistent tagging. Always double-check your command parameters.",
+        "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+        "durationSeconds": 48,
+        "displayText": "Command: az group create\n--name MyPolicyDemo-RG\n--location eastus\n--tags Environment=Dev Project=ComplianceDemo Owner=YourName\nParameters:\n- --name: Resource Group name · - --location: Metadata region · - --tags: Key-value pairs"
+      },
+      {
+        "stepNumber": 4,
+        "phase": "worked_example",
+        "title": "Teaching phase 4",
+        "speakerText": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+        "explanation": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+        "learnerPrompt": "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?",
+        "commonMistake": "Incorrectly setting the policy scope or forgetting to specify the allowed locations in the parameters tab are common errors. An incorrect scope could lead to unintended restrictions across your entire subscription, or the policy not applying where intended.",
+        "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+        "durationSeconds": 54,
+        "displayText": "Azure Portal Steps:\n1. Search 'Policy' in the portal.\n2. Go to 'Assignments', then '+ Assign policy'.\n3. Set Scope: Your Subscription > MyPolicyDemo-RG.\n4. Policy definition: Search for 'Allowed locations'.\n5. Parameters: Select 'East US' and 'West US'. · 6. Review + create, then 'Create'."
+      },
+      {
+        "stepNumber": 5,
+        "phase": "verification",
+        "title": "Teaching phase 5",
+        "speakerText": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+        "explanation": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+        "learnerPrompt": "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?",
+        "commonMistake": "Misspelling the region or resource group name can lead to different error messages or unexpected success if the command doesn't target the policy-protected resource group. Always verify your command syntax.",
+        "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+        "durationSeconds": 55,
+        "displayText": "Test Command: az storage account create\n--name mydeniedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location northcentralus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command fails. · Error Message: 'Resource deployment was disallowed by policy'."
+      },
+      {
+        "stepNumber": 6,
+        "phase": "transfer",
+        "title": "Teaching phase 6",
+        "speakerText": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+        "explanation": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+        "learnerPrompt": "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?",
+        "commonMistake": "Forgetting to clean up resources can lead to unexpected Azure costs. Also, accidentally deleting the wrong resource group is a significant risk, especially in production environments. Always verify the resource group name before deletion.",
+        "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+        "durationSeconds": 56,
+        "displayText": "Allowed Command: az storage account create\n--name myallowedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location eastus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command succeeds. · Cleanup: az group delete --name MyPolicyDemo-RG --yes --no-wait. · Safety Note: Deleting a resource group is destructive."
+      }
+    ],
+    "teaching": {
+      "opening": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "phase": "orientation",
+          "title": "Teaching phase 1",
+          "speakerText": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+          "explanation": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+          "learnerPrompt": "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+          "commonMistake": "A common mistake is neglecting to tag resources, which can lead to difficulties in cost allocation and resource identification in large environments. Without tags, it's hard to filter and report on resources effectively.",
+          "recap": "Resource groups organize resources, while tags categorize them for better management and cost tracking.",
+          "durationSeconds": 53,
+          "displayText": "Resource Groups: Logical containers for Azure resources.\nTags: Key-value pairs for categorization.\nExample RG: MyPolicyDemo-RG in East US.\nInitial Tags:\n- Environment=Dev\n- Project=ComplianceDemo · - Owner=YourName"
+        },
+        {
+          "stepNumber": 2,
+          "phase": "worked_example",
+          "title": "Teaching phase 2",
+          "speakerText": "Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+          "explanation": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+          "learnerPrompt": "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?",
+          "commonMistake": "A common mistake is creating overly restrictive 'Deny' policies without proper testing, which can inadvertently block legitimate deployments and cause operational friction. Always test policies in non-production environments first.",
+          "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+          "durationSeconds": 58,
+          "displayText": "Azure Policy: Enforces standards and compliance.\nPolicy Definition: 'Allowed locations' (restricts regions).\nPolicy Effect: Deny (prevents non-compliant requests).\nScope: Management Group, Subscription, or Resource Group.\nOur Scope: MyPolicyDemo-RG resource group."
+        },
+        {
+          "stepNumber": 3,
+          "phase": "worked_example",
+          "title": "Teaching phase 3",
+          "speakerText": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+          "explanation": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+          "learnerPrompt": "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful.",
+          "commonMistake": "Forgetting to replace placeholder values like 'YourName' or misspelling resource group names can lead to errors or inconsistent tagging. Always double-check your command parameters.",
+          "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+          "durationSeconds": 48,
+          "displayText": "Command: az group create\n--name MyPolicyDemo-RG\n--location eastus\n--tags Environment=Dev Project=ComplianceDemo Owner=YourName\nParameters:\n- --name: Resource Group name · - --location: Metadata region · - --tags: Key-value pairs"
+        },
+        {
+          "stepNumber": 4,
+          "phase": "worked_example",
+          "title": "Teaching phase 4",
+          "speakerText": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+          "explanation": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+          "learnerPrompt": "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?",
+          "commonMistake": "Incorrectly setting the policy scope or forgetting to specify the allowed locations in the parameters tab are common errors. An incorrect scope could lead to unintended restrictions across your entire subscription, or the policy not applying where intended.",
+          "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+          "durationSeconds": 54,
+          "displayText": "Azure Portal Steps:\n1. Search 'Policy' in the portal.\n2. Go to 'Assignments', then '+ Assign policy'.\n3. Set Scope: Your Subscription > MyPolicyDemo-RG.\n4. Policy definition: Search for 'Allowed locations'.\n5. Parameters: Select 'East US' and 'West US'. · 6. Review + create, then 'Create'."
+        },
+        {
+          "stepNumber": 5,
+          "phase": "verification",
+          "title": "Teaching phase 5",
+          "speakerText": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+          "explanation": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+          "learnerPrompt": "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?",
+          "commonMistake": "Misspelling the region or resource group name can lead to different error messages or unexpected success if the command doesn't target the policy-protected resource group. Always verify your command syntax.",
+          "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+          "durationSeconds": 55,
+          "displayText": "Test Command: az storage account create\n--name mydeniedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location northcentralus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command fails. · Error Message: 'Resource deployment was disallowed by policy'."
+        },
+        {
+          "stepNumber": 6,
+          "phase": "transfer",
+          "title": "Teaching phase 6",
+          "speakerText": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+          "explanation": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+          "learnerPrompt": "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?",
+          "commonMistake": "Forgetting to clean up resources can lead to unexpected Azure costs. Also, accidentally deleting the wrong resource group is a significant risk, especially in production environments. Always verify the resource group name before deletion.",
+          "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+          "durationSeconds": 56,
+          "displayText": "Allowed Command: az storage account create\n--name myallowedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location eastus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command succeeds. · Cleanup: az group delete --name MyPolicyDemo-RG --yes --no-wait. · Safety Note: Deleting a resource group is destructive."
+        }
+      ],
+      "playlist": [
+        {
+          "id": "teaching-phase-1",
+          "title": "Teaching phase 1",
+          "category": "Cloud Console Lab",
+          "description": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+          "durationSeconds": 53,
+          "learningGoal": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+          "narratorScript": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it.",
+          "workedExample": "Resource Groups: Logical containers for Azure resources.\nTags: Key-value pairs for categorization.\nExample RG: MyPolicyDemo-RG in East US.\nInitial Tags:\n- Environment=Dev\n- Project=ComplianceDemo · - Owner=YourName",
+          "scenario": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance.",
+          "learnerPrompt": "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+          "commonMistake": "A common mistake is neglecting to tag resources, which can lead to difficulties in cost allocation and resource identification in large environments. Without tags, it's hard to filter and report on resources effectively.",
+          "recap": "Resource groups organize resources, while tags categorize them for better management and cost tracking.",
+          "phase": "orientation",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            1
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            1
+          ]
+        },
+        {
+          "id": "teaching-phase-2",
+          "title": "Teaching phase 2",
+          "category": "Cloud Console Lab",
+          "description": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+          "durationSeconds": 58,
+          "learningGoal": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+          "narratorScript": "Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+          "workedExample": "Azure Policy: Enforces standards and compliance.\nPolicy Definition: 'Allowed locations' (restricts regions).\nPolicy Effect: Deny (prevents non-compliant requests).\nScope: Management Group, Subscription, or Resource Group.\nOur Scope: MyPolicyDemo-RG resource group.",
+          "scenario": "Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+          "learnerPrompt": "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?",
+          "commonMistake": "A common mistake is creating overly restrictive 'Deny' policies without proper testing, which can inadvertently block legitimate deployments and cause operational friction. Always test policies in non-production environments first.",
+          "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+          "phase": "worked_example",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            2
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            2
+          ]
+        },
+        {
+          "id": "teaching-phase-3",
+          "title": "Teaching phase 3",
+          "category": "Cloud Console Lab",
+          "description": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+          "durationSeconds": 48,
+          "learningGoal": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+          "narratorScript": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+          "workedExample": "Command: az group create\n--name MyPolicyDemo-RG\n--location eastus\n--tags Environment=Dev Project=ComplianceDemo Owner=YourName\nParameters:\n- --name: Resource Group name · - --location: Metadata region · - --tags: Key-value pairs",
+          "scenario": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+          "learnerPrompt": "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful.",
+          "commonMistake": "Forgetting to replace placeholder values like 'YourName' or misspelling resource group names can lead to errors or inconsistent tagging. Always double-check your command parameters.",
+          "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+          "phase": "worked_example",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            3
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            3
+          ]
+        },
+        {
+          "id": "teaching-phase-4",
+          "title": "Teaching phase 4",
+          "category": "Cloud Console Lab",
+          "description": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+          "durationSeconds": 54,
+          "learningGoal": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+          "narratorScript": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+          "workedExample": "Azure Portal Steps:\n1. Search 'Policy' in the portal.\n2. Go to 'Assignments', then '+ Assign policy'.\n3. Set Scope: Your Subscription > MyPolicyDemo-RG.\n4. Policy definition: Search for 'Allowed locations'.\n5. Parameters: Select 'East US' and 'West US'. · 6. Review + create, then 'Create'.",
+          "scenario": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+          "learnerPrompt": "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?",
+          "commonMistake": "Incorrectly setting the policy scope or forgetting to specify the allowed locations in the parameters tab are common errors. An incorrect scope could lead to unintended restrictions across your entire subscription, or the policy not applying where intended.",
+          "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+          "phase": "worked_example",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            4
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            4
+          ]
+        },
+        {
+          "id": "teaching-phase-5",
+          "title": "Teaching phase 5",
+          "category": "Cloud Console Lab",
+          "description": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+          "durationSeconds": 55,
+          "learningGoal": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+          "narratorScript": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+          "workedExample": "Test Command: az storage account create\n--name mydeniedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location northcentralus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command fails. · Error Message: 'Resource deployment was disallowed by policy'.",
+          "scenario": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+          "learnerPrompt": "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?",
+          "commonMistake": "Misspelling the region or resource group name can lead to different error messages or unexpected success if the command doesn't target the policy-protected resource group. Always verify your command syntax.",
+          "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+          "phase": "verification",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            5
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            5
+          ]
+        },
+        {
+          "id": "teaching-phase-6",
+          "title": "Teaching phase 6",
+          "category": "Cloud Console Lab",
+          "description": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+          "durationSeconds": 56,
+          "learningGoal": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+          "narratorScript": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+          "workedExample": "Allowed Command: az storage account create\n--name myallowedstorage<yourinitials>\n--resource-group MyPolicyDemo-RG\n--location eastus\n--sku Standard_LRS --kind StorageV2\nExpected Outcome: Command succeeds. · Cleanup: az group delete --name MyPolicyDemo-RG --yes --no-wait. · Safety Note: Deleting a resource group is destructive.",
+          "scenario": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+          "learnerPrompt": "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?",
+          "commonMistake": "Forgetting to clean up resources can lead to unexpected Azure costs. Also, accidentally deleting the wrong resource group is a significant risk, especially in production environments. Always verify the resource group name before deletion.",
+          "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+          "phase": "transfer",
+          "activityStepIds": [],
+          "lessonScreenIds": [],
+          "teachingStepNumbers": [
+            6
+          ],
+          "interactionGate": "listen_and_predict",
+          "codeSteps": [
+            6
+          ]
+        }
+      ],
+      "taskGuidance": [
+        {
+          "taskId": "task-1",
+          "narratorGuide": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it. Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+          "teaching": {
+            "learningGoal": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance. Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+            "teacherTalk": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it. Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+            "chapterConnection": "In chapter 3, you learned about Azure Subscription. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Azure Subscription means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A create a resource group and apply initial tags workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+              "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. is working.",
+              "misconception": "Let's compare the output with the rule for Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+            "transferTask": "Apply Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Ensure you are in the Azure Cloud Shell (Bash) environment.",
+            "Recall the 'az group create' command syntax for creating a resource group and applying tags simultaneously.",
+            "The command structure is: az group create --name <RG_NAME> --location <LOCATION> --tags <KEY1>=<VALUE1> <KEY2>=<VALUE2> ..."
+          ],
+          "structuredHints": {
+            "nudge": "Did you use the 'az group create' command with the --tags parameter?",
+            "concept": "Resource groups are logical containers for Azure resources. Tags are key-value pairs that help categorize resources for management, billing, and automation. You can apply multiple tags during resource group creation.",
+            "walkthrough": "Execute: az group create --name MyPolicyDemo-RG --location eastus --tags Environment=Dev Project=ComplianceDemo Owner=<YourName>"
+          }
+        },
+        {
+          "taskId": "task-2",
+          "narratorGuide": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+          "teaching": {
+            "learningGoal": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+            "teacherTalk": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+            "chapterConnection": "In chapter 3, you learned about Management Group. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Management Group means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A verify applied tags workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful."
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. is working.",
+              "misconception": "Let's compare the output with the rule for Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+            "transferTask": "Apply Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "How do you inspect the properties of an Azure resource group using the CLI?",
+            "The 'az group show' command can display details about a resource group. You can use the '--query' parameter to filter the output to specific properties, like 'tags'.",
+            "Execute: az group show --name MyPolicyDemo-RG --query tags"
+          ],
+          "structuredHints": {
+            "nudge": "Did you use 'az group show' and query for 'tags'?",
+            "concept": "Verifying resource properties, especially tags, is crucial for ensuring proper categorization and compliance. The Azure CLI's '--query' parameter allows you to extract specific JSON elements from the command output.",
+            "walkthrough": "Execute: az group show --name MyPolicyDemo-RG --query tags"
+          }
+        },
+        {
+          "taskId": "task-3",
+          "narratorGuide": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+          "teaching": {
+            "learningGoal": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+            "teacherTalk": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+            "chapterConnection": "In chapter 3, you learned about Resource Group. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Resource Group means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A assign an azure policy to restrict locations workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. is working.",
+              "misconception": "Let's compare the output with the rule for Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+            "transferTask": "Apply Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Start by searching for 'Policy' in the Azure Portal.",
+            "Remember to select 'Assignments' and then '+ Assign policy'. Pay close attention to setting the 'Scope' and 'Policy definition'.",
+            "For the 'Parameters' tab, you need to select 'East US' and 'West US' from the dropdown for 'Allowed locations'."
+          ],
+          "structuredHints": {
+            "nudge": "Did you correctly set the policy scope to MyPolicyDemo-RG and select 'East US' and 'West US' in the parameters?",
+            "concept": "Azure Policy helps enforce organizational standards. The 'Allowed locations' policy is a built-in definition that restricts resource deployment to specified Azure regions. Policy assignments link a policy definition to a specific scope, such as a resource group.",
+            "walkthrough": "1. In the Azure Portal, search for 'Policy'. 2. Go to 'Assignments' -> '+ Assign policy'. 3. Set 'Scope' to your Subscription and then select 'MyPolicyDemo-RG'. 4. For 'Policy definition', search for 'Allowed locations' and select it. 5. On the 'Parameters' tab, select 'East US' and 'West US' for 'Allowed locations'. 6. Click 'Review + create', then 'Create'."
+          }
+        },
+        {
+          "taskId": "task-4",
+          "narratorGuide": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+          "teaching": {
+            "learningGoal": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+            "teacherTalk": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+            "chapterConnection": "In chapter 3, you learned about Resource Tagging. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Resource Tagging means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A test policy: attempt disallowed resource creation workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. is working.",
+              "misconception": "Let's compare the output with the rule for Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+            "transferTask": "Apply Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "Ensure you replace <yourinitials> with a unique identifier.",
+            "The 'az storage account create' command is used. Pay attention to the '--location' parameter, which should be 'northcentralus'.",
+            "The command should fail. Look for a message indicating 'Resource deployment was disallowed by policy'."
+          ],
+          "structuredHints": {
+            "nudge": "Did your storage account creation attempt in 'northcentralus' fail with a policy denial message?",
+            "concept": "When an Azure Policy with a 'Deny' effect is assigned, it prevents non-compliant resource deployments. Attempting to create a resource in a location not specified in the 'Allowed locations' policy will result in a deployment failure and an error message indicating the policy violation.",
+            "walkthrough": "Execute: az storage account create --name mydeniedstorage<yourinitials> --resource-group MyPolicyDemo-RG --location northcentralus --sku Standard_LRS --kind StorageV2. You should see an error message indicating policy denial."
+          }
+        },
+        {
+          "taskId": "task-5",
+          "narratorGuide": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+          "teaching": {
+            "learningGoal": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+            "teacherTalk": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+            "chapterConnection": "In chapter 3, you learned about Azure Policy. This practical applies it to a safe simulated resource and a verification log.",
+            "conceptExplanation": "Azure Policy means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+            "realWorldExample": "A test policy: attempt allowed resource creation and cleanup workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+            "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+            "guidedSteps": [
+              "Inspect the simulated resource and predict its current state.",
+              "Write one safe, read-only command or action and record the expected state change.",
+              "Verify the result with a second observation and explain what evidence supports your conclusion."
+            ],
+            "questions": [
+              "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?"
+            ],
+            "expectedObservations": [
+              "The simulated resource reaches the expected state and the verification log names the evidence."
+            ],
+            "commonMistakes": [
+              "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+            ],
+            "feedback": {
+              "success": "Good work. Explain how the output proves that Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. is working.",
+              "misconception": "Let's compare the output with the rule for Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. and identify the exact line that caused the difference.",
+              "retry": "Make one small change, run the program again, and describe what changed."
+            },
+            "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+            "transferTask": "Apply Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+            "waitForLearner": true
+          },
+          "hints": [
+            "For the allowed storage account, ensure the location is 'eastus'.",
+            "Remember to use '--yes' and '--no-wait' with 'az group delete' for a non-interactive deletion.",
+            "The cleanup command will remove the resource group and the policy assignment along with it."
+          ],
+          "structuredHints": {
+            "nudge": "Did your allowed storage account creation succeed, and did you successfully delete the resource group?",
+            "concept": "Policies only deny non-compliant actions; compliant actions are permitted. After testing, it's good practice to clean up resources to avoid unnecessary costs. Deleting a resource group removes all resources contained within it, including any policy assignments scoped to that group.",
+            "walkthrough": "1. Execute: az storage account create --name myallowedstorage<yourinitials> --resource-group MyPolicyDemo-RG --location eastus --sku Standard_LRS --kind StorageV2. This should succeed. 2. Execute: az group delete --name MyPolicyDemo-RG --yes --no-wait. This will remove the resource group and all its contents."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "taskId": "task-1",
+          "tier": 1,
+          "text": "Ensure you are in the Azure Cloud Shell (Bash) environment."
+        },
+        {
+          "taskId": "task-1",
+          "tier": 2,
+          "text": "Recall the 'az group create' command syntax for creating a resource group and applying tags simultaneously."
+        },
+        {
+          "taskId": "task-1",
+          "tier": 3,
+          "text": "The command structure is: az group create --name <RG_NAME> --location <LOCATION> --tags <KEY1>=<VALUE1> <KEY2>=<VALUE2> ..."
+        },
+        {
+          "taskId": "task-2",
+          "tier": 1,
+          "text": "How do you inspect the properties of an Azure resource group using the CLI?"
+        },
+        {
+          "taskId": "task-2",
+          "tier": 2,
+          "text": "The 'az group show' command can display details about a resource group. You can use the '--query' parameter to filter the output to specific properties, like 'tags'."
+        },
+        {
+          "taskId": "task-2",
+          "tier": 3,
+          "text": "Execute: az group show --name MyPolicyDemo-RG --query tags"
+        },
+        {
+          "taskId": "task-3",
+          "tier": 1,
+          "text": "Start by searching for 'Policy' in the Azure Portal."
+        },
+        {
+          "taskId": "task-3",
+          "tier": 2,
+          "text": "Remember to select 'Assignments' and then '+ Assign policy'. Pay close attention to setting the 'Scope' and 'Policy definition'."
+        },
+        {
+          "taskId": "task-3",
+          "tier": 3,
+          "text": "For the 'Parameters' tab, you need to select 'East US' and 'West US' from the dropdown for 'Allowed locations'."
+        },
+        {
+          "taskId": "task-4",
+          "tier": 1,
+          "text": "Ensure you replace <yourinitials> with a unique identifier."
+        },
+        {
+          "taskId": "task-4",
+          "tier": 2,
+          "text": "The 'az storage account create' command is used. Pay attention to the '--location' parameter, which should be 'northcentralus'."
+        },
+        {
+          "taskId": "task-4",
+          "tier": 3,
+          "text": "The command should fail. Look for a message indicating 'Resource deployment was disallowed by policy'."
+        },
+        {
+          "taskId": "task-5",
+          "tier": 1,
+          "text": "For the allowed storage account, ensure the location is 'eastus'."
+        },
+        {
+          "taskId": "task-5",
+          "tier": 2,
+          "text": "Remember to use '--yes' and '--no-wait' with 'az group delete' for a non-interactive deletion."
+        },
+        {
+          "taskId": "task-5",
+          "tier": 3,
+          "text": "The cleanup command will remove the resource group and the policy assignment along with it."
+        }
+      ],
+      "checkpoints": [
+        {
+          "taskId": "task-1",
+          "question": "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-2",
+          "question": "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful.",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-3",
+          "question": "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-4",
+          "question": "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?",
+          "waitForLearner": true
+        },
+        {
+          "taskId": "task-5",
+          "question": "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?",
+          "waitForLearner": true
+        }
+      ],
+      "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+      "transferTask": "Apply Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change."
+    },
+    "completionRule": "learner_submission",
+    "environment": {
+      "adapter": "database-sandbox",
+      "runtime": "unspecified",
+      "workingDirectory": "/workspace",
+      "requiredTools": [],
+      "network": "disabled",
+      "resourceLimits": {
+        "timeoutSeconds": 60,
+        "memoryMb": 256,
+        "outputKb": 64
+      },
+      "resetStrategy": "fresh-workspace"
+    },
+    "files": [
+      {
+        "path": "courses.sql",
+        "content": "CREATE TABLE courses (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  title TEXT NOT NULL,\n  department TEXT NOT NULL,\n  credits INTEGER NOT NULL CHECK (credits BETWEEN 1 AND 6)\n);\n\nINSERT INTO courses (title, department, credits) VALUES\n  ('Introduction to Databases', 'Computer Science', 3),\n  ('Calculus I', 'Mathematics', 4),\n  ('Art History 101', 'Fine Arts', 3);\n\nSELECT id, title, department, credits FROM courses ORDER BY id;\n",
+        "language": "sql",
+        "description": "SQLite starter script for the practical.",
+        "editable": true
+      }
+    ],
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create a Resource Group and Apply Initial Tags",
+        "instruction": "Use the Azure Cloud Shell (Bash) to create a new resource group named MyPolicyDemo-RG in the eastus location. Apply the following tags: Environment=Dev, Project=ComplianceDemo, and Owner=YourName. Remember to replace YourName with your actual name or initials.",
+        "narratorGuide": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it. Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+        "teaching": {
+          "learningGoal": "Resource groups are fundamental for organizing resources. Tags provide granular metadata for cost, automation, and governance. Azure Policy enforces rules and standards. The 'Allowed locations' policy with a 'Deny' effect prevents non-compliant deployments.",
+          "teacherTalk": "Resource groups are fundamental for organizing your Azure environment. They act as logical containers for related Azure resources, making it easier to manage them as a single unit. For instance, all components of a web application can reside in one resource group. Tags, on the other hand, are key-value pairs that you apply to resources and resource groups for categorization. They are incredibly versatile for cost management, automation, and enforcing governance standards. Imagine you need to track costs by department or project; tags make this possible. In this lab, we'll create a resource group and apply tags like 'Environment=Dev' and 'Project=ComplianceDemo' to it. Now, let's introduce Azure Policy, a powerful service for enforcing organizational standards and compliance across your Azure environment. Policies define rules or effects that are applied to your resources. For example, you can create a policy that denies the creation of resources outside specific Azure regions, or one that audits whether all storage accounts are encrypted. Policy definitions consist of rules that evaluate properties of resources against specified conditions. In this practical, we'll use the 'Allowed locations' policy, which will restrict where future resources can be deployed within our specific resource group. The effect we'll use is 'Deny', meaning any attempt to deploy a resource in a disallowed location will be blocked.",
+          "chapterConnection": "In chapter 3, you learned about Azure Subscription. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Azure Subscription means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A create a resource group and apply initial tags workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "Consider a large project with multiple teams. How would applying consistent tags to resources help manage costs and responsibilities across these teams?",
+            "If a policy has an 'Audit' effect instead of 'Deny', what would happen if someone tried to deploy a resource in a disallowed location?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. is working.",
+            "misconception": "Let's compare the output with the rule for Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Azure Policy governs resource behavior; the 'Deny' effect prevents non-compliant actions.",
+          "transferTask": "Apply Azure Subscription:** A logical container that serves as a billing unit, access control boundary, and scale unit for Azure resources. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "modify",
+        "requiredConcepts": [],
+        "hints": [
+          "Ensure you are in the Azure Cloud Shell (Bash) environment.",
+          "Recall the 'az group create' command syntax for creating a resource group and applying tags simultaneously.",
+          "The command structure is: az group create --name <RG_NAME> --location <LOCATION> --tags <KEY1>=<VALUE1> <KEY2>=<VALUE2> ..."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggestion-1-1",
+            "label": "Replace YourName",
+            "text": "Make sure to replace 'YourName' with your actual name or initials for the 'Owner' tag."
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you use the 'az group create' command with the --tags parameter?",
+          "concept": "Resource groups are logical containers for Azure resources. Tags are key-value pairs that help categorize resources for management, billing, and automation. You can apply multiple tags during resource group creation.",
+          "walkthrough": "Execute: az group create --name MyPolicyDemo-RG --location eastus --tags Environment=Dev Project=ComplianceDemo Owner=<YourName>"
+        },
+        "checkIds": [
+          "task-1-check-1",
+          "task-1-check-2"
+        ]
+      },
+      {
+        "id": "task-2",
+        "title": "Verify Applied Tags",
+        "instruction": "Verify that the tags were successfully applied to your MyPolicyDemo-RG resource group. Use the az group show command to query the tags.",
+        "narratorGuide": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+        "teaching": {
+          "learningGoal": "Demonstrates the 'az group create' command with name, location, and multiple tags.",
+          "teacherTalk": "Let's begin by creating our resource group and applying initial tags using the Azure Cloud Shell. We'll use the 'az group create' command. The '--name' parameter specifies the resource group's name, 'MyPolicyDemo-RG'. The '--location' parameter sets the region where the resource group's metadata is stored, which we'll set to 'eastus'. Remember, resources within this group can still be in other regions. Finally, the '--tags' parameter allows us to add multiple key-value pairs. We'll add 'Environment=Dev', 'Project=ComplianceDemo', and 'Owner=YourName'. Make sure to replace 'YourName' with your actual name or initials to personalize your environment.",
+          "chapterConnection": "In chapter 3, you learned about Management Group. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Management Group means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A verify applied tags workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "Before running the command, predict what output you expect to see in the Cloud Shell if the resource group creation is successful."
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. is working.",
+            "misconception": "Let's compare the output with the rule for Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "The 'az group create' command is used to establish a resource group and apply initial tags.",
+          "transferTask": "Apply Management Group:** A container for multiple subscriptions, enabling consistent policy and access management across a large Azure estate. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "observe",
+        "requiredConcepts": [],
+        "hints": [
+          "How do you inspect the properties of an Azure resource group using the CLI?",
+          "The 'az group show' command can display details about a resource group. You can use the '--query' parameter to filter the output to specific properties, like 'tags'.",
+          "Execute: az group show --name MyPolicyDemo-RG --query tags"
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggestion-2-1",
+            "label": "Check Tag Keys",
+            "text": "Look for 'Environment', 'Project', and 'Owner' as keys in the output."
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you use 'az group show' and query for 'tags'?",
+          "concept": "Verifying resource properties, especially tags, is crucial for ensuring proper categorization and compliance. The Azure CLI's '--query' parameter allows you to extract specific JSON elements from the command output.",
+          "walkthrough": "Execute: az group show --name MyPolicyDemo-RG --query tags"
+        },
+        "checkIds": [
+          "task-2-check-1"
+        ]
+      },
+      {
+        "id": "task-3",
+        "title": "Assign an Azure Policy to Restrict Locations",
+        "instruction": "Navigate to the Azure Portal and assign the 'Allowed locations' policy to your MyPolicyDemo-RG resource group. Configure the policy to only allow resources in East US and West US. Set the scope to your subscription and then specifically to the MyPolicyDemo-RG resource group.",
+        "narratorGuide": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+        "teaching": {
+          "learningGoal": "Walks through the Azure Portal steps to assign a policy, setting scope and parameters.",
+          "teacherTalk": "Now, let's assign our 'Allowed locations' policy through the Azure Portal. First, you'll search for 'Policy' in the portal's search bar. Once on the Policy blade, navigate to 'Assignments' and click '+ Assign policy'. For the 'Scope', you'll select your subscription and then specifically choose our 'MyPolicyDemo-RG' resource group. This ensures the policy only applies to resources within this group. Next, for the 'Policy definition', search for and select the built-in 'Allowed locations' policy. Finally, on the 'Parameters' tab, you'll specify 'East US' and 'West US' as the only permitted regions for resource deployment within 'MyPolicyDemo-RG'. After reviewing, click 'Create' to assign the policy.",
+          "chapterConnection": "In chapter 3, you learned about Resource Group. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Resource Group means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A assign an azure policy to restrict locations workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "Why is it important to scope the policy to the specific resource group 'MyPolicyDemo-RG' rather than the entire subscription?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. is working.",
+            "misconception": "Let's compare the output with the rule for Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Policy assignment in the portal involves setting the scope, selecting the definition, and configuring parameters.",
+          "transferTask": "Apply Resource Group:** A logical container for related Azure resources, facilitating their collective management, deployment, and deletion. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "modify",
+        "requiredConcepts": [],
+        "hints": [
+          "Start by searching for 'Policy' in the Azure Portal.",
+          "Remember to select 'Assignments' and then '+ Assign policy'. Pay close attention to setting the 'Scope' and 'Policy definition'.",
+          "For the 'Parameters' tab, you need to select 'East US' and 'West US' from the dropdown for 'Allowed locations'."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggestion-3-1",
+            "label": "Verify Scope",
+            "text": "Ensure the policy 'Scope' is correctly set to your 'MyPolicyDemo-RG' resource group."
+          },
+          {
+            "id": "suggestion-3-2",
+            "label": "Check Parameters",
+            "text": "Confirm 'East US' and 'West US' are selected in the 'Allowed locations' parameter."
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did you correctly set the policy scope to MyPolicyDemo-RG and select 'East US' and 'West US' in the parameters?",
+          "concept": "Azure Policy helps enforce organizational standards. The 'Allowed locations' policy is a built-in definition that restricts resource deployment to specified Azure regions. Policy assignments link a policy definition to a specific scope, such as a resource group.",
+          "walkthrough": "1. In the Azure Portal, search for 'Policy'. 2. Go to 'Assignments' -> '+ Assign policy'. 3. Set 'Scope' to your Subscription and then select 'MyPolicyDemo-RG'. 4. For 'Policy definition', search for 'Allowed locations' and select it. 5. On the 'Parameters' tab, select 'East US' and 'West US' for 'Allowed locations'. 6. Click 'Review + create', then 'Create'."
+        },
+        "checkIds": [
+          "task-3-check-1"
+        ]
+      },
+      {
+        "id": "task-4",
+        "title": "Test Policy: Attempt Disallowed Resource Creation",
+        "instruction": "Using the Azure Cloud Shell, attempt to create a storage account named mydeniedstorage<yourinitials> within MyPolicyDemo-RG in the northcentralus region. Observe the expected policy denial error message.",
+        "narratorGuide": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+        "teaching": {
+          "learningGoal": "Demonstrates attempting a resource creation in a disallowed region and observing the policy denial.",
+          "teacherTalk": "With our policy assigned, it's time to test its enforcement. We'll attempt to create a storage account within 'MyPolicyDemo-RG', but this time, we'll specify a disallowed region: 'northcentralus'. We expect this command to fail. The 'az storage account create' command will be used, with parameters for the name, resource group, location, SKU, and kind. Pay close attention to the output. You should see an error message explicitly stating that the resource deployment was disallowed by policy. This confirms that our 'Allowed locations' policy, with its 'Deny' effect, is actively preventing non-compliant resource deployments within our designated resource group. This is how Azure Policy helps maintain governance.",
+          "chapterConnection": "In chapter 3, you learned about Resource Tagging. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Resource Tagging means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A test policy: attempt disallowed resource creation workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "What specific part of the error message confirms that the Azure Policy you assigned is working as intended?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. is working.",
+            "misconception": "Let's compare the output with the rule for Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Policies with a 'Deny' effect successfully block resource deployments in disallowed locations.",
+          "transferTask": "Apply Resource Tagging:** Key-value pairs applied to Azure resources and resource groups for categorization, cost allocation, and automation. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "experiment",
+        "requiredConcepts": [],
+        "hints": [
+          "Ensure you replace <yourinitials> with a unique identifier.",
+          "The 'az storage account create' command is used. Pay attention to the '--location' parameter, which should be 'northcentralus'.",
+          "The command should fail. Look for a message indicating 'Resource deployment was disallowed by policy'."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggestion-4-1",
+            "label": "Replace <yourinitials>",
+            "text": "Replace '<yourinitials>' with a unique identifier to ensure the storage account name is globally unique."
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did your storage account creation attempt in 'northcentralus' fail with a policy denial message?",
+          "concept": "When an Azure Policy with a 'Deny' effect is assigned, it prevents non-compliant resource deployments. Attempting to create a resource in a location not specified in the 'Allowed locations' policy will result in a deployment failure and an error message indicating the policy violation.",
+          "walkthrough": "Execute: az storage account create --name mydeniedstorage<yourinitials> --resource-group MyPolicyDemo-RG --location northcentralus --sku Standard_LRS --kind StorageV2. You should see an error message indicating policy denial."
+        },
+        "checkIds": [
+          "task-4-check-1"
+        ]
+      },
+      {
+        "id": "task-5",
+        "title": "Test Policy: Attempt Allowed Resource Creation and Cleanup",
+        "instruction": "First, create a storage account named myallowedstorage<yourinitials> in MyPolicyDemo-RG in the eastus region. This should succeed. Then, clean up your Azure environment by deleting the MyPolicyDemo-RG resource group and all its contents using the az group delete command.",
+        "narratorGuide": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+        "teaching": {
+          "learningGoal": "Demonstrates a successful resource creation in an allowed region and then the cleanup process.",
+          "teacherTalk": "Now, let's confirm that our policy allows compliant deployments. We'll try creating another storage account, 'myallowedstorage<yourinitials>', in the 'eastus' region, which is one of our allowed locations. This command should succeed, demonstrating the policy's selective enforcement. Once confirmed, it's crucial to clean up our environment to avoid unnecessary costs. We'll use the 'az group delete' command with the '--name MyPolicyDemo-RG' parameter. The '--yes' flag bypasses the confirmation prompt, and '--no-wait' allows the command to return immediately while the deletion happens in the background. Remember, deleting a resource group is a destructive action that removes all contained resources, including our policy assignment. Always exercise caution when using this command.",
+          "chapterConnection": "In chapter 3, you learned about Azure Policy. This practical applies it to a safe simulated resource and a verification log.",
+          "conceptExplanation": "Azure Policy means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.",
+          "realWorldExample": "A test policy: attempt allowed resource creation and cleanup workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.",
+          "workedExample": "Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.",
+          "guidedSteps": [
+            "Inspect the simulated resource and predict its current state.",
+            "Write one safe, read-only command or action and record the expected state change.",
+            "Verify the result with a second observation and explain what evidence supports your conclusion."
+          ],
+          "questions": [
+            "Why is it crucial to use '--yes' and '--no-wait' with 'az group delete' in an automated script, but to be cautious with them in manual operations?"
+          ],
+          "expectedObservations": [
+            "The simulated resource reaches the expected state and the verification log names the evidence."
+          ],
+          "commonMistakes": [
+            "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+          ],
+          "feedback": {
+            "success": "Good work. Explain how the output proves that Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. is working.",
+            "misconception": "Let's compare the output with the rule for Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. and identify the exact line that caused the difference.",
+            "retry": "Make one small change, run the program again, and describe what changed."
+          },
+          "recap": "Policies permit compliant deployments; always clean up resources after testing to manage costs.",
+          "transferTask": "Apply Azure Policy:** A service for creating, assigning, and managing policies to enforce organizational standards and compliance across Azure resources. to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "stepType": "verify",
+        "requiredConcepts": [],
+        "hints": [
+          "For the allowed storage account, ensure the location is 'eastus'.",
+          "Remember to use '--yes' and '--no-wait' with 'az group delete' for a non-interactive deletion.",
+          "The cleanup command will remove the resource group and the policy assignment along with it."
+        ],
+        "inlineSuggestions": [
+          {
+            "id": "suggestion-5-1",
+            "label": "Replace <yourinitials>",
+            "text": "Replace '<yourinitials>' with a unique identifier for the storage account name."
+          }
+        ],
+        "structuredHints": {
+          "nudge": "Did your allowed storage account creation succeed, and did you successfully delete the resource group?",
+          "concept": "Policies only deny non-compliant actions; compliant actions are permitted. After testing, it's good practice to clean up resources to avoid unnecessary costs. Deleting a resource group removes all resources contained within it, including any policy assignments scoped to that group.",
+          "walkthrough": "1. Execute: az storage account create --name myallowedstorage<yourinitials> --resource-group MyPolicyDemo-RG --location eastus --sku Standard_LRS --kind StorageV2. This should succeed. 2. Execute: az group delete --name MyPolicyDemo-RG --yes --no-wait. This will remove the resource group and all its contents."
+        },
+        "checkIds": [
+          "task-5-check-1",
+          "task-5-check-2",
+          "task-5-check-3"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "task-1-check-1",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*\"name\": \"MyPolicyDemo-RG\".*\"provisioningState\": \"Succeeded\".*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-1-check-2",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*\"Environment\": \"Dev\".*\"Project\": \"ComplianceDemo\".*\"Owner\": \".*\".*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-2-check-1",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*\"Environment\": \"Dev\".*\"Project\": \"ComplianceDemo\".*\"Owner\": \".*\".*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-3-check-1",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*\"definition\": \".*allowedLocations\".*\"name\": \".*\".*\"parameters\": \".*East US\".*\"parameters\": \".*West US\".*\"scope\": \".*MyPolicyDemo-RG\".*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-4-check-1",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*Resource deployment was disallowed by policy.*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-5-check-1",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ".*\"provisioningState\": \"Succeeded\".*"
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-5-check-2",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "passCondition": {
+          "expected": ""
+        },
+        "matchMode": "regex"
+      },
+      {
+        "id": "task-5-check-3",
+        "type": "command",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "matchMode": "regex"
+      }
+    ],
+    "hints": [],
+    "evidence": [
+      {
+        "id": "practical-result",
+        "type": "artifact",
+        "label": "Practical result",
+        "required": true,
+        "redactSecrets": true
+      }
+    ],
+    "safety": {
+      "profile": "database-isolated",
+      "networkAccess": "disabled",
+      "hostAccess": "none",
+      "requiresManualReview": true,
+      "prohibitedOperations": [
+        "accessing the host filesystem",
+        "reading credentials or secrets",
+        "privileged operations",
+        "network access outside declared fixtures"
+      ],
+      "learnerWarning": "This practical runs in an isolated workspace. Do not use real credentials or production resources."
+    },
+    "cleanup": {
+      "strategy": "discard-workspace",
+      "instructions": "Discard the isolated workspace after completion."
+    },
+    "completionRules": {
+      "requiredChecks": [
+        "task-1-check-1",
+        "task-1-check-2",
+        "task-2-check-1",
+        "task-3-check-1",
+        "task-4-check-1",
+        "task-5-check-1",
+        "task-5-check-2",
+        "task-5-check-3"
+      ],
+      "minimumScore": 1,
+      "requiresEvidence": true,
+      "manualReview": true
+    },
+    "generator": {
+      "generatorVersion": "phase5.3-prediction-checkpoints",
+      "classifierVersion": "phase3.1"
+    },
+    "metadata": {
+      "courseId": "microsoft-certified-azure-administrator-associate-az-104",
+      "moduleNumber": 1,
+      "chapterNumber": 3,
+      "model": "gemini-2.5-flash",
+      "generatedAt": "2026-11-19T11:40:41.895Z",
+      "activitySourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "lessonSourcePath": "intermediate/cloud-computing-devops/microsoft-certified-azure-administrator-associate-az-104.md",
+      "activitySourceHash": "sha256:429a54d98a440f0415d50c6d884edfba4c698b3dc1ab2e676e7e489977bf12ba",
+      "lessonSourceHash": "sha256:81c60fbd41d992f7a3364fab46f840eda5774863073f86fe9afea2c6b3addae4"
+    }
+  }
+}

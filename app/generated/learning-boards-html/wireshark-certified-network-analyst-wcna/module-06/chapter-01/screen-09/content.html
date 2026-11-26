@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.1</span><span>›</span><span class="text-slate-700">Lua Dissector Basics</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col"><h2 class="text-2xl font-bold text-slate-900 mb-2">Building a Basic Lua Dissector</h2><p class="text-base text-slate-700 mb-4">Learn the fundamental components required to create a custom protocol dissector using Lua.</p><div class="grid grid-cols-1 gap-4 mb-4"><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-start gap-3"><span class="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">1</span><div><div class="text-sm font-semibold text-slate-800 mb-1">Define Protocol</div><p class="text-xs text-slate-600">Use <code>Proto("Name", "Description")</code> to create a new protocol object for your custom traffic.</p></div></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-start gap-3"><span class="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">2</span><div><div class="text-sm font-semibold text-slate-800 mb-1">Define Fields</div><p class="text-xs text-slate-600">Use <code>ProtoField.type("proto.field", "Label", FT_TYPE)</code> to define individual fields within your protocol (e.g., command code, length).</p></div></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-start gap-3"><span class="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">3</span><div><div class="text-sm font-semibold text-slate-800 mb-1">Register Dissector</div><p class="text-xs text-slate-600">Associate your new protocol with a specific transport layer port (e.g., <code>my_udp_port_table:add(12345, p_myproto)</code>).</p></div></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The core of a Lua dissector involves defining the protocol, its fields, and registering it to a specific port for Wireshark to use.</p></div></div><div class="flex-1 flex items-center justify-center p-6 bg-slate-900 rounded-2xl border border-slate-700 shadow-inner"><pre class="text-xs text-slate-200 font-mono w-full h-full overflow-auto p-4 rounded-lg" style="white-space: pre-wrap; tab-size: 2;"><code>-- 1. Define a new protocol
+local p_myproto = Proto("MyCustomProtocol", "My Custom Protocol Description")
+
+-- 2. Define fields for the protocol
+local f_command_code = ProtoField.uint16("myproto.command", "Command Code", base.HEX)
+local f_length = ProtoField.uint32("myproto.length", "Payload Length", base.DEC)
+local f_payload = ProtoField.bytes("myproto.payload", "Payload Data")
+
+-- Add fields to the protocol
+p_myproto.fields = { f_command_code, f_length, f_payload }
+
+-- 3. The dissector function
+function p_myproto.dissector(tvbuf, pinfo, tree)
+  -- Set the protocol column in the packet list
+  pinfo.cols.protocol = p_myproto.name
+
+  -- Create a subtree for our protocol details
+  local subtree = tree:add(p_myproto, tvbuf)
+
+  -- Extract and add fields
+  local offset = 0
+  subtree:add(f_command_code, tvbuf:range(offset, 2))
+  offset = offset + 2
+  subtree:add(f_length, tvbuf:range(offset, 4))
+  offset = offset + 4
+  
+  -- Assuming payload length is in the field, extract it
+  local payload_len = tvbuf:range(2, 4):uint()
+  subtree:add(f_payload, tvbuf:range(offset, payload_len))
+end
+
+-- 4. Register the dissector for a specific UDP port
+local my_udp_port_table = DissectorTable.get("udp.port")
+my_udp_port_table:add(12345, p_myproto)
+
+print("MyCustomProtocol Lua dissector loaded!")
+</code></pre></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

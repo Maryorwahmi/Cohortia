@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px;padding:14px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-xl font-semibold text-slate-800 mt-2">Disk Quotas</div>
+      <div class="text-sm text-slate-600 mt-3">Set soft and hard limits on disk blocks and inodes for users and groups to prevent resource exhaustion.</div>
+      <div class="mt-4">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+          <div class="text-xs text-slate-700 mt-1">Quotas avoid denial-of-service caused by a single user filling a filesystem and preserve multi-tenant stability.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Enable & inspect</div>
+        <pre class="mt-2"><code># /etc/fstab example
+UUID=... /mnt/shared_project ext4 defaults,acl,usrquota 0 0
+# Initialize
+sudo mount -o remount /mnt/shared_project
+sudo quotacheck -cum /mnt/shared_project
+sudo edquota -u alice
+# Check
+quota -s alice</code></pre>
+      </div>
+      <div class="card bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Not remounting the filesystem with quota options or skipping quotacheck leaves quotas inactive despite edits.</div>
+      </div>
+      <div class="card bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Configure, initialize, then test quotas; use soft limits to warn and hard limits to protect space.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

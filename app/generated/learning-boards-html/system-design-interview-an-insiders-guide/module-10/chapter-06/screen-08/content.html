@@ -1,0 +1,30 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Caching strategy</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-xl border p-4 bg-white shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Process</div>
+      <ol class='mt-2 list-decimal list-inside text-sm text-slate-600 space-y-2'>
+        <li>Construct cache key from metric, filters, aggregation window, and time bucket.</li>
+        <li>Check cache. If hit and fresh, return immediately.</li>
+        <li>If miss, query DB or materialized view, store result with TTL, and return.</li>
+        <li>Choose TTL slightly less than the aggregation window to avoid staleness.</li>
+      </ol>
+    </div>
+
+    <div class='rounded-xl border p-4 bg-white shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Concrete Example</div>
+      <div class='mt-2 text-sm text-slate-700'>Cache key: campaign:42:clicks:10m:20260926T1203. TTL: 60 seconds. When a request arrives, the API checks Redis by key and returns the cached count if present. If missing, query ClickHouse and set the key.</div>
+
+      <div class='mt-3'>
+        <div class='rounded-md bg-rose-50 p-3 text-rose-700'>Common mistake: using a TTL much longer than aggregation window and serving stale analytics to dashboards.</div>
+      </div>
+    </div>
+  </div>
+</div>

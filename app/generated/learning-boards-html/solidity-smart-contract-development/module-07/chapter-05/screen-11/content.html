@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Interact Script</span>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">Example script</div>
+    <div class="text-sm text-slate-600 mt-2">This script reads the Counter, increments, waits, then decrements and confirms each change.</div>
+
+    <div class="mt-4 rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <pre><code>// scripts/interact_counter.js
+const { ethers } = require("hardhat");
+
+async function main() {
+  const CONTRACT_ADDRESS = "YOUR_DEPLOYED_COUNTER_ADDRESS"; // replace
+  const [signer] = await ethers.getSigners();
+  const CounterFactory = await ethers.getContractFactory("Counter");
+  const counter = CounterFactory.attach(CONTRACT_ADDRESS);
+
+  console.log("--- Initial State ---");
+  let currentCount = await counter.count();
+  console.log(`Current count: ${'${currentCount.toString()}'}');
+
+  console.log("--- Incrementing Counter ---");
+  const incTx = await counter.connect(signer).increment();
+  await incTx.wait();
+  console.log("Increment transaction successful!");
+
+  currentCount = await counter.count();
+  console.log(`New count: ${'${currentCount.toString()}'}');
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+</code></pre>
+    </div>
+
+    <div class="mt-4 text-sm text-slate-700">
+      <div class="font-bold">Run it</div>
+      <div class="text-sm text-slate-600 mt-2">npx hardhat run scripts/interact_counter.js --network sepolia</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

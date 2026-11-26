@@ -1,0 +1,40 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px}</style>
+  <div class='h-full flex flex-row gap-6'>
+    <div class='w-1/2 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500 font-bold mb-2'>Code Walkthrough</div>
+      <div class='text-2xl font-bold text-slate-900 mb-2'>Validation script and CI integration</div>
+      <div class='text-sm text-slate-600 mb-4'>A short script fails CI when a required index is missing; buildspec runs it in the build phase.</div>
+
+      <div class='rounded-xl p-4 bg-white card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Buildspec integration (conceptual)</div>
+        <pre><code>phases:
+  install:
+    commands:
+      - echo "Install DB client if needed"
+  build:
+    commands:
+      - echo "Running database schema validation..."
+      - ./validate_db_schema.sh
+      - echo "Continue build if validation succeeds"</code></pre>
+        <div class='text-xs text-slate-600 mt-2'>Add this snippet to your CI buildspec so the script runs before packaging or deployment steps.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col'>
+      <div class='rounded-2xl bg-white p-4 card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Practical steps</div>
+        <ul class='text-sm text-slate-600 mt-2 space-y-1'>
+          <li>Run the script locally against a test DB to observe a failing build.</li>
+          <li>Add the script to CI and confirm pipeline failure message is actionable.</li>
+          <li>After fix, rerun pipeline to confirm success and mark the action item done.</li>
+        </ul>
+      </div>
+
+      <div class='mt-4 rounded-xl p-3 bg-emerald-50 card-border'>
+        <div class='font-semibold text-slate-800'>Key takeaway</div>
+        <div class='text-sm text-slate-700 mt-2'>A simple validation script in CI enforces post‑mortem fixes automatically and provides a clear remediation path when failures occur.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5.2</span>
+    <span>›</span>
+    <span>Injection Attacks</span>
+    <span>›</span>
+    <span class="text-slate-700">Error-Based SQL Injection</span>
+  </div>
+  <div class="flex-grow flex flex-col md:flex-row gap-6">
+    <div class="w-full md:w-1/2 flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-violet-700 mb-3">SQLi Type</div>
+      <div class="text-2xl font-bold text-slate-800 mb-2">Error-Based SQL Injection</div>
+      <div class="text-base font-medium text-slate-600 mb-4">Leveraging Database Errors for Information Leakage</div>
+      <div class="text-sm text-slate-700 flex-grow space-y-3">
+        <p>This technique relies on the application displaying detailed database error messages to the user.</p>
+        <p>Attackers intentionally trigger errors using specific SQL functions or syntax that reveal information.</p>
+        <p>Commonly exploited functions in MySQL include <code>UPDATEXML</code> and <code>EXTRACTVALUE</code>, which can be manipulated to produce error messages containing query results.</p>
+        <p>Example payload structure:</p>
+        <pre class="bg-slate-800 text-emerald-300 p-3 rounded-lg font-mono text-xs whitespace-pre-wrap overflow-x-auto" style="tab-size: 2;">AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT(version(), FLOOR(RAND(0)*2)) x FROM information_schema.plugins GROUP BY x)a)-- -</pre>
+        <p>This payload attempts to reveal the database version within an error message.</p>
+      </div>
+    </div>
+    <div class="w-full md:w-1/2 flex flex-col justify-center">
+      <div class="rounded-xl border border-slate-200 bg-white shadow-lg p-5">
+        <div class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">How it Works</div>
+        <div class="text-base text-slate-700 mb-4">Triggering Errors to Leak Data</div>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-start gap-3">
+            <div class="text-sm font-medium text-slate-600 w-24">Vulnerable Input:</div>
+            <div class="flex-1 px-3 py-2 border border-rose-300 bg-rose-50 rounded-md text-rose-700 font-mono">' AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT(version(), FLOOR(RAND(0)*2)) x FROM information_schema.plugins GROUP BY x)a)-- -</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-sm font-medium text-slate-600 w-24">Application Response:</div>
+            <div class="flex-1 px-3 py-2 border border-slate-300 bg-slate-50 rounded-md text-slate-700 font-mono">Database Error: ... ERROR 1110 (42000): ERROR at line 1: ERROR :COLLATION 'utf8mb4_general_ci' is not valid for UNICODE (longer)...</div>
+          </div>
+        </div>
+        <div class="mt-6 text-center text-xs text-slate-400">DATA EXFILTRATION VIA ERROR</div>
+      </div>
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Error-based SQLi exploits verbose database error messages to reveal sensitive information, making it effective when error handling is weak.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

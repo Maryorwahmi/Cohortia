@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Demo / CLI</div>
+      <div class="text-xl font-bold text-slate-900 mb-2">Sending Test Logs to Firehose</div>
+      <div class="text-sm text-slate-700 mb-4">Use the AWS CLI to put records into an active Firehose stream to validate delivery and S3 archiving.</div>
+      <div class="rounded-xl bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Example CLI commands</div>
+        <pre class="text-xs text-slate-700">aws firehose put-record \
+  --delivery-stream-name MyAppLogsToS3 \
+  --record '{"Data": "{\"timestamp\": \"2023-10-27T10:00:00Z\", \"level\": \"INFO\", \"service\": \"web-app\", \"message\": \"User logged in: user-123\"}
+"}'
+
+aws firehose put-record \
+  --delivery-stream-name MyAppLogsToS3 \
+  --record '{"Data": "{\"timestamp\": \"2023-10-27T10:01:05Z\", \"level\": \"ERROR\", \"service\": \"payment-service\", \"message\": \"Failed to process payment for order-ABC\"}
+"}'
+
+aws firehose put-record \
+  --delivery-stream-name MyAppLogsToS3 \
+  --record '{"Data": "{\"timestamp\": \"2023-10-27T10:02:30Z\", \"level\": \"DEBUG\", \"service\": \"data-processor\", \"message\": \"Batch job started for report-XYZ\"}
+"}'</pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">What to verify</div>
+      <ul class="text-sm text-slate-600 space-y-2 flex-1">
+        <li>Confirm objects appear under the S3 prefix after buffer interval.</li>
+        <li>Check the Firehose delivery stream metrics for Put record success.</li>
+        <li>Inspect the error_logs/ prefix for failed records and permission issues.</li>
+      </ul>
+      <div class="mt-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception check</div>
+        <p class="text-xs font-medium text-slate-800">Firehose will not automatically transform complex logs: use a Lambda transform for lightweight parsing if needed.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

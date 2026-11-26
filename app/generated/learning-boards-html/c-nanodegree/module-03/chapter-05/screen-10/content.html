@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">enable_shared_from_this</span>
+    </div>
+
+    <div class="flex gap-6 h-[72vh]">
+      <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">Why enable_shared_from_this</div>
+        <p class="text-sm text-slate-600 mt-3">When an object needs to create shared_ptrs to itself safely, inherit from std::enable_shared_from_this. This guarantees shared_from_this returns a shared_ptr tied to the existing control block rather than creating a separate owner.</p>
+
+        <pre class="mt-3 bg-slate-50 p-3 rounded-lg text-sm text-slate-800">
+class ParentNodeEnhanced : public std::enable_shared_from_this&lt;ParentNodeEnhanced&gt; {
+public:
+  void addChild(std::shared_ptr&lt;ChildNode&gt; child) {
+    children.push_back(child);
+    child->parent = shared_from_this(); // safe when Parent is owned by shared_ptr
+  }
+};
+        </pre>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-700">Practical warnings</div>
+        <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2">
+          <li>Do not call shared_from_this in a constructor before a shared_ptr owns the object.</li>
+          <li>Confirm the parent is created with make_shared so shared_from_this returns a valid shared_ptr.</li>
+          <li>Use the returned shared_ptr to initialize weak_ptr observers in children.</li>
+        </ul>
+
+        <div class="mt-6">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">enable_shared_from_this ensures self-references belong to the same control block, avoiding ownership inconsistencies.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

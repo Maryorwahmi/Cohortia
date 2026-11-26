@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">createStudentNames</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-sm text-slate-700 mt-2">Function allocates an array of std::string, fills each element, and returns the pointer. Caller checks for nullptr, uses the array, then delete[] and sets to nullptr.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-50 rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>std::string* createStudentNames(int count) {
+  if (count &lt;= 0) return nullptr;
+  std::string* names = new std::string[count];
+  for (int i = 0; i &lt; count; ++i) {
+    names[i] = "Student_" + std::to_string(i + 1);
+  }
+  return names; // Caller owns and must delete[]
+}
+
+// Caller:
+int numStudents = 3;
+std::string* studentList = createStudentNames(numStudents);
+if (studentList != nullptr) {
+  // use studentList
+  delete[] studentList;
+  studentList = nullptr;
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Notes and pitfalls</div>
+      <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Document that the function transfers ownership to the caller.</li>
+        <li>Caller must delete[] to free all elements and avoid leaks.</li>
+        <li>Consider returning a standard container to avoid manual ownership semantics.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Raw returned pointers make ownership explicit but error-prone; prefer RAII when possible.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

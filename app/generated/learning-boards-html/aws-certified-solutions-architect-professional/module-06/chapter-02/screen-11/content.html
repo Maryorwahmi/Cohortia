@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex flex-col h-full">
+    <div class="mb-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800">Hands-on: SecurityAuditorRole</h3>
+      <p class="text-sm text-slate-600 mt-1">Conceptual steps to provision and verify a cross-account auditor role.</p>
+    </div>
+
+    <div class="flex-1 grid grid-cols-2 gap-4">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Role creation steps</div>
+        <ol class="list-decimal pl-5 text-sm text-slate-600 space-y-2">
+          <li>In workload account (444455556666) create role named SecurityAuditorRole.</li>
+          <li>Set trusted entity to arn:aws:iam::111122223333:role/CentralSecurityAuditor.</li>
+          <li>Attach AmazonEC2ReadOnlyAccess or equivalent read-only policy.</li>
+          <li>Optionally require an external ID for extra protection.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Verification</div>
+        <div class="text-sm text-slate-600">From the audit account, assume the CentralSecurityAuditor role and attempt to list EC2 instances in the workload account. Confirm listing succeeds and modify attempts are denied.</div>
+
+        <div class="mt-3 bg-slate-50 p-3 rounded-md text-sm text-slate-700">Note: Using exact role ARNs and optional external IDs reduces the chance of unintended assume operations.</div>
+      </div>
+
+      <div class="col-span-2 rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800 mb-2">CLI example (conceptual)</div>
+        <pre class="bg-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"># From the audit account, assume role in workload account
+aws sts assume-role --role-arn arn:aws:iam::444455556666:role/SecurityAuditorRole --role-session-name AuditSession
+
+# Use returned temporary credentials to list instances in workload account
+aws ec2 describe-instances --region us-east-1</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

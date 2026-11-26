@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .f{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff;padding:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory Fences</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Fence types</div>
+      <div class="mt-3 grid gap-3">
+        <div class="f">
+          <div class="text-sm font-bold text-slate-800">SFENCE</div>
+          <div class="mt-2 text-sm text-slate-700">Ensures all previous stores are globally visible before subsequent stores proceed.</div>
+        </div>
+        <div class="f">
+          <div class="text-sm font-bold text-slate-800">LFENCE</div>
+          <div class="mt-2 text-sm text-slate-700">Ensures earlier loads complete before later loads; useful for ordering reads.</div>
+        </div>
+        <div class="f">
+          <div class="text-sm font-bold text-slate-800">MFENCE</div>
+          <div class="mt-2 text-sm text-slate-700">A full fence that orders both loads and stores on both sides of the fence.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Acquire/Release fences</div>
+      <div class="mt-2 text-sm text-slate-700">Acquire maps to a fence that prevents subsequent memory operations from moving earlier; release maps to a fence that prevents prior memory operations from moving later. They are typically cheaper than MFENCE when used only for synchronization points.</div>
+
+      <div class="mt-4 text-sm text-slate-700">Example placement: after writing shared state, use a release or SFENCE so the writer's stores are visible. Before reading shared state, use an acquire or LFENCE to ensure later reads see up-to-date values. Over-fencing with MFENCE around every access is correct but will harm performance severely.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="mt-2 text-sm text-slate-800">Choose the weakest fence that provides the required ordering at synchronization points to minimize runtime cost.</div>
+      </div>
+    </div>
+  </div>
+</div>

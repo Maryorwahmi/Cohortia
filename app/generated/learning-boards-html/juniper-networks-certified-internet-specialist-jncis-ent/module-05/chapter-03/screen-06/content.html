@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--amber:#f5a623;--slate-100:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">E2 vs E1</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 rounded-2xl bg-white border p-4" style="border-color:var(--slate-100);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">External Type 2 (E2)</div>
+      <h3 class="text-xl font-semibold mt-2 text-slate-700">Default: seed metric only</h3>
+      <p class="text-sm text-slate-600 mt-3">With E2, the internal OSPF cost to reach the ASBR is not added. All routers see the advertised external metric as the total cost. Use this when a consistent external cost is desired.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold">When to use</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-1">
+          <li>Single ASBR environments or when external metric determines preference.</li>
+          <li>Simpler, predictable external cost across domain.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-6 rounded-2xl bg-white border p-4" style="border-color:var(--slate-100);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">External Type 1 (E1)</div>
+      <h3 class="text-xl font-semibold mt-2 text-slate-700">Seed metric plus internal cost</h3>
+      <p class="text-sm text-slate-600 mt-3">E1 adds the internal cost to the ASBR to the external seed metric, letting OSPF choose the closest ASBR by total cost when multiple ASBRs advertise the same prefix.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold">When to use</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-1">
+          <li>Multiple ASBRs announcing the same external prefixes where closest ASBR should be preferred.</li>
+          <li>When internal topology should influence external path selection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-12 mt-3 grid grid-cols-3 gap-3">
+      <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-100);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <p class="text-sm text-slate-600 mt-1">Default E2 always gives optimal results — not true when multiple ASBRs exist and internal cost matters.</p>
+      </div>
+      <div class="rounded-lg p-3 bg-amber-50 border" style="border-color:var(--slate-100);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <p class="text-sm text-slate-700 mt-1">When changing metric-type, test with show route protocol ospf on an internal router to confirm expected cost behavior.</p>
+      </div>
+      <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-100);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Check</div>
+        <p class="text-sm text-slate-600 mt-1">If two ASBRs advertise the same prefix with E2, tie-breaking may rely on router ID; E1 explicitly favors the nearer ASBR.</p>
+      </div>
+    </div>
+  </div>
+</div>

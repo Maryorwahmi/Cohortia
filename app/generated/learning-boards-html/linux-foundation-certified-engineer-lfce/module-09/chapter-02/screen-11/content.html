@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:#fff} pre{white-space:pre-wrap;tab-size:2} </style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-900">Command substitution and pipelines</div>
+    <div class="text-sm text-slate-600 mt-1">Capture command outputs and chain tools to build data flows without temporary files.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 panel p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Examples</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code># Capture most recent log file
+LATEST_LOG=$(ls -t /var/log/*.log | head -n 1)
+
+# Use pipelines to filter and extract
+grep -i "ERROR" "$LATEST_LOG" | awk '{print $1, $2, $0}'
+</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Avoid using command substitution for commands whose purpose is only side effects; it's for capturing textual results.</div>
+    </div>
+
+    <div class="w-1/2 panel p-4">
+      <div class="text-sm font-semibold text-slate-800">Pipeline and status notes</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+        <li>Chain tools so each handles one task: filter, transform, then report.</li>
+        <li>Be aware of pipeline exit behavior; use set -o pipefail when you need pipeline failures to surface.</li>
+        <li>Prefer capturing outputs that are small and predictable to avoid fragile parsing.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Enable pipefail if you want a pipeline to fail when any stage fails, which makes error handling more robust when capturing outputs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

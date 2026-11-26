@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">WAL & Checkpoints</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 border shadow-sm h-full flex flex-col gap-4">
+    <div class="text-xl font-bold text-slate-800">WAL buffers and checkpoint tuning</div>
+    <div class="text-sm text-slate-600">Adjust wal_buffers for many small transactions and tune checkpoint_timeout and max_wal_size to control checkpoint frequency.</div>
+
+    <div class="grid grid-cols-3 gap-4 flex-1">
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">wal_buffers</div>
+        <div class="text-sm text-slate-600 mt-2">Temporary shared memory for WAL before writes. Example: wal_buffers = 16MB.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">checkpoint_timeout</div>
+        <div class="text-sm text-slate-600 mt-2">Max time between checkpoints; too small increases I/O, too large increases recovery time.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">max_wal_size</div>
+        <div class="text-sm text-slate-600 mt-2">Controls WAL size threshold to trigger checkpoints; increasing smooths I/O during high write bursts.</div>
+      </div>
+    </div>
+
+    <div class="mt-2 rounded-lg p-3 bg-white border-l-4 border-l-amber-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Guided process</div>
+      <ol class="text-sm text-slate-600 pl-5 list-decimal">
+        <li>Record baseline WAL generation and checkpoint I/O.</li>
+        <li>Increase max_wal_size to smooth spikes, watch WAL disk usage.</li>
+        <li>Adjust wal_buffers only if many small transactions cause excessive WAL writes.</li>
+        <li>Monitor recovery time after changes to ensure it remains acceptable.</li>
+      </ol>
+    </div>
+  </div>
+</div>

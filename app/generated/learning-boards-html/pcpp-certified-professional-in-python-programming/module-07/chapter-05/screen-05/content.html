@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-900">csv.reader and csv.writer</div>
+    <div class="text-sm text-slate-600">Custom delimiter and quoting examples with practical notes on newline and encoding.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold mb-2">Write pipe-delimited CSV</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">import csv
+
+data = [
+  ['Name', 'City', 'Description'],
+  ['Alice', 'New York', 'A vibrant city, known for its culture.'],
+]
+with open('custom_data.psv', 'w', newline='', encoding='utf-8') as file:
+  writer = csv.writer(file, delimiter='|', quoting=csv.QUOTE_MINIMAL)
+  writer.writerows(data)
+# custom_data.psv created</pre>
+      <div class="mt-3 text-sm text-slate-600">Note the newline='' and encoding parameter. QUOTE_MINIMAL ensures only fields that need quotes are quoted, preserving internal commas.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold mb-2">Read the same file back</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">import csv
+with open('custom_data.psv', 'r', newline='', encoding='utf-8') as file:
+  reader = csv.reader(file, delimiter='|')
+  for row in reader:
+    print(row)
+# rows printed with Description intact</pre>
+      <div class="mt-3 text-sm text-slate-600">Reading with the same delimiter returns the original fields. Misconfiguring delimiter is a common source of mis-parsed columns.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-xs text-slate-800">Use writer.writerow when streaming rows one at a time; use writer.writerows when you already hold the data in memory.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 1</span><span>›</span><span class="text-slate-700">Enforcing Policies with a Python Commit Script</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-between"><h2 class="text-2xl font-bold text-slate-900 mb-4">Enforcing Policies with a Python Commit Script</h2><p class="text-base text-slate-700 mb-6">This script demonstrates how to use a Python commit script to enforce a policy requiring all physical interfaces to have a description.</p><div class="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4"><h3 class="text-sm font-semibold text-blue-800 mb-1">Script Purpose</h3><p class="text-xs text-blue-700">Prevent configuration commits that violate the policy of requiring descriptions for physical interfaces, enhancing documentation and consistency.</p></div><div class="bg-violet-50 rounded-xl p-4 border border-violet-100 mb-4"><h3 class="text-sm font-semibold text-violet-800 mb-1">Key Components</h3><ul class="list-disc list-inside text-xs text-violet-700"><li><code>Junos_Configuration</code> to access candidate config.</li><li><code>Junos_Commit.error()</code> to block commits.</li><li>XPath to target specific interface types.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Python commit scripts are powerful for enforcing configuration policies, inspecting proposed changes, and blocking non-compliant commits to maintain network integrity.</p></div></div><div class="w-1/2 flex flex-col justify-between bg-slate-900 rounded-xl p-6 shadow-inner border border-slate-700 text-white font-mono text-sm overflow-auto"><h3 class="text-xl font-bold text-white mb-4"><code>check_interface_description.py</code></h3><pre style="white-space: pre-wrap; tab-size: 2;"><code># check_interface_description.py
+from junos import Junos_Configuration
+from junos import Junos_Commit
+from lxml import etree
+
+def main():
+    # Get the proposed configuration (candidate configuration)
+    candidate_config = Junos_Configuration()
+        
+    # Find all physical interfaces in the proposed configuration
+    interfaces_xpath = "//interfaces/interface[starts-with(name, 'ge-') or starts-with(name, 'xe-') or starts-with(name, 'et-')]"
+        
+    # Use XPath to find relevant interface elements
+    physical_interfaces = candidate_config.xpath(interfaces_xpath)
+        
+    for interface_element in physical_interfaces:
+        interface_name = interface_element.findtext("name")
+        description_element = interface_element.find("description")
+            
+        # Check if the interface exists and if it lacks a description
+        if interface_name and description_element is None:
+            # If no description is found, reject the commit
+            Junos_Commit.error(
+                f"Commit failed: Interface '{interface_name}' must have a description."
+            )
+            # It's good practice to log the error as well
+            Junos_Commit.log(
+                f"Commit script 'check_interface_description.py' blocked commit for interface '{interface_name}' due to missing description."
+            )
+                
+if __name__ == '__main__':
+    main()
+</code></pre><div class="mt-4"><h4 class="text-sm font-semibold text-white mb-2">Configuration</h4><pre class="bg-slate-800 p-2 rounded-md text-xs" style="white-space: pre-wrap; tab-size: 2;"><code>set system scripts commit file check_interface_description.py
+</code></pre></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

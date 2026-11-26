@@ -1,0 +1,83 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Auditing Database User Privileges</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-3/5 flex flex-col space-y-4">
+      <div class="bg-slate-800 rounded-xl p-5 shadow-lg flex-grow font-mono text-sm text-slate-200 overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-2">SQL Server Example</div>
+        <pre><code class="language-sql">-- Query to identify users with excessive privileges in SQL Server
+SELECT
+    dp.name AS PrincipalName,
+    dp.type_desc AS PrincipalType,
+    dp.is_disabled,
+    rp.name AS RoleName
+FROM sys.database_principals dp
+LEFT JOIN sys.database_role_members drm ON dp.principal_id = drm.member_principal_id
+LEFT JOIN sys.database_principals rp ON drm.role_principal_id = rp.principal_id
+WHERE rp.name IN ('db_owner', 'sysadmin') -- Focus on high-privilege roles
+   OR dp.type_desc = 'SQL_LOGIN' AND dp.is_disabled = 0 AND dp.name LIKE 'sa%'; -- Example for 'sa' account
+
+-- Query to list specific permissions granted to a user/role
+SELECT
+    pr.name AS Grantee,
+    pe.permission_name,
+    pe.state_desc,
+    obj.name AS ObjectName,
+    obj.type_desc AS ObjectType
+FROM sys.database_permissions pe
+JOIN sys.database_principals pr ON pe.grantee_principal_id = pr.principal_id
+LEFT JOIN sys.objects obj ON pe.major_id = obj.object_id
+WHERE pr.name = 'YourApplicationUser'; -- Replace with actual user/role name</code></pre>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-400 mt-4 mb-2">PostgreSQL Example</div>
+        <pre><code class="language-sql">-- Query to list all roles and their attributes in PostgreSQL
+SELECT
+    rolname,
+    rolsuper,       -- Is a superuser?
+    rolcreaterole,  -- Can create roles?
+    rolcreatedb,    -- Can create databases?
+    rolcanlogin,    -- Can login?
+    rolreplication, -- Can initiate replication?
+    rolbypassrls    -- Can bypass row level security?
+FROM pg_catalog.pg_roles;
+
+-- Query to list specific permissions granted to a role (example for 'public' schema)
+SELECT
+    grantee,
+    table_schema,
+    table_name,
+    privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'analyst_user' AND table_schema = 'public';</code></pre>
+      </div>
+    </div>
+
+    <div class="w-2/5 flex flex-col space-y-4">
+      <div class="bg-white rounded-xl p-5 shadow-md border border-slate-200 flex-grow">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Audit Focus</div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Identifying Excessive Privileges</h3>
+        <p class="text-sm text-slate-700">Auditors must review user roles and permissions against documented job functions. The goal is to identify and flag any accounts with privileges beyond what is strictly necessary for their operational duties.</p>
+        <ul class="list-disc list-inside text-sm text-slate-600 mt-4 space-y-2">
+          <li><strong>High-Risk Roles:</strong> Look for <code>db_owner</code>, <code>sysadmin</code>, <code>SUPERUSER</code>, <code>CREATEROLE</code>.</li>
+          <li><strong>Application Accounts:</strong> Often granted excessive privileges for convenience.</li>
+          <li><strong>Inactive Accounts:</strong> Should be disabled or removed.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Safety Note for Auditors</div>
+        <p class="text-xs font-medium text-slate-800">Always perform privilege audits using read-only access. Never execute commands that modify production data or configurations during an audit to prevent unintended consequences.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Proactively auditing and remediating excessive database privileges is crucial for enforcing the principle of least privilege and reducing the attack surface.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

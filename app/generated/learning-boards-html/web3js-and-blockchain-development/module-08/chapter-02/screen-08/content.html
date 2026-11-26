@@ -1,0 +1,72 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>Deploy script with the Pinata SDK</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-2/3 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Code</div>
+      <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px; line-height:1.4' class='rounded-md bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]'>
+// scripts/deploy-ipfs.js
+const pinataSDK = require('@pinata/sdk');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
+
+const pinataApiKey = process.env.PINATA_API_KEY;
+const pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
+const buildFolderPath = path.resolve(__dirname, '../build'); // Path to your React build folder
+
+if (!pinataApiKey || !pinataSecretApiKey) {
+  console.error("PINATA_API_KEY and PINATA_SECRET_API_KEY must be set in your .env file.");
+  process.exit(1);
+}
+
+const pinata = new pinataSDK({ pinataApiKey, pinataSecretApiKey });
+
+async function deployToIpfs() {
+  try {
+    await pinata.testAuthentication();
+    console.log("Pinata authentication successful.");
+
+    const options = {
+      pinataMetadata: { name: 'MyReactDApp' },
+      pinataOptions: { cidVersion: 0 }
+    };
+
+    const result = await pinata.pinFromFS(buildFolderPath, options);
+    console.log("DApp successfully pinned to IPFS!");
+    console.log("IPFS CID:", result.IpfsHash);
+    console.log("Access your dApp at: https://gateway.pinata.cloud/ipfs/" + result.IpfsHash);
+  } catch (error) {
+    console.error("Error deploying to IPFS:", error);
+    process.exit(1);
+  }
+}
+
+deployToIpfs();
+</pre>
+    </div>
+
+    <div class='w-1/3 flex flex-col gap-3'>
+      <div class='rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm'>
+        <div class='text-sm font-semibold text-slate-800'>Walkthrough</div>
+        <div class='text-xs text-slate-600 mt-2'>Install @pinata/sdk and dotenv, add API keys to .env, set the buildFolderPath, then run node scripts/deploy-ipfs.js after building. Check the terminal for the returned IpfsHash.</div>
+      </div>
+
+      <div class='rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm'>
+        <div class='text-sm font-semibold text-slate-800'>Common mistake</div>
+        <div class='text-xs text-slate-600 mt-2'>Committing API keys or leaving them undefined causes authentication to fail. Always keep keys in .env and out of source control.</div>
+      </div>
+
+      <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>The deploy script automates pinning; read the terminal output to retrieve and verify the CID that represents your build snapshot.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

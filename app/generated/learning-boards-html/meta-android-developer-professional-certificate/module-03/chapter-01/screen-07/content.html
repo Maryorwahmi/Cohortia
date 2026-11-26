@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;white-space:pre-wrap;tab-size:2} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Adapter & ViewHolder</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-[68vh] overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">UserAdapter example</h3>
+      <p class="text-sm text-slate-600 mt-2">This adapter takes a list of users and a click lambda. ViewHolder caches TextViews and binds quickly.</p>
+
+      <div class="mt-4">
+        <pre class="code">class UserAdapter(private val users: List&lt;User&gt;, private val onItemClick: (User) -&gt; Unit) :
+    RecyclerView.Adapter&lt;UserAdapter.UserViewHolder&gt;() {
+
+  inner class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val userNameTextView: TextView = itemView.findViewById(R.id.userNameTextView)
+    val userEmailTextView: TextView = itemView.findViewById(R.id.userEmailTextView)
+
+    fun bind(user: User) {
+      userNameTextView.text = user.name
+      userEmailTextView.text = user.email
+      itemView.setOnClickListener { onItemClick(user) }
+    }
+  }
+
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+    val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
+    return UserViewHolder(view)
+  }
+
+  override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
+    val user = users[position]
+    holder.bind(user)
+  }
+
+  override fun getItemCount(): Int = users.size
+}</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Concrete example</div>
+          <div class="text-[12px] text-slate-600 mt-1">Pass a lambda that shows a toast. The Adapter doesn't handle navigation directly.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Misconception</div>
+          <div class="text-[12px] text-slate-600 mt-1">Avoid doing heavy bitmap decoding or network calls inside bind; they cause jank.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Check</div>
+          <div class="text-[12px] text-slate-600 mt-1">If clicks don't fire, ensure you set the listener inside bind and pass the correct lambda from the host.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

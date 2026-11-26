@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .grid-2{grid-template-columns:repeat(2,minmax(0,1fr));} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;tab-size:2;white-space:pre-wrap;} </style>
+  <div class="w-full max-w-6xl mx-auto h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Practical Skills</span>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);box-shadow:0 8px 20px rgba(15,23,42,0.04);height:calc(100% - 48px);">
+      <div class="text-lg font-bold text-slate-800">Hands-on: snapshot lifecycle & runbooks</div>
+      <div class="text-sm text-slate-600 mt-1">Small checklists and saved commands reduce recovery time under pressure.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+        <div class="flex flex-col gap-3">
+          <div class="rounded-lg p-3 bg-blue-50">
+            <div class="text-xs uppercase tracking-wider font-bold text-blue-700">Snapshot checklist</div>
+            <ul class="mt-2 text-sm text-slate-800 list-disc list-inside">
+              <li>Create named snapshot with nodetool and tag it clearly for the run.</li>
+              <li>List snapshots to verify the tag and affected keyspaces.</li>
+              <li>Copy snapshot files to off-site durable storage and verify checksums.</li>
+              <li>Clear snapshots locally only after safe archive confirmation.</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Runbook item</div>
+            <div class="mt-2 text-sm text-slate-800">Record node paths, snapshot tag names, remote bucket paths, and the restore sequence so any operator can execute it reliably.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-amber-50">
+            <div class="text-xs uppercase tracking-wider font-bold text-amber-700">Common mistake</div>
+            <div class="mt-2 text-sm text-slate-800">Snapshots left only on local disks offer no protection against full datacenter loss.</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Terminal demo (conceptual)</div>
+            <pre class="code"><code>nodetool snapshot -t my_backup_tag my_keyspace
+nodetool listsnapshots
+# After copying off-node
+nodetool clearsnapshot -t my_backup_tag</code></pre>
+            <div class="text-xs text-slate-600 mt-2">Run these commands per node and then copy the snapshot directories to remote storage.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-emerald-50">
+            <div class="text-xs uppercase tracking-wider font-bold text-emerald-700">Key takeaway</div>
+            <div class="mt-2 text-sm text-slate-800">A snapshot is a quick, online point-in-time capture of SSTables; it must be moved off-node to provide real DR value.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

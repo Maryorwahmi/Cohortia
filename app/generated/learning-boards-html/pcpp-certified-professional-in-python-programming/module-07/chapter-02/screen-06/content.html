@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900">truncate()</div>
+      <div class="text-sm text-slate-600 mt-1">Resize a file to a specific byte length.</div>
+
+      <div class="mt-4 rounded-2xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm text-slate-800">When to use</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+          <li>Remove unwanted trailing data after edits.</li>
+          <li>Limit file growth for logs or temporary files.</li>
+          <li>Reset or enforce fixed file sizes for downstream consumers.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Cautions</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+            <li>truncate is destructive; data beyond the size is removed.</li>
+            <li>Behavior when extending a file can be platform-specific; don't assume content when expanding.</li>
+            <li>Consider backups for important data before truncating.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-full">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <p class="text-sm text-slate-600 mt-2">A process writes incremental log entries; every midnight you want to keep only the first 1 KB of the file. Seek to 0 and call truncate(1024) to preserve the initial region and delete the rest. Use flush before truncating to ensure buffered bytes are on disk.</p>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Quick checklist</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+            <li>Confirm pointer position with tell()</li>
+            <li>Call flush() if you previously wrote data</li>
+            <li>Call truncate(size)</li>
+            <li>Verify file size with an OS check</li>
+          </ul>
+        </div>
+
+        <div class="mt-6">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">truncate is a direct way to enforce file sizes; treat it as a destructive operation and protect important data first.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Flow Logs to S3 & Athena</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-7 flex flex-col h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-700">Athena DDL (example)</div>
+        <div class="mt-3 text-sm text-slate-700">Use this DDL as a starting point. Replace the LOCATION with your S3 bucket path for the Flow Logs.</div>
+        <div class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+          <pre><code>CREATE EXTERNAL TABLE IF NOT EXISTS vpc_flow_logs (
+  version int,
+  accountid string,
+  interfaceid string,
+  srcaddr string,
+  dstaddr string,
+  srcport int,
+  dstport int,
+  protocol int,
+  packets int,
+  bytes bigint,
+  starttime bigint,
+  endtime bigint,
+  action string,
+  logstatus string,
+  vpcid string,
+  subnetid string,
+  instanceid string,
+  tcpflags int,
+  type string,
+  pktsrcaddr string,
+  pkt_dst_addr string,
+  region string,
+  azid string,
+  sublocationid string,
+  sublocationtype string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ' '
+LOCATION 's3://my-flow-logs-bucket-12345/AWSLogs/your-account-id/vpcflowlogs/your-region/'
+TBLPROPERTIES ("skip.header.line.count"="1");</code></pre>
+        </div>
+
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-bold">Sample Athena query</div>
+        <div class="mt-2 text-sm text-slate-700">Use SQL to find top rejected connections, grouping by source and destination.</div>
+        <div class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+          <pre><code>SELECT srcaddr, dstaddr, dstport, action, COUNT(*) as connection_count
+FROM vpc_flow_logs
+WHERE action = 'REJECT'
+GROUP BY srcaddr, dstaddr, dstport, action
+ORDER BY connection_count DESC
+LIMIT 10;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Best practices</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc pl-5">
+          <li>Ensure IAM role trust policy allows vpc-flow-logs.amazonaws.com to assume it.</li>
+          <li>Confirm S3 bucket policy permits write from the Flow Logs service.</li>
+          <li>Consider compression and partitioning to reduce Athena scan costs.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Archival to S3 plus Athena gives powerful historical analysis, but requires correct IAM and bucket policies and attention to data layout for cost efficiency.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

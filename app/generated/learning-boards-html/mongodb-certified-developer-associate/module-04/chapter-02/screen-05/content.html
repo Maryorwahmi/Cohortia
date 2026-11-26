@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Embedding Example</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6">
+    <div class="col-span-7">
+      <div class="card p-4 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-700">Insert a user with embedded profile</div>
+        <pre class="mt-3 p-3 rounded bg-white border border-slate-100 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>db.users.insertOne({
+    _id: ObjectId("60c72b2f9c1d440001a8b4c1"),
+    username: "johndoe",
+    email: "john.doe@example.com",
+    registrationDate: ISODate("2023-01-01T10:00:00Z"),
+    profile: {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: ISODate("1990-05-15T00:00:00Z"),
+        gender: "Male",
+        bio: "Software developer with a passion for databases.",
+        preferences: { newsletter: true, theme: "dark" }
+    }
+});
+
+// retrieve both user and profile
+db.users.findOne({ username: "johndoe" });</code></pre>
+
+        <div class="mt-4 text-xs text-slate-600">Update a nested field easily with dot notation: { $set: { "profile.preferences.newsletter": false } }.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-700">When to choose embedding</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>Related data is small and rarely accessed separately.</li>
+          <li>Data is created and updated with the parent.</li>
+          <li>Single-document reads are the most common operation.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-700">Pitfall to watch</div>
+        <div class="text-xs text-slate-600 mt-2">If embedded fields grow unbounded, documents may become large and degrade performance. Monitor document size and schema evolution.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Embedding simplifies reads and updates when the child data is small and tightly coupled to the parent.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

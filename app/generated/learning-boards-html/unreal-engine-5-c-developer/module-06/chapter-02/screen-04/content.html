@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #ffffff;">
+  <style>
+    .panel { border: 1px solid rgba(226,232,240,0.9); }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Stat Commands</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div class="rounded-2xl bg-white panel shadow-sm p-4 h-2/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+        <div class="text-xl font-bold text-slate-900 mb-2">Stat Commands</div>
+        <div class="text-sm text-slate-700 mb-3">Console commands that report runtime metrics for quick diagnosis. They are low overhead and ideal for triage.</div>
+
+        <div class="text-sm text-slate-700 space-y-2">
+          <div><strong>Stat FPS</strong> — shows frame rate and frame time.</div>
+          <div><strong>Stat Unit</strong> — splits frame time into Game, Draw, GPU, RHI.</div>
+          <div><strong>Stat Game</strong> — shows game-thread breakdown including actor ticks and AI.</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white panel shadow-sm p-4 h-1/3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Concrete Example</div>
+        <div class="text-sm text-slate-700">Add the MyPerformanceActor to a level and run the editor. Open the console and type Stat Unit. If Game time spikes above Draw and GPU, the actor's Tick is likely the culprit. This gives a hypothesis to confirm with Session Frontend.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white panel shadow-sm p-4 flex-1 mb-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Process</div>
+        <div class="text-sm text-slate-700 mb-3">Step-by-step triage using Stat commands</div>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-[12px]">1</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Run Stat FPS</div>
+              <div class="text-sm text-slate-700">Confirm whether the symptom is a general frame-rate drop.</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[12px]">2</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Run Stat Unit</div>
+              <div class="text-sm text-slate-700">See Game vs Draw vs GPU to identify the dominant subsystem.</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center text-[12px]">3</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Run Stat Game</div>
+              <div class="text-sm text-slate-700">Look for high actor tick times or AI entries that point to specific code areas.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 border-l-4 border-l-rose-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <div class="text-sm text-slate-800">Assuming visible stutter equals CPU time. Stat Unit often shows that GPU or Render Thread is the actual bottleneck; optimize where the data points you to.</div>
+      </div>
+    </div>
+  </div>
+</div>

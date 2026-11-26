@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Firewall diagnosis</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-700 font-bold">Commands to try</div>
+      <div class="text-sm text-slate-600 mt-3">Check firewalld status and zone rules before changing anything. Test temporary rules and only make them permanent after validation.</div>
+      <div class="mono text-sm bg-slate-50 p-3 rounded-md border card mt-4" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>$ systemctl status firewalld
+$ firewall-cmd --get-active-zones
+$ firewall-cmd --list-all --zone=public
+$ firewall-cmd --add-service=http   # temporary test
+$ firewall-cmd --add-service=http --permanent
+$ firewall-cmd --reload</code></pre>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3">
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Supporting points</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>Temporary rules allow immediate testing without committing changes that could lock you out.</li>
+          <li>Check the correct zone — services may be allowed in a different zone than the interface is bound to.</li>
+          <li>Always reload after applying permanent changes so the runtime and persistent config align.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Forgetting to reload or adding rules to the wrong zone are common errors that leave the service still blocked.</div>
+      </div>
+      <div class="rounded-lg p-3">
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Safety Note</div>
+          <p class="text-xs font-medium text-slate-800">Test changes in a controlled environment and ensure console or out-of-band access before modifying firewall rules on production hosts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

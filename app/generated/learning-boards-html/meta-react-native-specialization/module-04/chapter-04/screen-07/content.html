@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Serialization</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900 mt-2">JSON.stringify & JSON.parse</div>
+    <div class="text-sm text-slate-600 mt-1">Convert objects into strings for storage and back into objects for use.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+const settings = { isDarkMode: true, notificationSound: false }
+const jsonValue = JSON.stringify(settings)
+await AsyncStorage.setItem('userSettings', jsonValue)
+
+const stored = await AsyncStorage.getItem('userSettings')
+if (stored != null) {
+  const parsed = JSON.parse(stored)
+  // use parsed.isDarkMode
+}
+      </pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes & pitfalls</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Do not call JSON.parse on null — check for null first.</li>
+        <li>JSON does not preserve functions or prototypes; rehydrate if necessary.</li>
+        <li>Dates are converted to strings; parse back with new Date(string) if needed.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Saving an object directly stores an unhelpful string like '[object Object]'. Always stringify first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

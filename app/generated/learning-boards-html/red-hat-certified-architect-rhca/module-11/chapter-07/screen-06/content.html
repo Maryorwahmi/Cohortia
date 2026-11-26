@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre.code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
+  </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.7</span>
+      <span>›</span>
+      <span class="text-slate-700">OpenVPN Server</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example server.conf (essential parts)</div>
+      <pre class="code bg-slate-50 rounded-md p-3 mt-3">port 1194
+proto udp
+dev tun
+ca /etc/openvpn/easy-rsa/3/pki/ca.crt
+cert /etc/openvpn/easy-rsa/3/pki/issued/server.crt
+key /etc/openvpn/easy-rsa/3/pki/private/server.key
+dh /etc/openvpn/easy-rsa/3/pki/dh.pem
+server 10.8.0.0 255.255.255.0
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+keepalive 10 120
+cipher AES-256-CBC
+user nobody
+group nobody
+persist-key
+persist-tun
+status /var/log/openvpn/openvpn-status.log
+verb 3</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Firewall & forwarding commands</div>
+      <pre class="code bg-slate-50 rounded-md p-3 mt-3">sudo sysctl -w net.ipv4.ip_forward=1
+sudo firewall-cmd --permanent --add-port=1194/udp
+sudo firewall-cmd --permanent --add-masquerade
+sudo firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="10.8.0.0/24" masquerade'
+sudo firewall-cmd --reload
+sudo systemctl enable --now openvpn-server@server.service</pre>
+
+      <div class="mt-3 text-sm text-slate-700">Verify the server process is running and review logs for any TLS or permission errors. If clients connect but cannot reach internal resources, re-check forwarding and rich-rule entries.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-7/12 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">Gaze Interaction</div>
+      <div class="text-sm text-slate-600 mt-1">Selecting items by looking at them for a short time.</div>
+
+      <div class="mt-4 flex-1 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">
+          <div class="font-bold">Definition</div>
+          <div class="text-sm text-slate-800 mt-1">A forward camera ray detects hits and a dwell timer triggers activation after a duration.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="font-bold text-slate-800">Why use gaze</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc ml-4">
+            <li>Works without controllers — ideal for passive or simple experiences.</li>
+            <li>Low memory and input complexity for basic menus or 360 viewers.</li>
+            <li>Easy to implement with a camera-attached script and Physics.Raycast.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="font-bold">Concrete Example</div>
+          <div class="text-sm text-slate-700 mt-1">Attach a camera script that casts a ray every frame, check for a "GazeInteractable" tag, increment a timer, and invoke the target's activation when the timer meets dwell time. Provide a circular progress reticle so users see the countdown.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Gaze is simple and accessible, but test dwell times and add strong visual feedback to avoid accidental activations.</p>
+        </div>
+        <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">No visual progress indicator — users won’t know a selection is about to trigger and will perceive the app as unresponsive.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Gaze Implementation Sketch</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// CameraGaze.cs (concept)
+using UnityEngine;
+
+public class CameraGaze : MonoBehaviour {
+  public float dwellTime = 1.0f;
+  float timer = 0f;
+  GameObject current = null;
+
+  void Update(){
+    Ray ray = new Ray(transform.position, transform.forward);
+    if(Physics.Raycast(ray, out RaycastHit hit)){
+      if(hit.collider.gameObject.CompareTag("GazeInteractable")){
+        if(current != hit.collider.gameObject){ timer = 0f; current = hit.collider.gameObject; }
+        timer += Time.deltaTime;
+        if(timer >= dwellTime){ current.SendMessage("OnGazeActivate"); timer = 0f; }
+      } else { timer = 0f; current = null; }
+    } else { timer = 0f; current = null; }
+  }
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This example shows the core claim, a concrete pattern, and a simple event call to activate the target. In practice add reticle visuals and test dwell length with users.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,101 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+        <h3 class="text-xl font-bold text-slate-800 mt-2">Refactor Employee for encapsulation</h3>
+        <ol class="mt-3 text-sm text-slate-600 list-decimal pl-5 space-y-2">
+          <li>Change public fields to private and add getters.</li>
+          <li>Add setter for salary with validation to forbid negative values.</li>
+          <li>Create Manager extends Employee, add department field, and override displayInfo.</li>
+          <li>Use super() to call the Employee constructor from Manager.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Move validation into setters or behavior methods so invariants remain with the owning class.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm h-2/3 overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Starter Code</div>
+        <pre class="mt-2 bg-slate-100 p-3 rounded-md"><code>public class Employee {
+    public String name;
+    public String id;
+    public double salary;
+
+    public Employee(String name, String id, double salary) {
+        this.name = name;
+        this.id = id;
+        this.salary = salary;
+    }
+
+    public void displayInfo() {
+        System.out.println("Name: " + name + ", ID: " + id + ", Salary: " + salary);
+    }
+}
+
+// TODO: Create Manager that extends Employee
+// TODO: Refactor Employee to use encapsulation</code></pre>
+      </div>
+
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm h-2/3 overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Refactored Example</div>
+        <pre class="mt-2 bg-slate-100 p-3 rounded-md"><code>public class Employee {
+  private String name;
+  private String id;
+  private double salary;
+
+  public Employee(String name, String id, double salary) {
+    this.name = name;
+    this.id = id;
+    setSalary(salary);
+  }
+
+  public String getName() { return name; }
+  public String getId() { return id; }
+  public double getSalary() { return salary; }
+
+  public void setSalary(double newSalary) {
+    if (newSalary >= 0) {
+      this.salary = newSalary;
+    }
+  }
+
+  public void displayInfo() {
+    System.out.println("Name: " + name + ", ID: " + id + ", Salary: " + salary);
+  }
+}
+
+public class Manager extends Employee {
+  private String department;
+
+  public Manager(String name, String id, double salary, String department) {
+    super(name, id, salary);
+    this.department = department;
+  }
+
+  public String getDepartment() { return department; }
+  public void setDepartment(String d) { this.department = d; }
+
+  @Override
+  public void displayInfo() {
+    super.displayInfo();
+    System.out.println("Department: " + department);
+  }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Hands-on Activity</span>
+  </div>
+
+  <div class='card p-5 h-full flex flex-col'>
+    <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Task steps</div>
+    <ol class='list-decimal ml-5 text-sm text-slate-700 space-y-2'>
+      <li>Define NodeA and NodeB; NodeA has std::shared_ptr&lt;NodeB&gt; next; NodeB has std::weak_ptr&lt;NodeA&gt; prev;</li>
+      <li>In main create shared_ptr instances with std::make_shared and connect next and prev;</li>
+      <li>Print use_count values and call a check_prev method that locks the weak_ptr and reports liveness;</li>
+      <li>Exit the scope and observe destructors running; then repeat with NodeB::prev as shared_ptr to observe the leak.</li>
+    </ol>
+
+    <div class='mt-4'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-700 mb-1'>Starter code</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+class NodeA; // forward
+
+class NodeB {
+public:
+  std::weak_ptr&lt;NodeA&gt; prev; // avoid cycle
+  NodeB() { std::cout &lt;&lt; "NodeB created!" &lt;&lt; std::endl; }
+  ~NodeB() { std::cout &lt;&lt; "NodeB destroyed!" &lt;&lt; std::endl; }
+  void check_prev();
+};
+
+class NodeA {
+public:
+  std::shared_ptr&lt;NodeB&gt; next;
+  NodeA() { std::cout &lt;&lt; "NodeA created!" &lt;&lt; std::endl; }
+  ~NodeA() { std::cout &lt;&lt; "NodeA destroyed!" &lt;&lt; std::endl; }
+};
+
+int main() {
+  std::cout &lt;&lt; "Starting main..." &lt;&lt; std::endl;
+  {
+    auto node_a = std::make_shared&lt;NodeA&gt;();
+    auto node_b = std::make_shared&lt;NodeB&gt;();
+    node_a->next = node_b;
+    node_b->prev = node_a; // weak_ptr breaks cycle
+  }
+  std::cout &lt;&lt; "Exiting main." &lt;&lt; std::endl;
+}
+</pre>
+
+    </div>
+
+    <div class='mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Reflection</div>
+      <p class='text-xs font-medium text-slate-800'>Where in your code could a back-reference be a weak_ptr instead of a shared_ptr to prevent accidental leaks?</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

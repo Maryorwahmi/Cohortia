@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff;'>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='p-4 card'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Code Walkthrough</div>
+      <div class='text-lg font-bold text-slate-900 mb-2'>Policer + count + log example</div>
+      <pre class='bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto' style='font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;'>firewall {
+    policer PROTECT_SSH_RATE_LIMIT {
+        if-exceeding {
+            bandwidth-limit 1m; # 1 Mbps
+            burst-size-limit 15k; # 15 KB burst
+        }
+        then discard;
+    }
+    family inet {
+        filter INGRESS_PROTECTION {
+            term PROTECT_MGMT_SSH {
+                from {
+                    source-address 192.168.100.0/24;
+                    protocol tcp;
+                    destination-port 22;
+                }
+                then {
+                    policer PROTECT_SSH_RATE_LIMIT;
+                    count SSH_MGMT_ACCESS;
+                    accept;
+                }
+            }
+        }
+    }
+}
+</pre>
+    </div>
+    <div class='p-4 card'>
+      <div class='text-sm text-slate-700 mb-2'>Explanation: the policer limits SSH traffic to 1 megabit with a small burst. When traffic exceeds the threshold, the policer discards the excess packets. The count increments SSH_MGMT_ACCESS for each matched packet, and accept permits allowed packets. Use 'show firewall filter' to inspect counters and 'show log messages' to see log output if you also add log statements to terms.</div>
+      <div class='mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Misconfiguration to avoid</div>
+        <div class='text-sm text-slate-800'>Setting if-exceeding too low causes legitimate sessions to be dropped. Tune policers after observing traffic with count and log.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Create Rule</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Console steps and CLI commands</h3>
+      <p class="text-sm text-slate-700 mt-3">Use the console test tool to validate patterns, then create the rule and attach a Lambda target. Use CLI for automation.</p>
+
+      <div class="mt-4 text-sm text-slate-800">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold">CLI: put-rule</div>
+          <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;" class="mt-2 text-sm bg-[#f8fafc] p-2 rounded">aws events put-rule \
+    --name MyEc2StoppedRule \
+    --event-pattern '{"source":["aws.ec2"],"detail-type":["EC2 Instance State-change Notification"],"detail":{"state":["stopped"]}}' \
+    --description "Triggers when an EC2 instance stops"</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] mt-3">
+          <div class="font-semibold">CLI: put-targets</div>
+          <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;" class="mt-2 text-sm bg-[#f8fafc] p-2 rounded">aws events put-targets \
+    --rule MyEc2StoppedRule \
+    --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:123456789012:function:MyEc2StoppedHandler"</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg p-4 bg-white border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Checklist</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Validate event pattern with test events in the console.</li>
+          <li>Add the target and confirm the rule has permission to invoke it.</li>
+          <li>Record rule and target ARNs for auditing and automation scripts.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use the console test tooling before wiring production targets and automate rule creation with CLI or IaC once validated.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Forgetting to give EventBridge permission to invoke the target, causing silent failures. Use resource policies or console grant flows to fix this.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

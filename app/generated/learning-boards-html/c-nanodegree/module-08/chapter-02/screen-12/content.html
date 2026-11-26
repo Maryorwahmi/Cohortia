@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,'Roboto Mono','Courier New',monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">TDD: pop(), peek(), and exceptions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Tests for pop and peek</div>
+      <pre class="mono mt-3 rounded bg-slate-50 p-3 text-sm card-border"><code>TEST(StackTest, PopRemovesElementAndDecreasesSize) {
+    Stack s;
+    s.push(10);
+    s.push(20);
+    EXPECT_EQ(20, s.pop());
+    EXPECT_EQ(1, s.size());
+    EXPECT_EQ(10, s.pop());
+    EXPECT_TRUE(s.isEmpty());
+}
+
+TEST(StackTest, PeekReturnsTopElementWithoutRemoving) {
+    Stack s;
+    s.push(10);
+    s.push(20);
+    EXPECT_EQ(20, s.peek());
+    EXPECT_EQ(2, s.size());
+}
+
+TEST(StackTest, PopFromEmptyStackThrowsException) {
+    Stack s;
+    EXPECT_THROW(s.pop(), std::out_of_range);
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Implement pop and peek to throw std::out_of_range when the stack is empty, and update tests until green.</div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Implementation snippet</div>
+      <pre class="mono mt-3 rounded bg-slate-50 p-3 text-sm card-border"><code>int Stack::pop() {
+  if (isEmpty()) throw std::out_of_range("Stack is empty, cannot pop.");
+  int value = data.back();
+  data.pop_back();
+  return value;
+}
+
+int Stack::peek() const {
+  if (isEmpty()) throw std::out_of_range("Stack is empty, cannot peek.");
+  return data.back();
+}
+</code></pre>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Edge-case tests make contracts explicit and prevent undefined behavior later in production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Start with interfaces and addresses</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-700 font-bold">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">ip a / ip link</div>
+      <div class="text-sm text-slate-600 mt-3">Use these commands to see the kernel view of interfaces, their state, and assigned addresses. The kernel's view determines actual connectivity.</div>
+      <div class="mt-4 mono text-sm bg-slate-50 p-3 rounded-md border card" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>$ ip a
+1: lo: &lt;LOOPBACK,UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+    inet 127.0.0.1/8 scope host lo
+2: eth0: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc fq_codel state DOWN
+    link/ether 52:54:00:12:34:56</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">If eth0 is DOWN, bring it up:</div>
+      <div class="mono text-sm bg-slate-50 p-3 rounded-md border card mt-2" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>$ ip link set eth0 up
+$ ip a</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Supporting points</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>ip a shows the kernel's configured addresses and operational states.</li>
+          <li>ip link set can change the link state immediately, but persistent config may need nmcli or network scripts.</li>
+          <li>Always re-test connectivity after changing interface state.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">A server with eth0 DOWN after maintenance is fixed by bringing the link up and confirming the expected IPv4 address, restoring service reachability.</div>
+      </div>
+      <div class="rounded-lg p-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Interface state is the fastest elimination step. If the interface is down or missing an IP, higher-layer diagnostics are misleading.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

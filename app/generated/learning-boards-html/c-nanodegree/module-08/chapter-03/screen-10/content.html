@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-900">Valgrind Memcheck</div>
+    <div class="text-sm text-slate-600 mt-1">A dynamic analysis tool that tracks memory operations to report leaks and invalid accesses.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Run command</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">g++ -g myprog.cpp -o myprog
+valgrind --leak-check=full --show-leak-kinds=all ./myprog</pre>
+      <div class="text-xs text-slate-600 mt-2">The flags provide detailed leak reports and categorize leak kinds for triage.</div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Interpreting results</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700">
+        <li>Definitely lost — memory that has no remaining pointer and is a true leak.</li>
+        <li>Indirectly lost — memory only reachable through leaked blocks.</li>
+        <li>Still reachable — memory not freed but potentially intended; review for lifecycle issues.</li>
+      </ul>
+    </div>
+
+    <div class="col-span-2 mt-3 p-3 rounded-xl border bg-amber-50 border-amber-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Why it matters</div>
+      <div class="text-sm text-slate-700">Memory errors can cause crashes, corruption, and resource exhaustion. Memcheck exposes issues that unit tests and casual runs may not reveal, making it an essential part of C++ testing.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, monospace;} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex h-full gap-6">
+    <div class="w-3/5 card bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code example</div>
+      <pre class="mt-3 mono text-sm bg-slate-50 p-3 rounded">@app.route('/api/items/&lt;int:item_id&gt;', methods=['GET', 'PUT', 'DELETE'])
+def manage_item(item_id):
+  items_db = {
+    1: {"name": "Laptop", "price": 1200},
+    2: {"name": "Mouse", "price": 25}
+  }
+
+  if request.method == 'GET':
+    item = items_db.get(item_id)
+    if item:
+      return jsonify(item), 200
+    return jsonify({"error": "Item not found"}), 404
+
+  elif request.method == 'PUT':
+    if not request.is_json:
+      return jsonify({"error": "Request must be JSON"}), 400
+    data = request.get_json()
+    if item_id in items_db:
+      items_db[item_id].update(data)
+      return jsonify({"message": f"Item {item_id} updated", "item": items_db[item_id]}), 200
+    else:
+      items_db[item_id] = data
+      return jsonify({"message": f"Item {item_id} created", "item": items_db[item_id]}), 201
+
+  elif request.method == 'DELETE':
+    if item_id in items_db:
+      del items_db[item_id]
+      return jsonify({"message": f"Item {item_id} deleted"}), 204
+    return jsonify({"error": "Item not found"}), 404</pre>
+    </div>
+    <div class="w-2/5 card bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+        <li>Group methods when they operate on the same resource id.</li>
+        <li>Validate JSON bodies and return 400 for client errors.</li>
+        <li>Use 201 when creating on PUT if that behavior is supported.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">Pitfall: returning JSON with a 204 status can confuse clients; 204 should usually have an empty body.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

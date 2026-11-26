@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h2 class="text-2xl font-bold text-slate-900 mt-2">HSRP configuration example</h2>
+      <p class="mt-2 text-sm text-slate-700">This code block shows the exact commands used on an interface to enable HSRP group 1 with tracking and preemption.</p>
+
+      <pre class="mt-4 rounded-md bg-slate-900 text-slate-50 p-3 overflow-auto"><code>interface GigabitEthernet0/1
+ ip address 192.168.1.10 255.255.255.0
+ standby 1 ip 192.168.1.1
+ standby 1 priority 120
+ standby 1 preempt
+ standby 1 track GigabitEthernet0/0 20</code></pre>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div><strong class="text-slate-800">Explanation:</strong> The physical IP is assigned first, then the virtual IP with group 1. Priority and preempt control election behavior; tracking decrements priority by 20 if the specified interface fails.</div>
+        <div><strong class="text-slate-800">Verify:</strong> Run show standby brief to confirm active/standby roles and the virtual MAC format 0000.0C07.ACxx.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes & Tips</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-3">
+        <div><strong>Preempt:</strong> Enable where you want the intended primary to become active automatically after recovery.</div>
+        <div><strong>Tracking:</strong> Use to avoid having a router act as gateway when its path to upstream is down.</div>
+        <div><strong>Hell o messages:</strong> HSRP uses UDP 1985; ensure network devices do not block these messages.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use priority, preempt and interface tracking together to achieve predictable, link-aware failover for HSRP.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

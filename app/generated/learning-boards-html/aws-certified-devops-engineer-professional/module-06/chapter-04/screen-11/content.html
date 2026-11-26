@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 shadow-sm card-border h-full overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Lambda: NotifyIncidentLambda (excerpt)</div>
+      <pre class="code mt-3" style="white-space:pre-wrap;tab-size:2"># notify_incident_lambda.py
+import json
+import os
+import boto3
+
+sns_client = boto3.client('sns')
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
+
+def lambda_handler(event, context):
+  print("Received event for notification:")
+  print(json.dumps(event, indent=2))
+  message = f"Incident Detected! Details: {json.dumps(event)}"
+  if SNS_TOPIC_ARN:
+    sns_client.publish(TopicArn=SNS_TOPIC_ARN, Message=message, Subject="CRITICAL INCIDENT ALERT")
+  return {'statusCode':200,'body':json.dumps('Notification processed!')}
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Deploy this function with an execution role that allows sns:Publish and set SNS_TOPIC_ARN as an environment variable. Create AttemptRemediationLambda as a logging placeholder that returns remediationStatus: SUCCESS for testing.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Create the state machine</div>
+      <div class="text-sm text-slate-600 mt-2">Save IncidentResponseStateMachine.json with NotifyTeam and AttemptRemediation tasks, then run the aws stepfunctions create-state-machine command specifying a role ARN with lambda:InvokeFunction.</div>
+
+      <div class="mt-4 text-sm font-semibold">Testing</div>
+      <div class="text-sm text-slate-600 mt-2">Start an execution with sample input like {"incidentType":"HighCPU","instanceId":"i-123"}. Watch the visual execution and CloudWatch Logs to confirm payload propagation and remediation status. If issues occur, inspect the execution history for the failed state and its input/output.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+        <div class="text-xl font-bold text-slate-800">IAST and RASP: runtime instrumentation</div>
+        <div class="text-sm text-slate-600 mt-2">IAST observes execution for detailed vulnerability context. RASP actively blocks attacks at runtime.</div>
+        <div class="mt-4 flex-1 overflow-auto">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-700">IAST benefits</div>
+            <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+              <li>Maps runtime evidence to source code lines for precise remediation.</li>
+              <li>Reduces false positives because it sees actual execution paths.</li>
+            </ul>
+            <div class="mt-3 text-sm font-semibold text-slate-700">RASP benefits</div>
+            <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+              <li>Blocks common exploit patterns in real time, acting as an application-level firewall.</li>
+              <li>Provides runtime telemetry and can feed SIEM for incident response.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">IAST trace example</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-slate-50 p-3"><code>// Simplified trace output from an IAST agent
+TRACE: request POST /order
+  param userId -> value '123' flows to method getUser()
+  getUser() calls db.query("SELECT * FROM users WHERE id=" + userId)
+  Vulnerability: potential SQL concatenation at UserService.getUser:42</code></pre>
+        <div class="mt-3 text-sm text-slate-600">This trace links the runtime request to the exact method and line so developers can fix the vulnerable call with parameterized queries.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">Deploy an IAST agent in staging to verify exploitability and then enable RASP in production for immediate protection.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-rose-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+          <div class="text-sm text-slate-800 mt-1">RASP is not a replacement for fixing code—it's an operational mitigation while developers patch the root cause.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Combine IAST for precise findings with RASP for runtime mitigation. Test agents for performance and compatibility before broad deployment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

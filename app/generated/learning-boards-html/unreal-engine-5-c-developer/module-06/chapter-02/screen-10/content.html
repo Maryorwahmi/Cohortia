@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #ffffff;">
+  <style>
+    pre { background:#0f172a; color:#e6eef8; border-radius:12px; padding:12px; overflow:auto; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; tab-size:2; white-space:pre-wrap; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Starter Actor</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white panel card-border p-4 shadow-sm h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Header & Implementation</div>
+      <div class="text-sm text-slate-700 mb-3">Starter code defines NumIterations and performs a heavy loop in Tick. Keep the code visible so you can scan it while profiling.</div>
+
+      <pre class="mono">// MyPerformanceActor.h
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "MyPerformanceActor.generated.h"
+
+UCLASS()
+class YOURGAME_API AMyPerformanceActor : public AActor
+{
+    GENERATED_BODY()
+
+public:    
+    AMyPerformanceActor();
+
+protected:
+    virtual void BeginPlay() override;
+
+public:    
+    virtual void Tick(float DeltaTime) override;
+
+    UPROPERTY(EditAnywhere, Category = "Performance")
+    int32 NumIterations = 1000000; // 1 million iterations
+};</pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white panel card-border p-4 shadow-sm h-full flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Implementation excerpt</div>
+      <pre class="mono">// MyPerformanceActor.cpp
+#include "MyPerformanceActor.h"
+
+AMyPerformanceActor::AMyPerformanceActor()
+{
+    PrimaryActorTick.bCanEverTick = true;
+}
+
+void AMyPerformanceActor::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
+void AMyPerformanceActor::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    // Simulate a heavy computation
+    float Result = 0.0f;
+    for (int32 i = 0; i &lt; NumIterations; ++i)
+    {
+        Result += FMath::Sin(i * 0.001f) * FMath::Cos(i * 0.002f);
+    }
+    // UE_LOG(LogTemp, Log, TEXT("Heavy computation result: %f"), Result); // Optional: use for debugging
+}
+</pre>
+
+      <div class="mt-3 rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <div class="text-sm text-slate-800">If Session Frontend shows high self-time in Tick, what are three immediate options to reduce its per-frame cost? (Reduce iterations, run less often, or disable Tick and run on demand.)</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

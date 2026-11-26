@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">TCP server example explained</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Reference code</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-xs" style="white-space: pre-wrap; tab-size: 2;"><code># tcp_server.py
+import socket
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+def run_server():
+  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    print(f"Server listening on {HOST}:{PORT}")
+    conn, addr = s.accept()
+    with conn:
+      print(f"Connected by {addr}")
+      while True:
+        data = conn.recv(1024)
+        if not data:
+          break
+        print(f"Received from client: {data.decode()}")
+        conn.sendall(data)
+      print(f"Connection with {addr} closed.")
+  print("Server shutting down.")
+
+if __name__ == "__main__":
+  run_server()</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Explanation & checks</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>with socket.socket:</strong> ensures s.close() runs automatically even if an exception occurs.</li>
+        <li><strong>conn, addr:</strong> accept returns a fresh connection socket; closing conn does not stop the listening socket.</li>
+        <li><strong>recv(1024):</strong> blocking read up to the buffer size; returns b'' when the peer closes the connection.</li>
+        <li><strong>sendall(data):</strong> guarantees the full message is transmitted or raises an exception.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This example maps each server call to its runtime effect so you can reason about connections and resource cleanup.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #f8fafc; }
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+  </style>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Build, tag, push</h2>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 overflow-auto" style="min-height:240px">
+        <pre><code># Build locally
+podman build -t my-nodejs-app:latest .
+podman images my-nodejs-app
+
+# Get registry host and login
+REGISTRY_HOST=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
+podman login -u $(oc whoami) -p $(oc whoami -t) $REGISTRY_HOST --tls-verify=false
+
+# Tag and push
+podman tag my-nodejs-app:latest $REGISTRY_HOST/my-nodejs-project/my-nodejs-app:latest
+podman push $REGISTRY_HOST/my-nodejs-project/my-nodejs-app:latest --tls-verify=false</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-600">Checklist</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+            <li>Confirm project exists in OpenShift.</li>
+            <li>Verify token validity before login.</li>
+            <li>Check pushed image appears in project registry.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Common Pitfalls</div>
+      <ul class="text-sm text-slate-600 mt-2 list-disc list-inside space-y-2">
+        <li>Using an incorrect registry host or missing project namespace in tag.</li>
+        <li>Expired tokens or insufficient push permissions.</li>
+        <li>Pushing an unverified image; always test locally first.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Authenticate, tag with the project path, and verify the pushed image exists in the target project before deploying.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

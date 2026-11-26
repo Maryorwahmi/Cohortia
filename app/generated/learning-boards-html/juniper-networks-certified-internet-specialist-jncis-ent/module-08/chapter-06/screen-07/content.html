@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.term{background:#071226;color:#dbeafe;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Protocol Checks</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">OSPF</div>
+      <h3 class="text-lg font-bold text-slate-900 mt-2">show ospf neighbor</h3>
+      <p class="text-sm text-slate-700 mt-2">Shows neighbor IPs, state, and adjacency timings. Full adjacency is required to learn LSA-based routes.</p>
+      <div class="mt-3 term">
+        <pre class="m-0">user@router> show ospf neighbor
+Neighbor ID     Pri State   Dead Time   Address         Interface
+192.0.2.2         1 Full    00:00:33     192.168.2.2     ge-0/0/1.0</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">If the state is not Full, LSAs and routes may not be exchanged; check timers and authentication.</div>
+    </div>
+
+    <div class="bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">BGP</div>
+      <h3 class="text-lg font-bold text-slate-900 mt-2">show bgp summary</h3>
+      <p class="text-sm text-slate-700 mt-2">Summarizes BGP peers, session state, and prefix counts so you can spot missing or flapping peers.</p>
+      <div class="mt-3 term">
+        <pre class="m-0">user@router> show bgp summary
+Peer             AS    State    PfxRcd
+192.168.10.1     65001 Estab    120</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">If BGP is not Established, no routes from that neighbor will be installed and prefix counts will be zero.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-xl">
+      <div class="font-semibold text-slate-800">Example</div>
+      <div class="text-sm text-slate-600 mt-2">Missing OSPF routes; show ospf neighbor reveals neighbor in 2-way state instead of Full, indicating adjacency did not complete.</div>
+    </div>
+    <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-xl">
+      <div class="font-semibold text-slate-800">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">Physical link up ≠ protocol up. Protocol state can fail for configuration mismatches even when the link is ready.</div>
+    </div>
+    <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+      <div class="font-semibold text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-2">Always check protocol neighbor and summary outputs to confirm the actual exchange of routes.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

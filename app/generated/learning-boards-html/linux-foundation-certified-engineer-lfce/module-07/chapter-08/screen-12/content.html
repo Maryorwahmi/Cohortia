@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Retention</div>
+    <div class="text-xl font-bold text-slate-900 mb-2">Sample logrotate entries</div>
+    <div class="text-sm text-slate-700 mb-3">Two examples: auth logs and audit logs rotation blocks.</div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <div class="text-sm font-semibold text-slate-800">Auth log rotation</div>
+        <pre class="code">/var/log/auth.log /var/log/secure {
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root adm
+    postrotate
+        /usr/lib/rsyslog/rsyslog-rotate
+    endscript
+}</pre>
+        <div class="text-xs text-slate-600 mt-1">Rotates weekly and keeps four compressed backups.</div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-800">Audit log rotation</div>
+        <pre class="code">/var/log/audit/audit.log {
+    monthly
+    rotate 12
+    compress
+    delaycompress
+    missingok
+    notifempty
+    postrotate
+        /usr/sbin/augenrules --load >/dev/null 2>&1 || :
+    endscript
+}</pre>
+        <div class="text-xs text-slate-600 mt-1">Monthly rotation with a year of archives for longer-term retention.</div>
+      </div>
+    </div>
+    <div class="mt-4 text-sm text-slate-700">Force rotation to test: sudo logrotate -f /etc/logrotate.d/authlog and then list rotated files to confirm creation and permissions.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

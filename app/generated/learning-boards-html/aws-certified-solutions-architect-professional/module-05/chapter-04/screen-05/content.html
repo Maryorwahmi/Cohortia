@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Route 53 Routing</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Routing policies</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>Latency-based:</strong> send users to the lowest-latency region.</li>
+        <li><strong>Weighted:</strong> distribute by configured weights across regions.</li>
+        <li><strong>Geolocation:</strong> route by user location for compliance or localization.</li>
+        <li><strong>Failover:</strong> remove unhealthy endpoints; combine with other policies for active/active.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Practical tip</div>
+        <div class="text-sm text-slate-700 mt-2">Set sensible TTLs (for example 60 seconds) during an incident to reduce caching impact, but be aware of extra DNS load.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example configuration</div>
+      <div class="mt-3 text-xs text-slate-600">A Route 53 record set using latency routing points to ALBs in us-west-2 and us-east-1 with health checks and a 60-second TTL.</div>
+
+      <pre class="mt-4 bg-slate-900 text-white rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+{
+  "Comment": "Latency-based routing for app.example.com",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "app.example.com.",
+        "Type": "A",
+        "SetIdentifier": "us-west-2-endpoint",
+        "Region": "us-west-2",
+        "TTL": 60,
+        "AliasTarget": {
+          "HostedZoneId": "Z3DZXE0Q79N481",
+          "DNSName": "alb-us-west-2.elb.amazonaws.com",
+          "EvaluateTargetHealth": true
+        },
+        "HealthCheckId": "health-check-us-west-2"
+      }
+    }
+  ]
+}
+</pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick a routing policy that matches latency, rollout, and compliance needs, and design TTLs to reduce DNS caching during failover.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

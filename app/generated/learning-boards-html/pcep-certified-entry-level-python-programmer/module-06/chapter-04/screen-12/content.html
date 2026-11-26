@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+      <span>›</span>
+      <span>Chapter 6.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Logging Intro</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 flex-1 min-h-0">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Example configuration</div>
+      <pre class="mt-3 p-3 rounded-md bg-slate-50 text-sm text-slate-800">import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def process_user_input(user_input):
+    logging.debug(f"Attempting to process input: '{user_input}'")
+    try:
+        num = int(user_input)
+        if num &lt; 0:
+            logging.warning(f"Negative number '{num}' provided. Processing as absolute value.")
+            num = abs(num)
+        logging.info(f"Successfully converted input to number: {num}")
+        return num * 2
+    except ValueError:
+        logging.error(f"Invalid input '{user_input}'. Cannot convert to integer.")
+        return None
+
+# Switch to DEBUG to see more messages
+logging.getLogger().setLevel(logging.DEBUG)</pre>
+      <div class="mt-3 text-sm text-slate-600">This example shows configuration, use of levels, and how to change the root logger to DEBUG for more detail during development.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">When to use logging</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4">
+        <li>Long-running services and production applications.</li>
+        <li>When you need timestamps and consistent formatting.</li>
+        <li>To record auditable events without modifying code each time.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="rounded-lg bg-amber-50 p-3 text-amber-700">Use DEBUG level for development and raise the level in production to avoid large log volumes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

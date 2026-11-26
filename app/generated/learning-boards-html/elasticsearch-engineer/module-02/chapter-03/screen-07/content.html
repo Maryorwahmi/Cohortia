@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Dynamic Updates (Script)</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Dynamic Updates Using Painless Scripts</h2>
+      <p class="text-lg text-slate-700 mb-6">Performing complex modifications with the <code>script</code> approach.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Partial update using a 'script'</div>
+        <div class="text-blue-400 mb-2"># Increment the price by 10% for product_101</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X POST "localhost:9200/products/_update/product_101?pretty" -H 'Content-Type: application/json' -d'
+{
+  "script": {
+    "source": "ctx._source.price *= params.factor",
+    "lang": "painless",
+    "params": {
+      "factor": 1.10
+    }
+  }
+}
+'</code></pre>
+        <div class="text-emerald-400 mt-4 mb-2"># Expected Response Snippet:</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">{
+  "_index": "products",
+  "_id": "product_101",
+  "_version": 4, <span class="text-slate-500"># Version increments again</span>
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Painless Scripting</div>
+        <p class="text-sm font-medium text-slate-800">Elasticsearch's default scripting language, designed for security and performance, used for complex updates.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">`ctx._source` Access</div>
+        <p class="text-sm font-medium text-slate-800">Within a script, `ctx._source` provides direct access to the document's fields, allowing for read and write operations.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Dynamic Logic</div>
+        <p class="text-sm font-medium text-slate-800">Enables calculations, conditional updates, and dynamic addition/removal of fields, all server-side.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use `script` in `_update` for powerful, programmatic, and atomic modifications to your documents.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

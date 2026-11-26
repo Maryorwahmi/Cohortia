@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Rich rules for source-restricted SSH</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="font-bold">Example rich rule task</div>
+      <pre class="bg-slate-900 text-white p-3 rounded text-sm mt-3" style="white-space:pre-wrap;tab-size:2"><code>- name: Allow SSH from specific IP using a rich rule
+  ansible.posix.firewalld:
+    zone: public
+    rich_rule: 'rule family="ipv4" source address="192.168.1.50" port port="22" protocol="tcp" accept'
+    state: present
+    permanent: yes
+    immediate: yes
+
+- name: Ensure general SSH service is disabled in public
+  ansible.posix.firewalld:
+    zone: public
+    service: ssh
+    state: disabled
+    permanent: yes
+    immediate: yes</code></pre>
+      <div class="mt-3 text-sm text-slate-600">After adding the rich rule, disable the general SSH service to prevent other sources from connecting.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="font-bold">Misconception to avoid</div>
+      <p class="text-sm text-slate-600 mt-2">Assuming rich rules override enabled services always. Rule order matters and services may still permit access; explicitly disable services if needed.</p>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Combine rich rules with service disablement when you need narrow, source-specific access to a port or service.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

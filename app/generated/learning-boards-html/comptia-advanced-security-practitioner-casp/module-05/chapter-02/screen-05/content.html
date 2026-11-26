@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white border p-4">
+      <h3 class="text-xl font-bold text-slate-900">ECB vs CBC vs CTR</h3>
+      <div class="mt-3 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="text-sm font-bold text-blue-700">ECB</div>
+          <div class="text-sm text-slate-700 mt-1">Deterministic, reveals block patterns. Use only for pseudorandom data or single-block messages.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50">
+          <div class="text-sm font-bold text-amber-700">CBC</div>
+          <div class="text-sm text-slate-700 mt-1">Uses IV and chaining. Requires separate integrity (HMAC) and careful ordering to avoid padding oracle attacks.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="text-sm font-bold text-violet-700">CTR</div>
+          <div class="text-sm text-slate-700 mt-1">Parallelizable stream mode. Must never reuse nonces under the same key.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white border p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Common Implementation Mistakes</div>
+      <ul class="mt-3 ml-4 list-disc text-sm text-slate-700 space-y-2">
+        <li>Relying on CBC without adding authentication; believe encryption equals integrity — it does not.</li>
+        <li>Reusing IVs or nonces, especially in CTR/GCM, which can lead to key recovery or plaintext disclosure.</li>
+        <li>Improper MAC placement or incorrect error handling leading to padding oracle vulnerabilities.</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Implementation details matter: choose AEAD where possible to reduce the chance of subtle errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

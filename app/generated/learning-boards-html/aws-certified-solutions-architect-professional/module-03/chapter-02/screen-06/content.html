@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Definition</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Partition key and Sort key</div>
+      <div class="text-sm text-slate-600 mt-3">Partition key maps items to storage partitions and affects throughput distribution. Sort key orders items within a partition for range queries.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Orders table: Partition key = customerId, Sort key = orderTimestamp to query recent orders for a customer.</div>
+        </div>
+
+        <div class="mt-3 text-sm text-slate-600">Misconception: A natural key always balances partitions. Reality: Some natural keys are skewed; measure cardinality and request distribution and consider composite keys if necessary.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Validation & monitoring</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>Check consumed capacity per partition</li>
+        <li>Use CloudWatch metrics for throttling and hot keys</li>
+        <li>Consider write throttling as an indicator of key skew</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border card-border">
+        <div class="text-sm font-bold text-slate-800">Sharding technique</div>
+        <div class="text-sm text-slate-600 mt-2">If one key is too hot, add a random suffix or shardId to the partition key to distribute writes across partitions, then handle aggregation in reads where needed.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick partition keys for even distribution and sort keys for ordered intra-partition queries; validate with metrics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

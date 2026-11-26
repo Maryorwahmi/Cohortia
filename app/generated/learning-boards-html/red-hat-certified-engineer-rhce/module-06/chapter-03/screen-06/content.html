@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Using ansible.posix.authorized_key</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-lg font-bold">Playbook task example</div>
+      <div class="text-sm text-slate-600 mt-2">This task reads the public key from the control node and ensures it exists for the user on the target.</div>
+
+      <pre class="mt-4 p-4 bg-black/5 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+- name: Ensure SSH public key is present for 'devops_user'
+  ansible.posix.authorized_key:
+    user: devops_user
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    # Optional: restrict key usage
+    # key_options: 'from="192.168.1.0/24",no-port-forwarding'
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">This task is idempotent: running it again makes no change if the key already exists. Using lookup keeps key material out of the playbook text and reduces accidental exposure in version control.</div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-semibold">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">Deploy an automation key stored at ~/.ssh/ansible_svc_key.pub to ansible_svc on all web servers and disable port forwarding.</div>
+
+      <pre class="mt-3 p-3 bg-white rounded border text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+- name: Deploy public key for automation user with restricted options
+  ansible.posix.authorized_key:
+    user: "{{ automation_user }}"
+    state: present
+    key: "{{ lookup('file', automation_public_key_path) }}"
+    key_options: 'no-port-forwarding'
+      </pre>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Using lookup('file', ...) keeps secrets out of the playbook, but ensure the public key file itself is managed securely on the control node.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

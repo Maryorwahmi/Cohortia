@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>.cohortia-bg{background-color:#f8fafc;}.card-shadow{box-shadow:0 4px 6px rgba(0,0,0,0.05);}.border-light-slate{border-color:rgba(226,232,240,0.9);}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Config Update: Signing and Submitting</span></div><div class="flex flex-col flex-grow"><div class="mb-6"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2">Terminal Demo</span><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">Config Update: Signing and Submitting</h2><p class="text-lg text-slate-700">Finalizing the update transaction for network consensus</p></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 text-white p-4 rounded-xl font-mono text-sm overflow-auto card-shadow flex-grow"><pre><code style="white-space: pre-wrap; tab-size: 2;"># 1. Wrap the config update in an envelope
+echo '{"payload":{"header":{"channel_header":{"channel_id":"mychannel", "type":2}},"data":{"config_update":'$(cat config_update.json)'}}}' | jq . > config_update_in_envelope.json
+configtxlator proto_encode \
+  --input config_update_in_envelope.json \
+  --type common.Envelope \
+  --output config_update_in_envelope.pb
+
+# Output (no direct console output, creates .json and .pb files)
+
+# 2. Sign the configuration update by existing organizations (e.g., Org1 and Org2)
+# This depends on the channel's /Channel/Application/ModPolicy (e.g., 2 out of 3 orgs)
+# Set environment variables for Org1 admin (example)
+# export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+# peer channel signconfigtx -f config_update_in_envelope.pb
+
+# Set environment variables for Org2 admin (example)
+# export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+# peer channel signconfigtx -f config_update_in_envelope.pb
+
+# 3. Submit the signed configuration update to the orderer
+# This can be done by any of the signing organizations
+peer channel update \
+  -f config_update_in_envelope.pb \
+  -c mychannel \
+  -o orderer.example.com:7050 \
+  --ordererTLSHostnameOverride orderer.example.com \
+  --tls \
+  --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+# Output (truncated):
+# 2023-10-27 10:05:00.123 UTC [channelCmd] InitCmdFactory -> INFO 001 ...
+# 2023-10-27 10:05:00.456 UTC [channelCmd] update -> INFO 002 ...
+# Successfully submitted channel update for channel 'mychannel'
+
+# After this, Org3 is part of the channel. Their peers can join the channel.</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="p-4 rounded-xl bg-white border border-light-slate card-shadow"><h3 class="text-base font-semibold text-slate-900 mb-2">Command Breakdown</h3><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><code>jq .</code>: Used to construct the JSON envelope for the config update.</li><li><code>configtxlator proto_encode --type common.Envelope</code>: Encodes the JSON envelope into a protobuf binary.</li><li><code>peer channel signconfigtx -f</code>: Adds an organization's signature to the configuration update envelope.</li><li><code>peer channel update -f</code>: Submits the fully signed configuration update to the ordering service.</li></ul></div><div class="p-4 rounded-xl bg-amber-50 border border-amber-100 card-shadow"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Important Note</div><p class="text-xs font-medium text-slate-800">The number of signatures required is determined by the channel's <code>/Channel/Application/ModPolicy</code>. Ensure you meet this policy before submission.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Signing and submitting the configuration update transaction is a multi-party, governed process that ensures network integrity and consensus on changes.</p></div></div></div></div><script>gsap.from('.cohortia-bg > div', {opacity: 0, y: 20, duration: 0.8, stagger: 0.1, ease: 'power3.out'});</script><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

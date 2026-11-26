@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Working with cwd</span>
+    </div>
+
+    <div class="flex gap-4 h-[58%]">
+      <div class="w-1/2 card p-4 flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Step-by-step</div>
+        <div class="text-xs text-slate-600 mt-2">A defensive sequence to perform file operations without global side effects.</div>
+
+        <div class="mt-3 flex-1">
+          <ol class="list-decimal pl-5 text-sm text-slate-700">
+            <li>Read os.getcwd to log the starting directory.</li>
+            <li>Build paths with os.path.join rather than relying on relative paths.</li>
+            <li>Create directories with os.makedirs if they don’t exist.</li>
+            <li>Open files using the constructed absolute paths.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Concrete code</div>
+          <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"><code>import os
+base = os.getcwd()
+profile_dir = os.path.join(base, 'user_profiles')
+if not os.path.isdir(profile_dir):
+  os.makedirs(profile_dir)
+# Now use absolute paths under profile_dir safely</code></pre>
+        </div>
+
+        <div class="card p-3">
+          <div class="text-sm font-bold text-slate-800">Misconception</div>
+          <div class="text-xs text-slate-600">Changing the current directory isolates changes to a function: it doesn't. chdir affects the whole process and can create hard-to-debug behavior in larger apps.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">If you must chdir in a script, do it in a short-lived context and restore the original directory afterward to limit side effects.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

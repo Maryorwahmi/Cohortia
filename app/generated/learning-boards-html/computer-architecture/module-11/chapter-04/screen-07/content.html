@@ -1,0 +1,45 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class='text-slate-700'>LL/SC</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>How LL/SC works</div>
+      <p class='text-sm text-slate-600 mt-2'>LL marks a reservation on a memory address. SC stores only if the reservation is intact, failing if another core wrote to that address.</p>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-slate-500'>Practical note</div>
+      <p class='text-sm text-slate-700 mt-1'>On architectures with LL/SC, implement retry loops and consider instrumentation to detect frequent SC failures under contention.</p>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>LL/SC pairs allow atomic conditional stores without CAS and detect intervening writes even if the value returns to its prior state.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-500'>Pseudo</div>
+        <pre class='mt-2 text-sm bg-slate-900 text-white p-3 rounded' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;'>
+val = LL(&x)
+// compute new_val from val
+if (SC(&x, new_val)) {
+  // success
+} else {
+  // failure: retry
+}
+        </pre>
+      </div>
+
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-500'>Concrete example</div>
+        <div class='text-sm text-slate-700 mt-2'>On ARM or RISC-V, LL/SC sequences are preferred where CAS is not available; be prepared for SC to fail often under contention and plan backoff strategies.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

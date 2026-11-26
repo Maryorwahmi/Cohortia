@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{background:#0b1220;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl p-5 shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-lg font-bold text-slate-800">sendSetDataTransaction</div>
+      <div class="text-sm text-slate-600 mt-3">This pattern sets flags, listens for events, and refreshes contract data on success.</div>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Checklist</div>
+        <ul class="text-sm text-slate-600 list-inside pl-2 space-y-2">
+          <li>Guard for simpleStorageContract and currentAccount.</li>
+          <li>Set isSendingTransaction and transactionStatus before sending.</li>
+          <li>Chain on('transactionHash'), on('receipt'), on('error') and call fetchContractData on success.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-3">Example hook snippet</div>
+      <pre><code>const sendSetDataTransaction = useCallback(async (newData) =&gt; {
+  if (!simpleStorageContract || !currentAccount) {
+    setError('Contract or account not initialized for transaction.');
+    return;
+  }
+  setIsSendingTransaction(true);
+  setTransactionStatus('pending');
+  setTransactionHash(null);
+  setError(null);
+
+  try {
+    await simpleStorageContract.methods.setData(newData).send({ from: currentAccount })
+      .on('transactionHash', hash =&gt; {
+        setTransactionHash(hash);
+      })
+      .on('receipt', receipt =&gt; {
+        setTransactionStatus('success');
+        fetchContractData();
+      })
+      .on('error', (err) =&gt; {
+        setTransactionStatus('error');
+        setError(err.message || 'Transaction failed.');
+      });
+  } catch (err) {
+    setTransactionStatus('error');
+    setError(err.message || 'Transaction failed.');
+  } finally {
+    setIsSendingTransaction(false);
+  }
+}, [simpleStorageContract, currentAccount, fetchContractData]);</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

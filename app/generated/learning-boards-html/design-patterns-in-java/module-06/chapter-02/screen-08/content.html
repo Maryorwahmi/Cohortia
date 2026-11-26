@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+    .code { background: #f8fafc; color: #0f172a; border-radius: 12px; padding: 12px; }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 p-4 card">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Concrete Mediator</div>
+      <pre class="code"><code>// ChatRoom.java
+import java.util.ArrayList;
+import java.util.List;
+
+class ChatRoom implements ChatMediator {
+  private List&lt;User&gt; users;
+
+  public ChatRoom() { this.users = new ArrayList&lt;&gt;(); }
+
+  @Override
+  public void addUser(User user) { this.users.add(user); }
+
+  @Override
+  public void sendMessage(String message, User sender) {
+    for (User user : this.users) {
+      if (user != sender) {
+        user.receive(sender.getName() + " says: " + message);
+      }
+    }
+  }
+}
+</code></pre>
+    </div>
+    <div class="w-1/2 p-4 card">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Concrete Colleague</div>
+      <pre class="code"><code>// ChatUser.java
+class ChatUser extends User {
+  public ChatUser(ChatMediator mediator, String name) { super(mediator, name); }
+
+  @Override
+  public void send(String message) {
+    System.out.println(this.name + " sending message: " + message);
+    mediator.sendMessage(message, this);
+  }
+
+  @Override
+  public void receive(String message) {
+    System.out.println(this.name + " received message: " + message);
+  }
+}
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

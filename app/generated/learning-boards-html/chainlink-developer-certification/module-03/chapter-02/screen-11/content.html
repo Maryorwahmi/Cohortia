@@ -1,0 +1,27 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.2</span><span>›</span><span class="text-slate-700">Deployment Walkthrough</span></div><h2 class="text-3xl font-bold text-slate-900 mb-2">Deploying Your Price Consumer Contract</h2><p class="text-lg text-slate-600 mb-6">A practical walkthrough with Hardhat and Sepolia.</p><div class="flex flex-col lg:flex-row gap-6 h-[calc(100%-180px)]"><div class="flex-1 flex flex-col gap-4"><div class="bg-slate-800 rounded-2xl shadow-lg p-6 flex-grow font-mono text-sm text-slate-50 overflow-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-3">Hardhat Deployment Script</div><pre><code style="white-space: pre-wrap; tab-size: 2;">// scripts/deployPriceConsumer.js
+const { ethers } = require("hardhat");
+
+async function main() {
+    const ETH_USD_PRICE_FEED_SEPOLIA = "0x694AA1769357215Ee4f0fFfE86eBc454f87d25Dc";
+
+    const PriceConsumerV3 = await ethers.getContractFactory("PriceConsumerV3");
+    const priceConsumer = await PriceConsumerV3.deploy(ETH_USD_PRICE_FEED_SEPOLIA);
+
+    await priceConsumer.waitForDeployment();
+
+    console.log(`PriceConsumerV3 deployed to: ${priceConsumer.target}`);
+
+    const latestPrice = await priceConsumer.getLatestPrice();
+    const decimals = await priceConsumer.getDecimals();
+    const description = await priceConsumer.getDescription();
+
+    console.log(`Description: ${description}`);
+    console.log(`Raw Latest Price: ${latestPrice}`);
+    console.log(`Decimals: ${decimals}`);
+    console.log(`Human-readable Price: ${parseFloat(latestPrice) / (10 ** decimals)}`);
+}
+
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});</code></pre></div></div><div class="flex-1 flex flex-col gap-4"><div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow"><div class="flex items-center gap-3 mb-3"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2h3m0 0l3-3m-3 3l-3-3m3 3v-6"></path></svg><h3 class="text-xl font-semibold text-slate-800">Deployment Steps</h3></div><ul class="list-disc list-inside text-base text-slate-700 space-y-2"><li>Set up Hardhat project & install <code>@chainlink/contracts</code>.</li><li>Create <code>PriceConsumerV3.sol</code> with the contract code.</li><li>Find Sepolia ETH/USD address on <code>data.chain.link</code>.</li><li>Write a deployment script to deploy and interact.</li><li>Configure <code>hardhat.config.js</code> for Sepolia network.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Deploying a price consumer contract involves careful setup, correct address passing, and script-based interaction to retrieve and interpret data.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

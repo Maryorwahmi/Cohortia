@@ -1,0 +1,73 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#fbfdff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">manage_qa_users.yml walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full grid grid-cols-2 gap-4">
+    <div class="flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Playbook template</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 card-border">
+        <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">---
+- name: Manage QA team users and groups
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure 'qa_team' group exists
+      ansible.builtin.group:
+        name: qa_team
+        gid: 2005
+        state: present
+
+    - name: Create 'qa_lead' user and add to 'qa_team'
+      ansible.builtin.user:
+        name: qa_lead
+        uid: 1005
+        shell: /bin/bash
+        groups: qa_team
+        append: yes
+        state: present
+
+    - name: Create 'qa_engineer' user and add to 'qa_team'
+      ansible.builtin.user:
+        name: qa_engineer
+        uid: 1006
+        shell: /bin/bash
+        groups: qa_team
+        append: yes
+        state: present</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-bold">Execution notes</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-700">
+          <li>become: true is required for system changes.</li>
+          <li>Creating group first avoids race conditions when assigning groups to users.</li>
+          <li>append: yes prevents accidental loss of other supplementary groups.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Terminal demo snippet</div>
+      <div class="mt-2 rounded-lg bg-slate-50 p-3 card-border">
+        <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">$ ansible-playbook -i inventory.ini manage_qa_users.yml
+PLAY RECAP *****************************************************************
+target1                : ok=4    changed=3    unreachable=0    failed=0
+
+# Verify
+$ id qa_lead
+uid=1005(qa_lead) gid=2005(qa_team) groups=2005(qa_team)</pre>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 card-border">
+        <div class="text-sm font-bold text-emerald-700">Checklist</div>
+        <div class="text-xs text-slate-700 mt-2">Run in staging, confirm changed: values, re-run to verify idempotency, then push to production when safe.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} .badge{font-size:10px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Blocking server limitation</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">The blocking accept-and-serve loop</h3>
+      <p class="text-sm text-slate-600 mt-3">When a server accepts and then serves in the same loop, it prevents new connections from being accepted until the current handler returns. This blocks availability.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3 flex-1">
+        <div class="rounded-xl p-3 bg-amber-50">
+          <div class="text-xs font-bold text-amber-700">Why it matters</div>
+          <div class="text-sm text-slate-800 mt-2">Real services must accept and start serving many clients without blocking. Blocking reduces responsiveness and capacity.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-rose-50">
+          <div class="text-xs font-bold text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-800 mt-2">Adding short sleeps or naive polling fixes nothing; it wastes CPU and still blocks acceptance of new clients effectively.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-xs font-bold text-slate-500">Concrete scenario</div>
+          <div class="text-sm text-slate-800 mt-2">A chat server that blocks on one client prevents other users from connecting until the conversation ends, causing timeouts and poor UX.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-xs font-bold text-slate-500">Takeaway</div>
+          <div class="text-sm text-slate-800 mt-2">Introduce concurrency or non-blocking I/O to avoid blocking acceptance and improve overall availability.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Visual aid</div>
+      <div class="mt-3 flex-1">
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-sm font-semibold text-slate-800">Sequential blocking timeline</div>
+          <ol class="text-sm text-slate-600 mt-2 list-decimal list-inside">
+            <li>Server accepts client A and enters handler loop.</li>
+            <li>Server cannot accept client B until client A disconnects.</li>
+            <li>New connection attempts queue or fail depending on backlog.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

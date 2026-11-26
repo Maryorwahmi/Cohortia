@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px;border-radius:8px;background:#0f172a;color:#e6edf3}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Tip Calculator</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Starter code</div>
+      <div class="text-sm text-slate-600 mt-2">Use @State for the bill amount string and tip percentage; computed properties do the math.</div>
+
+      <div class="mt-4 flex-1 overflow-auto">
+        <pre><code>import SwiftUI
+
+struct TipCalculatorView: View {
+    @State private var billAmountString: String = ""
+    @State private var tipPercentage: Double = 15.0 // Default 15%
+
+    var billAmount: Double {
+        return Double(billAmountString) ?? 0.0
+    }
+
+    var tipAmount: Double {
+        return billAmount * (tipPercentage / 100.0)
+    }
+
+    var totalAmount: Double {
+        return billAmount + tipAmount
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Enter Bill Amount") {
+                    TextField("Amount", text: $billAmountString)
+                        .keyboardType(.decimalPad)
+                }
+
+                Section("Select Tip Percentage") {
+                    Slider(value: $tipPercentage, in: 0...25, step: 1) {
+                        Text("Tip: \(Int(tipPercentage))%")
+                    } minimumValueLabel: { Text("0%") } maximumValueLabel: { Text("25%") }
+                    Text("Tip: \(Int(tipPercentage))%")
+                }
+
+                Section("Summary") {
+                    HStack { Text("Bill Amount:"); Spacer(); Text(String(format: "$%.2f", billAmount)) }
+                    HStack { Text("Tip Amount (\(Int(tipPercentage))%):"); Spacer(); Text(String(format: "$%.2f", tipAmount)) }
+                    HStack { Text("Total Amount:"); Spacer(); Text(String(format: "$%.2f", totalAmount)).fontWeight(.bold) }
+                }
+            }
+            .navigationTitle("Tip Calculator")
+        }
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Try this</div>
+          <div class="text-sm text-slate-700 mt-1">Refactor the slider into a child component that accepts a binding to tipPercentage to practice @Binding.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Teaching bullets</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Keep input storage as String when using TextField and convert to Double safely for calculations.</li>
+        <li>Use Slider bound to a Double @State for immediate updates.</li>
+        <li>Format currency on display; handle empty or invalid input as zero.</li>
+        <li>Refactor controls into children using @Binding to increase reuse.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">The tip calculator demonstrates how @State and @Binding produce a responsive, declarative form with clear ownership.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

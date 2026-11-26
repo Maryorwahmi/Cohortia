@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--emerald:#10b981;--slate-100:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">What is a physical base backup?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border" style="border-color:var(--slate-100); box-shadow: 0 6px 18px rgba(15,23,42,0.04);">
+      <div class="text-lg font-bold text-slate-800">Definition</div>
+      <div class="text-sm text-slate-600 mt-2">A complete copy of PGDATA at a known point; used as the anchor for applying WALs during recovery.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+          <div class="text-xs text-slate-600 mt-1">It provides the physical files onto which WAL records are applied for Point-in-Time Recovery.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+          <div class="text-xs text-slate-600 mt-1">A base backup alone is sometimes treated as sufficient; without the WAL stream or archived WALs produced during the backup, PITR may not be possible.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Key check</div>
+          <div class="text-xs text-slate-600 mt-1">Verify presence of base.backup and WAL files in pg_wal or tar contents after the run.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border flex flex-col" style="border-color:var(--slate-100);">
+      <div class="text-sm font-semibold text-slate-800">Analogy</div>
+      <div class="text-xs text-slate-600 mt-2">Think of a base backup as taking a photograph of a server’s disk layout at a moment; WALs are the film negatives that record changes after the photo. You need both to recreate the full sequence of states.</div>
+
+      <div class="mt-4 flex-1 rounded-lg p-4 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Concrete example</div>
+        <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;" class="text-xs bg-transparent">pg_basebackup -h localhost -U postgres -D /mnt/pg_backups/base_backup_20210930_120000 -P</pre>
+        <div class="text-xs text-slate-600 mt-2">This creates a plain-format copy of PGDATA in the destination directory. Inspect the directory for base.backup and pg_wal.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Base backups plus preserved WAL segments equal a usable PITR starting point; without WALs the backup is incomplete.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

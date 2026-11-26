@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+    <div class="text-2xl font-bold text-slate-900">Invalid access vs uninitialized values</div>
+    <div class="text-sm text-slate-600 mt-1">Compare symptom, Valgrind message, and likely fix.</div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Invalid read/write</div>
+      <div class="text-xs text-slate-600 mt-2">Valgrind reports 'Invalid read of size N'. It indicates out-of-bounds access. Fix by correcting indices or bounds checks.</div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Use-after-free / double-free</div>
+      <div class="text-xs text-slate-600 mt-2">Valgrind flags access to freed memory. Ensure pointers are not used after delete and avoid double delete by centralizing ownership.</div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Uninitialized value</div>
+      <div class="text-xs text-slate-600 mt-2">Valgrind warns when a value is used before it's set. Use --track-origins=yes to locate where the garbage came from and initialize variables early.</div>
+    </div>
+
+    <div class="col-span-3 mt-3 p-3 rounded-xl border bg-amber-50 border-amber-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Practical fix pattern</div>
+      <div class="text-sm text-slate-700">Follow the Valgrind stack to the offending line, reproduce the access in a small test, then fix by adding bounds checks, initializing variables, or repairing ownership semantics. Re-run Valgrind to verify the report disappears.</div>
+    </div>
+  </div>
+</div>

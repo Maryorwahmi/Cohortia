@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">IF NOT EXISTS & LWTs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Conditional INSERT example</div>
+      <div class="text-sm text-slate-600 mt-2">This form prevents overwriting by checking for non-existence first.</div>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre style="white-space:pre-wrap; tab-size:2;">INSERT INTO user_profiles.users (user_id, username, email, created_date)
+VALUES (uuid(), 'bob_jones', 'bob@example.com', toTimestamp(now()))
+IF NOT EXISTS;</pre>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl p-3 bg-white border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">What happens</div>
+          <div class="text-sm text-slate-600 mt-1">Cluster runs a Paxos-like sequence to agree the row does not exist, then applies the write atomically.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-white border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Cost</div>
+          <div class="text-sm text-slate-600 mt-1">Higher latency and lower throughput compared to normal writes because of extra coordination rounds.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-2">When to use</div>
+      <div class="text-sm text-slate-600">Use IF NOT EXISTS for rare, critical operations such as initial account creation or a strict unique key enforcement that cannot tolerate duplicates.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-amber-50 p-3 border border-amber-100">
+          <div class="text-sm font-semibold text-amber-700">Concrete scenario</div>
+          <div class="text-sm text-slate-600 mt-1">When two registration requests could create the same user_id, IF NOT EXISTS ensures only one succeeds and the other receives a conditional failure.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Believing IF NOT EXISTS is cheap. It provides safety, not speed. Measure its impact under expected load.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use IF NOT EXISTS only when you need atomic non-existence checks; otherwise prefer schema and application logic to avoid duplicates.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

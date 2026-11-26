@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{background:#fff;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9)} .cmd{background:#0f172a;color:#e6eef8;padding:10px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 2.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Adding and Updating Scores</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2">
+      <div class="flex flex-col gap-3 h-full">
+        <div class="step">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Step 1</div>
+          <div class="font-bold text-slate-900 mt-2">Seed the leaderboard</div>
+          <div class="text-sm text-slate-700 mt-2">Add initial members with ZADD before active scoring begins to establish baseline ranks.</div>
+        </div>
+
+        <div class="step">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Step 2</div>
+          <div class="font-bold text-slate-900 mt-2">Increment during play</div>
+          <div class="text-sm text-slate-700 mt-2">Use ZINCRBY to add points atomically so concurrent updates do not conflict.</div>
+        </div>
+
+        <div class="step">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Step 3</div>
+          <div class="font-bold text-slate-900 mt-2">Query top players</div>
+          <div class="text-sm text-slate-700 mt-2">Use ZREVRANGE with WITHSCORES to present the leaderboard in descending order.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Commands in practice</div>
+        <pre class="cmd mt-3">ZADD global:leaderboard 100 "player:alice" 150 "player:bob" 75 "player:charlie"
+ZINCRBY global:leaderboard 20 "player:bob"
+ZREVRANGE global:leaderboard 0 2 WITHSCORES</pre>
+      </div>
+
+      <div class="card p-4 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Common misconception</div>
+        <div class="mt-2 text-sm text-slate-700">Calling ZADD to add what you think of as a delta will replace the score rather than increment. Use ZINCRBY for deltas to ensure atomicity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">__new__ vs __init__</div>
+
+      <pre class="mono text-sm mt-4 p-3 bg-slate-50 rounded card-border" style="white-space:pre-wrap; tab-size:2;">class CheckingMeta(type):
+  def __new__(mcs, name, bases, namespace):
+    # Validate or add defaults before creation
+    if 'VERSION' not in namespace:
+      namespace['VERSION'] = '0.1'
+    return super().__new__(mcs, name, bases, namespace)
+
+  def __init__(cls, name, bases, namespace):
+    # Register the created class
+    Registry.register(cls)
+    super().__init__(name, bases, namespace)
+</pre>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <ul class="list-disc pl-5">
+          <li>Put namespace edits in __new__ so they become part of the class.</li>
+          <li>Use __init__ for registration or side effects that require the class object.</li>
+          <li>Always call super to maintain correct behavior.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border">
+      <div class="text-sm font-bold text-slate-800">Common mistakes</div>
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="mb-2"><strong>Modifying namespace in __init__:</strong> ineffective for creating class attributes.</div>
+        <div class="mb-2"><strong>Omitting super():</strong> breaks the metaclass chain and can prevent proper class creation.</div>
+        <div class="mb-2"><strong>Using instance-level logic:</strong> metaclasses act at definition time, not on instance creation.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+          <div class="text-sm text-slate-700">Expecting instance-side initialization to occur in metaclass methods confuses object lifecycle and leads to missing attributes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

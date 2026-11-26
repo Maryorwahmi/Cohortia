@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">SQS + DLQ Workflow</span>
+  </div>
+
+  <div class="rounded-2xl bg-white shadow-sm card-border p-6 h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Build and verify a resilient processing pipeline</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Steps</div>
+          <ol class="list-decimal list-inside text-sm text-slate-600 mt-2 space-y-2">
+            <li>Create MyProcessingQueue and MyProcessingDLQ.</li>
+            <li>Set redrive policy with maxReceiveCount=3 on the main queue.</li>
+            <li>Create processing Lambda with SQS trigger and DLQ permissions.</li>
+            <li>Create a publisher function or use CLI to send both normal and simulate_failure messages.</li>
+            <li>Monitor queue depth and DLQ messages; inspect CloudWatch logs.</li>
+          </ol>
+        </div>
+
+        <div class="mt-3 rounded-lg bg-amber-50 p-3 card-border">
+          <div class="text-sm font-semibold text-amber-700">Verification</div>
+          <p class="text-sm text-slate-700 mt-2">Messages with simulate_failure true should be retried then moved to DLQ after 3 attempts. Others should be processed successfully.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="rounded-lg bg-slate-50 p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Sample processing Lambda (excerpt)</div>
+          <pre class="mt-2 text-sm text-slate-700">import json
+import os
+
+def handler(event, context):
+  for record in event['Records']:
+    message_body = json.loads(record['body'])
+    print(f"Processing message: {message_body}")
+
+    # Simulate a processing failure for specific messages
+    if message_body.get('simulate_failure', False):
+      print(f"Simulating failure for message: {message_body['id']}")
+      raise Exception(f"Simulated processing error for {message_body['id']}")
+
+    print(f"Successfully processed message: {message_body['id']}")
+  return {'statusCode': 200, 'body': json.dumps('Messages processed')} </pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This workflow shows how DLQs keep the main pipeline flowing and give you a place to investigate failures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

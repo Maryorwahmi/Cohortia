@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">MERGE INTO for UPSERTS</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">MERGE pattern</div>
+      <div class="text-sm text-slate-700 mt-3">MERGE compares source and target rows using a match condition. Use WHEN MATCHED for updates and WHEN NOT MATCHED for inserts to perform an upsert in a single statement.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Concrete example</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-- MERGE INTO products_delta AS target
+-- USING new_products_view AS source
+-- ON target.item = source.item
+-- WHEN MATCHED THEN
+--   UPDATE SET target.price = source.price, target.discounted_price = source.discounted_price
+-- WHEN NOT MATCHED THEN
+--   INSERT (item, price, category, discounted_price) VALUES (source.item, source.price, source.category, source.discounted_price);
+        </pre>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Best practices</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Ensure the ON clause uniquely matches records you intend to update.</li>
+        <li>Validate the result with a SELECT after the MERGE to confirm correct upserts.</li>
+        <li>Use MERGE for deduplication or incremental stream merges to keep tables correct.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Misconception check</div>
+        <div class="text-sm text-slate-700 mt-1">MERGE is not separate UPDATE and INSERT statements: it is a single transactional operation and produces one commit entry.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use MERGE for atomic upserts and deduplication. It creates a single commit and preserves table consistency.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

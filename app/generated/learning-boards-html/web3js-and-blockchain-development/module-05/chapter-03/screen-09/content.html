@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Storage.store Node.js</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/4 rounded-2xl bg-white p-4 card-border shadow-sm mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code</div>
+      <pre style="white-space:pre-wrap; tab-size:2;" class="text-sm text-slate-700 mt-3">import Web3 from 'web3';
+import storageAbi from './storageAbi.json';
+const provider = new Web3.providers.HttpProvider('http://localhost:8545');
+const web3 = new Web3(provider);
+const storageContract = new web3.eth.Contract(storageAbi, CONTRACT_ADDRESS);
+
+async function sendStore() {
+  const accounts = await web3.eth.getAccounts();
+  const sender = accounts[0];
+  const valueToStore = 42;
+  const gasEstimate = await storageContract.methods.store(valueToStore).estimateGas({ from: sender });
+  const receipt = await storageContract.methods.store(valueToStore).send({ from: sender, gas: gasEstimate + 10000 });
+  console.log('Transaction Hash:', receipt.transactionHash);
+  console.log('Gas Used:', receipt.gasUsed);
+  const updated = await storageContract.methods.retrieve().call();
+  console.log('Updated stored data:', parseInt(updated));
+}</pre>
+    </div>
+
+    <div class="w-1/4 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+        <li>estimateGas simulates execution to predict gas usage.</li>
+        <li>send returns a receipt after mining; read it to confirm success.</li>
+        <li>Call retrieve after receipt to verify state change.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always verify the new state after the receipt to ensure your business logic executed as intended.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

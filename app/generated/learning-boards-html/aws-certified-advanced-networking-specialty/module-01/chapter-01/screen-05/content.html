@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .step{background:#fff;padding:14px;border-radius:12px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Subnet Design</span>
+    </div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Design subnets per availability zone</h3>
+      <div class="mt-4 space-y-3">
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">Step 1 — Map requirements</div>
+          <div class="text-sm text-slate-600 mt-1">Decide which services require public access and which must remain private. Record latency and AZ redundancy requirements.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">Step 2 — Allocate per-AZ CIDRs</div>
+          <div class="text-sm text-slate-600 mt-1">Split the VPC CIDR into per-AZ subnets sized for expected host counts and growth.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">Step 3 — Apply routing and boundaries</div>
+          <div class="text-sm text-slate-600 mt-1">Assign route tables for public and private subnets and attach NAT Gateways or egress patterns as required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Example subnet map</div>
+        <pre class="mt-2" style="background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;tab-size:2;white-space:pre-wrap">VPC: 10.30.0.0/16
+Public-AZ1:  10.30.1.0/24  (Load balancer)
+Public-AZ2:  10.30.2.0/24  (Bastion)
+Private-App-AZ1: 10.30.10.0/24
+Private-App-AZ2: 10.30.11.0/24
+Private-DB-AZ1: 10.30.20.0/24
+Private-DB-AZ2: 10.30.21.0/24</pre>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Smaller subnets always increase security. In practice, subnets that are too small waste time on addressing and reduce usable IPs because AWS reserves addresses; size subnets for realistic growth.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Design subnets per AZ, choose sizes for growth, and separate public and private responsibilities to simplify routing and security.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

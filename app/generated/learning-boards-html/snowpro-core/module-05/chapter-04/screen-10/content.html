@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Create table and procedure</div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        Set up a small table and a procedure that increases salaries by a percentage. Use binds to pass the percentage safely into the statement.
+      </div>
+
+      <div class="mt-4">
+        <pre class="p-3 rounded bg-slate-50 text-sm">CREATE TABLE employees (
+  id INT,
+  first_name VARCHAR,
+  last_name VARCHAR,
+  salary DECIMAL(10, 2)
+);
+
+INSERT INTO employees VALUES
+(1, 'John', 'Doe', 60000.00),
+(2, 'Jane', 'Smith', 75000.00),
+(3, 'Peter', 'Jones', 50000.00);
+
+CREATE OR REPLACE PROCEDURE adjust_salaries(percentage_increase FLOAT)
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+var current_date = new Date().toISOString().slice(0, 10);
+var sql_command = "UPDATE employees SET salary = salary * (1 + ?) WHERE salary < 100000";
+var statement = snowflake.createStatement({
+  sqlText: sql_command,
+  binds: [PERCENTAGE_INCREASE]
+});
+var result = statement.execute();
+var rows_affected = statement.getRowsAffected();
+return "Salaries adjusted for " + rows_affected + " employees on " + current_date + ".";
+$$;
+
+CALL adjust_salaries(0.10);</pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Verification</div>
+      <div class="mt-3 text-sm text-slate-600">Run SELECT * FROM employees; after each CALL to confirm salary changes. Use small datasets to test and measure behavior before applying to production tables.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Common Pitfall</div>
+      <div class="mt-2 text-sm text-slate-600">Using string concatenation for numeric binds or identifiers can open up injection risks. Prefer binds for parameter values and validate object names separately.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Practice with small datasets, use binds for safety, and prefer set-based updates inside procedures for performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

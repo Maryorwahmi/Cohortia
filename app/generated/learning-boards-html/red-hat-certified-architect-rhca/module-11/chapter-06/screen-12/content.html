@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;}</style>
+  <div class="flex flex-col h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.6</span>
+      <span>›</span>
+      <span class="text-slate-700">PBR by UID</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 h-full">
+      <div class="col-span-7 rounded-2xl bg-white border p-5">
+        <div class="text-sm font-bold">Exercise goal</div>
+        <div class="text-sm text-slate-600 mt-2">Ensure all new connections created by a specific user account exit via eth1, regardless of the system default route.</div>
+
+        <div class="mt-4 text-sm">
+          <div class="font-bold">Steps</div>
+          <ol class="mt-2 list-decimal pl-6 text-slate-600 space-y-2">
+            <li>Find the UID of the application user.</li>
+            <li>Add a routing table entry with a default via the intended gateway for eth1.</li>
+            <li>Add an ip rule uidrange mapping the UID to the custom table.</li>
+            <li>Verify with ip rule show and ip route get with uid simulation.</li>
+          </ol>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-600">Remember: UID rules affect new connections. Existing sockets will not be moved retroactively, so test by restarting the application process.</div>
+      </div>
+
+      <div class="col-span-5 rounded-2xl bg-white border p-5">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Starter commands</div>
+        <pre class="rounded bg-slate-900 text-white p-3 mt-3"><code># Get UID
+APPUSER_UID=$(id -u appuser)
+
+# Create table entry
+echo "100 appuser_traffic" | sudo tee -a /etc/iproute2/rt_tables
+sudo ip route add default via 192.168.B.1 dev eth1 table appuser_traffic
+
+# Add UID-based rule
+sudo ip rule add uidrange $APPUSER_UID-$APPUSER_UID table appuser_traffic
+
+# Verify
+sudo ip rule show
+sudo ip route show table appuser_traffic
+</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

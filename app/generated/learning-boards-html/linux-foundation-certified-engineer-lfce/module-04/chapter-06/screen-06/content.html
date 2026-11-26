@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Slave Initialization</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Slave configuration steps</div>
+      <div class="text-sm text-slate-700 mt-2">These steps bring a replica online and connect it to the master binlog stream.</div>
+
+      <ol class="mt-4 list-decimal pl-6 text-sm text-slate-700 space-y-3">
+        <li>Edit <span class="font-mono">/etc/my.cnf</span> on the slave to set <span class="font-semibold">server_id = 2</span> and restart MariaDB.</li>
+        <li>Import the initial data snapshot from the master, either via a mysqldump import or a prepared mariabackup copy-back.</li>
+        <li>Run CHANGE MASTER TO with MASTER_HOST, MASTER_USER, MASTER_PASSWORD, MASTER_LOG_FILE, MASTER_LOG_POS using values from the master snapshot.</li>
+        <li>Run START SLAVE and then SHOW SLAVE STATUS\G to confirm Slave_IO_Running and Slave_SQL_Running are Yes.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using incorrect master log coordinates or importing the wrong snapshot state will break replication and require resynchronization.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example commands</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># On slave: set server_id in /etc/my.cnf and restart
+sudo systemctl restart mariadb
+
+# Import dump transferred from master
+mysql -u root -p test_app_db &lt; /tmp/test_app_db_master_backup.sql
+
+# Configure replication (example)
+CHANGE MASTER TO
+  MASTER_HOST='192.0.2.10',
+  MASTER_USER='repl_user',
+  MASTER_PASSWORD='ReplicationP@ssw0rd!',
+  MASTER_LOG_FILE='mysql-bin.000001',
+  MASTER_LOG_POS=123;
+
+START SLAVE;
+SHOW SLAVE STATUS\G</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">Confirm both Slave_IO_Running and Slave_SQL_Running are Yes and run a test insert on the master to validate replication.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

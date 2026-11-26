@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">postmaster and backend processes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm flex-1" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-sm font-bold text-slate-800">postmaster</div>
+        <div class="text-sm text-slate-600 mt-1">Supervises the server, accepts connections, and forks child backends after authentication.</div>
+
+        <div class="mt-4 text-sm font-bold text-slate-800">postgres backend</div>
+        <div class="text-sm text-slate-600 mt-1">A child process dedicated to a single client session. It manages parsing, planning, and execution of SQL for that client.</div>
+
+        <div class="mt-4 text-sm text-slate-600">
+          <ul class="list-disc ml-5 space-y-1">
+            <li>Backends hold session parameters and open transactions.</li>
+            <li>They are isolated processes—one backend crash rarely kills the cluster.</li>
+            <li>Backends consume OS process resources, so plan capacity accordingly.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-2">Map a backend to a client by checking connection parameters in logs and correlating with process start times to identify long-running sessions or leaks.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm flex-1" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-sm font-bold text-slate-800">Example scenario</div>
+        <div class="text-sm text-slate-600 mt-2">A web app without pooling opens many connections. Each connection spawns a backend, increasing memory use. Using a pool reduces forked backends and stabilizes resource usage.</div>
+
+        <pre class="mt-3 bg-slate-900 text-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# list postgres processes
+ps aux | grep postgres
+</pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Treat each backend as its own process with per-session state; this simplifies isolation but raises process-count considerations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

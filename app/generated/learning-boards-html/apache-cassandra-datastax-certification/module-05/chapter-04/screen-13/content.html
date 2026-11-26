@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;padding:12px;background:#0b1220;color:#e6eef8;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Docker demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white card-border p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-bold">Starter commands (use in terminal)</div>
+      <pre>&gt; docker run --name cassandra-backup -p 9042:9042 -d cassandra:latest
+&gt; docker exec -it cassandra-backup cqlsh
+&lt;within cqlsh&gt;
+CREATE KEYSPACE mybackup WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+USE mybackup;
+CREATE TABLE products (
+  product_id UUID PRIMARY KEY,
+  name TEXT,
+  price DECIMAL,
+  description TEXT
+);
+INSERT INTO products (product_id, name, price, description) VALUES (uuid(), 'Laptop', 1200.00, 'High performance laptop');
+INSERT INTO products (product_id, name, price, description) VALUES (uuid(), 'Mouse', 25.00, 'Wireless ergonomic mouse');
+SELECT * FROM products;
+&gt; docker exec -it cassandra-backup nodetool snapshot mybackup
+&gt; docker exec -it cassandra-backup find /var/lib/cassandra/data/mybackup/products -name "snapshots"</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border p-6 shadow-sm">
+      <div class="text-sm font-bold">Simulate restore</div>
+      <pre>&gt; docker exec -it cassandra-backup cqlsh
+USE mybackup; TRUNCATE products; SELECT * FROM products; -- empty
+&gt; docker stop cassandra-backup
+&gt; docker exec -it cassandra-backup rm -rf /var/lib/cassandra/data/mybackup/products/*
+# locate snapshot dir and name
+&gt; SNAPSHOT_DIR=$(docker exec -it cassandra-backup find /var/lib/cassandra/data/mybackup/products -maxdepth 2 -type d -name "snapshots" | head -n 1)
+&gt; SNAPSHOT_NAME=$(basename $(docker exec -it cassandra-backup ls -d $SNAPSHOT_DIR/* | head -n 1))
+&gt; docker exec -it cassandra-backup cp -al $SNAPSHOT_DIR/$SNAPSHOT_NAME/* /var/lib/cassandra/data/mybackup/products/
+&gt; docker start cassandra-backup
+&gt; docker exec -it cassandra-backup cqlsh
+USE mybackup; SELECT * FROM products; -- verify data restored</pre>
+      <div class="mt-3 text-xs text-slate-600">Note: cp -al simulates creating hard links back into the data directory. In production, copy from your off-cluster storage instead.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

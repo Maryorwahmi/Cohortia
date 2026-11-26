@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Core Concept</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Definitions</h3>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li><strong>Producer:</strong> creates and publishes messages; unaware of consumers.</li>
+          <li><strong>Consumer:</strong> retrieves and processes messages; can scale independently.</li>
+          <li><strong>Queue/Topic:</strong> intermediary storage; may support partitions for parallelism.</li>
+          <li><strong>Message:</strong> payload plus metadata; should be immutable and self-contained.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col gap-3">
+        <div class="font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600">Order service publishes an "OrderPlaced" message with order_id, items list, and timestamp. Inventory and billing consumers subscribe and each perform their work independently.</div>
+        <div class="mt-2 text-xs text-slate-500">Misconception: Producers must know consumers — false. They only need the queue endpoint.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Name the four primitives and design message schemas that include an ID and timestamp so consumers can reason about processing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Annotated example message</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">{
+  "message_id": "uuid-1234",
+  "type": "OrderPlaced",
+  "timestamp": "2023-10-01T12:00:00Z",
+  "payload": {
+    "order_id": "ord-9876",
+    "items": [{"sku":"A1","qty":2}, {"sku":"B2","qty":1}],
+    "customer_id": "cust-42"
+  }
+}</pre>
+        <div class="mt-3 text-sm text-slate-600">Explanation: message_id enables idempotency checks; timestamp helps ordering; payload contains the event body. Keep messages small and self-contained to reduce coupling.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+        <div class="mt-2 text-sm text-slate-600">If a consumer crashes after processing but before acknowledging, what should the producer assume? Design with retry and idempotency to handle this uncertainty.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

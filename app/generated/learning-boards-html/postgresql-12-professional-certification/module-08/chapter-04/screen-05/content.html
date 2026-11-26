@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.rule{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">pg_hba.conf</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">What to check in pg_hba.conf</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Correct host/netmask for the client IP range.</li>
+        <li>User and database fields match the incoming connection.</li>
+        <li>Authentication method is appropriate for the client (md5 vs scram-sha-256).</li>
+        <li>Rule order: the first match wins.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Concrete example</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"># problematic order - reject before allow
+host all all 0.0.0.0/0 reject
+host all myuser 192.168.1.0/24 md5
+
+# correct order
+host all myuser 192.168.1.0/24 md5
+host all all 0.0.0.0/0 reject</pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Troubleshooting tips</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal pl-5">
+        <li>Search logs for "no pg_hba.conf entry" messages to see which host and user were rejected.</li>
+        <li>Temporarily add a narrow allow rule above broad rejects to test connectivity safely.</li>
+        <li>Reload the server after edits instead of restarting when possible.</li>
+      </ol>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Placing a broad reject too early, assuming a later allow will fix access, and forgetting to reload after edits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

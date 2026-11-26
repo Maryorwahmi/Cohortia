@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable quotas (ext4)</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold">Step-by-step</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold">1. Edit /etc/fstab</div>
+          <div class="text-xs text-slate-600 mt-1">Add usrquota and/or grpquota to the mount options for the filesystem.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold">2. Remount</div>
+          <div class="text-xs text-slate-600 mt-1">sudo mount -o remount /data/shared to apply options without rebooting.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold">3. Initialize</div>
+          <div class="text-xs text-slate-600 mt-1">Run quotacheck -cug to create or update quota files, then quotaon to enable enforcement.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Quotas require both kernel mount options and on-disk accounting files. Skipping initialization leaves quotas inactive.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-md font-bold">Terminal walkthrough (example commands)</div>
+      <div class="text-xs text-slate-600 mt-2">Follow these commands to enable quotas on /data/shared and set a user limit.</div>
+
+      <div class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+<pre><code># edit /etc/fstab: add 'usrquota' to the options for /data/shared
+sudo mount -o remount /data/shared
+sudo quotacheck -cug /data/shared
+sudo quotaon /data/shared
+sudo edquota -u student
+sudo repquota -u /data/shared</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <div class="rounded-lg bg-amber-50 p-2 text-xs">Common-mistake<br><span class="text-[10px] text-slate-600">Not running quotacheck leaves no quota files and quotaon will fail silently.</span></div>
+        <div class="rounded-lg bg-blue-50 p-2 text-xs">Check<br><span class="text-[10px] text-slate-600">Use repquota and try a controlled write to test enforcement.</span></div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Apply Filters</span>
+    </div>
+
+    <div class="flex gap-6 h-[72vh]">
+      <div class="w-1/2 bg-white rounded-2xl p-5 card flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Attachment and Direction</div>
+        <p class="text-sm text-slate-700 mt-2">Choose a VLAN or an interface, then choose input or output direction. Input inspects arriving packets; output inspects leaving packets.</p>
+
+        <div class="mt-4 grid gap-3">
+          <div class="p-3 rounded-lg bg-white card">Apply to VLAN: set vlans USERS filter input BLOCK_HTTP_TO_SERVERS — affects all VLAN members.</div>
+          <div class="p-3 rounded-lg bg-white card">Apply to interface: set interfaces ge-0/0/1 unit 0 family ethernet-switching filter input BLOCK_HTTP_TO_SERVERS — affects single port.</div>
+          <div class="p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-400">Input vs Output: Input stops packets before switching/routing decisions; output filters on egress may affect forwarded or return packets differently.</div>
+        </div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example check</div>
+            <p class="text-xs text-slate-800">After applying an input filter to USERS, try ping to servers (should pass) and access HTTP (should fail). Use show firewall filter to inspect counters.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-2xl p-5 card flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Directional Scenarios</div>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg p-3 bg-white card">
+            <div class="text-sm font-bold text-slate-700">Scenario: Block HTTP from USERS</div>
+            <div class="text-xs text-slate-600 mt-2">Apply filter as input to USERS VLAN so packets from hosts are dropped before routed to SERVERS.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white card">
+            <div class="text-sm font-bold text-slate-700">Mistake: Wrong direction</div>
+            <div class="text-xs text-slate-600 mt-2">Applying as output on SERVERS may not prevent users from initiating the connection in the way you expect; think about ingress vs egress behaviors.</div>
+          </div>
+        </div>
+
+        <div class="mt-auto text-sm text-slate-700">Plan the attachment point, predict which packets are inspected, then apply and verify. That habit prevents accidental outages from misapplied filters.</div>
+      </div>
+    </div>
+  </div>
+</div>

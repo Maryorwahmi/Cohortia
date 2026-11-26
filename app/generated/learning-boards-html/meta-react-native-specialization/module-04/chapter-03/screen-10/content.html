@@ -1,0 +1,44 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Refactor Demo</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white p-4 border shadow-sm' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='font-bold mb-2'>Before (Fetch)</div>
+      <pre class='rounded-md bg-slate-50 p-3 text-sm'>async function fetchPostsWithFetch() {
+  try {
+    const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    setPosts(data);
+  } catch (err) {
+    // handle errors
+  }
+}</pre>
+    </div>
+
+    <div class='rounded-2xl bg-white p-4 border shadow-sm' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='font-bold mb-2'>After (Axios)</div>
+      <pre class='rounded-md bg-slate-50 p-3 text-sm'>async function fetchPostsWithAxios() {
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+    setPosts(response.data);
+  } catch (err) {
+    // inspect err.response / err.request / err.message
+  }
+}</pre>
+      <div class='text-xs text-slate-600 mt-2'>Notice the removal of manual ok checks and json parsing; response.data is ready to use.</div>
+    </div>
+  </div>
+
+  <div class='mt-4 rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500'>
+    <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro tip</div>
+    <div class='text-sm text-slate-800'>After refactor, remove redundant error branches and move shared headers into an interceptor or instance.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

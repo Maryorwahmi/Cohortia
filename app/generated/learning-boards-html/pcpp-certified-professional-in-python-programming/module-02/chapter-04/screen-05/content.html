@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre { white-space: pre-wrap; tab-size: 2; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Methods in attrs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border">
+      <div class="text-sm font-bold text-slate-700">Code walkthrough</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>def real_init(self, name, age):
+  # multi-line initializer keeps clarity
+  self.name = name
+  self.age = age
+
+def full_info(self):
+  return f"{self.name} ({self.age}) - status: {self.default_status}"
+
+attrs = {
+  'default_status': 'Active',
+  '__init__': real_init,
+  'full_info': full_info
+}
+User = type('User', (object,), attrs)
+
+u = User('Sam', 28)
+print(u.full_info())
+</code></pre>
+      <div class="text-xs text-slate-600 mt-2">This preserves function names and makes debugging clearer than embedding everything in a lambda.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-6">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Concepts & tips</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Functions become methods through the descriptor protocol and bind self at call time.</li>
+        <li>Lambdas are fine for short single-expression methods like simple getters or transformations.</li>
+        <li>Prefer a named def when you want clear __name__, docstrings, and stack traces.</li>
+        <li>Assigning pre-defined functions into attrs helps tooling and test diagnostics.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <p class="text-sm text-slate-800 mt-1">Putting a function that closes over external mutable state can produce surprising instance behavior. Prefer explicit parameters or copy values inside __init__.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

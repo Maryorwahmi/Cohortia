@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Network ACLs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">NACL fundamentals</div>
+      <p class="text-sm text-slate-600 mt-2">NACLs are stateless subnet-level firewalls processed in rule order. They are appropriate for broad filtering or explicit deny rules that apply across a subnet.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs text-slate-500">Rule ordering</div>
+          <div class="text-sm text-slate-700 mt-1">Rules are evaluated lowest-numbered first; the first match applies. Include explicit deny or allow rules then a final deny all if required.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3 mt-3">
+          <div class="text-xs text-slate-500">Return traffic</div>
+          <div class="text-sm text-slate-700 mt-1">Because NACLs are stateless, you must add outbound rules to permit ephemeral ports for return traffic when allowing inbound connections.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pair NACLs with Security Groups for layered defense: NACLs for broad subnet rules, SGs for per-instance control.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Visual: NACL example</div>
+      <pre style="white-space:pre-wrap;tab-size:2;margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;padding:8px;background:#071133;color:#e6eef8;border-radius:8px;overflow:auto"><code># Private Subnet NACL
+Inbound Rules (ordered):
+  100 Allow TCP 3306 10.0.1.0/24  # DB from web subnet
+  110 Allow TCP 22 203.0.113.10/32 # Admin SSH
+  *    Deny all
+Outbound Rules:
+  100 Allow TCP 1024-65535 10.0.1.0/24 # Ephemeral return to web
+  110 Allow TCP 80,443 0.0.0.0/0 # Outbound updates via NAT
+  *    Deny all
+</code></pre>
+
+      <div class="rounded-lg bg-rose-50 p-3 mt-3">
+        <div class="text-[10px] uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-rose-700 mt-1">Forgetting outbound rules for ephemeral ports blocks established sessions because NACLs do not track state.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

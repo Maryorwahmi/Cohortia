@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Common Pitfalls</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[75%]">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Operational errors to check</div>
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc ml-4 space-y-2">
+          <li>Firewall: ensure ports 80, 443, and 8080 are open for HAProxy listeners.</li>
+          <li>SELinux: add port and file contexts so HAProxy can bind and read certs.</li>
+          <li>Redundancy: use Keepalived or similar to avoid single HAProxy failure.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-sm">
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">Real lab failure: HAProxy won't start after adding ssl crt — check certificate path and SELinux file context first.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm mono">
+      <div class="text-sm font-bold text-slate-800">Troubleshooting checklist</div>
+      <div class="mt-3 text-xs text-slate-600">Run these commands when debugging listener or start failures.</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] text-sm">
+<pre><code>sudo systemctl status haproxy
+ss -tulpn | grep haproxy
+sudo firewall-cmd --list-all
+sudo ausearch -m avc -ts recent</code></pre>
+      </div>
+
+      <div class="mt-3 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always combine configuration work with network and OS checks: firewall, SELinux, and HA design prevent operational outages.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

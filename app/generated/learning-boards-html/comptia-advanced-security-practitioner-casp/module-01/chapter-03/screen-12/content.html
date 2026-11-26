@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">SecurePortal Lab</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">High-level diagram (text)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">[Public Internet]
+    |
+    V
+[Load Balancer] (TCP/443)
+    |
+    V
+[AWS Web Tier - Public Subnet] (TCP/8080 from LB)
+    |
+    V
+[AWS App Tier - Private Subnet] (TCP/8080 from Web)
+    |
+    V
+[On-Prem DB - Private] (TCP/5432 via Direct Connect)</pre>
+      <div class="mt-3 text-xs text-slate-600">Instructions: map each flow to a control, enable flow logs, test with curl/telnet, then enforce progressively.</div>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Communication & controls</div>
+      <div class="mt-3 space-y-2 text-sm text-slate-700">
+        <div><span class="font-semibold">LB → Web</span>: TCP/443 — AWS SG on LB allows 0.0.0.0/0 inbound; Web SG allows inbound from LB SG on 443.</div>
+        <div><span class="font-semibold">Web → App</span>: TCP/8080 — App SG allows inbound from Web SG on 8080.</div>
+        <div><span class="font-semibold">App → DB</span>: TCP/5432 — On-prem firewall allows App CIDR via Direct Connect; App SG allows outbound to DB CIDR on 5432.</div>
+      </div>
+      <div class="mt-auto pt-4 text-xs text-slate-600">Validation: enable VPC flow logs, perform curl/telnet probes, and review denied flows before enforcement.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

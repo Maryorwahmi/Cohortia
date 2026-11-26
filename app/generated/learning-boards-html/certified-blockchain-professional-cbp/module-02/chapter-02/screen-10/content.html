@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Conceptual Key Generation</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900">Generate a conceptual private key</h3>
+      <p class="text-sm text-slate-600 mt-3">This example uses secure randomness and hashing as a conceptual demonstration. Do not use this code for real cryptocurrency.</p>
+
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border code">
+        <pre><code># THIS IS A SIMPLIFIED CONCEPTUAL EXAMPLE.
+# Real blockchain key generation uses ECC and specific libraries.
+import secrets
+from hashlib import sha256
+
+def generate_private_key_concept():
+  """Generates a conceptual 'private key' as a 32-byte hex string."""
+  return secrets.token_hex(32)  # 32 bytes = 256 bits (hex)
+
+def derive_public_key_concept(private_key_hex):
+  """Conceptually derives a 'public key' by hashing the private key hex."""
+  private_key_bytes = bytes.fromhex(private_key_hex)
+  return sha256(private_key_bytes).hexdigest()
+
+# Example usage
+my_private = generate_private_key_concept()
+print(f"Private (HEX): {my_private}")
+my_public = derive_public_key_concept(my_private)
+print(f"Derived Public (HEX): {my_public}")</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Exercise: copy the generated private hex and call the derivation function again to confirm determinism. Then change one character and observe the completely different result.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li>secrets.token_hex produces high-entropy random bytes conceptually similar to a private key.</li>
+        <li>Hashing shows deterministic output; real public key derivation uses ECC point multiplication instead.</li>
+        <li>Do not use simplified code to protect real funds; use vetted crypto libraries.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Instructor note</div>
+          <p class="text-xs font-medium text-slate-800">This example is for learning determinism, not for production key generation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

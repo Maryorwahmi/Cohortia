@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">DNS failures block name-based access</h3>
+      <p class="text-sm text-slate-700 mt-2">Even with valid IP connectivity, inability to resolve domain names prevents normal browsing and access to named internal resources.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Common causes</div>
+        <ul class="list-disc pl-4 text-sm text-slate-700">
+          <li>Incorrect DNS server configured on client</li>
+          <li>DNS server offline or overloaded</li>
+          <li>Firewall blocking UDP/TCP port 53</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-sm text-slate-800">Don't assume DNS is always the problem when a site fails — first verify you can reach an external IP to separate routing from DNS issues.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example checks</div>
+      <pre class="bg-slate-50 p-3 rounded-md">C:\&gt; nslookup google.com
+Server:  192.168.1.10
+Address: 192.168.1.10#53
+
+Name:    google.com
+Address: 172.217.160.142
+
+C:\&gt; nslookup google.com 8.8.8.8
+Server:  dns.google
+Address: 8.8.8.8#53
+
+Name:    google.com
+Address: 172.217.160.142</pre>
+
+      <div class="mt-3 text-sm text-slate-700">If the first command fails but the second succeeds, the client's configured DNS server is the problem. If both fail but ping to 8.8.8.8 works, firewall blocking port 53 is suspect.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-bold">Check list</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+            <li>Ping a known IP to confirm routing</li>
+            <li>Run nslookup against the configured server</li>
+            <li>Test against a public resolver to isolate the issue</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Lab Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">R1, R2, R3 Broadcast Segment</h3>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Initial R1 config</div>
+          <pre class="mt-2 bg-slate-900 text-slate-50 rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# R1 Initial Configuration
+edit interfaces
+set ge-0/0/0 unit 0 family inet address 192.168.1.1/24
+set lo0 unit 0 family inet address 1.1.1.1/32
+top
+edit protocols ospf
+set router-id 1.1.1.1
+set area 0.0.0.0 interface ge-0/0/0.0
+commit and-quit
+          </pre>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Priority changes</div>
+          <pre class="mt-2 bg-slate-900 text-slate-50 rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# R1 Priority Change
+edit protocols ospf
+set area 0.0.0.0 interface ge-0/0/0.0 priority 200
+commit and-quit
+          </pre>
+          <div class="text-xs text-slate-500 mt-2">Set R2 to 150 and R3 to 0 following the same pattern. Then clear neighbors to force election.</div>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</div>
+          <pre class="mt-2 bg-slate-900 text-slate-50 rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+show ospf interface detail
+clear ospf neighbor all
+          </pre>
+          <div class="text-xs text-slate-500 mt-2">Use these commands to confirm DR and BDR after the controlled re-election.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/3 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Topology</div>
+        <div class="text-sm text-slate-700 mt-2">R1: 192.168.1.1, lo0:1.1.1.1; R2:192.168.1.2 lo0:2.2.2.2; R3:192.168.1.3 lo0:3.3.3.3. All in Area 0.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Planning note</div>
+        <div class="text-sm text-slate-700 mt-2">Perform priority changes and clears during maintenance windows. Document expected DR/BDR results and rollbacks.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

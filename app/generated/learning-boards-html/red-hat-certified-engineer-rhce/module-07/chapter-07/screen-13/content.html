@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;padding:10px;border-radius:8px;background:#0f172a;color:#e6eef8}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 7.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on: CI Integration</span>
+    </div>
+  </div>
+
+  <div class="flex-grow grid grid-cols-2 gap-6">
+    <div class="rounded-xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter inventory</div>
+      <pre><code># inventory/hosts
+[webservers]
+localhost ansible_connection=local</code></pre>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Sample playbook (site.yml)</div>
+      <pre><code>&#45;&#45;&#45;
+- name: Deploy a simple Nginx web server
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Ensure Nginx package is installed
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx service is running and enabled
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Deploy a custom index.html
+      ansible.builtin.copy:
+        content: "&lt;h1&gt;Hello from Ansible CI/CD!&lt;/h1&gt;"
+        dest: /usr/share/nginx/html/index.html
+        mode: '0644'
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Simulate CI checks</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div class="p-3 rounded-lg bg-blue-50">Syntax check: run Ansible's syntax verification on the playbook to catch parsing errors.</div>
+        <div class="p-3 rounded-lg bg-violet-50">Linting: run ansible-lint against the playbook and roles to detect style issues.</div>
+        <div class="p-3 rounded-lg bg-emerald-50">Dry run: execute a check-mode run with diff against the inventory to preview changes without applying them.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Practice task</div>
+        <div class="text-sm text-slate-700">Make a small edit to index content, run the dry run again, and observe the diff to confirm the intended change before committing.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

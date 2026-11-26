@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Estimating with web3.js</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">What the script does</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Fetch the latest block to read baseFeePerGas (in Wei).</li>
+        <li>Define recommended low and high priority fees in Gwei and convert to Wei.</li>
+        <li>Compute maxFeePerGas as baseFee plus priority fee and multiply by gasLimit to estimate total cost.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Developer tip</div>
+        <div class="text-sm font-semibold text-slate-800 mt-1">Always convert units</div>
+        <p class="text-xs text-slate-600 mt-2">Use web3.utils.toWei/fromWei. Store and compute in Wei to avoid precision issues, then format Ether for the user.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Code (estimateGas.js)</div>
+      <pre class="mt-3 p-3 rounded bg-slate-900 text-white"><code>const Web3 = require('web3');
+
+const INFURA_PROJECT_ID = 'YOUR_INFURA_PROJECT_ID'; 
+const providerUrl = `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`;
+const web3 = new Web3(providerUrl);
+
+async function getGasEstimates() {
+  try {
+    console.log('Fetching EIP-1559 gas price estimates...');
+
+    // Get the latest block to find the base fee
+    const latestBlock = await web3.eth.getBlock('latest');
+    const baseFeePerGas = BigInt(latestBlock.baseFeePerGas);
+
+    // Let's simulate a recommended priority fee range (in Wei)
+    const recommendedLowPriorityFee = web3.utils.toWei('1', 'gwei'); // 1 Gwei
+    const recommendedHighPriorityFee = web3.utils.toWei('3', 'gwei'); // 3 Gwei
+
+    // Example: Calculate cost for a simple Ether transfer (21,000 gas limit)
+    const gasLimitSimpleTransfer = 21000;
+
+    const maxFeePerGasLow = baseFeePerGas + BigInt(recommendedLowPriorityFee);
+    const totalCostLow = BigInt(gasLimitSimpleTransfer) * maxFeePerGasLow;
+
+    console.log(`Base Fee Per Gas: ${web3.utils.fromWei(baseFeePerGas.toString(), 'gwei')} Gwei`);
+    console.log(`Total Estimated Cost (low tip): ${web3.utils.fromWei(totalCostLow.toString(), 'ether')} ETH`);
+
+  } catch (error) {
+    console.error('Error fetching gas estimates:', error);
+  }
+}
+
+getGasEstimates();</code></pre>
+
+      <div class="mt-3 text-xs text-slate-600">Reminder: replace YOUR_INFURA_PROJECT_ID and run node estimateGas.js. Observe how baseFeePerGas varies across runs and how recommended priority fees affect the estimate.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

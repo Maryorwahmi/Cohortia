@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulated data loss lab</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">SQL steps</div>
+        <pre class="mt-3 bg-slate-900 text-white p-3 rounded-lg mono text-sm" style="white-space:pre-wrap;tab-size:2;">-- Record time before destructive change
+SELECT NOW(); -- TIMESTAMP_BEFORE_DELETE
+
+CREATE TABLE sensitive_data (id SERIAL PRIMARY KEY, info TEXT, created_at TIMESTAMP DEFAULT NOW());
+INSERT INTO sensitive_data (info) VALUES ('Critical record 1'), ('Critical record 2');
+
+-- Wait a few seconds for WALs to archive
+DELETE FROM sensitive_data;
+SELECT NOW(); -- TIMESTAMP_AFTER_DELETE
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">Keep the recorded timestamp for recovery_target_time when building recovery.conf.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">recovery.conf example</div>
+        <pre class="mt-3 bg-slate-900 text-white p-3 rounded-lg mono text-sm" style="white-space:pre-wrap;tab-size:2;"># recovery.conf
+restore_command = 'cp /mnt/pg_wal_archive/%f %p'
+recovery_target_time = 'TIMESTAMP_BEFORE_DELETE'
+recovery_target_action = promote
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">Replace TIMESTAMP_BEFORE_DELETE with the value you recorded before running DELETE. Test restore_command manually first.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Lab validation proves your archive chain and restore_command work; without this verification you risk failed recoveries when they matter most.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

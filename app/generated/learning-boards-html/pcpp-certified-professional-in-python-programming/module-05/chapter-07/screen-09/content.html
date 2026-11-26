@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.7</span>
+      <span>›</span>
+      <span class="text-slate-700">asyncio echo server</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 card p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-700 mb-2">Server code excerpt</div>
+      <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+# asyncio_echo_server.py (excerpt)
+import asyncio
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+async def handle_echo(reader, writer):
+    addr = writer.get_extra_info('peername')
+    try:
+        while True:
+            data = await reader.read(1024)
+            if not data:
+                break
+            message = data.decode().strip()
+            writer.write(data)
+            await writer.drain()
+    finally:
+        writer.close()
+        await writer.wait_closed()
+        </pre>
+    </div>
+
+    <div class="col-span-5 card p-4">
+      <div class="text-sm font-bold text-slate-700 mb-2">Runtime behaviour</div>
+      <div class="text-sm text-slate-600">Each incoming connection spawns a coroutine handled by the loop. Await points let other coroutines run while I/O completes, enabling many concurrent handlers on a single thread.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Pitfall</div>
+      <div class="text-sm text-rose-600">Forgetting await writer.drain prevents backpressure and can cause large write buffers. Always await drain in long-lived servers.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

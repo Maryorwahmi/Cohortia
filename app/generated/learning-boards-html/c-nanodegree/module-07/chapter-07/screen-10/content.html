@@ -1,0 +1,35 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>std::weak_ptr</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Concept</div>
+      <h3 class='text-xl font-bold text-slate-900 mb-2'>Observe without ownership</h3>
+      <p class='text-sm text-slate-700 mb-3'>weak_ptr does not affect reference count; lock to obtain a temporary shared_ptr if the object survives.</p>
+
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-700 mb-1'>Pattern</div>
+      <p class='text-sm text-slate-700'>Use weak_ptr for cache entries, observers, and back-references in graphs to avoid cycles.</p>
+    </div>
+
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Safe access idiom</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+std::weak_ptr&lt;A&gt; w = ...;
+auto s = w.lock();
+if (s) {
+  s->do_something(); // safe while s is alive
+} else {
+  // object already destroyed
+}
+</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Misconception: weak_ptr magically prevents races — it only prevents ownership cycles; you still need synchronization when using the obtained shared_ptr across threads.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

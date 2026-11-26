@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Kafka Producer Example</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Java Producer (example)</div>
+      <div class="text-sm text-slate-600 mt-2">This snippet shows bootstrap servers, serializers, a topic, and a send with a callback for success or failure.</div>
+
+      <pre class="mt-4 rounded-md bg-slate-900 text-white p-4 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// Example: Java Kafka Producer sending a message
+Properties props = new Properties();
+props.put("bootstrap.servers", "kafka-broker-1:9092,kafka-broker-2:9092");
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+Producer&lt;String, String&gt; producer = new KafkaProducer&lt;&gt;(props);
+String topic = "user_clicks";
+String key = "user_id_123"; // Optional key for partitioning
+String value = "{\"event_type\": \"click\", \"timestamp\": " + System.currentTimeMillis() + ", \"page\": \"homepage\"}";
+
+producer.send(new ProducerRecord&lt;&gt;(topic, key, value), (metadata, exception) -&gt; {
+    if (exception == null) {
+        System.out.println("Message sent successfully to topic " + metadata.topic() + " partition " + metadata.partition() + " offset " + metadata.offset());
+    } else {
+        exception.printStackTrace();
+    }
+});
+producer.close();
+      </pre>
+
+      <div class="mt-3 text-xs text-slate-500">Note: escape characters are shown for clarity. Configure batching and retries in producer properties for high throughput.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Key producer concerns</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Batching and compression to reduce network overhead and increase throughput.</li>
+        <li>Retries and backoff to handle transient failures without losing messages.</li>
+        <li>Idempotence and transactional options for stricter delivery semantics.</li>
+        <li>Choosing keys to preserve ordering guarantees where necessary.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Use asynchronous sends with well-tested retry/backoff settings and monitor retry rates to balance latency and durability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

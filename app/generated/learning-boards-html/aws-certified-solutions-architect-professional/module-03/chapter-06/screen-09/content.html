@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Pilot Light Architecture</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-[calc(100%-70px)]">
+    <div class="col-span-8 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase font-bold text-slate-500">Architecture</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Pilot Light for EC2 + RDS</div>
+      <div class="mt-3 text-sm text-slate-600">Keep a read replica of the RDS database and copy AMIs to the DR region. Pre-create networking, IAM roles, and minimal services to speed failover.</div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-bold">Pre-provisioned items</div>
+          <ul class="list-disc pl-5 text-sm text-slate-600 mt-2">
+            <li>VPC, subnets, routing, and security groups</li>
+            <li>IAM roles for instances and backup operations</li>
+            <li>Target groups and load balancer configuration</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-bold">DR runtime actions</div>
+          <ul class="list-disc pl-5 text-sm text-slate-600 mt-2">
+            <li>Promote read replica to primary</li>
+            <li>Launch EC2 instances from copied AMIs</li>
+            <li>Update DNS and scale application servers</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-4 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase font-bold text-slate-500">Example</div>
+      <div class="text-sm text-slate-600 mt-2">RDS read replica in us-west-2; AMI copy scheduled nightly. During a disaster promote the replica and launch two t3.medium instances from the latest AMI.</div>
+      <div class="mt-4 text-sm font-bold">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-1">Failing to replicate secrets or parameter store values to the DR region; application fails even when database and AMIs are available.</div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Automate AMI copies and store the latest AMI ID in a central location accessible to DR runbooks.</p>
+      </div>
+    </div>
+  </div>
+</div>

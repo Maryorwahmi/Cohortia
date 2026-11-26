@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom pallet activity</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Checklist</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Connect to node with ApiPromise and WsProvider.</li>
+        <li>Initialize Keyring and load Alice.</li>
+        <li>Construct the extrinsic: api.tx.&lt;yourPallet&gt;.&lt;yourCall&gt;(...).</li>
+        <li>Sign and send, watch events and status until finalization.</li>
+        <li>Decode dispatchError if present, then unsub() and disconnect.</li>
+      </ol>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This activity practices the full end-to-end flow and confirms runtime effects by observing emitted events.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Starter snippet</div>
+      <pre class="mono bg-slate-50 text-slate-900 rounded-md p-3 mt-3" style="white-space:pre-wrap;tab-size:2;"><code>// customTx.js (concept)
+const { ApiPromise, WsProvider } = require('@polkadot/api');
+const { Keyring } = require('@polkadot/keyring');
+
+async function main(){
+  const api = await ApiPromise.create({ provider: new WsProvider('ws://127.0.0.1:9944') });
+  const keyring = new Keyring({ type: 'sr25519' });
+  const alice = keyring.addFromUri('//Alice');
+  const custom = api.tx.templateModule.doSomething(123);
+  const unsub = await custom.signAndSend(alice, ({ status, events, dispatchError }) => { /* handle as shown earlier */ });
+}
+
+main().catch(console.error);
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Replace templateModule.doSomething with your pallet and call. Confirm the event emitted by your pallet appears in the callback logs.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

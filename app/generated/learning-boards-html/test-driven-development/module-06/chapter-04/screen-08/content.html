@@ -1,0 +1,39 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <div class="mb-3 flex items-center justify-between">
+    <div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-2xl font-bold text-slate-900">Reverse-List Example with Hypothesis</div>
+      <div class="text-sm text-slate-600 mt-1">A minimal property test that exercises generators and shrinking.</div>
+    </div>
+    <div class="text-sm text-slate-500">Eyebrow: Code Walkthrough</div>
+  </div>
+
+  <div class="rounded-xl bg-slate-50 p-4 border card-border h-full flex flex-col">
+    <div class="font-semibold text-slate-800">Code</div>
+    <pre class="mt-2 bg-slate-900 text-white rounded p-3 text-sm" style="white-space:pre-wrap; tab-size:2"><code>from hypothesis import given, strategies as st
+
+def reverse_list(items):
+    return items[::-1]  # Simple implementation
+
+@given(st.lists(st.integers()))
+def test_reverse_twice_is_original(original_list):
+    # Property: reversing twice should return the original
+    assert reverse_list(reverse_list(original_list)) == original_list
+</code></pre>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Generator</div>
+        <div class="text-sm text-slate-700 mt-1">st.lists(st.integers()) produces many list shapes.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Property</div>
+        <div class="text-sm text-slate-700 mt-1">reverse twice equals identity on lists.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Outcome</div>
+        <div class="text-sm text-slate-700 mt-1">Hypothesis will try many lists and shrink any failing case.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

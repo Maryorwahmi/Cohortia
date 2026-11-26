@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Replication</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">When to replicate</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>Use replication for systems requiring minimal data loss or rapid failover.</div>
+        <div>Choose the replication layer based on recovery needs and complexity: storage, database, or application.</div>
+        <div>Always secure replication channels and use dedicated replication accounts with limited privileges.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Important</div>
+          <p class="text-xs font-medium text-slate-800">Replication is not a substitute for off-site backups because it mirrors both good and bad data.</p>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm text-slate-600">Conceptual setup</div>
+      <pre><code>&#45;&#45; Primary configuration: enable WAL and archive
+wal_level = replica
+archive_mode = on
+archive_command = 'cp %p /path/to/wal_archive/%f'
+
+&#45;&#45; Create a replication user
+CREATE ROLE replica_user WITH REPLICATION LOGIN PASSWORD 'secure_password';
+
+&#45;&#45; On standby: take base backup and start streaming
+# pg_basebackup -h primary_db_ip -U replica_user -D /var/lib/postgresql/14/main -F p -X stream -C -S replication_slot_name -P
+
+&#45;&#45; Configure standby to connect for streaming
+# primary_conninfo = 'host=primary_db_ip port=5432 user=replica_user password=secure_password'
+# hot_standby = on</code></pre>
+      <div class="mt-3 text-xs text-slate-600">This block shows conceptual commands. Use secure transport and dedicated accounts; protect WAL archives as part of backup inventory.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

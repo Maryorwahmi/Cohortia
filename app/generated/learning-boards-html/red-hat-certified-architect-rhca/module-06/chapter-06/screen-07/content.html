@@ -1,0 +1,11 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>    <span>›</span>    <span>Chapter 6.6</span>    <span>›</span>    <span class="text-slate-700">Replicated Volume</span>  </div>  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">    <div class="w-1/2 pr-4 flex flex-col">      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Definition</div>      <h3 class="text-xl font-bold text-slate-800 mt-2">Replica volumes for high availability</h3>      <p class="text-sm text-slate-600 mt-3">A replicated volume keeps identical copies of data on each replica brick to provide redundancy and survive node failures.</p>      <div class="mt-4 rounded-lg p-3 bg-slate-50 card-border mono">        <pre class="whitespace-pre-wrap"><code># Create a replica 2 volume named 'rep-volume'
+sudo gluster volume create rep-volume replica 2 \
+  gluster-node01.example.com:/data/brick1 \
+  gluster-node02.example.com:/data/brick1 force
+
+# Start the volume
+sudo gluster volume start rep-volume
+
+# Verify
+sudo gluster volume info rep-volume
+sudo gluster volume status rep-volume</code></pre>      </div>    </div>    <div class="w-1/2 pl-4 flex flex-col">      <div class="rounded-lg p-3 bg-white card-border">        <div class="text-sm font-semibold text-slate-700">Concrete example</div>        <p class="text-sm text-slate-600 mt-2">Two nodes, each providing one brick path. After creating and starting, confirm the volume is online and accessible from a client.</p>      </div>      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>        <p class="text-sm font-medium text-slate-800">Replica volumes protect data by duplication; plan capacity accordingly and always use unique brick paths on separate nodes.</p>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

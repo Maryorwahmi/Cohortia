@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; padding:12px; background:#0f172a;color:#e6eef8;border-radius:8px;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 8.9</span>
+    <span>›</span>
+    <span class="text-slate-700">MACsec Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border">
+      <h4 class="text-lg font-bold text-slate-800">Lab objective</h4>
+      <p class="text-sm text-slate-600 mt-2">Secure GigabitEthernet1/0/1 between two Catalyst 9300 switches using MACsec with a pre-shared key.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Steps</div>
+        <ol class="text-sm text-slate-600 mt-2 list-decimal pl-5">
+          <li>Create key chain MACSEC_KEYCHAIN with key 0 and key-string.</li>
+          <li>Create mka policy MY_MKA_POLICY and set key-server priority.</li>
+          <li>Configure interface as trunk, apply mka pre-shared-key and mka policy, enable macsec.</li>
+          <li>Save configuration and verify.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border">
+      <h4 class="text-lg font-bold text-slate-800">Reference CLI</h4>
+      <pre class="code">enable
+configure terminal
+
+! Step 1: Create key chain
+key chain MACSEC_KEYCHAIN
+ key 0
+  key-string CiscoMACsec123
+
+! Step 2: Create MKA policy
+mka policy MY_MKA_POLICY
+ key-server priority 100
+
+! Step 3: Configure interface
+interface GigabitEthernet1/0/1
+ description Link to peer (MACsec Enabled)
+ switchport mode trunk
+ mka pre-shared-key key-chain MACSEC_KEYCHAIN
+ mka policy MY_MKA_POLICY
+ macsec
+ no shutdown
+
+end
+write memory</pre>
+    </div>
+
+    <div class="col-span-2 mt-4">
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Mirror the configuration exactly on both ends. Use show commands right after configuring to confirm MKA sessions and MACsec status.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">Module 6 › Chapter 6.2 › Hands-on Activity</div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Step-by-step</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 mt-3 space-y-2">
+        <li>Create an IAM user DevOpsEngineer and enable a console login profile if required.</li>
+        <li>Save the EC2 conditional policy JSON to ec2-conditional-policy.json with your IP range.</li>
+        <li>Run the create-policy command and note the policy ARN.</li>
+        <li>Attach the policy to DevOpsEngineer and test EC2 actions from inside and outside the IP range.</li>
+        <li>Generate the IAM credential report and inspect last used dates and MFA status.</li>
+      </ol>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always validate conditional policies from both matching and non-matching contexts and inspect the credential report after tests.</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Policy JSON and commands</div>
+      <div class="rounded-lg bg-white border card-border p-3 mb-3">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size: 13px;"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "ec2:RunInstances",
+        "ec2:TerminateInstances",
+        "ec2:StartInstances",
+        "ec2:StopInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": "YOUR_CORPORATE_IP_RANGE"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:ListUsers",
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+      </div>
+      <div class="text-sm text-slate-700">Commands (example):</div>
+      <div class="rounded-lg bg-slate-50 border card-border p-3 mt-2">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size: 13px;"><code>aws iam create-policy --policy-name DevOpsEC2ConditionalAccess --policy-document file://ec2-conditional-policy.json
+aws iam attach-user-policy --user-name DevOpsEngineer --policy-arn arn:aws:iam::YOUR_ACCOUNT_ID:policy/DevOpsEC2ConditionalAccess
+aws iam generate-credential-report
+aws iam get-credential-report --query 'Content' --output text | base64 --decode &gt; credential_report.csv</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Testing note: Replace YOUR_CORPORATE_IP_RANGE with a controlled range for testing and revert to a restrictive range for production. Observe that iam:ListUsers remains available from any IP because it has no condition.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

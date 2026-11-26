@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;} .panel{border-color:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Broadcast Joins</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0 rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Broadcast the small table to every executor</h3>
+      <p class="text-sm text-slate-600 mt-3">Use broadcast for small lookup tables to avoid shuffles on the large table.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-sm font-semibold text-slate-700">When to use</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc ml-4 space-y-1">
+          <li>Small dimension tables used in joins with large fact tables.</li>
+          <li>When eliminate shuffle significantly reduces job time.</li>
+          <li>When the small table fits comfortably in executor memory.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0 rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Example</div>
+      <pre class="bg-slate-50 rounded-lg p-3 mt-3"><code>from pyspark.sql.functions import broadcast
+
+large_transactions_df = spark.read.format("delta").load("/mnt/delta/transactions")
+small_products_df = spark.read.format("delta").load("/mnt/delta/products")
+
+joined_df = large_transactions_df.join(broadcast(small_products_df), "product_id")
+joined_df.display()</code></pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">Inspect df.explain() to ensure Exchange steps are removed for this join.</p>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-rose-700">Pitfall</div>
+          <div class="text-xs text-slate-600 mt-2">Broadcasting a large table causes memory pressure; do not over-broadcast.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,69 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Code Walkthrough</span>
+      <span>›</span>
+      <span class='text-slate-700'>Parameterizing Notebooks</span>
+    </div>
+    <div class='flex gap-6 h-[68%]'>
+      <div class='w-1/2 bg-white rounded-xl p-4 border border-slate-100 overflow-hidden'>
+        <div class='text-lg font-bold text-slate-900 mb-3'>Example: ingest_raw_data_task</div>
+        <div class='text-sm text-slate-700 mb-2'>This notebook reads widget values for source_path, target_table_name, and processing_date, then ingests CSV and writes a Delta table.</div>
+        <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:240px;'>
+# Databricks Notebook: ingest_raw_data_task
+from pyspark.sql import SparkSession
+from datetime import datetime
+
+spark = SparkSession.builder.getOrCreate()
+
+# Get parameters
+source_path = dbutils.widgets.get('source_path')
+target_table_name = dbutils.widgets.get('target_table_name')
+processing_date = dbutils.widgets.get('processing_date')  # YYYY-MM-DD
+
+print(f'Ingesting data for date: {processing_date}')
+print(f'Source Path: {source_path}')
+print(f'Target Table: {target_table_name}')
+
+try:
+    raw_df = spark.read.csv(source_path, header=True, inferSchema=True)
+    raw_df = raw_df.withColumn('processing_date', raw_df.col('registration_date').cast('date'))
+
+    spark.sql(f"CREATE DATABASE IF NOT EXISTS bronze")
+    raw_df.write.format('delta').mode('overwrite').option('mergeSchema', 'true').saveAsTable(target_table_name)
+
+    print(f'Successfully ingested raw data to {target_table_name}')
+except Exception as e:
+    print(f'Ingestion task failed: {e}')
+    raise
+</pre>
+      </div>
+      <div class='w-1/2 bg-white rounded-xl p-4 border border-slate-100 overflow-hidden'>
+        <div class='text-lg font-bold text-slate-900 mb-2'>How to verify</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Set default test parameters in the job, such as a fixed processing_date, and run the job.</li>
+          <li>Inspect job logs and printed messages for the parameter values to ensure they were passed correctly.</li>
+          <li>Confirm the target table exists in the Data Explorer after successful run.</li>
+        </ul>
+        <div class='mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Misconception</div>
+          <div class='text-sm text-slate-700'>Do not hardcode environment-specific values in the notebook; parameters make the notebook portable between test and production.</div>
+        </div>
+      </div>
+    </div>
+    <div class='mt-4 grid grid-cols-3 gap-3'>
+      <div class='rounded-xl p-3 bg-white border-l-4 border-l-emerald-500'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <div class='text-sm font-medium text-slate-800'>Use task parameters and widget reads to pass run-specific values and keep code reusable.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white border'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Try this</div>
+        <div class='text-sm text-slate-700'>Create widgets for path and date, then update job parameters to run for different days without changing code.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white border'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Check</div>
+        <div class='text-sm text-slate-700'>Does the notebook print the parameter values you expect in the run logs?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

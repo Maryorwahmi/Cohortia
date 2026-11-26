@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f1724;color:#e6eef8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px;border-radius:8px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">archive_command</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Principles of a good archive_command</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Return zero only on successful copy.</li>
+        <li>Avoid overwriting existing files unless intended.</li>
+        <li>Run as the postgres OS user with correct permissions.</li>
+      </ul>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Warning</div>
+          <p class="text-xs font-medium text-slate-800">A failing archive_command will cause PostgreSQL to retry indefinitely and can fill pg_wal.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example safe command</div>
+      <div class="mt-2 code" style="min-height:120px"><code># postgresql.conf example
+archive_command = 'test ! -f /mnt/pg_wal_archive/%f && cp %p /mnt/pg_wal_archive/%f'
+# Ensures we don't overwrite an existing archived WAL file.
+</code></div>
+
+      <div class="mt-3 text-xs text-slate-600">Test this command manually as the postgres user and verify exit codes. For cloud targets, prefer client tools that return proper exit codes.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

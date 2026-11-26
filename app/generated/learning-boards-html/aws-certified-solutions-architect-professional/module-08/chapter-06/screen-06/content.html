@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Implementation</span>
+    <span>›</span>
+    <span class="text-slate-700">Flask on EC2</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Code example</div>
+      <div class="mt-3 text-sm text-slate-700">This snippet configures the X-Ray recorder and adds middleware to Flask so requests are traced.</div>
+
+      <pre class="mt-3 rounded-lg bg-slate-50 p-3 mono text-sm" style="white-space:pre-wrap;tab-size:2;">
+# app.py
+from flask import Flask
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core.async_context import AsyncContext
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+import requests
+
+app = Flask(__name__)
+
+# Configure X-Ray recorder
+xray_recorder.configure(service='MyWebApp', sampling=False, context=AsyncContext())
+XRayMiddleware(app, xray_recorder)
+
+@app.route('/')
+def hello_world():
+  with xray_recorder.in_segment('external_call'):
+    response = requests.get('https://api.example.com/data')
+    data = response.json()
+  return f"Hello, World! Data: {data}"
+</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Note: run the X-Ray daemon on the host so the SDK can send segments to it for buffering and forwarding.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Operational notes</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Ensure the daemon process can reach the X-Ray service and has IAM permissions to put trace segments.</li>
+        <li>Set sampling judiciously to capture representative traces without excess cost.</li>
+        <li>Use async context for threaded web servers so traces remain correct across threads.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Missing daemon or wrong network permissions results in no traces reaching the console even though the SDK is active.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Instrument code with the SDK and run the daemon to reliably collect traces from EC2 and containers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

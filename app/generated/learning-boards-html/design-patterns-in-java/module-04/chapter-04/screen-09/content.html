@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #ffffff; }
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    pre.code { background:#0b1220;color:#e6eef8;padding:12px;border-radius:12px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px;white-space:pre-wrap;tab-size:2; }
+  </style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Protection Proxy</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+      <div class="w-1/2 pr-4">
+        <div class="text-lg font-bold text-slate-800">Starter code</div>
+        <div class="text-sm text-slate-600 mt-2">Proxy adds authorization check before delegating to the real service.</div>
+
+        <div class="mt-4">
+          <pre class="code">// Proxy skeleton from chapter
+class SensitiveDataServiceProxy implements DataService {
+  private SensitiveDataService realService;
+  private String authorizedUserRole; // e.g., "ADMIN"
+
+  public SensitiveDataServiceProxy(String authorizedUserRole) {
+    this.authorizedUserRole = authorizedUserRole;
+  }
+
+  private boolean checkAuthorization(String userId) {
+    System.out.println("Proxy: Checking authorization for user: " + userId);
+    return userId.equals(authorizedUserRole); // Simplified example
+  }
+
+  @Override
+  public String fetchData(String userId) {
+    if (checkAuthorization(userId)) {
+      if (realService == null) { realService = new SensitiveDataService(); }
+      return realService.fetchData(userId);
+    } else {
+      System.out.println("Proxy: Access Denied for user: " + userId + ". Insufficient privileges.");
+      return "Access Denied";
+    }
+  }
+}
+</pre>
+        </div>
+      </div>
+
+      <div class="w-1/2 pl-4 flex flex-col">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-semibold">Testing checklist</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+            <li>Authorized user receives confidential data.</li>
+            <li>Unauthorized user receives a denial message without leaked details.</li>
+            <li>Real service is constructed only when access is allowed.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 p-3 rounded-lg bg-amber-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Security note</div>
+          <div class="text-sm text-slate-800 mt-2">Do not conflate authorization checks with auditing. Authorization denies access; auditing records who attempted access. Keep them separate when needed.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A protection proxy should enforce access policy and avoid performing expensive work for unauthorized callers by delaying real service creation until authorization succeeds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

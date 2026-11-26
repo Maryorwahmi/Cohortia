@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,'Roboto Mono','Courier New',monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">TDD: push() and size()</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Test: PushMakesStackNonEmptyAndIncreasesSize</div>
+      <pre class="mono mt-3 rounded bg-slate-50 p-3 text-sm card-border"><code>TEST(StackTest, PushMakesStackNonEmptyAndIncreasesSize) {
+    Stack s;
+    s.push(10); // This method doesn't exist yet
+    EXPECT_FALSE(s.isEmpty());
+    EXPECT_EQ(1, s.size());
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Minimal implementation: add push and size that use std::vector internally so the test becomes green.</div>
+
+      <pre class="mono mt-3 rounded bg-slate-50 p-3 text-sm card-border"><code>// src/stack.h additions
+void push(int value);
+size_t size() const;
+
+// src/stack.cpp additions
+void Stack::push(int value) { data.push_back(value); }
+size_t Stack::size() const { return data.size(); }
+</code></pre>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Testing tip</div>
+      <div class="mt-3 text-sm text-slate-700">Run tests after each Green change. If a test fails, the failure is recent and easier to diagnose.</div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Incremental tests shape the API and reduce guesswork. Add one method at a time and prove it with tests.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

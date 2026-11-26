@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PrivateLink Security</span>
+  </div>
+
+  <div class="flex gap-6 h-full"> 
+    <div class="w-1/2"> 
+      <div class="bg-white rounded-2xl p-6 border shadow-sm h-full border-[rgba(226,232,240,0.9)]"> 
+        <div class="text-sm font-bold text-slate-800">Traffic path</div>
+        <div class="mt-3 text-sm text-slate-700">Application → Interface Endpoint ENI in consumer VPC → AWS private network → Provider NLB → Provider service instances. No public internet hop is required.</div>
+
+        <div class="mt-6 space-y-3"> 
+          <div class="text-sm text-slate-700">Interface Endpoint Security Groups: restrict which IPs and ports can use the endpoint.</div>
+          <div class="text-sm text-slate-700">Endpoint Policies: restrict which IAM principals or actions can call the service via the endpoint.</div>
+          <div class="text-sm text-slate-700">Provider side controls: NLB listeners and instance Security Groups enforce service access.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2"> 
+      <div class="bg-white rounded-2xl p-6 border shadow-sm h-full border-[rgba(226,232,240,0.9)]"> 
+        <div class="text-sm font-bold text-slate-800">Example: Central DNS service</div>
+        <div class="mt-2 text-sm text-slate-700">Security VPC exposes a resolver via a VPC Endpoint Service. Each consumer creates an interface endpoint and applies an SG allowing DNS from application subnets and an endpoint policy restricting which principals can use it. The resolver never needs a public IP and consumers don’t need peering or TGW attachments just to use the service.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3"> 
+          <div class="rounded-xl p-3 border bg-white"> 
+            <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Misconception</div>
+            <div class="text-sm text-slate-800 mt-1">Assuming PrivateLink eliminates provider-side security responsibilities. Providers still need to secure their service instances and NLB listeners.</div>
+          </div>
+
+          <div class="rounded-xl p-3 border bg-emerald-50"> 
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Key Takeaway</div>
+            <div class="text-sm text-slate-800 mt-1">Use endpoint policies and SGs on the interface ENI plus provider controls to enforce least privilege for service consumption.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

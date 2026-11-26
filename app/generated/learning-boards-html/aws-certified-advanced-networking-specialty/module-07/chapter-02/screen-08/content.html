@@ -1,0 +1,82 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>IAM & CLI walkthrough</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-2/3 flex flex-col gap-4'>
+      <div class='rounded-2xl bg-white p-4 border border-slate-100 shadow-sm'>
+        <div class='text-sm font-semibold text-slate-800 mb-2'>CLI Example</div>
+        <pre><code># 1. Create an IAM policy for Flow Logs
+aws iam create-policy --policy-name VPCFlowLogsPolicy --policy-document '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}'
+
+# 2. Create an IAM role for vpc-flow-logs and attach the policy
+aws iam create-role --role-name VPCFlowLogsRole --assume-role-policy-document '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"Service": "vpc-flow-logs.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}'
+
+aws iam attach-role-policy --role-name VPCFlowLogsRole --policy-arn arn:aws:iam::123456789012:policy/VPCFlowLogsPolicy
+
+# 3. Create the CloudWatch Log Group
+aws logs create-log-group --log-group-name /aws/vpc/flowlogs
+
+# 4. Create the Flow Log for your VPC
+aws ec2 create-flow-logs \
+    --resource-ids vpc-0abcdef1234567890 \
+    --resource-type VPC \
+    --traffic-type ALL \
+    --log-destination-type cloud-watch-logs \
+    --log-destination arn:aws:logs:us-east-1:123456789012:log-group:/aws/vpc/flowlogs \
+    --iam-role-arn arn:aws:iam::123456789012:role/VPCFlowLogsRole</code></pre>
+      </div>
+
+      <div class='rounded-2xl bg-white p-4 border border-slate-100 shadow-sm'>
+        <div class='text-sm font-semibold text-slate-800 mb-2'>Explanation</div>
+        <ul class='text-sm text-slate-700 list-disc pl-5 space-y-1'>
+          <li>Create a policy with the required logs permissions and attach it to a role trusted by vpc-flow-logs.</li>
+          <li>Create the log group to receive events before creating the flow log to avoid delivery errors.</li>
+          <li>When creating the flow log, specify the resource, traffic type, destination, and role ARN.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='w-1/3 flex flex-col gap-4'>
+      <div class='rounded-2xl bg-white p-4 border border-slate-100 shadow-sm'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>Troubleshooting</div>
+        <div class='text-sm text-slate-700'>If you see no logs, check the IAM role permissions and confirm the role ARN is correct. Also check log-status values for NODATA or SKIPDATA.</div>
+      </div>
+
+      <div class='rounded-2xl bg-white p-4 border border-slate-100 shadow-sm'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>Security note</div>
+        <div class='text-sm text-slate-700'>Limit policy scope where possible. Avoid leaving broad wildcard resources in a production IAM policy.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

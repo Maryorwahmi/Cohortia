@@ -1,0 +1,24 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.3</span><span>›</span><span class="text-slate-700">Configuring MED</span></div><div class="flex flex-col lg:flex-row flex-grow gap-8"><div class="flex-1 flex flex-col justify-center"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Junos OS Configuration</div><h1 class="text-3xl font-bold text-slate-900 mb-2">Configuring MED in Junos OS</h1><p class="text-base text-slate-600 mb-6">Policy-Based Inbound Traffic Steering from a Neighboring AS</p><div class="bg-slate-800 rounded-xl p-4 text-white font-mono text-xs overflow-x-auto whitespace-pre-wrap mb-4" style="tab-size: 2;"><pre><code>[edit policy-options]
+prefix-list SERVICE_PREFIX {
+    10.0.0.0/24;
+}
+
+policy-statement SET_MED_TO_ISP_A_LINK1 {
+    term SERVICE_TRAFFIC {
+        from {
+            protocol bgp;
+            prefix-list SERVICE_PREFIX;
+        }
+        then {
+            metric 10; # Lower MED for service traffic via link-1
+            accept;
+        }
+    }
+    term ALL_OTHER_TRAFFIC {
+        from protocol bgp;
+        then {
+            metric 50; # Higher MED for other traffic via link-1
+            accept;
+        }
+    }
+}</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Junos OS uses export policies with the `metric &lt;value&gt;` action to configure MED, influencing inbound traffic from a specific neighboring AS.</p></div></div><div class="flex-1 flex flex-col justify-center space-y-4"><div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-1">Prefix-List for Services</h3><p class="text-xs text-slate-600">Defines specific service prefixes that require distinct MED values for traffic steering.</p></div><div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-1">Policy for Link-1</h3><p class="text-xs text-slate-600">Sets a lower MED for service traffic and a higher MED for general traffic advertised via Link-1.</p></div><div class="bg-rose-50 rounded-xl p-4 shadow-sm border border-rose-200"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Forgetting that MED is only compared between routes received from the *same* neighboring AS. It cannot influence traffic from different ISPs.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

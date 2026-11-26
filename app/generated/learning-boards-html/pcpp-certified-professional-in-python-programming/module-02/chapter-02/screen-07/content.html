@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">__init__ in depth</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pattern</div>
+      <div class="mt-3 text-sm text-slate-700">Use __init__ to validate or register the class after it has been constructed. Avoid depending on changing attrs here.</div>
+
+      <pre class="mt-4 rounded-lg bg-slate-900 text-slate-100 p-3 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+class MyMetaclass(type):
+  def __init__(cls, name, bases, attrs):
+    print(f"__init__ called for {name}")
+    # Validate the class
+    if not name.startswith('Base'):
+      print(f"INFO: Non-Base class '{name}' initialized.")
+    super().__init__(name, bases, attrs)
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Cards</div>
+      <div class="mt-3 space-y-3 text-sm text-slate-700">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="font-semibold text-slate-800">Registration</div>
+          <div class="mt-1">Add cls to a central registry to discover subclasses at runtime.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="font-semibold text-slate-800">Validation</div>
+          <div class="mt-1">Check naming or attribute constraints and raise errors early to guide implementers.</div>
+        </div>
+
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="font-semibold text-slate-800">Pitfall</div>
+          <div class="mt-1">Editing attrs here does not retroactively change the class definition. If you need to add methods, attach them directly to cls.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use __init__ for checks and registration. If you must add behaviour, set attributes on the class object itself.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

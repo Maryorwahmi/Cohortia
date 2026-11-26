@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.box{border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">listen_addresses</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 box bg-white shadow-sm">
+      <div class="font-bold text-slate-800">Confirm where PostgreSQL is listening</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"># Check listen_addresses via server
+sudo netstat -tulpn | grep 5432
+# In psql
+SHOW listen_addresses;
+SHOW port;</pre>
+      <div class="mt-3 text-sm text-slate-600">Look for 127.0.0.1:5432 (local only) vs 0.0.0.0:5432 (all interfaces). If you change listen_addresses to allow remote access, plan for a restart if required by your distribution or version.</div>
+    </div>
+    <div class="w-1/2 box bg-white shadow-sm">
+      <div class="font-bold text-slate-800">Checklist before allowing remote clients</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Set listen_addresses to '*' or the server IP.</li>
+        <li>Open firewall ports and verify network reachability.</li>
+        <li>Add specific pg_hba.conf rules for allowed client IPs and methods.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Prefer explicit interface IPs in production rather than '*' when possible, then document the change.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

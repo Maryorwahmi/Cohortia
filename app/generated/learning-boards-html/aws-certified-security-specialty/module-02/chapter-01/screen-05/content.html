@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Security Groups</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Security Groups are stateful</h3>
+      <p class="text-sm text-slate-600 mt-2">They control traffic at the instance level and only define what is allowed; replies are automatically permitted.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold text-violet-700">Concrete example</div>
+          <div class="text-xs text-slate-600 mt-1">Inbound TCP 22 from 198.51.100.5/32 to allow SSH from a management host.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700">Best practice</div>
+          <div class="text-xs text-slate-600 mt-1">Reference other security groups for tier-to-tier traffic rather than opening broad IP ranges.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-rose-600">Common mistake</div>
+          <div class="text-xs text-slate-600 mt-1">Using 0.0.0.0/0 for management ports like SSH or RDP; this invites wide scanning and brute force attempts.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Make Security Groups narrow and role-based; use group references to restrict inter-tier traffic without moving IPs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Rule examples</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm text-slate-700"># Example Security Group rules (conceptual)
+Inbound:
+- Allow TCP 22 from 198.51.100.5/32
+- Allow TCP 443 from sg-app-tier
+Outbound:
+- Allow All traffic to 0.0.0.0/0  # replies and outbound requests
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Notice the intent: inbound rules limit who can initiate connections. Outbound is often broader but should follow least-privilege when possible.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Check your understanding</div>
+        <div class="text-xs text-slate-600 mt-1">If you allow outbound HTTPS to 0.0.0.0/0, do you need to add an inbound rule for the response? No — Security Groups are stateful and permit return traffic automatically.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

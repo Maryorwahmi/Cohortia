@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>:root{--slate-border:rgba(226,232,240,0.9);--blue:#2563eb}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-semibold text-slate-900 mt-2">CI/CD Integration: Trivy Example</div>
+      <div class="text-sm text-slate-600 mt-3">Scan images during build; fail only on defined severity thresholds to keep the pipeline actionable.</div>
+      <div class="mt-4 rounded-xl p-3 bg-white border" style="border-color:var(--slate-border);">
+        <div class="font-semibold">Pipeline snippet</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"><code>build_and_scan:
+  stage: build
+  script:
+    - docker build -t my-app:latest .
+    - docker run --rm -v $PWD:/root/.cache aquasec/trivy:latest image --severity HIGH,CRITICAL my-app:latest
+    - if [ $? -ne 0 ]; then echo "Vulnerabilities found, failing build!"; exit 1; fi
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border" style="border-color:var(--slate-border);">
+        <div class="font-semibold">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">If Trivy finds a critical OpenSSL CVE in the base image, the build fails and the developer updates the base image or applies an alternative patch before retrying the pipeline.</div>
+      </div>
+      <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Automate image scanning in CI with clear severity policies. Fail builds on critical issues and generate tickets for lower-severity findings.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

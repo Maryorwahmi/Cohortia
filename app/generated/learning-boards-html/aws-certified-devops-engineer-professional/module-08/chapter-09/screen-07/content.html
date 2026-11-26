@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 8.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda & EventBridge</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-8 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-slate-900 text-white p-4 h-full" style="box-shadow:0 6px 18px rgba(15,23,42,0.04);">
+        <div class="text-sm font-semibold text-white mb-3">EventBridge pattern (JSON)</div>
+        <pre class="rounded-md bg-slate-800 p-3 text-xs overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>{
+  "source": ["aws.guardduty"],
+  "detail-type": ["GuardDuty Finding"],
+  "detail": {
+    "severity": [4,5,6,7,8,9,10],
+    "type": ["UnauthorizedAccess:EC2/MaliciousIpCaller.Custom"]
+  }
+}</code></pre>
+
+        <div class="mt-4 text-sm font-semibold text-white">Lambda remediation (Python, excerpt)</div>
+        <pre class="rounded-md bg-slate-800 p-3 text-xs overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>import json
+import boto3
+
+ec2 = boto3.client('ec2')
+ssm = boto3.client('ssm')
+
+def lambda_handler(event, context):
+  finding = event.get('detail', {})
+  # extract instance id from expected GuardDuty structure
+  instance_id = finding.get('resource', {}).get('instanceDetails', {}).get('instanceId')
+  isolation_sg = 'sg-xxxxxxxxxxxx'  # use environment variable in production
+  if instance_id:
+    # create EBS snapshot(s) loop omitted for brevity
+    # replace security groups on network interfaces
+    response = ec2.describe_instances(InstanceIds=[instance_id])
+    # iterate interfaces and modify attributes
+    # optionally start SSM Automation to collect logs
+    print('Isolation attempted for', instance_id)
+  return {'statusCode':200, 'body': json.dumps('done')}</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-4 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white border p-4 h-full" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-sm font-semibold text-slate-700">What to check after automation</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc list-inside space-y-2">
+          <li>Are EBS snapshots present and immutable?</li>
+          <li>Were security groups replaced with the isolation group?</li>
+          <li>Was the finding updated in Security Hub or ticketing system?</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistake</div>
+          <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+            <div class="text-sm text-slate-800">Giving broad IAM permissions to remediation functions makes your automation a new attack surface. Grant only what is necessary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

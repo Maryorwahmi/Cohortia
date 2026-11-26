@@ -1,0 +1,78 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #f8fafc; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Benefits & Principles</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <!-- Left column: explanation -->
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Core Benefit</div>
+        <h3 class="text-2xl font-bold text-slate-800 mb-2">Open/Closed & Testability</h3>
+        <p class="text-sm text-slate-700 mb-3">Strategy isolates algorithm variants so new ones can be added without editing existing behavior. It also narrows responsibility for easier unit testing.</p>
+        <ul class="text-sm text-slate-600 space-y-2">
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Easier to extend: add a ConcreteStrategy class.</li>
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"></circle></svg> Unit test each algorithm without the context.</li>
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8" stroke-linecap="round" stroke-linejoin="round"></path></svg> Beware of over-splitting: avoid many tiny strategies with duplicated code.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-4 h-1/2 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete Example</div>
+          <div class="text-lg font-semibold text-slate-800">ShoppingCart Discounts</div>
+          <p class="text-sm text-slate-600 mt-2">If ShoppingCart delegates to DiscountStrategy, adding a BuyOneGetOneFree strategy doesn't touch the cart code. That keeps the cart stable and makes strategy behavior testable independently.</p>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+            <div class="text-xs font-bold text-blue-700 uppercase tracking-wider">When to use</div>
+            <p class="text-sm text-slate-700">Multiple variant algorithms that change independently or that clients select at runtime.</p>
+          </div>
+          <div class="rounded-lg p-3 bg-rose-50 border border-rose-100">
+            <div class="text-xs font-bold text-rose-600 uppercase tracking-wider">Common mistake</div>
+            <p class="text-sm text-slate-700">Creating strategies for tiny variations adds unnecessary complexity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: visual architecture -->
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+        <div class="flex-1 flex items-center justify-center">
+          <div class="w-full max-w-lg grid grid-cols-1 gap-4">
+            <div class="p-4 rounded-lg border bg-gray-50">
+              <div class="text-sm font-semibold text-slate-800">Context (ShoppingCart)</div>
+              <div class="text-xs text-slate-600 mt-1">Holds a DiscountStrategy reference and delegates calculation.</div>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="flex-1 p-4 rounded-lg border bg-white">
+                <div class="text-sm font-semibold text-slate-800">Strategy Interface</div>
+                <div class="text-xs text-slate-600 mt-1">applyDiscount(originalPrice) — common contract.</div>
+              </div>
+              <div class="flex-1 p-4 rounded-lg border bg-white">
+                <div class="text-sm font-semibold text-slate-800">Concrete Strategies</div>
+                <div class="text-xs text-slate-600 mt-1">NoDiscount, PercentageDiscount, FixedAmount, BOGOStrategy</div>
+              </div>
+            </div>
+
+            <div class="mt-2 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+              <p class="text-sm text-slate-800">Use Strategy to keep the context stable and move variation into small, testable classes that can be added without changing existing code.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

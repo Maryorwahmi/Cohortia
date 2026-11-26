@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Deletion</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Delete examples</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-md text-sm mt-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Delete one user named Charlie
+delete_result = users_collection.delete_one({'name': 'Charlie'})
+print('Deleted count:', delete_result.deleted_count)
+
+# Delete inactive users (dangerous if filter is empty)
+delete_many_result = users_collection.delete_many({'status': 'inactive'})
+print('Deleted inactive:', delete_many_result.deleted_count)
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">Always run a find with the same filter first to preview matches and consider soft deletes for safety.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Safety checklist</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Preview with find() before deleting.</li>
+        <li>Prefer soft deletes when recoverability is needed.</li>
+        <li>Log deleted document ids for audit trails.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-rose-50 p-3 card-border">
+        <div class="text-sm font-semibold text-rose-700">Warning</div>
+        <div class="text-sm text-slate-700 mt-1">delete_many({}) will remove all documents. Never run it without confirming the filter.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

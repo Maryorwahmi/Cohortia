@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">MFA in Trust Policies</span>
+  </div>
+  
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Require MFA at role assumption</h3>
+    <p class="text-sm text-slate-600 mt-2">Add a Bool condition that demands aws:MultiFactorAuthPresent equals true in the trust policy.</p>
+
+    <div class="mt-4 flex-1 grid grid-cols-2 gap-4">
+      <div class="rounded-lg bg-slate-50 p-4">
+        <div class="text-sm font-semibold">Trust policy example</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-white rounded text-xs" style="white-space:pre-wrap;tab-size:2"><code>{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::111122223333:root"},
+      "Action": "sts:AssumeRole",
+      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}}
+    }
+  ]
+}</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-white p-4 card-border">
+        <div class="text-sm font-semibold">Testing checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 ml-4 list-disc">
+          <li>Attempt AssumeRole without MFA and expect access denied.</li>
+          <li>Assume with MFA and confirm temporary credentials are issued.</li>
+          <li>Verify CloudTrail logs show the assume-role event and the principal used.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Common misconception</div>
+        <div class="text-sm text-slate-600 mt-1">MFA on the user is not the same as requiring MFA when a role is assumed — trust policies must require it explicitly.</div>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-semibold">Key takeaway</div>
+        <div class="text-sm text-slate-600 mt-1">Enforce aws:MultiFactorAuthPresent in trust policies and use short STS sessions to minimize exposure.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

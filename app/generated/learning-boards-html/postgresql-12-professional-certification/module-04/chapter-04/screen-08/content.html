@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Advisory locks</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Using advisory locks</h3>
+      <p class="text-sm text-slate-600 mt-3">Advisory locks are explicit, application-defined locks acquired with functions such as pg_advisory_lock and pg_advisory_unlock.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="font-semibold text-slate-800">Exclusive advisory lock</div>
+          <div class="text-sm text-slate-600 mt-1">SELECT pg_advisory_lock(item_id); -- blocks until lock acquired</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="font-semibold text-slate-800">Try-lock</div>
+          <div class="text-sm text-slate-600 mt-1">SELECT pg_try_advisory_lock(item_id); -- returns false immediately if not available</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-96 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Example</div>
+      <h4 class="text-lg font-semibold text-slate-800 mt-2">Queue worker pattern</h4>
+      <div class="text-sm text-slate-600 mt-3">Worker A acquires pg_advisory_lock for item 42, processes the item and then releases it. Worker B calling pg_try_advisory_lock sees the lock is held and moves to another item or retries later.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-slate-50 border">
+        <div class="font-semibold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Advisory locks are not a replacement for proper transactional updates. Combine them with transactions that modify database state to maintain consistency.</div>
+      </div>
+    </div>
+  </div>
+</div>

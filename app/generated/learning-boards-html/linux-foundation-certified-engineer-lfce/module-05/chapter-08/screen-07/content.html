@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Amavisd-new & Filtering</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Filtering visibility</h3>
+      <p class="text-sm text-slate-600 mt-2">Amavisd and scanning services log spam and virus detections; Postfix shows handoffs via content_filter and transports like 10025.</p>
+
+      <div class="mt-3 text-xs font-bold uppercase tracking-wider text-slate-500">Commands</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>sudo journalctl -u amavisd -n 50
+sudo journalctl -u amavisd | grep "SPAM"
+sudo systemctl status spamassassin clamav-daemon amavisd
+sudo freshclam</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Troubleshooting steps</div>
+      <ol class="mt-2 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Check amavisd logs for detection and transport handoff messages.</li>
+        <li>Confirm content_filter entries in Postfix main.cf and master.cf for the proper port (often 10025).</li>
+        <li>Ensure SpamAssassin and ClamAV are running and updated with freshclam.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm text-slate-800">Common misconception: blaming content rules first. Always verify inter-service connectivity and service status before altering filtering rules.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Filter failures are often service or handoff issues; logs show whether a message was scanned, tagged, or dropped.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

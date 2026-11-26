@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="safe-area h-full flex flex-col">
+    <div class="mb-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-2xl font-bold text-slate-800">Static NAT vs Dynamic NAT vs PAT</h3>
+      <p class="text-sm text-slate-600 mt-1">Match the translation type to the use case and understand trade-offs.</p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 flex-1">
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Static NAT</div>
+        <div class="text-sm text-slate-700 font-semibold mb-2">One-to-one permanent mapping</div>
+        <div class="text-sm text-slate-600 mb-3">Use for servers that must accept inbound connections. Example: ip nat inside source static 192.168.1.100 203.0.113.2.</div>
+        <div class="text-xs text-slate-500">Pros: predictable public IP. Cons: uses public IPs per service.</div>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Dynamic NAT</div>
+        <div class="text-sm text-slate-700 font-semibold mb-2">One-to-one from a pool</div>
+        <div class="text-sm text-slate-600 mb-3">Maps an internal host to an available public IP from a defined pool while the session exists. If the pool is exhausted, new sessions are blocked.</div>
+        <div class="text-xs text-slate-500">Pros: conserves addresses compared to static for many hosts; Cons: needs pool management.</div>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">PAT (NAT Overload)</div>
+        <div class="text-sm text-slate-700 font-semibold mb-2">Many-to-one using ports</div>
+        <div class="text-sm text-slate-600 mb-3">Multiple internal hosts share one public IP; the NAT device differentiates translations by assigning unique source ports.</div>
+        <div class="text-xs text-slate-500">Pros: highly efficient. Cons: lacks inbound reachability unless paired with static mappings.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">Example scenarios</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>Static NAT: public website hosting, VPN endpoint, or any service requiring a stable public IP.</li>
+        <li>Dynamic NAT: medium-sized site with a limited pool of public IPs for selected hosts.</li>
+        <li>PAT: typical home or office internet access where many clients share one ISP-assigned IP.</li>
+      </ul>
+    </div>
+  </div>
+</div>

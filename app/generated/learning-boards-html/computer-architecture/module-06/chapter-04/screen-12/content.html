@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Cycle Simulation</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-[calc(100%-56px)]">
+    <div class="col-span-7 bg-white rounded-2xl p-5 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Trace</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+I1: ADD  R1, R2, R3
+I2: BEQ  R1, R2, target    ; predicted taken, actually not taken
+I3: ADD  R4, R5, R6        ; speculative on predicted path
+I4: SUB  R7, R8, R9        ; speculative on predicted path
+target:
+I5: MUL  R10, R11, R12     ; correct-path instruction
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">Below is an illustrative cycle-by-cycle ROB snapshot you should produce in your simulator. Each row is a cycle; entries show index:state(spec). 'R' means ready, 'S' speculative, 'F' flushed.</div>
+
+      <pre class="bg-white rounded-lg p-3 text-sm mt-3" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+Cycle 1: Tail alloc I1 -> ROB[0]: I1(R)
+Cycle 1: Tail alloc I2 -> ROB[1]: I2(S?)
+Cycle 2: Issue I1 executes -> ROB[0]=I1(R)
+Cycle 2: Issue I2 decodes, predicted taken -> fetch predicted path
+Cycle 3: Tail alloc I3 -> ROB[2]: I3(S)
+Cycle 3: I3 executes out-of-order -> ROB[2]=I3(R,S)
+Cycle 4: Tail alloc I4 -> ROB[3]: I4(S)
+Cycle 4: I4 executes -> ROB[3]=I4(R,S)
+Cycle 5: Branch I2 resolves: predicted taken was wrong -> flush ROB entries after I2
+After flush: ROB[2]=F, ROB[3]=F (I3 and I4 discarded)
+Cycle 6: Fetch target, Tail alloc I5 -> ROB[2]: I5
+Cycle 7+: I5 executes and commits in-order when head reaches it
+      </pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Penalty calculation</div>
+        <div class="text-sm text-slate-800">I3 and I4 represent wasted work. The total penalty equals the cycles spent issuing and executing them plus cycles to refill the pipeline; measure these directly in your simulator.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Simulation checklist</div>
+        <ul class="text-sm text-slate-700 list-disc list-inside">
+          <li>Allocate ROB entries at dispatch in program order</li>
+          <li>Write execution results to ROB and set ready</li>
+          <li>Commit only at head and flush on mispredict</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Expected outcome</div>
+        <div class="text-sm text-slate-800">Your trace should show I3 and I4 marked speculative then flushed, and the register file should never receive their results.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)}pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Conceptual Setup Checklist</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>Identify cloud account ID and gateway region.</li>
+        <li>Prepare an IAM role for Snowflake to assume.</li>
+        <li>Record API gateway URL prefixes for API_ALLOWED_PREFIXES.</li>
+        <li>Create API INTEGRATION with provider, role ARN, and prefixes.</li>
+        <li>Create EXTERNAL FUNCTION referencing the integration and endpoint.</li>
+        <li>Run a single-row SELECT to test invocation and response.</li>
+      </ol>
+    </div>
+
+    <div class="w-6/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example SQL Templates</div>
+      <pre class="mt-3 p-3 rounded bg-slate-50 text-sm">-- Conceptual: create integration and external function (placeholders must be replaced)
+CREATE OR REPLACE API INTEGRATION my_sentiment_api_integration
+  API_PROVIDER = AWS_API_GATEWAY
+  API_AWS_ROLE_ARN = 'arn:aws:iam::123456789012:role/snowflake_api_role'
+  ENABLED = TRUE
+  API_ALLOWED_PREFIXES = ('https://abcdef123.execute-api.us-east-1.amazonaws.com/prod/sentiment');
+
+CREATE OR REPLACE EXTERNAL FUNCTION get_sentiment(input_text VARCHAR)
+  RETURNS VARCHAR
+  API_INTEGRATION = my_sentiment_api_integration
+  AS 'https://abcdef123.execute-api.us-east-1.amazonaws.com/prod/sentiment';</pre>
+
+      <div class="mt-3 text-sm text-slate-600">If you can't provision cloud resources in this lab, review the placeholders and test the SQL syntax locally. Ensure your team controls the IAM role and gateway configuration when deployed.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming Snowflake will create or configure cloud resources. Snowflake only stores integration metadata; cloud setup is separate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+    .code { background: #0f172a; color: #e6eef8; border-radius: 12px; padding: 12px; }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Code: mediator</div>
+      <pre class="code"><code>&lt;!-- ChatMediator.java --&gt;
+interface ChatMediator {
+  void sendMessage(String message, User user);
+  void addUser(User user);
+}
+
+&lt;!-- User.java (abstract colleague) --&gt;
+abstract class User {
+  protected ChatMediator mediator;
+  protected String name;
+
+  public User(ChatMediator mediator, String name) {
+    this.mediator = mediator;
+    this.name = name;
+  }
+
+  public String getName() { return name; }
+  public abstract void send(String message);
+  public abstract void receive(String message);
+}
+</code></pre>
+    </div>
+    <div class="w-1/2 p-4">
+      <div class="card p-3">
+        <div class="text-sm font-bold text-slate-800">Notes</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Keep the mediator interface minimal and focused on communication operations.</li>
+          <li>Make colleagues depend on the interface, not a concrete mediator class.</li>
+          <li>Register colleagues with the mediator during construction or via a separate registration call.</li>
+        </ul>
+      </div>
+      <div class="mt-3 p-3 rounded-lg border border-slate-100 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-2">Design the mediator interface first so colleagues code against abstraction and routing stays centralized.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

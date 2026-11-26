@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">optimize_webservers.yml walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+    <div class="text-sm font-semibold text-slate-800">Playbook template (annotated)</div>
+    <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">---
+- name: Optimize Web Servers for Performance and Maintenance
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Set net.core.somaxconn kernel parameter
+      ansible.posix.sysctl:
+        name: net.core.somaxconn
+        value: "65536"
+        state: present
+        sysctl_set: yes
+        reload: yes
+
+    - name: Increase nofile ulimit for apache user
+      community.general.pam_limits:
+        domain: apache
+        limit_type: soft
+        limit_item: nofile
+        value: 65536
+
+    - name: Increase hard nofile ulimit for apache user
+      community.general.pam_limits:
+        domain: apache
+        limit_type: hard
+        limit_item: nofile
+        value: 65536
+
+    - name: Create placeholder web log cleanup script
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "$(date): Running web log cleanup..." >> /var/log/web_cleanup.log
+          find /var/log/httpd -type f -name "*.log-*" -mtime +7 -delete
+          echo "$(date): Web log cleanup completed." >> /var/log/web_cleanup.log
+        dest: /usr/local/bin/cleanup_web_logs.sh
+        mode: '0755'
+
+    - name: Schedule daily web log cleanup cron job
+      ansible.builtin.cron:
+        name: "Daily web log cleanup"
+        minute: "0"
+        hour: "3"
+        job: "/usr/local/bin/cleanup_web_logs.sh"
+        user: root
+        state: present</pre>
+
+    <div class="mt-3 text-sm text-slate-700">Follow the playbook with verification steps: sysctl query, limits file inspection, script permission check, and crontab listing. Keep the playbook in version control and test it with ansible-playbook against a staging inventory first.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

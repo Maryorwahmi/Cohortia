@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Network Security</span>
+    <span>›</span>
+    <span>Chapter Network Troubleshooting</span>
+    <span>›</span>
+    <span class="text-slate-700">tcpdump</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Quick reference and example</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <div class="rounded-md bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Example capture</div>
+          <pre class="mt-2 text-sm text-slate-800">sudo tcpdump -i eth0 host 192.168.1.100 and port 5432
+# Capture only traffic on eth0 for the database host and Postgres port
+
+# Save to file for later analysis
+sudo tcpdump -i eth0 host 192.168.1.100 and port 5432 -w db-traffic.pcap</pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Interpretation tips</div>
+            <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+              <li>See SYN arrive: client is sending connection requests.</li>
+              <li>No SYN-ACK: server not replying — check service or host firewall.</li>
+              <li>RST replies indicate the host actively refused the connection.</li>
+              <li>ICMP unreachable may indicate routing or upstream firewall drops.</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg bg-[rgba(239,102,117,0.05)] p-3 border border-[rgba(239,102,117,0.08)]">
+            <div class="text-xs uppercase tracking-wider font-bold text-rose-700">Common mistakes</div>
+            <div class="text-sm text-slate-600 mt-2">Not specifying -i, capturing without filters, or forgetting to run as root.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Targeted tcpdump captures paired with timestamps and application logs provide decisive evidence for whether the network or application is at fault.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Live-coding style walkthrough (visualized)</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <div class="bg-slate-900 text-slate-100 rounded-lg p-4" style="min-height:220px;">
+          <div class="text-[12px] font-bold text-amber-300">Terminal: Server B (db)</div>
+          <pre class="mt-2 text-sm"># Run as root to capture
+sudo tcpdump -i eth0 host 10.0.2.5 and port 5432
+# Expect lines showing TCP 10.0.2.3.12345 > 10.0.2.5.5432: Flags [S], seq 0...</pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Example scenario</div>
+            <div class="text-sm text-slate-600 mt-2">Web server sends SYNs to DB but tcpdump on DB shows no reply. Check PostgreSQL listener and firewalld rich rules.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Pro tip</div>
+            <div class="text-sm text-slate-600 mt-2">Use -w to save captures for Wireshark analysis and include timestamps when correlating with logs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

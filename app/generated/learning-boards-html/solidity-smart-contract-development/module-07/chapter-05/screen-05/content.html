@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">ABI & Artifacts</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-lg font-bold text-slate-800">Where to find the ABI</div>
+      <div class="text-sm text-slate-600 mt-2">Hardhat writes compiled artifacts with bytecode and ABI. Use artifacts path to load the ABI into scripts and tasks.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code</div>
+        <div class="mt-2 rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <pre><code>// load ABI from Hardhat artifact
+const artifact = require("../artifacts/contracts/Counter.sol/Counter.json");
+const abi = artifact.abi;
+const counter = new ethers.Contract(CONTRACT_ADDRESS, abi, ethers.provider);
+</code></pre>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-bold">Practical check</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600">
+          <li>Confirm compile step completed before running scripts</li>
+          <li>Use the artifact from your project, not a copied ABI</li>
+          <li>Match the contract name and compiled output version</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Why loading artifacts matters</div>
+      <div class="text-sm text-slate-600 mt-2">Loading ABI from artifacts ensures your scripts target the exact interface your source compiled into. It avoids mismatches that lead to call failures or decoded values that make no sense.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">An ABI copy from elsewhere might mismatch parameter names or types; always prefer the project's compiled artifact to keep interface parity.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+          <p class="text-xs font-medium text-slate-800">After compiling, open artifacts/.../Contract.json and inspect the abi array to confirm your expected functions exist before running a script against a deployed address.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

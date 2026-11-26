@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .panel{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px;padding:14px;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SCP vs IAM</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Clear definition and comparison</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 text-slate-700">IAM policy: attached to users, groups, roles. Grants specific actions. Default: implicit deny.</div>
+        <div class="p-3 rounded-lg bg-slate-50 text-slate-700">SCP: attached to root, OU, or account. Sets maximum permissions. Default: allow all unless denied.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-slate-800">Misconception: SCPs grant permissions — they do not. They only restrict.</div>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-600">Example reasoning: if an SCP denies an action, no IAM policy can override it.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-xs font-medium text-slate-800">SCPs are ceilings; IAM policies are keys. Both matter for effective permissions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Concrete example: a denied region</div>
+      <div class="mt-3 text-sm text-slate-700">Below is an SCP that denies actions when the requested region is not in an allowed list. This shows how an SCP can block region-specific operations even if IAM allows them.</div>
+
+      <pre class="mt-4 rounded-md bg-slate-900 text-slate-100 p-3"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenySpecificRegions",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": { "aws:RequestedRegion": ["us-east-1","us-west-2","eu-west-1"] }
+      }
+    }
+  ]
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">If a user in a child account attempts to run an instance in a disallowed region, the request returns Access Denied because the SCP's explicit Deny takes precedence.</div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

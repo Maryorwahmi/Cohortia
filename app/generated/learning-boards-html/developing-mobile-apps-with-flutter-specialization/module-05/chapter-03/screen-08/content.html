@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Update Documents</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Update example</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>Future&lt;void&gt; updateUserAge(String userId, int newAge) async {
+  try {
+    await _firestore.collection('users').doc(userId).update({
+      'age': newAge,
+      'lastUpdated': FieldValue.serverTimestamp(),
+    });
+    print('User $userId age updated to $newAge!');
+  } on FirebaseException catch (e) {
+    if (e.code == 'not-found') {
+      print('Document with ID $userId not found for update.');
+    } else {
+      print('Error updating user age: $e');
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes & pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>update() will throw if the document doesn’t exist.</li>
+        <li>Use set(..., SetOptions(merge:true)) to update-or-create behavior.</li>
+        <li>For counters, use FieldValue.increment inside update or a transaction for correctness.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-700">When updating user-visible timestamps, use serverTimestamp() to avoid client clock drift between devices.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> pre { background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; } .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div class="mb-4"> 
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> 
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">KeyHeld vs KeyJustPressed</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full"> 
+    <div class="card p-4"> 
+      <div class="text-sm font-bold text-slate-900">Implementation steps</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2"> 
+        <li>1. Maintain currentKeyStates and previousKeyStates maps in InputManager.</li>
+        <li>2. At frame start, copy current to previous.</li>
+        <li>3. Update current from the raw input source.</li>
+        <li>4. IsKeyDown checks current; IsKeyJustPressed checks current && !previous.</li>
+      </ol>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 text-amber-800">Analogy: previous is a snapshot of what you saw last frame; current is what you see now. The difference reveals new presses.</div>
+    </div>
+    <div class="card p-4"> 
+      <div class="text-sm font-bold text-slate-900">Starter code (excerpt)</div>
+      <pre><code>&lt;!-- Escaped starter excerpt from chapter activity --&gt;
+class InputManager {
+public:
+  InputManager() {
+    currentKeyStates[KeyCode::W] = false;
+    currentKeyStates[KeyCode::A] = false;
+    currentKeyStates[KeyCode::S] = false;
+    currentKeyStates[KeyCode::D] = false;
+    currentKeyStates[KeyCode::Space] = false;
+    currentKeyStates[KeyCode::Escape] = false;
+    previousKeyStates = currentKeyStates;
+  }
+
+  void UpdateInputStates() {
+    // TODO: previousKeyStates = currentKeyStates;
+    // TODO: for (auto &pair : currentKeyStates) pair.second = g_simulatedKeyStates[pair.first];
+  }
+
+  bool IsKeyDown(KeyCode key) { return currentKeyStates[key]; }
+  bool IsKeyJustPressed(KeyCode key) { return currentKeyStates[key] &amp;&amp; !previousKeyStates[key]; }
+
+private:
+  std::map&lt;KeyCode,bool&gt; currentKeyStates;
+  std::map&lt;KeyCode,bool&gt; previousKeyStates;
+};
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

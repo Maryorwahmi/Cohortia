@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4 h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Assessment Idea</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Real-world scenario practice</h3>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800">Transactions — LIST</div>
+        <pre class="mono p-3 bg-slate-50">CREATE TABLE transactions (
+  transaction_id BIGSERIAL,
+  transaction_time TIMESTAMP NOT NULL,
+  transaction_type VARCHAR(50) NOT NULL
+) PARTITION BY LIST (transaction_type);
+
+CREATE TABLE transactions_purchase PARTITION OF transactions FOR VALUES IN ('purchase');</pre>
+      </div>
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800">Sensor data — RANGE</div>
+        <pre class="mono p-3 bg-slate-50">CREATE TABLE sensor_data (
+  sensor_id INT NOT NULL,
+  timestamp TIMESTAMP NOT NULL
+) PARTITION BY RANGE (timestamp);
+-- Create monthly child partitions and detach older ones for retention</pre>
+      </div>
+    </div>
+    <div class="mt-3 p-3 bg-emerald-50 rounded">
+      <div class="text-xs font-bold uppercase tracking-wider mb-1">Key Takeaway</div>
+      <p class="text-xs">Assessments should require you to justify choice, show SQL, and outline maintenance automation for partitions and indexes.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

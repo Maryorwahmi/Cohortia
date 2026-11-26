@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre{white-space:pre-wrap;tab-size:2} .card{background:white;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Receipt Parsing</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 min-w-0">
+      <div class="rounded-2xl card p-5 h-full">
+        <div class="text-lg font-bold text-slate-800">Parse logs from a receipt</div>
+        <div class="text-sm text-slate-600 mt-2">Use parseLog to decode known event logs; skip unknown logs safely.</div>
+
+        <div class="mt-4 mono rounded-lg bg-white border p-3">
+          <pre><code>const tx = await contract.increment();
+const receipt = await tx.wait();
+for (const log of receipt.logs) {
+  try {
+    const parsed = contract.interface.parseLog(log);
+    if (parsed.name === "CountChanged") {
+      console.log(`Parsed event: ${parsed.args.user} -> ${parsed.args.newCount}`);
+    }
+  } catch (e) {
+    // log not from this contract or unknown event — ignore
+  }
+}
+</code></pre>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-600">
+          <ul class="list-disc pl-4 space-y-2">
+            <li>Always use try-catch around parseLog to avoid crashing on unrelated logs.</li>
+            <li>Indexed fields live in topics; parseLog returns both indexed and non-indexed args in parsed.args.</li>
+            <li>Use this pattern in tests to assert the correct events were emitted with expected values.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl card p-5 h-full">
+        <div class="font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">After calling increment, a script can immediately confirm the user and newCount from the parsed receipt, providing a reliable assertion in tests and scripts.</div>
+
+        <div class="mt-4 p-3 rounded-lg bg-white border">
+          <div class="font-semibold">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Trying to parse logs without the correct contract interface will fail. Always attach the ABI for the contract you expect to parse.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Parsing receipts gives immediate, deterministic confirmation that a transaction emitted expected events — wrap parse calls in try-catch to handle unrelated logs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

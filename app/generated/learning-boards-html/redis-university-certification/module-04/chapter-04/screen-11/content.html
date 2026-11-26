@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Rate Limiter Code</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Pipeline example</div>
+      <div class="text-sm text-slate-600 mt-2">Atomic-ish increment + expire using a pipeline; practical and common.</div>
+
+      <pre class="mono mt-4 p-3 bg-slate-50 rounded card-border text-sm" style="white-space:pre-wrap; tab-size:2">def is_rate_limited(user_id, limit=5, window_seconds=60):
+  key = f"rate_limit:{user_id}:{window_seconds}s"
+  pipe = r.pipeline()
+  pipe.incr(key)
+  pipe.expire(key, window_seconds, nx=True)
+  count, _ = pipe.execute()
+  return count > limit</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Testing guidance</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>Simulate repeated requests to observe when the function blocks.</li>
+        <li>Log both count and whether the key had an expiry set to verify EXPIRE behaviour.</li>
+        <li>Consider Lua when you must guarantee both operations succeed atomically on the server.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Calling INCR and EXPIRE in separate client calls without a pipeline can leave a key without TTL if the client fails between calls.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

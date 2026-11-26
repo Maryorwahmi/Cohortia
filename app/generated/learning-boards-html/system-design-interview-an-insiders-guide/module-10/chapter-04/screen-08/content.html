@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Core Concept</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xl font-bold text-slate-900">Why choose a search engine</div>
+      <p class="mt-2 text-sm text-slate-700">When you need flexible queries over semi-structured data, fast text search, and exploratory dashboards, inverted indexes make Elasticsearch a powerful tool.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Use cases</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Log analysis and operational monitoring.</li>
+          <li>Exploratory filtering and ad-hoc text queries.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Elasticsearch indexing example</div>
+      <pre class="mt-2 text-sm text-slate-700">POST /log_events/_doc
+{
+  "timestamp": "2023-03-15T10:00:00Z",
+  "service": "web-app",
+  "level": "INFO",
+  "message": "User login successful",
+  "user_id": "U456",
+  "ip_address": "192.168.1.100"
+}
+
+GET log_events/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "service": "web-app" }},
+        { "range": { "timestamp": { "gte": "now-1h" }}}
+      ]
+    }
+  },
+  "aggs": {
+    "events_by_level": { "terms": { "field": "level.keyword" }}
+  },
+  "size": 0
+}</pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Watch out</div>
+        <p class="text-xs font-medium text-slate-800">Inverted indexes can increase storage usage for high-cardinality fields; plan mappings and storage accordingly.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

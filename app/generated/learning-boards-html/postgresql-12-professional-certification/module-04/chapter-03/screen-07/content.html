@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Consistency & Constraints</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Constrained vs unconstrained updates</h3>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color: rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-800">With constraints</div>
+          <div class="text-sm text-slate-600 mt-2">Transactions that would break referential integrity are rejected, so the database remains valid.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Without constraints</div>
+          <div class="text-sm text-slate-700 mt-2">Partial updates can leave orphaned or invalid rows, requiring manual cleanup and risking incorrect application behavior.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="mt-3 text-sm text-slate-700">Attempt to insert an order_item referencing a missing order triggers a foreign key violation and the transaction is rolled back, preserving consistency.</div>
+
+      <pre class="mt-4 p-3 bg-slate-900 text-slate-100 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+BEGIN;
+INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES (9999, 1, 1, 1500.00);
+-- ERROR: insert or update on table "order_items" violates foreign key constraint
+ROLLBACK;
+      </pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design constraints to represent your business invariants; transactions will preserve those invariants or fail atomically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

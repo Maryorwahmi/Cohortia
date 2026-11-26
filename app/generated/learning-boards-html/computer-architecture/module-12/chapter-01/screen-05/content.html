@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .step{background:#fff;border:1px solid rgba(226,232,240,0.95);padding:12px;border-radius:12px;} .arrow{font-size:20px;color:#1e40af}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Router Pipeline</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">Router Pipeline and Lookahead</div>
+    <div class="text-sm text-slate-600 mt-1">How staging work affects latency and how lookahead can reduce visible per-hop cost.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 card-border shadow flex flex-col">
+      <div class="flex items-center gap-4">
+        <div class="step flex-1">
+          <div class="text-sm font-bold text-slate-800">1. Buffer Write (BW)</div>
+          <div class="text-sm text-slate-600 mt-2">Incoming flit is written into the input buffer and awaits allocation.</div>
+        </div>
+        <div class="text-2xl arrow">→</div>
+        <div class="step flex-1">
+          <div class="text-sm font-bold text-slate-800">2. Route Computation + Switch Allocation (RC/SA)</div>
+          <div class="text-sm text-slate-600 mt-2">Compute output port and arbitrate grants among competing inputs.</div>
+        </div>
+        <div class="text-2xl arrow">→</div>
+        <div class="step flex-1">
+          <div class="text-sm font-bold text-slate-800">3. Switch Traversal + Link Traversal (ST/LT)</div>
+          <div class="text-sm text-slate-600 mt-2">Flit crosses the crossbar and is sent over the physical link to the next router.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold text-slate-600">Lookahead routing</div>
+        <div class="text-sm text-slate-700 mt-1">Compute the next hop earlier so the downstream allocator can start work in parallel. This reduces effective cycles per hop but adds control complexity and possible speculative state management.</div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-4 card-border shadow">
+      <div class="text-sm font-bold text-slate-800">Why this matters</div>
+      <ul class="list-disc pl-4 text-sm text-slate-600 mt-2 space-y-2">
+        <li>Pipeline depth determines per-hop latency and influences throughput under contention.</li>
+        <li>Lookahead shortens end-to-end latency for small packets at the expense of complexity.</li>
+        <li>Choose pipeline style based on target packet size and timing budget.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold text-slate-500">Check your understanding</div>
+        <div class="text-sm text-slate-700 mt-1">If you have two-cycle router lookahead and one-cycle link, how many cycles for a 3-hop route? Consider overlap between lookahead stages when you answer.</div>
+      </div>
+    </div>
+  </div>
+</div>

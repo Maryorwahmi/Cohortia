@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre code{white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">React Starter Explained</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Starter code core</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded border border-[rgba(226,232,240,0.9)] overflow-auto h-64"><code>const connectWallet = async () =&gt; {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      const accounts = await web3Instance.eth.getAccounts();
+      if (accounts.length > 0) setAccount(accounts[0]);
+    } catch (err) {
+      if (err.code === 4001) setError('User rejected the connection request.');
+      else setError('Error connecting: ' + err.message);
+    }
+  } else setError('MetaMask is not installed.');
+};</code></pre>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Behavior expectations</div>
+        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-2">
+          <li>Prompt the wallet; do not assume success.</li>
+          <li>Store only the connected address in state, not the private key.</li>
+          <li>On account change, refresh address and permissions.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">This pattern delegates signing to the wallet and keeps private keys isolated from your app.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

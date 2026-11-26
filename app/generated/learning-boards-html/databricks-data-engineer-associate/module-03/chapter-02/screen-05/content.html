@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Create DataFrames</div>
+      <div class="text-sm text-slate-600 mt-3">Steps for constructing a DataFrame and choosing a schema approach.</div>
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="text-sm font-bold text-slate-800">1. From Python data</div>
+          <div class="text-sm text-slate-700 mt-1">Wrap a Python list of tuples with a StructType schema and call createDataFrame to produce a typed DataFrame.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="text-sm font-bold text-slate-800">2. From files</div>
+          <div class="text-sm text-slate-700 mt-1">Read CSV or Parquet. Use inferSchema for exploration or provide schema for production reads to avoid surprises.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="text-sm font-bold text-slate-800">3. Verify</div>
+          <div class="text-sm text-slate-700 mt-1">Call printSchema to confirm names, types, and nullable flags before downstream processing.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 shadow-sm panel flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Code example</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <pre class="bg-slate-950 text-white p-3 rounded-lg" style="white-space:pre-wrap;tab-size:2;"><code>from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
+
+data = [
+  ("Alice", 30, 170.5),
+  ("Bob", 24, 182.1),
+  ("Eve", None, 160.0)
+]
+
+schema = StructType([
+  StructField("name", StringType(), True),
+  StructField("age", IntegerType(), True),
+  StructField("height_cm", DoubleType(), True)
+])
+
+df = spark.createDataFrame(data, schema)
+df.printSchema()
+df.show()</code></pre>
+        <div class="mt-3 text-sm text-slate-700">This pattern enforces types and clearly marks nullable fields. Use explicit schema to defend against sample-based inference errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

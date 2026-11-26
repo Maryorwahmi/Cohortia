@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Architecture</div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-slate-50 p-4 border">
+      <h3 class="text-xl font-bold text-slate-900">KMS + HSM Pattern</h3>
+      <div class="mt-3 space-y-3 text-sm text-slate-700">
+        <div><span class="font-semibold">Generate/Store:</span> Keys created in HSM or imported into KMS; never exported in plaintext.</div>
+        <div><span class="font-semibold">Reference by ID:</span> Applications call KMS APIs to encrypt/decrypt instead of handling raw keys.</div>
+        <div><span class="font-semibold">Access Control & Auditing:</span> RBAC limits who can perform operations and audit logs capture all requests.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white border p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Concrete Integration Example</div>
+      <p class="text-sm text-slate-700 mt-2">An HSM produces a master key. The KMS wraps data keys under the master key and distributes wrapped keys to application nodes. Nodes request unwrap operations when needed, without ever storing plaintext master keys.</p>
+      <div class="mt-3 p-3 rounded-lg bg-slate-50 text-sm text-slate-700">
+        <div class="font-semibold">Operational Checks</div>
+        <ul class="ml-4 list-disc mt-2">
+          <li>Monitor unusual decrypt requests or high-volume unwrap operations.</li>
+          <li>Audit key creation, rotation, and deletion events.</li>
+          <li>Enforce strong identity and rotation workflows before key usage.</li>
+        </ul>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Centralizing keys in KMS/HSM reduces exposure and enables consistent rotation and audit, but integration must be deliberate and monitored.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

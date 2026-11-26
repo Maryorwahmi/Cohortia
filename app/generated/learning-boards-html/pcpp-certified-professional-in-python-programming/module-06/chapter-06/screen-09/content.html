@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Code Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm border card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Bellman-Ford (edge list)</div>
+      <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px;">
+def bellman_ford(graph, start_node):
+  distances = {node: float('infinity') for node in graph}
+  distances[start_node] = 0
+  predecessors = {node: None for node in graph}
+
+  edges = []
+  for u in graph:
+    for v, weight in graph[u]:
+      edges.append((u, v, weight))
+
+  num_vertices = len(graph)
+  for _ in range(num_vertices - 1):
+    for u, v, weight in edges:
+      if distances[u] != float('infinity') and distances[u] + weight &lt; distances[v]:
+        distances[v] = distances[u] + weight
+        predecessors[v] = u
+
+  for u, v, weight in edges:
+    if distances[u] != float('infinity') and distances[u] + weight &lt; distances[v]:
+      print("Graph contains a negative cycle!")
+      return None, None
+
+  return distances, predecessors
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Practical points</div>
+      <ul class="list-disc ml-4 text-sm text-slate-700">
+        <li>Edge list makes iteration explicit and easy to test.</li>
+        <li>Ensure distances include isolated nodes for correct initialization.</li>
+        <li>Detect negative cycles with an extra full pass after V-1 relaxations.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">If you detect a negative cycle, shortest-path costs are undefined for affected vertices; handle that case explicitly in your application.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

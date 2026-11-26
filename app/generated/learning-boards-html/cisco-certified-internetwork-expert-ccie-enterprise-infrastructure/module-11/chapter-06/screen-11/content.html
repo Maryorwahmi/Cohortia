@@ -1,0 +1,49 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Lab Walkthrough</span>
+  </div>
+  <div class='rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col'>
+    <div class='text-xl font-bold text-slate-800'>Streamlined Configuration & Rollback Lab</div>
+    <div class='text-sm text-slate-600 mt-2'>Follow these exact steps in the lab environment to practice safe changes and recovery.</div>
+    <div class='mt-4 grid grid-cols-2 gap-4 flex-1'>
+      <div class='rounded-lg bg-slate-50 p-3 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Step 1 — Configure Access Ports</div>
+        <pre class='mt-2 p-2 bg-slate-900 text-slate-100 rounded text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>interface range GigabitEthernet0/1 - 24
+ switchport mode access
+ switchport access vlan 100
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ description ACCESS_PORT_VLAN_100</pre>
+        <div class='text-xs text-slate-600 mt-2'>Verify with do show run interface range Gi0/1 - 24 or do show ip interface brief.</div>
+      </div>
+      <div class='rounded-lg bg-slate-50 p-3 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Step 2 — Object Group & ACL</div>
+        <pre class='mt-2 p-2 bg-slate-900 text-slate-100 rounded text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>object-group network INTERNAL_SERVERS
+ host 192.168.10.10
+ host 192.168.10.11
+!
+ip access-list extended SERVER_ACCESS
+ permit tcp any object-group INTERNAL_SERVERS eq 80</pre>
+        <div class='text-xs text-slate-600 mt-2'>Verify object-group and ACL with do show commands.</div>
+      </div>
+      <div class='rounded-lg bg-slate-50 p-3 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Step 3 — Save & Test Rollback</div>
+        <pre class='mt-2 p-2 bg-slate-900 text-slate-100 rounded text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>copy running-config flash:initial_config.txt
+!
+interface GigabitEthernet0/1
+ no switchport access vlan 100
+!
+configure replace flash:initial_config.txt</pre>
+        <div class='text-xs text-slate-600 mt-2'>Confirm the prompt and re-verify the interface VLAN assignment after replace.</div>
+      </div>
+      <div class='rounded-lg bg-emerald-50 p-3 card-border'>
+        <div class='text-xs font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+        <div class='text-sm text-slate-800 mt-1'>Practice the full cycle so recovery steps are muscle memory during high-pressure lab time.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

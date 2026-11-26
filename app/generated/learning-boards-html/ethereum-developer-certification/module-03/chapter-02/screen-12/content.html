@@ -1,0 +1,58 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>Contract Walkthrough</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-2/3 rounded-2xl bg-white p-4 shadow-sm overflow-auto' style='border:1px solid rgba(226,232,240,0.9)'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2'>Excerpt</div>
+      <pre class='bg-slate-50 rounded-lg p-3 text-sm text-slate-800' style='white-space:pre-wrap;tab-size:2'>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract FunctionAndControl {
+    address public owner;
+    uint256 public value = 100;
+    uint256[] private numbers;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    modifier greaterThanZero(uint _amount) {
+        require(_amount > 0, "Amount must be greater than zero");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+        numbers.push(10);
+        numbers.push(20);
+        numbers.push(30);
+    }
+
+    function setValue(uint256 _newValue) public onlyOwner greaterThanZero(_newValue) {
+        require(_newValue <= 1000, "Value cannot exceed 1000");
+        value = _newValue;
+    }
+}
+</pre>
+    </div>
+    <div class='w-1/3 rounded-2xl bg-white p-4 shadow-sm' style='border:1px solid rgba(226,232,240,0.9)'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2'>Highlights</div>
+      <ul class='text-sm text-slate-700 space-y-2'>
+        <li><strong>Modifiers:</strong> onlyOwner centralizes access control.</li>
+        <li><strong>Visibility:</strong> owner is public; numbers is private to prevent direct external reads.</li>
+        <li><strong>Safety:</strong> require guards inputs and loop limits.</li>
+        <li><strong>Mutability:</strong> setValue is non-view because it updates state; multiply is pure elsewhere.</li>
+      </ul>
+      <div class='mt-4 rounded-lg p-3 bg-white border' style='border-color: rgba(226,232,240,0.9)'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1'>Reflection</div>
+        <div class='text-sm text-slate-700'>Which checks catch invalid inputs, and which checks guard internal invariants? Separate those concerns in your designs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

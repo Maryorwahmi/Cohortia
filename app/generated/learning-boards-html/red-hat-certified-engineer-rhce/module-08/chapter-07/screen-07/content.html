@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Ansible Inventory & Connectivity</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card">
+        <div class="text-sm font-bold text-slate-800">Inventory template</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded">[rhce_nodes]
+node1 ansible_host=192.168.122.10
+node2 ansible_host=192.168.122.11
+
+[all:vars]
+ansible_user=devops
+ansible_private_key_file=~/.ssh/id_rsa
+ansible_python_interpreter=/usr/bin/python3</pre>
+      </div>
+      <div class="rounded-2xl bg-white p-4 card">
+        <div class="text-sm font-bold text-slate-800">Connectivity playbook</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded">---
+- name: Verify RHCE Practice Lab Connectivity
+  hosts: rhce_nodes
+  gather_facts: yes
+  tasks:
+    - name: Ping all managed nodes
+      ansible.builtin.ping:
+
+    - name: Display basic system information
+      debug:
+        msg: |
+          Hostname: {{ ansible_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_major_version }}
+          Kernel: {{ ansible_kernel }}
+          IP Address: {{ ansible_default_ipv4.address }}</pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card h-full">
+        <div class="text-sm font-bold text-slate-800">Common issues</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 mt-2">
+          <li>SSH key not copied to managed node: use ssh-copy-id during setup.</li>
+          <li>Wrong interpreter path: set ansible_python_interpreter to /usr/bin/python3.</li>
+          <li>Inventory hostnames mismatch: confirm ansible_host addresses or hostnames.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Automate connectivity checks; they are cheap and save exam time when run first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

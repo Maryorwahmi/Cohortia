@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Distributed Transaction Challenge</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900 mb-2">Core problem</div>
+        <div class="text-sm text-slate-700">When a logical transaction touches multiple services, each service must either commit or roll back its local changes. Without a global coordinator and durable shared log, ensuring all do the same is difficult because components may fail independently or be partitioned by the network.</div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Failure modes to model</div>
+          <ul class="list-disc ml-5 text-sm text-slate-700 space-y-2">
+            <li>Coordinator crash during commit decision.</li>
+            <li>Participant crash after voting commit but before final commit.</li>
+            <li>Network partition between coordinator and some participants.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Concrete scenario</div>
+        <div class="text-sm text-slate-700">An order service writes an order, payment service charges the card, and inventory decrements stock. If inventory times out after payment succeeds, what should happen to the paid order? The protocol choice determines whether the system blocks, rolls back, or compensates.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-900 mb-2">Design response patterns</div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="p-3 rounded-lg bg-blue-50 text-blue-700">Synchronous coordination (2PC): strong atomicity, low availability.</div>
+          <div class="p-3 rounded-lg bg-amber-50 text-amber-700">Asynchronous choreography (Saga): eventual consistency, higher availability.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Misconception check</div>
+        <div class="text-sm text-slate-700">Assuming short transactions avoid these problems. Even short transactions across services require coordination and can block resources if you adopt synchronous protocols.</div>
+      </div>
+
+      <div class="mt-2">
+        <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Model failure modes first. Choose protocols that align with your availability and consistency needs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

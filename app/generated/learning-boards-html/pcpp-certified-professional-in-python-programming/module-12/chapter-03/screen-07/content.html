@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .cohortia-code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Optimizing Loop Bodies</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-6 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Example: attribute lookup hoist</div>
+      <div class="text-sm text-slate-600 mt-2">Reduce repeated attribute access inside tight loops.</div>
+
+      <pre class="cohortia-code rounded-md bg-slate-50 p-3 mt-3 card border text-sm">class MyProcessor:
+    def __init__(self, multiplier):
+        self.multiplier = multiplier
+
+    def process_items_bad(self, items):
+        results = []
+        for item in items:
+            results.append(item * self.multiplier)  # attribute lookup each iteration
+        return results
+
+    def process_items_good(self, items):
+        results = []
+        local_multiplier = self.multiplier  # hoisted once
+        for item in items:
+            results.append(item * local_multiplier)
+        return results</pre>
+
+      <div class="mt-3 text-xs text-slate-600">This micro-optimization is most valuable in tight loops with many iterations. Always validate with a profiler to confirm real impact.</div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-2xl p-6 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Supporting tips</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700">
+        <li>Cache expensive lookups or function results when they are invariant.</li>
+        <li>Avoid allocating objects inside loops when a reusable object suffices.</li>
+        <li>Prefer local variables over repeated global or attribute access.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Small per-iteration savings multiply across many iterations; hoist invariants and cache results when safe.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

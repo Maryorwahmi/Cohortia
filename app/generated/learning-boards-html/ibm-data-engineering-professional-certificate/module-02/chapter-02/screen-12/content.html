@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Query Composition</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-h-0">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full shadow-sm flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Build a grouped report step-by-step</h3>
+        <p class="text-sm text-slate-600 mt-2">Start with WHERE to reduce rows, then GROUP BY and use HAVING to filter groups; finally ORDER BY and LIMIT the results for reporting.</p>
+
+        <div class="mt-4 bg-slate-50 p-3 rounded-md border border-[rgba(226,232,240,0.9)] overflow-auto flex-1">
+          <div class="text-sm font-medium text-slate-700">Full example</div>
+          <pre class="mt-3 text-sm bg-white p-3 rounded-md border overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>-- Top 2 departments with avg salary &gt; 70000, hires after 2021
+SELECT DepartmentID, AVG(Salary) AS AverageDepartmentSalary
+FROM Employees
+WHERE HireDate &gt;= '2022-01-01'
+GROUP BY DepartmentID
+HAVING AVG(Salary) &gt; 70000
+ORDER BY AverageDepartmentSalary DESC
+LIMIT 2;</code></pre>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-1/2 min-h-0">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full shadow-sm flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Execution tips</div>
+        <div class="mt-3 text-sm text-slate-600">When a query fails, remove clauses one-by-one to find the error. Use column aliases for aggregates and reference those aliases in ORDER BY when supported by your dialect.</div>
+
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+            <div class="text-sm text-slate-700 mt-2">Modify the WHERE filter for different hire-date windows to see how the average salary per department changes over time.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border-l-4 border-l-rose-500">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-2">Assuming ORDER BY can change which rows are grouped. Grouping happens before ordering; ORDER BY only formats the final output.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Compose queries in phases and validate each phase; this prevents logical errors and improves confidence in results.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

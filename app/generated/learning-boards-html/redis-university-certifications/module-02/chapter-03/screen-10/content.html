@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border">Process</span><span class="text-slate-700">Consumer Groups</span></div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <h2 class="text-xl font-bold text-slate-800">Basic commands</h2>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;">XGROUP CREATE user:activity:stream analytics_group 0-0 MKSTREAM
+XREAD GROUP analytics_group consumer_1 COUNT 1 STREAMS user:activity:stream >
+XACK user:activity:stream analytics_group 1678881234567-0
+XGROUP DESTROY user:activity:stream analytics_group</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-lg font-semibold text-slate-800">Operational notes</h3>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Start groups at 0-0 to process history; use > to receive new messages only for that group.</li>
+        <li>Always XACK messages after successful processing to remove them from the pending list.</li>
+        <li>If a consumer dies, other consumers can claim pending messages and finish them.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+          <p class="text-xs font-medium text-slate-800">Unused consumer groups create metadata; destroy groups you no longer need to avoid resource buildup.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Assigning interfaces and choosing zones</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <h3 class="text-lg font-bold text-slate-800">Four-step decision flow</h3>
+      <ol class="list-decimal ml-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Inventory interfaces and what networks they connect to.</li>
+        <li>Choose the least-privilege zone that supports needed services.</li>
+        <li>Assign the interface to the chosen zone.</li>
+        <li>Verify with firewall-cmd --get-active-zones and --zone=&lt;zone&gt; --list-all.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border">
+        <div class="font-bold">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Not assigning the interface to the intended zone, so rules appear present but do not affect traffic on that interface.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="font-bold text-sm text-slate-800">Example scenario</div>
+      <p class="text-sm text-slate-600 mt-2">You have eth0 connected to the internet and eth1 on a management VLAN. Assign eth0 to public and eth1 to internal. Then allow SSH only from your controller on the internal zone.</p>
+
+      <pre class="mt-4 bg-slate-900 text-white p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2"><code># Verify active zones
+firewall-cmd --get-active-zones
+
+# Show details for internal zone
+firewall-cmd --zone=internal --list-all</code></pre>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Assign interfaces based on trust, then verify rules apply to traffic by checking the assigned zone contents.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

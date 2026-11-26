@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">Publishing custom metrics</div>
+      <div class="text-sm text-slate-600 mt-3">Use the CLI or SDK to send application-specific telemetry.</div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">CLI example</div>
+        <pre class="mt-2 rounded-md bg-slate-50 p-3 text-sm border border-slate-100">aws cloudwatch put-metric-data \
+  --metric-name APILatency \
+  --namespace "MyApplication/API" \
+  --value 150 \
+  --dimensions Service=UserService,Endpoint=/users/{id} \
+  --unit Milliseconds</pre>
+        <div class="text-sm text-slate-600 mt-2">This command publishes a single datapoint. Repeat or batch from the application depending on your SDK and design.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">In-code pattern (Python)</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 text-sm border border-slate-100"># inside request handler
+start = time.time()
+# handle request
+duration = (time.time() - start) * 1000
+cloudwatch.put_metric_data(
+  Namespace='MyApplication/Orders',
+  MetricData=[{
+    'MetricName': 'OrderProcessingTime',
+    'Dimensions':[{'Name':'ServiceName','Value':'OrderProcessorService'}],
+    'Value': duration,
+    'Unit':'Milliseconds'
+  }]
+)</pre>
+      <div class="text-sm text-slate-600 mt-3">Verify by invoking the function multiple times and checking CloudWatch for the namespace and dimensions you selected.</div>
+      <div class="mt-4 rounded-xl p-3 bg-white border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Design note</div>
+        <div class="text-sm text-slate-600 mt-1">Batch metrics when possible, avoid per-request dimensional explosion, and choose aggregation periods that match your alerting cadence.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

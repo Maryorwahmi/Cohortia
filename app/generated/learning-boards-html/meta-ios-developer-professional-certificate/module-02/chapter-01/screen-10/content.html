@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-2xl font-bold text-slate-900">PremiumAccount: Subclass and Overdraft</h3>
+    <p class="text-sm text-slate-600 mt-1">Extend behavior through subclassing with clear rules for overdraft and interest.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold">Subclass Starter</div>
+      <pre class="mt-3 rounded-md bg-slate-50 p-3 text-xs text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">class PremiumAccount: BankAccount {
+  var overdraftLimit: Double
+
+  init(accountNumber: String, accountHolder: String, balance: Double, overdraftLimit: Double) {
+    self.overdraftLimit = overdraftLimit
+    super.init(accountNumber: accountNumber, accountHolder: accountHolder, balance: balance)
+  }
+
+  override func withdraw(amount: Double) {
+    // allow balance to drop to -overdraftLimit
+  }
+
+  func applyInterest(rate: Double) {
+    // increase balance by rate only if balance > 0
+  }
+}</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold">Behavior Notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+        <li>Override withdraw to allow overdraft but still enforce a limit.</li>
+        <li>Apply interest only to positive balances to avoid rewarding negative balances.</li>
+        <li>Consider composition for flexible overdraft policies instead of subclassing.</li>
+      </ul>
+      <div class="mt-3 rounded-md bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-800">Design Question</div>
+        <div class="text-sm text-slate-700 mt-1">Would an OverdraftPolicy object make testing and variation easier than subclassing? Consider it.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

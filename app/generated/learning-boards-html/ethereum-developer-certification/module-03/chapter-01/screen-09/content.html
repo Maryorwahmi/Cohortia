@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px} pre.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Warning</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Integer overflow & underflow</div>
+      <div class="mt-4 card p-3">
+        <div class="font-semibold">Illustration</div>
+        <pre class="code mt-2">uint8 public x = 255;
+function increment() public {
+  x++; // prior to 0.8.0 this wraps to 0; in 0.8+ this reverts
+}</pre>
+        <p class="text-sm text-slate-600 mt-2">Test these boundaries and be explicit about expected behavior on overflows.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="card p-3">
+        <div class="font-semibold">Why it matters</div>
+        <p class="text-sm text-slate-600 mt-2">Silent wrapping can be exploited to change balances or counters unexpectedly. Reverts on modern compilers add safety, but your logic must still handle possible errors.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Practical mitigation</div>
+        <p class="text-xs font-medium text-slate-800">Use Solidity 0.8+ checks, or explicit guarded arithmetic for older code; reason about value ranges and include tests for edge cases.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .card-border{border-color:rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <h2 class="text-2xl font-bold text-slate-900 mt-2">Using tcpdump with Ansible</h2>
+    <div class="text-sm text-slate-600 mt-1">Deploy, run filtered captures, and fetch pcap files safely</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white border p-4" style="border-color:var(--card-border);">
+      <div class="text-sm font-semibold text-slate-800">Safe capture example</div>
+      <pre class="mono mt-3 p-3 bg-slate-100 rounded text-sm">- name: Ensure tcpdump is installed
+  ansible.builtin.package:
+    name: tcpdump
+    state: present
+
+- name: Capture network traffic on eth0 for 10 seconds
+  ansible.builtin.shell: "timeout 10 tcpdump -i eth0 -w /tmp/capture.pcap 'port 80' || true"
+  args:
+    creates: /tmp/capture.pcap
+  register: tcpdump_capture
+  changed_when: true</pre>
+      <div class="mt-3 text-sm text-slate-600">Use creates to avoid repeated captures and timeout to limit duration.</div>
+    </div>
+
+    <div class="rounded-xl bg-white border p-4" style="border-color:var(--card-border); display:flex; flex-direction:column;">
+      <div class="text-sm font-semibold text-slate-800">Fetch pattern</div>
+      <pre class="mono mt-3 p-3 bg-slate-100 rounded text-sm">- name: Fetch the captured pcap file
+  ansible.builtin.fetch:
+    src: /tmp/capture.pcap
+    dest: /tmp/ansible_captures/{{ inventory_hostname }}/
+    flat: yes
+  when: tcpdump_capture.rc == 0</pre>
+
+      <div class="mt-4 text-[10px] font-bold uppercase tracking-wider text-rose-700">Safety note</div>
+      <div class="text-sm text-slate-600 mt-2">Filtered, timeboxed captures reduce resource use. Avoid running tcpdump without explicit filters in busy production environments.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Automate packet captures safely: install tcpdump, run with filters/timeouts, and fetch captures only when successful.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card-border p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Bind delegates with AddDynamic</div>
+      <div class="text-sm text-slate-600 mt-2">Declare handlers, enable component flags, then bind in constructor or BeginPlay.</div>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// In AMyProjectile.h
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "MyProjectile.generated.h"
+
+class USphereComponent;
+class UProjectileMovementComponent;
+
+UCLASS()
+class YOURGAME_API AMyProjectile : public AActor
+{
+    GENERATED_BODY()
+
+public:
+    AMyProjectile();
+
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    USphereComponent* CollisionSphere;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UProjectileMovementComponent* ProjectileMovement;
+
+    UFUNCTION()
+    void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+};
+        </pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border p-4">
+      <div class="text-sm font-bold text-slate-800">Constructor Bindings</div>
+      <div class="text-sm text-slate-600 mt-2">Enable overlap and hit notifications, then AddDynamic to bind your functions.</div>
+
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+AMyProjectile::AMyProjectile()
+{
+    CollisionSphere = CreateDefaultSubobject&lt;USphereComponent&gt;(TEXT("CollisionSphere"));
+    RootComponent = CollisionSphere;
+
+    CollisionSphere->InitSphereRadius(15.0f);
+    CollisionSphere->SetCollisionProfileName(TEXT("Projectile"));
+
+    CollisionSphere->SetGenerateOverlapEvents(true);
+    CollisionSphere->SetNotifyRigidBodyCollision(true);
+
+    CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AMyProjectile::OnOverlapBegin);
+    CollisionSphere->OnComponentHit.AddDynamic(this, &AMyProjectile::OnHit);
+}
+      </pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Bindings must match delegate signatures and the component must have the correct flags enabled for events to fire.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

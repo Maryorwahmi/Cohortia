@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size:2; font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Readers-Writers Code</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-4 rounded-xl bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Provided code (excerpt)</div>
+        <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto h-full"><code>#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;shared_mutex&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+std::string shared_resource = "Initial data";
+std::shared_mutex rw_mutex;
+
+void reader(int id) {
+  for (int i = 0; i &lt; 3; ++i) {
+    std::shared_lock&lt;std::shared_mutex&gt; lock(rw_mutex);
+    std::cout &lt;&lt; "Reader " &lt;&lt; id &lt;&lt; " reads: " &lt;&lt; shared_resource &lt;&lt; std::endl;
+    lock.unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
+void writer(int id, const std::string& new_data) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  std::unique_lock&lt;std::shared_mutex&gt; lock(rw_mutex);
+  shared_resource = new_data + " (by Writer " + std::to_string(id) + ")";
+  std::cout &lt;&lt; "Writer " &lt;&lt; id &lt;&lt; " wrote: " &lt;&lt; shared_resource &lt;&lt; std::endl;
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Observations to make</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Readers print concurrently without blocking each other.</li>
+          <li>Writers obtain exclusive access and their update is visible to subsequent reads.</li>
+          <li>Short write critical sections minimize read blocking.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 p-5 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Try this</div>
+        <div class="text-sm text-slate-700">Increase writer frequency and observe whether readers suffer. If writes dominate, a plain mutex may be simpler and faster due to reduced lock complexity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Backup & Restore / Pilot Light</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-[calc(100%-70px)]">
+    <div class="col-span-6 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase font-bold text-slate-500">Process</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Backup & Restore</div>
+      <div class="mt-3 text-sm text-slate-600">Define plan, assign resources, confirm vault and IAM, run regular restores. Ensure AMIs and DB snapshots are available and documented.</div>
+      <div class="mt-4 bg-slate-50 p-3 rounded-lg">
+        <div class="font-bold text-sm">Runbook excerpt — restore</div>
+        <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-2">
+          <li>Restore DB from latest backup into available subnet.</li>
+          <li>Launch EC2 instances from latest AMI and attach configuration.</li>
+          <li>Update DNS to point to new load balancer and validate traffic.</li>
+          <li>Run smoke tests and validate data consistency.</li>
+        </ol>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-bold">Example</div>
+        <div class="mt-1">Daily RDS snapshot restored to a new instance and AMIs used to recreate web servers. Typical RTO: several hours.</div>
+      </div>
+    </div>
+    <div class="col-span-6 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase font-bold text-slate-500">Process</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Pilot Light</div>
+      <div class="mt-3 text-sm text-slate-600">Keep a read replica and copied AMIs in the DR region. Maintain minimal networking and IAM so scaling up is quick.</div>
+      <div class="mt-4 bg-slate-50 p-3 rounded-lg">
+        <div class="font-bold text-sm">Runbook excerpt — pilot light promotion</div>
+        <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-2">
+          <li>Promote cross-region RDS read replica to standalone primary.</li>
+          <li>Launch EC2 instances from copied AMI and attach to target group.</li>
+          <li>Update application configuration or secret store with new DB endpoint.</li>
+          <li>Switch DNS and scale application as needed.</li>
+        </ol>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-bold">Example</div>
+        <div class="mt-1">Promote a read replica in us-west-2 and run two EC2 instances from an AMI copy; DNS cutover reduces RTO to tens of minutes in practiced runs.</div>
+      </div>
+    </div>
+  </div>
+</div>

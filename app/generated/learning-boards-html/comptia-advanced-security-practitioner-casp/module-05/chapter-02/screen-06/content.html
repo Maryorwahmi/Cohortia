@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Process Flow</div>
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 rounded-xl bg-slate-50 p-4 card-border">
+      <h3 class="text-xl font-bold text-slate-900">AES-GCM Encryption Flow</h3>
+      <ol class="mt-3 ml-5 list-decimal text-sm text-slate-700 space-y-3">
+        <li><span class="font-semibold">Generate Key & IV:</span> Use a CSPRNG for the symmetric key and a unique 96-bit IV per encryption.</li>
+        <li><span class="font-semibold">Encrypt Plaintext:</span> Produce ciphertext using Galois/Counter mode keystreams.</li>
+        <li><span class="font-semibold">Compute Tag:</span> Create an authentication tag over ciphertext plus associated data.</li>
+        <li><span class="font-semibold">Transmit/Store:</span> Send ciphertext, IV, and tag. Receiver verifies tag before releasing plaintext.</li>
+      </ol>
+      <div class="mt-4 rounded-xl bg-white p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Associated Data (AD)</div>
+        <div class="text-sm text-slate-700 mt-2">AD is integrity-protected but not encrypted. Use it for headers or non-confidential metadata that must not be altered.</div>
+      </div>
+    </div>
+    <div class="w-2/5 flex flex-col gap-3">
+      <div class="rounded-xl bg-white card-border p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete Example</div>
+        <p class="text-sm text-slate-700 mt-2">A file encrypted with AES-256-GCM includes the IV and the tag. Tampering with the ciphertext will be detected during tag verification and decryption will fail.</p>
+      </div>
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+        <p class="text-sm text-slate-800 mt-2">Reusing IVs under the same key or failing to check the authentication tag leads to severe vulnerabilities.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">AEAD simplifies security by combining encryption and authentication but relies on correct IV/nonce management and tag verification.</p>
+      </div>
+    </div>
+  </div>
+</div>

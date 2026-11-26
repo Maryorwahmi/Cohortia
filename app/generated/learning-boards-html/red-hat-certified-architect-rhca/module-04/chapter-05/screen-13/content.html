@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab starter</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 flex-grow">
+    <div class="col-span-7 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full">
+      <div class="font-semibold text-slate-800">Starter commands</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular,Menlo,monospace;">
+# 1. Create user
+sudo useradd -m devops_junior
+sudo passwd devops_junior
+
+# 2. Edit sudoers with visudo and add:
+# User_Alias      DEVOPS_JUNIORS = devops_junior
+# Cmnd_Alias      NGINX_MGMT = /usr/bin/systemctl restart nginx.service, /usr/bin/systemctl status nginx.service
+# DEVOPS_JUNIORS ALL=(root) NOPASSWD: NGINX_MGMT
+
+# 3. Enable I/O logging in sudoers
+# Defaults log_input, log_output
+      </pre>
+      <div class="mt-4 text-sm text-slate-700">After saving, test by switching users and attempting allowed and denied commands, then inspect logs under /var/log/secure and /var/log/sudo-io/.</div>
+    </div>
+    <div class="col-span-5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+      <div class="font-semibold text-slate-800">Testing checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>su - devops_junior and run sudo /usr/bin/systemctl restart nginx.service (allowed)</li>
+        <li>Attempt sudo /usr/bin/systemctl stop nginx.service (should be denied)</li>
+        <li>As root, check sudo events in /var/log/secure and I/O files in /var/log/sudo-io/</li>
+        <li>Use sudoreplay to replay a captured session for investigation</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Test allowed and denied commands and verify logs to ensure both least privilege and auditability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

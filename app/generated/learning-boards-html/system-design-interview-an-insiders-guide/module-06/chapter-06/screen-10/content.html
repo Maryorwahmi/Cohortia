@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Scalability & Reliability</span><span>›</span><span>Chapter 6.6</span><span>›</span><span class="text-slate-700">Celery Setup & Tasks</span></div><div class="flex flex-col h-full w-full"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Code Walkthrough</div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Initializing Celery and Defining Your First Task</h1><p class="text-lg text-slate-700">From Installation to `@app.task` Decoration</p></div><div class="flex flex-grow gap-6"><div class="flex-1 flex flex-col justify-between"><div class="bg-slate-800 rounded-xl shadow-lg p-5 mb-4 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># 1. Install Celery and Redis</div><pre><code class="language-bash">pip install celery redis</code></pre><div class="text-amber-400 mt-4 mb-2"># 2. Create proj/celery.py</div><pre><code class="language-python">from celery import Celery
+
+app = Celery(
+    'my_app',
+    broker='redis://localhost:6379/0',
+    backend='redis://localhost:6379/0',
+    include=['proj.tasks']
+)
+
+app.conf.timezone = 'UTC'</code></pre></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Explanation</div><p class="text-xs font-medium text-slate-800">The `Celery` instance is configured with Redis as both the message broker (for tasks) and the result backend (for task outcomes). `include` tells Celery where to find your task definitions.</p></div></div><div class="flex-1 flex flex-col justify-between"><div class="bg-slate-800 rounded-xl shadow-lg p-5 mb-4 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># 3. Define Tasks in proj/tasks.py</div><pre><code class="language-python">import time
+from proj.celery import app
+
+@app.task
+def add(x, y):
+    """A simple task that adds two numbers."""
+    print(f"Executing add task: {x} + {y}")
+    time.sleep(2) # Simulate long-running work
+    result = x + y
+    print(f"Add task finished: {result}")
+    return result</code></pre></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Key Concept: `@app.task`</div><p class="text-xs font-medium text-slate-800">The `@app.task` decorator registers a Python function as a Celery task, making it eligible for asynchronous execution by workers.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro-Tip</div><p class="text-xs font-medium text-slate-800">Use `time.sleep()` to simulate network delays or heavy computation during development, helping you observe asynchronous behavior.</p></div></div></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Setting up Celery involves installing dependencies, configuring the `Celery` app with a broker and backend, and defining tasks using the `@app.task` decorator.</p></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

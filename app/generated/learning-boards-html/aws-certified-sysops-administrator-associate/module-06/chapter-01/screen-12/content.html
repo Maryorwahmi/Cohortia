@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;} </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on: EC2 Role for S3</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Terminal steps (conceptual)</div>
+      <div class="mt-3 text-sm text-slate-600">Follow these steps and substitute your unique bucket name where needed. The commands below are the exact sequence used in the activity description.</div>
+
+      <div class="mt-4 mono bg-slate-50 p-3 rounded">
+        <pre># 1. Create S3 bucket and upload a test file
+aws s3 mb s3://my-sysops-app-data-unique-name-123 --region us-east-1
+echo "Hello from S3!" > index.html
+aws s3 cp index.html s3://my-sysops-app-data-unique-name-123/
+
+# 2. Policy json (s3-readonly-policy.json)
+{ "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Action": [ "s3:GetObject", "s3:ListBucket" ], "Resource": [ "arn:aws:s3:::my-sysops-app-data-unique-name-123", "arn:aws:s3:::my-sysops-app-data-unique-name-123/*" ] } ] }
+
+# 3. Create policy via CLI
+aws iam create-policy --policy-name S3AppReadOnlyPolicy --policy-document file://s3-readonly-policy.json
+
+# 4. Trust policy for EC2 (ec2-trust-policy.json)
+{ "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Principal": { "Service": "ec2.amazonaws.com" }, "Action": "sts:AssumeRole" } ] }
+
+# 5. Create role and attach policy
+aws iam create-role --role-name EC2S3ReaderRole --assume-role-policy-document file://ec2-trust-policy.json
+aws iam attach-role-policy --role-name EC2S3ReaderRole --policy-arn arn:aws:iam::YOUR_ACCOUNT_ID:policy/S3AppReadOnlyPolicy
+
+# 6. Launch EC2 and select EC2S3ReaderRole
+
+# 7. On the instance, test access
+aws s3 ls s3://my-sysops-app-data-unique-name-123/
+aws s3 cp s3://my-sysops-app-data-unique-name-123/index.html .
+# This should fail:
+aws s3 ls
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Remember to replace YOUR_ACCOUNT_ID and use a globally unique bucket name. After testing, remove any temporary resources and confirm the role’s policy grants only the required actions.</div>
+
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example explanation</div>
+      <div class="mt-3 text-sm text-slate-600">The created role allows EC2 instances to obtain temporary credentials and read objects from only the specified bucket. Attempts to list all buckets should fail because the policy does not grant s3:ListAllMyBuckets.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use a role with a narrowly scoped policy to avoid long-lived keys on instances; test that only the intended bucket is accessible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

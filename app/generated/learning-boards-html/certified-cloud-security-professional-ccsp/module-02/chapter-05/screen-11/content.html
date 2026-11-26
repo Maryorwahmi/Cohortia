@@ -1,0 +1,103 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg {
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    }
+    .card-border {
+      border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+    .shadow-card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .icon-stroke {
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .code-block {
+      font-family: 'Inter', monospace;
+      white-space: pre-wrap;
+      tab-size: 2;
+      background-color: #1e293b;
+      color: #f0f9ff;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      overflow: hidden;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .terminal-output {
+      font-family: 'Inter', monospace;
+      white-space: pre-wrap;
+      tab-size: 2;
+      background-color: #0f172a;
+      color: #a3a3a3;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      overflow: hidden;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2.5</span>
+    <span>›</span>
+    <span>Cloud Security Fundamentals</span>
+    <span>›</span>
+    <span class="text-slate-700">Least Privilege IAM Policy in AWS</span>
+  </div>
+  <div class="flex-grow flex flex-col justify-center items-center">
+    <h2 class="text-3xl font-bold text-slate-800 mb-4">Least Privilege IAM Policy in AWS</h2>
+    <p class="text-lg text-slate-600 mb-8">Creating an AWS IAM policy for specific S3 bucket access.</p>
+    <div class="flex justify-center gap-6 w-full max-w-5xl">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="text-sm font-medium text-slate-700">
+          <p><strong>1. Define the IAM Policy:</strong></p>
+          <p>This policy grants `s3:ListBucket` and `s3:GetObject` permissions only for the specified bucket and its objects.</p>
+        </div>
+        <div class="code-block">
+          <pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListSpecificBucket",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::my-application-logs-12345"
+    },
+    {
+      "Sid": "GetObjectsFromSpecificBucket",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::my-application-logs-12345/*"
+    }
+  ]
+}
+</code></pre>
+        </div>
+      </div>
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="text-sm font-medium text-slate-700">
+          <p><strong>2. Create User & Attach Policy:</strong></p>
+          <p>Create the IAM user 'AppLogReader' and attach the policy.</p>
+          <p class="mt-2"><strong>3. Test Access (AWS CLI):</strong></p>
+        </div>
+        <div class="code-block">
+          <pre><code># Should succeed:
+aws s3 ls s3://my-application-logs-12345/
+aws s3 cp s3://my-application-logs-12345/some_log_file.txt .
+
+# Should fail (Access Denied):
+aws s3 ls
+aws s3 rm s3://my-application-logs-12345/some_log_file.txt
+</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6 w-full max-w-5xl shadow-card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Precisely defining IAM policies to grant only necessary permissions is fundamental to enforcing least privilege and securing cloud resources.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

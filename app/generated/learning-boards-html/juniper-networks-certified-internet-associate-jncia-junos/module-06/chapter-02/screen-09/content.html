@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Router R2 (Backup)</div>
+      <div class="text-sm text-slate-600 mb-3">R2 keeps the same virtual-address and authentication but uses a lower priority so it stays backup until needed.</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>edit interfaces ge-0/0/0 unit 0 family inet
+set address 192.168.1.252/24
+set vrrp group 1 virtual-address 192.168.1.1
+set vrrp group 1 priority 100
+# optional: set vrrp group 1 no-preempt
+set vrrp group 1 authentication-type simple
+set vrrp group 1 authentication-key "MySecretKey"</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Operational tips</div>
+      <div class="text-sm text-slate-600 mb-3">If you want stable mastership without automatic reclaim, configure no-preempt on the preferred master or on backups depending on your design. Document your preemption decision so operations know expected failover behavior.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Matching virtual-address and authentication is required; adjust preempt based on stability vs automatic recovery trade-offs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

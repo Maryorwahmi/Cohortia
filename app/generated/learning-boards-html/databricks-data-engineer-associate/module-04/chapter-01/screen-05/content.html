@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">The Delta transaction log</div>
+      <div class="text-sm text-slate-600 mb-4">A ledger of commits that maps each version to the set of data files that implement it.</div>
+      <div class="rounded-lg bg-blue-50 p-4 mb-3">
+        <div class="text-sm font-semibold text-blue-700">How it works</div>
+        <ul class="text-xs text-slate-700 mt-2 list-disc pl-4">
+          <li>Each operation writes a commit JSON describing added and removed files.</li>
+          <li>Commits are ordered; the latest commit defines the current snapshot.</li>
+          <li>Readers reconstruct the snapshot by reading file pointers referenced by the commit.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg bg-white p-3 card-border mono" style="white-space:pre-wrap;">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Example: Inspect history</div>
+        <pre><code>DESCRIBE HISTORY my_delta_table;</code></pre>
+        <div class="text-xs text-slate-600 mt-2">This command lists commits with version numbers and timestamps that you can use for time travel.</div>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Analogy</div>
+      <div class="text-xs text-slate-600 mb-4">Think of the log as a table of contents that points to which files compose each version. The contents are immutable once published.</div>
+      <div class="rounded-lg bg-amber-50 p-3 mb-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Quick fact</div>
+        <div class="text-xs text-slate-700 mt-2">The log stores file-level metadata, not full row deltas, keeping it compact and efficient for versioning.</div>
+      </div>
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-800 mt-2">The transaction log is the authoritative source that enables snapshots, time travel, and atomic commits.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #f8fafc; }
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    pre.code { background:#0b1220;color:#e6eef8;padding:12px;border-radius:12px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px;white-space:pre-wrap;tab-size:2; }
+  </style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Protection Proxy Lab</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-cols-2 gap-4">
+      <div>
+        <div class="text-lg font-bold text-slate-800">Starter Code</div>
+        <div class="text-sm text-slate-600 mt-2">Complete the SensitiveDataServiceProxy to add checks and lazy initialization.</div>
+
+        <pre class="code">// Subject interface
+interface DataService { String fetchData(String userId); }
+
+// Real subject
+class SensitiveDataService implements DataService {
+  @Override
+  public String fetchData(String userId) {
+    System.out.println("SensitiveDataService: Fetching confidential data for user: " + userId);
+    try { Thread.sleep(1500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+    return "Confidential Data for " + userId;
+  }
+}
+
+// TODO: Implement the ProtectionProxy using the pattern shown earlier
+</pre>
+      </div>
+
+      <div class="flex flex-col">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-semibold">Testing scenarios</div>
+          <ol class="text-sm text-slate-600 mt-2 list-decimal ml-4">
+            <li>ADMIN: should construct real service and return confidential data.</li>
+            <li>GUEST: should return "Access Denied" without creating the real service.</li>
+            <li>DEVELOPER: should be denied in this starter example.</li>
+          </ol>
+        </div>
+
+        <div class="mt-4 p-3 rounded-lg bg-amber-50 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Reflection</div>
+          <div class="text-sm text-slate-800 mt-2">After implementing, consider where a centralized authorization service would integrate and how you would avoid duplicating checks across proxies.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

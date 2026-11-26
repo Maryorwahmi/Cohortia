@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Kernel Tuning</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card shadow-sm h-full grid grid-cols-2 gap-6">
+    <div class="flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Inspect parameters</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;">sysctl -a | grep net.
+# example: view somaxconn
+echo net.core.somaxconn = $(sysctl net.core.somaxconn)</pre>
+
+      <div class="mt-3 p-3 rounded-lg bg-white card">
+        <div class="font-bold">Example change</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;">sudo sysctl -w net.core.somaxconn=65535
+# persist by adding to /etc/sysctl.conf</pre>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">When to adjust</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-4 space-y-2">
+        <li>High connection rates and backlog drops visible in ss or application logs.</li>
+        <li>TIME-WAIT exhaustion or unusual connection teardown behavior.</li>
+        <li>Only after confirming network path and application behavior with tests like iperf3 and sar.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Caution</div>
+        <p class="text-sm text-slate-700">Kernel tuning can have system-wide effects. Make small changes, test under load, and document reversions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands‑on Activity</span> <span>›</span> <span class="text-slate-700">Lab Steps</span> </div> <div class="grid grid-cols-2 gap-6 h-full"> <div class="rounded-2xl bg-white card-border p-4"> <div class="text-lg font-bold text-slate-800">Lab checklist</div> <ol class="mt-3 text-sm text-slate-700 space-y-2"> <li>Set maintenance-mode=true.</li> <li>Install httpd on both nodes and create WebServer primitive.</li> <li>Create or verify SharedFS and VirtualIP primitives.</li> <li>Create WebAppGroup with desired startup order.</li> <li>Enable STONITH and create fence_manual for lab simulation.</li> <li>Exit maintenance-mode and test failover by stopping httpd on the active node.</li> </ol> </div> <div class="rounded-2xl bg-white card-border p-4"> <div class="text-sm font-bold text-slate-800">Commands summary</div> <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2"><code># Maintenance mode on
+sudo pcs property set maintenance-mode=true
+
+# Create WebServer
+sudo pcs resource create WebServer ocf:heartbeat:apache configfile="/etc/httpd/conf/httpd.conf" statusurl="http://127.0.0.1/server-status" op monitor interval=30s
+
+# Group resources
+sudo pcs resource group add WebAppGroup SharedFS WebServer VirtualIP
+
+# Enable STONITH and add manual fence (lab only)
+sudo pcs property set stonith-enabled=true
+sudo pcs stonith create my_manual_fencer fence_manual pcmk_host_list="node1.example.com node2.example.com"
+
+# Exit maintenance mode
+sudo pcs property set maintenance-mode=false
+
+# Verify
+sudo pcs status
+sudo pcs stonith</code></pre> <div class="mt-3 text-xs text-slate-600">Observe WebAppGroup failover when you stop httpd, and confirm fencing device listing with pcs stonith.</div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

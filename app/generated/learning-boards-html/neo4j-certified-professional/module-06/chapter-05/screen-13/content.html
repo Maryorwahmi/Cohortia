@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,Helvetica Neue,monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Connection Pooling & Memory</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Architecture</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-1">Driver pooling and reuse</h2>
+      <p class="text-sm text-slate-600 mt-2">Initialize the driver once at startup. Let the driver manage connections and pooling for efficient concurrency.</p>
+
+      <div class="mt-3">
+        <div class="text-sm text-slate-700">Python-style pattern:</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">from neo4j import GraphDatabase
+
+driver = GraphDatabase.driver(uri, auth=(username, password))
+# reuse this driver for the app lifetime
+
+with driver.session() as session:
+  result = session.run("MATCH (n:Thing) RETURN n LIMIT 5")
+  # process result</pre>
+        <div class="text-sm text-slate-600 mt-2">Note: initialize driver once and share it; creating a new driver per request is expensive.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Memory & caching</div>
+      <p class="text-sm text-slate-600 mt-2">Adjust heap and page cache to fit your dataset and query patterns. Monitor cache hit ratios and disk I/O when tuning.</p>
+
+      <div class="mt-3">
+        <div class="text-sm text-slate-700">Docker env vars you may tune:</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">NEO4J_dbms_memory_heap_max__size=1G
+NEO4J_dbms_memory_pagecache_size=512M</pre>
+        <div class="text-sm text-slate-600 mt-2">These values must be chosen relative to available host memory and workload characteristics.</div>
+      </div>
+
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Resource reuse and right-sized memory settings reduce latency and avoid timeouts. Monitor the whole stack while tuning.</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Combine connection pool metrics with database cache metrics to find the true bottleneck rather than guessing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

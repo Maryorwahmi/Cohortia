@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Concurrent Modification</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Fail-fast pattern</div>
+      <pre class="mono bg-slate-50 p-3 rounded-md mt-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// On aggregate
+private int modCount = 0;
+public void add(Book b) { /* add */ modCount++; }
+public void remove(Book b) { /* remove */ modCount++; }
+
+// In iterator
+private final int expected = modCount;
+public Book next() {
+  if (expected != modCount) throw new java.util.ConcurrentModificationException();
+  // proceed
+}</code></pre>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Alternatives and notes</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 flex-grow">
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Disallow mutations: simplest but restrictive; throw on mutating methods when iteration is active.</div>
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800">Concurrent iterators: implement snapshot iterators that iterate over a copy to avoid exceptions at cost of memory.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-800">Document the chosen behavior so clients understand whether iteration is fail-fast, snapshot-based, or thread-safe.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception check</div>
+        <p class="text-xs font-medium text-slate-800">Fail-fast does not make your collection thread-safe; it only detects unexpected concurrent changes and fails early.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

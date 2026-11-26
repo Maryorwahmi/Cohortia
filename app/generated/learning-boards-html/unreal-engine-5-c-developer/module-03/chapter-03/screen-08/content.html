@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre.code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">AMyDoor.cpp Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-[72vh]">
+    <div class="col-span-7 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Implementation snippet</div>
+      <pre class="code mt-3 rounded-md bg-slate-900 text-slate-50 p-4"><code>// MyDoor.cpp
+#include "MyDoor.h"
+#include "Engine/Engine.h"
+#include "Kismet/KismetMathLibrary.h"
+
+AMyDoor::AMyDoor()
+{
+    PrimaryActorTick.bCanEverTick = true;
+    bIsOpen = false;
+    DoorOpenDuration = 1.5f;
+    CurrentOpenAlpha = 0.0f;
+}
+
+void AMyDoor::BeginPlay()
+{
+    Super::BeginPlay();
+    if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Door initialized."));
+}
+
+void AMyDoor::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+    UpdateDoorPosition(DeltaTime);
+}
+
+void AMyDoor::UpdateDoorPosition(float DeltaTime)
+{
+    float TargetAlpha = bIsOpen ? 1.0f : 0.0f;
+    CurrentOpenAlpha = FMath::FInterpTo(CurrentOpenAlpha, TargetAlpha, DeltaTime, 1.0f / DoorOpenDuration);
+}
+
+void AMyDoor::OpenDoor()
+{
+    if (!bIsOpen) { bIsOpen = true; }
+}
+
+void AMyDoor::CloseDoor()
+{
+    if (bIsOpen) { bIsOpen = false; }
+}
+
+bool AMyDoor::IsDoorOpen() const
+{
+    return bIsOpen;
+}
+</code></pre>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">What to notice</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Constructor sets defaults so the actor behaves predictably in editor and during play.</li>
+        <li>Tick calls a single UpdateDoorPosition to keep animation logic centralized.</li>
+        <li>OpenDoor/CloseDoor flip state only through controlled methods.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 text-amber-700">Best practice: centralize state mutation so any rule, like clamping or triggering effects, always runs in one place.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep mutation and update logic together and expose only intended actions to external systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

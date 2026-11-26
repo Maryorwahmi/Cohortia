@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Why aggregation matters</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex">
+    <div class="w-1/2 pr-4 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Definition</div>
+      <p class="mt-3 text-sm text-slate-600">Aggregation summarizes raw events into counts, sums, averages, or distinct estimates to reduce volume and speed queries.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 card-border">
+          <div class="text-sm font-semibold text-blue-700">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">A stream job increments a per-minute counter for user_click events instead of re-summing millions of rows at query time.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-sm font-semibold text-amber-700">Why it matters</div>
+          <div class="text-sm text-slate-700 mt-1">Dashboards read a few aggregated rows instead of scanning raw events, providing interactive latency.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Keeping raw events alone is not sufficient for low-latency dashboards; you still need a summarized path.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Decide which metrics require per-event precision and which can be safely aggregated to lower compute cost.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Visualization: event funnel</div>
+      <div class="mt-3 rounded-lg bg-white card-border p-4 h-full flex flex-col">
+        <div class="text-sm text-slate-600">Imagine a funnel where millions of events enter and are summarized into small metric rows:</div>
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-md bg-white p-3 card-border">Raw events: user_click, user_login, purchase — high volume, fine-grained.</div>
+          <div class="rounded-md bg-blue-50 p-3 card-border">Aggregates: clicks_per_minute, unique_users_per_hour — reduced volume for dashboards.</div>
+          <div class="rounded-md bg-emerald-50 p-3 card-border">Materialized view: persisted summary table ready for reads.</div>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-600">Use windowing semantics and a strategy for late events to decide how aggregates are updated over time.</div>
+      </div>
+    </div>
+  </div>
+</div>

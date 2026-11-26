@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Decoupled Trading Pipeline</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Architecture summary</div>
+        <div class="text-sm text-slate-700">Ingest orders to Kinesis for ordered, durable streaming. Use a Kinesis consumer to validate and publish processed events to SNS. SNS fans out to SQS FIFO, Lambda, and EventBridge for independent consumers.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Why each service</div>
+            <ul class="text-sm text-slate-700 mt-2 pl-4 list-disc">
+              <li>Kinesis: ordered ingestion and multiple independent consumers.</li>
+              <li>SNS: fast fan-out to many targets.</li>
+              <li>SQS FIFO: ordered, exactly-once delivery for core fulfillment.</li>
+              <li>EventBridge: application-level routing for other microservices.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Compose services to match the semantics you need: ordering, fan-out, durability, and routing each have their native solution.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Scenario callout</div>
+        <p class="text-sm text-slate-700">A trade arrives in Kinesis. A validator Lambda reads the shard, enriches the trade, and publishes an "OrderProcessed" message to SNS. SNS fans out to a FIFO SQS queue for fulfillment, a Lambda to notify traders, and an EventBridge bus for routing to risk and compliance services.</p>
+
+        <div class="mt-4 p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-700">Operational checklist</div>
+          <ul class="text-sm text-slate-700 mt-2 pl-4 list-disc">
+            <li>Plan Kinesis shards for peak throughput.</li>
+            <li>Use FIFO where order matters and partition MessageGroupId to avoid bottlenecks.</li>
+            <li>Attach DLQs to critical queues and monitor consumer lag.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Reflection</div>
+        <p class="text-sm text-slate-700">Which component would you scale first if the system experiences a sudden spike in incoming orders, and why?</p>
+      </div>
+    </div>
+  </div>
+</div>

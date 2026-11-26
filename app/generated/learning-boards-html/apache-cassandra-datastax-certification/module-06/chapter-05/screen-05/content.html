@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .two-col{display:grid;grid-template-rows:55% 45%;height:100%;gap:14px;} .proc{display:flex;flex-direction:column;gap:8px;} .step{background:#fff;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9);} pre.restore{background:#0b1220;color:#dff3ff;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="w-full max-w-6xl mx-auto h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">Restore steps</span>
+    </div>
+
+    <div class="two-col">
+      <div class="proc">
+        <div class="step">
+          <div class="text-sm font-bold text-slate-800">Controlled restore sequence</div>
+          <ol class="mt-2 text-sm text-slate-700 list-decimal list-inside">
+            <li>Stop Cassandra on the node to be restored.</li>
+            <li>Copy snapshot SSTable files into the appropriate data directories for each table.</li>
+            <li>If restoring to a fresh node, clear or handle commit logs as your recovery procedure dictates.</li>
+            <li>Start the node and run nodetool refresh or wait for startup to detect new SSTables.</li>
+            <li>Run nodetool repair to reconcile data across replicas.</li>
+          </ol>
+        </div>
+
+        <div class="step">
+          <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Concrete restore commands (conceptual)</div>
+          <pre class="restore mt-2"><code># stop the service
+sudo systemctl stop cassandra
+# copy snapshot files to the table data directory
+# e.g. cp /backups/node1/my_keyspace/my_table-*/snapshots/my_backup_tag/* /var/lib/cassandra/data/my_keyspace/my_table-UUID/
+# start and refresh
+sudo systemctl start cassandra
+nodetool repair</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-semibold text-slate-800">Why repair is essential</div>
+        <div class="text-sm text-slate-600 mt-2">Repair performs anti-entropy synchronization across replicas for the affected token ranges. Without repair, some replicas may remain stale and later reintroduce deleted or older data, causing inconsistency.</div>
+
+        <div class="mt-4 text-sm font-semibold text-slate-800">Common pitfall</div>
+        <div class="text-sm text-slate-600 mt-2">Restoring SSTables does not automatically propagate data to other replicas. Operators sometimes assume a restart is enough; forgetting repair can leave the cluster in a mixed state.</div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">A reliable restore is a sequence: stop, replace files, restart, and repair — and document it in your runbook.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

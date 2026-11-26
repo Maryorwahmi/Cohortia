@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Reverse proxy example</h3>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">server {
+    listen 80;
+    server_name app.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    error_log /var/log/nginx/app.example.com_error.log;
+    access_log /var/log/nginx/app.example.com_access.log;
+}</pre>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="font-semibold">Verification</div>
+        <ul class="list-disc pl-5 mt-2">
+          <li>Use curl to request app.example.com and inspect headers.</li>
+          <li>On the backend, check logs for X-Real-IP and Host values.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example: Flask backend</div>
+      <pre class="mt-2 p-3 bg-slate-50 rounded-md" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return f"Hello from Flask! Host: {request.headers.get('Host')}, IP: {request.headers.get('X-Real-IP')}
+"
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000)</pre>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Operational note</div>
+          <div class="text-sm text-slate-700 mt-1">Always include proxy_set_header directives when backends rely on Host and client IP for logging, security, or routing.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Missing proxy_set_header entries commonly cause backends to see only the proxy's IP and lose original request context.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

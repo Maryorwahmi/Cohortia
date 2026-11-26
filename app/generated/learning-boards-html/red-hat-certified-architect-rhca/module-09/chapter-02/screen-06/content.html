@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">corosync.conf structure</span>
+  </div>
+  <div class="rounded-2xl bg-white card-border p-6 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold text-slate-700">Configuration example</div>
+    <p class="text-sm text-slate-600 mt-2">Use this simplified snippet as a starting template. Ensure identical settings across nodes.</p>
+    <pre class="mt-4 p-4 bg-slate-50 rounded text-sm text-slate-800 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code># /etc/corosync/corosync.conf (simplified example)
+totem {
+    version: 2
+    cluster_name: myhacluster
+    secauth: on
+    crypto_cipher: aes256
+    crypto_hash: sha256
+    interface {
+        ring_number: 0
+        bindnetaddr: 192.168.1.0 # Network address for the interface
+        mcastport: 5405
+        ttl: 1
+    }
+}
+
+quorum {
+    provider: corosync_votequorum
+    two_node: 1
+}
+
+logging {
+    fileline: off
+    to_stderr: no
+    to_syslog: yes
+    syslog_facility: daemon
+    debug: off
+    timestamp: on
+}</code></pre>
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">Totem</div>
+        <p class="text-sm text-slate-600 mt-2">Defines the communication protocol, security options, and which interface or network Corosync uses.</p>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">Quorum</div>
+        <p class="text-sm text-slate-600 mt-2">Controls vote-based quorum. two_node: 1 is for two-node clusters only; do not enable it for 3+ nodes.</p>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Edit corosync.conf carefully, copy the same file to every node, and confirm bindnetaddr and cluster_name match across the cluster.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

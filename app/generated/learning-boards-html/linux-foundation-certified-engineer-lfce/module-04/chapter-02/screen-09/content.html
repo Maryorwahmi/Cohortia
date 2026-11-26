@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Caching</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Example mod_cache block</div>
+      <pre class="mt-3 bg-slate-900 text-green-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2;"><code>&lt;IfModule mod_cache.c&gt;
+    &lt;IfModule mod_disk_cache.c&gt;
+        CacheRoot "/var/cache/apache2/mod_cache_disk"
+        CacheEnable disk /
+        CacheDirLevels 2
+        CacheDirLength 1
+        CacheMaxFileSize 10000000
+        CacheMinFileSize 1000
+        CacheLock on
+        CacheLockPath /tmp/mod_cache_lock
+        CacheLockMaxAge 5
+        CacheIgnoreCacheControl On
+        CacheIgnoreQueryString Off
+        CacheMaxExpire 86400
+        CacheLastModifiedFactor 0.1
+    &lt;/IfModule&gt;
+&lt;/IfModule&gt;</code></pre>
+
+      <div class="mt-4 text-sm text-slate-700">This block creates a disk cache root and configures size, locking, and expiry behavior for cached assets. Ensure the cache root has sufficient disk space and correct ownership.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">When to cache</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+        <li>Static files such as images, CSS, and JS are good candidates.</li>
+        <li>Avoid caching personalized or frequently changing dynamic pages without a clear invalidation mechanism.</li>
+        <li>Use Cache-Control headers from the application to coordinate expiration policies.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <div class="text-sm text-rose-800 mt-1">Turning off CacheIgnoreQueryString can cause query-based resources to be cached incorrectly; understand your application's query semantics.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Implement disk caching for static content, size the cache, and use headers and invalidation to avoid stale assets.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

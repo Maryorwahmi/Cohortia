@@ -1,0 +1,46 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Architecture</span>
+      <span class="text-slate-700">Service Communication Patterns</span>
+    </div>
+    <div class="text-sm text-slate-600">Choose patterns to balance latency, coupling, and resilience</div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 cohortia-card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Synchronous communication</div>
+      <div class="text-sm text-slate-600">Direct request/response calls, typically HTTP or gRPC. Use for immediate user flows that require timely answers.</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Pros: simple semantics, immediate responses, easy for imperative flows.</li>
+        <li>Cons: tight runtime coupling; caller affected by downstream failures and latency.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Example</div>
+        <div class="text-sm text-slate-600 mt-1">OrderService calls PaymentService synchronously to confirm payment before marking an order complete.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Asynchronous messaging</div>
+      <div class="text-sm text-slate-600">Services communicate via events or messages, enabling loose coupling and resilience through eventual processing.</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Pros: decouples sender and receiver, improves availability, supports scaling consumers independently.</li>
+        <li>Cons: requires handling ordering, idempotency, and eventual consistency semantics.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Example</div>
+        <div class="text-sm text-slate-600 mt-1">ProductCatalogService emits an inventory change event; InventoryService consumes it to update stock asynchronously.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 w-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Pick synchronous calls for immediate needs and events for decoupled workflows; plan for retries, idempotency, and tracing to keep systems observable and correct.</p>
+    </div>
+  </div>
+</div>

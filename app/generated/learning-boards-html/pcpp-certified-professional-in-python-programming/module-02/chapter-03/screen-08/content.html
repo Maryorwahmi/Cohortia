@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Wrapping methods with metaclasses</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl card p-4 bg-white">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example pattern</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono',monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>class LoggerMeta(type):
+  def __new__(mcs, name, bases, attrs):
+    if 'log_level' not in attrs:
+      attrs['log_level'] = 'INFO'
+
+    def log_message(self, message):
+      print(f"[{self.log_level}] {self.__class__.__name__}: {message}")
+    attrs['log'] = log_message
+
+    return super().__new__(mcs, name, bases, attrs)
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border p-4 bg-slate-50">
+      <div class="text-sm font-bold text-slate-700">Notes</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Decide whether to read configuration at call time (instance attribute) or bake defaults during creation.</li>
+        <li>Use functools.wraps when wrapping existing functions to preserve metadata.</li>
+        <li>Wrapping in the metaclass gives consistent behavior across all classes using it.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-problem</div>
+        <p class="text-xs font-medium text-slate-800">Ensure wrappers access instance attributes properly. Avoid capturing mutable defaults at class-creation time unless intended.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

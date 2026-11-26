@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+    <div class="text-xl font-bold text-slate-900 mb-3">Event Listening & Log Handling</div>
+
+    <div class="flex-1 grid grid-cols-2 gap-4">
+      <div class="bg-slate-50 rounded-lg p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Listen pattern</div>
+        <pre class="bg-white rounded-md p-3 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>myDeployedContract.events.GreetingUpdated({
+  fromBlock: receipt.blockNumber
+}).on('data', event => {
+  console.log('Old:', event.returnValues.oldGreeting);
+  console.log('New:', event.returnValues.newGreeting);
+});</code></pre>
+        <div class="mt-3 text-sm text-slate-700">Start listening from the block containing the transaction to ensure you capture that event.</div>
+      </div>
+
+      <div class="bg-white rounded-lg p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Event decoding</div>
+        <div class="text-sm text-slate-700">The ABI entry for the event must match the emitted event fields for web3.js to decode returnValues successfully. Indexed fields become topics available for filtering.</div>
+
+        <div class="mt-3 rounded-lg p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <div class="text-sm text-rose-600 mt-1">Not including the event in the ABI or using the wrong ABI version prevents decoding; you'll receive raw logs instead of structured returnValues.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Use case</div>
+        <div class="text-sm text-slate-700 mt-1">Update a UI when a greeting changes by listening for GreetingUpdated and refreshing displayed state.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Best practice</div>
+        <div class="text-sm text-slate-700 mt-1">Correlate events with contract state via a subsequent call if you need authoritative data.</div>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Events provide useful signals decoded via the ABI; use them for reactive UI updates but confirm state with calls when needed.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

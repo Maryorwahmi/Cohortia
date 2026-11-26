@@ -1,0 +1,51 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);border-radius:16px;background:white;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Core Concept</div>
+      <div class='text-2xl font-bold text-slate-800 mt-2'>Deployment Script</div>
+      <div class='text-sm text-slate-600 mt-3'>A repeatable JavaScript file that uses ethers.js to deploy a compiled contract and report the address and transaction hash.</div>
+      <div class='mt-4 grid gap-2'>
+        <div class='rounded-lg bg-blue-50 p-3'>
+          <div class='text-sm font-bold text-blue-700'>Why it matters</div>
+          <div class='text-sm text-slate-700 mt-1'>It lets you automate trusted deployments and reproduce the same steps across environments.</div>
+        </div>
+        <div class='rounded-lg bg-amber-50 p-3'>
+          <div class='text-sm font-bold text-amber-700'>Misconception</div>
+          <div class='text-sm text-slate-700 mt-1'>Calling deploy() alone does not guarantee the contract is confirmed; you must await deployed() to ensure mining.</div>
+        </div>
+      </div>
+      <div class='mt-4'>
+        <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Example</div>
+        <div class='rounded-xl border border-var(--slate-border) p-3'>
+          <pre><code>// pseudo-pattern used in many scripts
+const { ethers } = require('hardhat');
+
+async function main() {
+  const MyToken = await ethers.getContractFactory('MyToken');
+  const token = await MyToken.deploy('My Awesome Token', 'MAT');
+  await token.deployed();
+  console.log(`Deployed to: ${'${token.address}'}`);
+}
+
+main().catch((e) => console.error(e));</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Anatomy of a script</div>
+      <ul class='mt-3 list-disc list-inside text-sm text-slate-600'>
+        <li>Import ethers from Hardhat to access ContractFactory functions.</li>
+        <li>Get a ContractFactory for the compiled contract name.</li>
+        <li>Call deploy with constructor arguments if required and await deployed() for confirmation.</li>
+        <li>Log myContract.address and myContract.deployTransaction.hash for later use.</li>
+      </ul>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Treat deployment scripts as repeatable recipes: they should record addresses and wait for confirmations to avoid race conditions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

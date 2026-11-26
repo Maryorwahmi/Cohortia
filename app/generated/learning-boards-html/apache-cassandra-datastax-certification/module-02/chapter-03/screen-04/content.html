@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:14px;background:white;} .arrow{font-size:20px;color:#94a3b8}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Write Path Overview</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="step flex items-start gap-3 h-28">
+        <div class="rounded-full bg-blue-50 text-blue-700 p-2 font-bold">1</div>
+        <div>
+          <div class="font-bold text-slate-800">Coordinator receives write</div>
+          <div class="text-sm text-slate-600 mt-1">Start enforcement of the chosen consistency level and prepare local durable and in-memory writes.</div>
+        </div>
+      </div>
+
+      <div class="step flex items-start gap-3 h-28">
+        <div class="rounded-full bg-violet-50 text-violet-700 p-2 font-bold">2</div>
+        <div>
+          <div class="font-bold text-slate-800">Commit log append</div>
+          <div class="text-sm text-slate-600 mt-1">Append the mutation to an append-only commit log to ensure crash recovery before acknowledging the client.</div>
+        </div>
+      </div>
+
+      <div class="step flex items-start gap-3 h-28">
+        <div class="rounded-full bg-amber-50 text-amber-800 p-2 font-bold">3</div>
+        <div>
+          <div class="font-bold text-slate-800">Memtable write and replication</div>
+          <div class="text-sm text-slate-600 mt-1">Write to the in-memory memtable and forward the mutation to replica nodes; wait for required acknowledgements.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl card-border p-4 shadow-sm">
+      <div class="font-bold text-slate-800 mb-2">Diagram: logical flow</div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm text-slate-600">Client</div>
+        <div class="text-sm text-slate-600">Coordinator</div>
+        <div class="text-sm text-slate-600">Replica nodes</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="rounded-lg bg-blue-50 p-3 w-28 text-blue-700 text-center">Client</div>
+        <div class="text-center arrow">→</div>
+        <div class="rounded-lg bg-white p-3 card-border flex-1">
+          <div class="font-semibold">Commit log (durable)</div>
+          <div class="text-sm text-slate-600 mt-1">Append-only log for crash recovery.</div>
+          <div class="font-semibold mt-2">Memtable (in-memory)</div>
+          <div class="text-sm text-slate-600 mt-1">Sorted buffer that will be flushed to create SSTables.</div>
+        </div>
+        <div class="text-center arrow">→</div>
+        <div class="rounded-lg bg-white p-3 card-border w-36 text-center">
+          <div class="font-semibold text-slate-800">Replicas</div>
+          <div class="text-xs text-slate-600 mt-1">Each replica also writes commit log + memtable and acks as required.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-2">
+        <div class="rounded-lg bg-emerald-50 p-3 border border-emerald-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Commit log + memtable on coordinator and replicas is the minimum durable write path; hints handle temporary replica outages.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3 border border-rose-100 mt-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Assuming memtable writes alone are durable. Without commit log, memtable data can be lost on crash.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span>Chapter 7.8</span>
+    <span>›</span>
+    <span class="text-slate-700">TypeError: Not JSON serializable</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+      <div class="text-lg font-bold text-slate-800">What triggers the error</div>
+      <div class="text-sm text-slate-600 mt-2">An object outside json's built-in primitives ends up in the structure passed to dumps.</div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded" style="white-space: pre-wrap; tab-size: 2;"><code>from datetime import datetime
+import json
+
+class Point:
+  def __init__(self, x, y):
+    self.x = x
+    self.y = y
+
+p = Point(1, 2)
+# This will raise TypeError: Object of type Point is not JSON serializable
+json.dumps({'point': p})</code></pre>
+      </div>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-semibold text-slate-800">Why stringifying is a bad habit</div>
+        <ul class="list-disc list-inside text-sm text-slate-700">
+          <li>It discards type information and makes deserialization ambiguous.</li>
+          <li>Dates turned into strings may lose timezone or format assumptions.</li>
+          <li>It hides structure that your object_hook could use to reinstantiate objects properly.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-700">Alternatives to stringification</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Custom JSONEncoder</div>
+          <div class="text-xs text-slate-700 mt-1">Subclass JSONEncoder and override default() to return dicts, lists or strings intentionally.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Default function</div>
+          <div class="text-xs text-slate-700 mt-1">Pass a single function to json.dumps for small projects to map unknown types to serializable forms.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">Pre-conversion</div>
+          <div class="text-xs text-slate-700 mt-1">Convert dataclasses via asdict and datetimes via isoformat before dumping for explicit control.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat TypeError as a prompt to provide a clear, reversible translation for each non-primitive object you want in JSON.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

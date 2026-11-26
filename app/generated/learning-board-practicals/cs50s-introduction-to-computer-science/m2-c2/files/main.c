@@ -21,8 +21,7 @@ Node *insert_at_head(Node *head, int value)
     return new_node;
 }
 
-// BUGGY: Function to insert a new node at the end of the list
-// Your task will be to fix just 1-2 lines here so the end insertions work.
+// Function to insert a new node at the end of the list
 Node *insert_at_end(Node *head, int value)
 {
     // Create the new node
@@ -33,8 +32,7 @@ Node *insert_at_end(Node *head, int value)
         exit(1);
     }
     new_node->data = value;
-    // BUG: new_node->next is not set correctly for a standalone last node
-    // (This will still let an insertion on an empty list succeed.)
+    new_node->next = NULL; // New node will be the last, so its 'next' is NULL
 
     // If the list is empty, the new node becomes the head
     if (head == NULL)
@@ -49,9 +47,10 @@ Node *insert_at_end(Node *head, int value)
         current = current->next;
     }
 
-    // BUG: We forgot to link the last node to the new node here.
+    // Link the last node to the new node
+    current->next = new_node;
 
-    return head; // Return the original head (it hasn't changed if buggy)
+    return head; // Return the original head (it hasn't changed)
 }
 
 // Function to print the list
@@ -93,7 +92,7 @@ int main(void)
     head = insert_at_end(head, 40);
     head = insert_at_end(head, 50);
     printf("List after end insertions: ");
-    print_list(head); // If buggy: still 10 -> 20 -> 30 -> NULL
+    print_list(head); // Expected: 10 -> 20 -> 30 -> 40 -> 50 -> NULL
 
     // Test with an initially empty list for insert_at_end
     Node *empty_list_head = NULL;

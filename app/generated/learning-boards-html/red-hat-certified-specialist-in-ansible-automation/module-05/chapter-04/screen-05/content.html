@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Variable Precedence and Scope</div>
+      <div class="text-sm text-slate-600 mt-3">Defaults are intentionally overridden by playbook and invocation variables so roles remain flexible.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Checklist when a value is unexpected</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600 space-y-2">
+          <li>Check if the variable exists in defaults/main.yml inside the role.</li>
+          <li>Look for play-level vars or inline args that override the default.</li>
+          <li>Remember extra-vars have highest precedence; use them deliberately for test runs.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">A good practice is to keep role defaults minimal and document which values you expect callers to override. This reduces surprises when multiple authors use the same role.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Example: role defaults</div>
+      <div class="mt-3 mono text-sm bg-slate-50 p-3 rounded">
+<pre><code># flexible_service/defaults/main.yml
+---
+service_name: "nginx"
+service_state: "started"
+service_enabled: true
+install_package: true</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm font-bold text-slate-800">Playbook override</div>
+      <div class="mono text-sm bg-slate-50 p-3 rounded mt-2">
+<pre><code># test_flexible_service.yml (excerpt)
+- name: Include flexible_service role for Apache
+  ansible.builtin.include_role:
+    name: flexible_service
+  vars:
+    service_name: "apache2"
+    service_state: "stopped"
+    install_package: false</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">This example shows how role defaults are replaced by variables supplied at the role invocation. If the service remains in the old state, check for another higher-precedence value defining the same variable.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

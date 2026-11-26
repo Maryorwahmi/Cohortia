@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Sets & Maps</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Set example</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Define a set of admin IPs
+set admin_ips {
+    type ipv4_addr;
+    flags interval;
+    elements = { 192.168.1.10, 192.168.1.20-192.168.1.30 }
+}
+
+# Use the set in a rule
+chain input {
+    ip saddr @admin_ips tcp dport 22 accept
+}
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Maps and use cases</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>- Maps translate input to output values and are useful for dynamic NAT or routing decisions.</div>
+        <div>- Use maps when you need to change a packet field based on source or another key without many conditional rules.</div>
+        <div>- Verify types: selecting ipv4_addr or inet_service matters for accurate matches and to avoid load-time errors.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Pro tip</div>
+        <div class="rounded-lg bg-amber-50 p-3 text-amber-700">When you update a large set, prefer preparing a new set definition and atomically reloading the ruleset so kernel membership changes take effect without transient mismatches.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.2</span><span>›</span><span class="text-slate-700">LINQ Example</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col justify-center"><h2 class="text-3xl font-bold text-slate-900 mb-2">Practical LINQ: Filtering and Transforming Data</h2><p class="text-lg text-slate-600 mb-6">Applying LINQ's `Where` and `Select` for flexible product processing.</p><div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200 mb-4"><div class="flex items-center mb-2"><svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-semibold text-slate-800">Strategy with Lambdas</span></div><p class="text-sm text-slate-700">`Func<Product, bool>` acts as a flexible filtering strategy, passed to LINQ's `Where`.</p></div><div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200 mb-4"><div class="flex items-center mb-2"><svg class="w-5 h-5 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><span class="font-semibold text-slate-800">Reduced Boilerplate</span></div><p class="text-sm text-slate-700">Eliminates the need for explicit `foreach` loops and `if` statements for common operations.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">LINQ enables highly flexible and readable data processing by allowing strategies to be defined as lambda expressions and applied declaratively.</p></div></div><div class="flex-1 bg-slate-800 rounded-xl shadow-lg overflow-hidden flex flex-col"><div class="p-4 text-slate-200 text-sm font-mono">ProductProcessor.cs</div><pre class="flex-1 text-white text-xs p-4 overflow-y-auto whitespace-pre-wrap" style="tab-size: 2;"><code>using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Product
+{
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+}
+
+public class ProductProcessor
+{
+    private List&lt;Product&gt; _products;
+
+    public ProductProcessor(List&lt;Product&gt; products)
+    {
+        _products = products;
+    }
+
+    // LINQ approach leveraging Strategy-like behavior
+    public IEnumerable&lt;Product&gt; FilterProducts(Func&lt;Product, bool&gt; filterStrategy)
+    {
+        return _products.Where(filterStrategy);
+    }
+
+    public IEnumerable&lt;TResult&gt; TransformProducts&lt;TResult&gt;(Func&lt;Product, TResult&gt; transformStrategy)
+    {
+        return _products.Select(transformStrategy);
+    }
+
+    public static void Main(string[] args)
+    {
+        var products = new List&lt;Product&gt;
+        {
+            new Product { Name = "Laptop", Price = 1200, Stock = 50 },
+            new Product { Name = "Mouse", Price = 25, Stock = 200 },
+            new Product { Name = "Keyboard", Price = 75, Stock = 120 }
+        };
+
+        var processor = new ProductProcessor(products);
+
+        Console.WriteLine("Products with stock > 100:");
+        foreach (var product in processor.FilterProducts(p => p.Stock > 100))
+        {
+            Console.WriteLine($"- {product.Name}");
+        }
+
+        Console.WriteLine("
+Product names and prices:");
+        foreach (var item in processor.TransformProducts(p => new { p.Name, p.Price }))
+        {
+            Console.WriteLine($"- {item.Name} (${item.Price})");
+        }
+    }
+}</code></pre></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

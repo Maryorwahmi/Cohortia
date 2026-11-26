@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex gap-6 h-[70vh]">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <h3 class="text-xl font-semibold text-slate-800">What is a Transaction?</h3>
+      <p class="text-sm text-slate-600 mt-2">A brief definition and the properties that distinguish transactions from read-only calls.</p>
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-md bg-amber-50 text-amber-800">Signed by a user and broadcast to the network.</div>
+        <div class="p-3 rounded-md bg-emerald-50 text-emerald-800">Consumes gas and can transfer Ether when payable.</div>
+        <div class="p-3 rounded-md bg-blue-50 text-blue-800">Asynchronous: returns a tx hash, then is mined later.</div>
+        <div class="p-3 rounded-md bg-rose-50 text-rose-700">Can revert due to require() or require-like checks; gas is still consumed.</div>
+      </div>
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Treat writes as non-instant operations and design your UI to handle pending, success, and failure states.</p>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Example</div>
+      <div class="mono p-3 bg-slate-50 rounded">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0">// send transaction to set greeting
+const tx = await greeterContract.setGreeting(newGreeting);
+console.log('Hash:', tx.hash);
+const receipt = await tx.wait();
+if (receipt.status === 1) {
+  // success: refresh state
+}</pre>
+      </div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+        <p class="text-sm text-slate-600 mt-1">Expecting immediate state changes after sending the transaction. The transaction must be mined and confirmed before UI state is authoritative.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

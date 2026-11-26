@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">GRE Tunnel Interface</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Create the tunnel</h3>
+      <p class="text-sm text-slate-600 mt-2">Assign a /30 to the tunnel for a point-to-point link, set source and destination to public addresses, and set tunnel mode gre ip so routing protocols can run over it.</p>
+      <div class="mt-4">
+        <pre class="text-sm bg-slate-900 text-slate-50 p-3 rounded-md" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;">
+interface Tunnel0
+ ip address 10.255.255.1 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source GigabitEthernet0/1
+ tunnel destination 203.0.113.2
+ tunnel mode gre ip
+</pre>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explainer bullets</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>• The tunnel IP is used by routing protocols as the peer address for adjacency.</li>
+        <li>• ip mtu and ip tcp adjust-mss help prevent fragmentation after GRE and IPsec overhead are added.</li>
+        <li>• Ensure the tunnel source selection matches the actual egress used to reach the peer to avoid asymmetric routing problems.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Configure the tunnel like a physical P2P link, and tune MTU/MSS early to avoid later performance issues.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">workerFunction Example</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white shadow-sm card-border p-4">
+      <div class="text-sm font-bold text-slate-800">Code</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;chrono&gt;
+#include &lt;string&gt;
+
+void workerFunction(int id, const std::string&amp; message) {
+  std::cout &lt;&lt; "Worker thread " &lt;&lt; id &lt;&lt; " started with message: " &lt;&lt; message &lt;&lt; std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+  std::cout &lt;&lt; "Worker thread " &lt;&lt; id &lt;&lt; " finished." &lt;&lt; std::endl;
+}
+
+int main() {
+  std::thread t1(workerFunction, 1, "Hello from thread 1!");
+  std::thread t2(workerFunction, 2, "Greetings from thread 2!");
+  t1.join();
+  t2.join();
+  return 0;
+}
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white shadow-sm card-border p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Each thread calls workerFunction with its own id and message.</li>
+        <li>sleep_for simulates work; join waits for that work to finish.</li>
+        <li>Argument passing uses copying or const reference; ensure lifetimes match.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">Check: remove joins and the program likely terminates due to joinable destructors.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Join threads when you rely on their results or when they touch shared, in-scope resources.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

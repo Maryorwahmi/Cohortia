@@ -1,0 +1,61 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> :root{--emerald:#10b981;--slate-100:rgba(226,232,240,0.9)} </style>
+  <div class='flex flex-col gap-4 h-full'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100'>Module 8</span>
+      <span>›</span>
+      <span>RTO & RPO</span>
+    </div>
+
+    <div class='flex gap-4 flex-1 min-h-0'>
+      <div class='w-1/2 rounded-2xl bg-white p-5 border' style='border-color:var(--slate-100)'>
+        <div class='text-lg font-bold text-slate-800'>Definitions</div>
+        <div class='text-sm text-slate-600 mt-2'>RTO — acceptable downtime. RPO — acceptable data loss window.</div>
+
+        <div class='mt-4 grid gap-3'>
+          <div class='rounded-lg p-3 bg-white border' style='border-color:var(--slate-100)'>
+            <div class='text-sm font-semibold text-slate-800'>RTO (Recovery Time Objective)</div>
+            <div class='text-xs text-slate-600 mt-1'>How long you can be offline before business impact is unacceptable. Drives how quickly you must promote a standby or restore.</div>
+          </div>
+
+          <div class='rounded-lg p-3 bg-white border' style='border-color:var(--slate-100)'>
+            <div class='text-sm font-semibold text-slate-800'>RPO (Recovery Point Objective)</div>
+            <div class='text-xs text-slate-600 mt-1'>How much data loss is tolerable, measured in time. Drives how often WAL is archived or whether synchronous replication is needed.</div>
+          </div>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-sm font-semibold text-slate-800'>Misconception</div>
+          <div class='text-xs text-slate-600 mt-1'>Assuming a single backup plan meets both RTO and RPO. In reality, short RTO needs standbys; short RPO needs continuous WAL or synchronous replication.</div>
+        </div>
+      </div>
+
+      <div class='w-1/2 rounded-2xl bg-white p-5 border flex flex-col' style='border-color:var(--slate-100)'>
+        <div class='text-sm font-semibold text-slate-800'>Mapping metrics to technology</div>
+        <div class='text-xs text-slate-600 mt-2'>Choose technologies based on the RTO/RPO you set with stakeholders.</div>
+
+        <div class='mt-3 grid grid-cols-1 gap-3'>
+          <div class='rounded-lg p-3 bg-blue-50 border' style='border-color:var(--slate-100)'>
+            <div class='text-sm font-semibold text-blue-700'>Low RTO</div>
+            <div class='text-xs text-slate-700 mt-1'>Use physical streaming replication with a hot standby to keep promotion time small.</div>
+          </div>
+
+          <div class='rounded-lg p-3 bg-emerald-50 border' style='border-color:var(--slate-100)'>
+            <div class='text-sm font-semibold text-emerald-700'>Low RPO</div>
+            <div class='text-xs text-slate-700 mt-1'>Enable continuous WAL archiving and consider synchronous replication if zero or near-zero data loss is required.</div>
+          </div>
+
+          <div class='rounded-lg p-3 bg-violet-50 border' style='border-color:var(--slate-100)'>
+            <div class='text-sm font-semibold text-violet-700'>PITR & Backups</div>
+            <div class='text-xs text-slate-700 mt-1'>Base backups plus WAL archives provide point-in-time recovery to any earlier moment within your retained WAL history.</div>
+          </div>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Practical check</div>
+          <div class='text-xs text-slate-700'>Run a timed restore in staging: measure how long restore takes and how current the data is; compare results to declared RTO/RPO and adjust architecture or runbooks accordingly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

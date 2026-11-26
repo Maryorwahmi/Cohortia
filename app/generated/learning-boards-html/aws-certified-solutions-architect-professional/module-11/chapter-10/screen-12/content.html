@@ -1,0 +1,32 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#f8fafc;">
+  <style>.code{background:#0f172a;color:#e6eef8;border-radius:10px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 11.10</span>
+    <span>›</span>
+    <span class="text-slate-700">CLI Checks</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs uppercase text-slate-500 mb-2">CloudWatch example</div>
+      <div class="code"><pre><code># Replace DISTRIBUTION_ID with your ID
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/CloudFront \
+  --metric-name CacheHitRatio \
+  --dimensions Name=DistributionId,Value=DISTRIBUTION_ID \
+  --start-time 2026-09-01T11:00:00Z \
+  --end-time 2026-09-01T12:00:00Z \
+  --period 300 --statistics Average --unit Percent</code></pre></div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-xs uppercase text-slate-500 mb-2">Route 53 health check</div>
+      <div class="code"><pre><code># Replace HEALTH_CHECK_ID with your check ID
+aws route53 get-health-check-status --health-check-id HEALTH_CHECK_ID</code></pre></div>
+
+      <div class="mt-4 text-sm text-slate-700">Run both commands to see if CacheHitRatio dropped while Route 53 reports the endpoint Unhealthy. If CacheHitRatio dropped but health is healthy, focus on cache policy and access logs; if health is Unhealthy, examine DNS and endpoint reachability.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

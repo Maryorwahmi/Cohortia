@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h4 class="text-xl font-bold text-slate-800 mt-2">Safely removing a user account</h4>
+      <div class="mt-3 text-sm text-slate-600">
+        <ol class="list-decimal list-inside space-y-2">
+          <li>Archive files: sudo tar -czf /var/archives/olddev-home.tgz /home/olddev</li>
+          <li>Verify archive integrity and move to secure storage.</li>
+          <li>Delete account and home: sudo userdel -r olddev</li>
+          <li>Confirm removal: grep olddev /etc/passwd and find / -uid UID</li>
+        </ol>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Running userdel without -r leaves homes and mail spools, which can contain sensitive data and waste disk space.</div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold text-slate-800">Alternative: disable first</div>
+        <div class="text-sm text-slate-600 mt-1">If unsure, lock the account with sudo passwd -l username or set shell to /sbin/nologin until you confirm data preservation policies.</div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always archive and verify before deleting accounts and use userdel -r when you intend to remove the home and mail spool.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

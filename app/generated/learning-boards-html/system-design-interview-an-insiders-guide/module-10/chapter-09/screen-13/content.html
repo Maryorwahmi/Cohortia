@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 10.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Monitoring Strategy</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Kafka user_activity metrics</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li><strong>kafka_consumer_lag_user_activity</strong> — why: shows backlog and processing delays.</li>
+        <li><strong>kafka_producer_messages_in_per_sec_user_activity</strong> — why: monitors input load and spikes.</li>
+      </ul>
+
+      <div class="mt-3 text-sm font-bold text-slate-800">Flink job metrics</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li><strong>flink_job_processing_latency</strong> — why: measures end-to-end processing time for events.</li>
+        <li><strong>flink_job_checkpoint_failures_count</strong> — why: checkpoint failures affect correctness and recovery.</li>
+      </ul>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Alerting rule example</div>
+      <pre class="mt-3">Metric: kafka_consumer_lag_user_activity
+Threshold: &gt; 10000 messages for 5 minutes
+Severity: Critical
+Notification: PagerDuty, Slack #on-call
+Runbook: scale Flink parallelism; check checkpoints and task errors</pre>
+
+      <div class="mt-3 text-sm font-bold text-slate-800">Optimization suggestion</div>
+      <p class="text-sm text-slate-700 mt-2">If Flink latency is high, increase parallelism for the slow operator, tune state backend settings, or pre-aggregate upstream to reduce per-event work.</p>
+    </div>
+  </div>
+
+  <div class="mt-4 card p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Test this plan</div>
+    <p class="text-xs text-slate-700">Implement dashboard panels for the chosen metrics and verify the alert by temporarily pausing the Flink job so the lag grows and the alert fires. Confirm notifications and runbook steps work.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,21 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <style>    .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:16px;}    pre.code{background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}  </style>  <div class="mb-3">    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>      <span>›</span>      <span>Chapter 5.5</span>      <span>›</span>      <span class="text-slate-700">Counter Fixes</span>    </div>  </div>  <div class="grid grid-cols-2 gap-4 h-full">    <div class="card">      <div class="text-sm font-semibold text-slate-800">Fixed snippet</div>      <pre class="code" style="white-space:pre-wrap; tab-size:2">// Custom error enum placeholder
+// enum CounterError { IllegalOwner, MissingRequiredSignature, ArithmeticOverflow }
+
+// Owner check
+if counter_account.owner != program_id {
+  msg!("Counter account is not owned by this program.");
+  return Err(CounterError::IllegalOwner.into());
+}
+
+// Signer check
+if !user_signer.is_signer {
+  msg!("User must be a signer to increment the counter.");
+  return Err(CounterError::MissingRequiredSignature.into());
+}
+
+// Checked arithmetic
+counter_data.value = counter_data.value
+  .checked_add(1)
+  .ok_or(CounterError::ArithmeticOverflow.into())?;
+
+counter_data.serialize(&mut &mut counter_account.data.borrow_mut()[..])?;</pre>    </div>    <div class="card">      <div class="text-sm font-semibold text-slate-800">Testing guidance</div>      <ul class="text-sm text-slate-600 mt-3 space-y-2">        <li>Negative tests: pass wrong owner and assert IllegalOwner is returned.</li>        <li>Signature tests: call without signer and assert MissingRequiredSignature.</li>        <li>Overflow test: set value to max and ensure ArithmeticOverflow is raised.</li>      </ul>      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>        <p class="text-xs font-medium text-slate-800">Applying these edits and testing failure modes prevents the main classes of exploit demonstrated by the vulnerable counter.</p>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; white-space:pre-wrap; tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Blue/Green Deployments</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Definition & purpose</div>
+      <p class="text-sm text-slate-600 mt-2">Two identical environments let you validate the new version fully and flip traffic instantly if problems appear; this minimizes downtime and simplifies rollback.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Analogy</div>
+          <div class="text-sm text-slate-800 mt-1">Think of Blue/Green as swapping which machine powers a stage performance: you rehearse on the spare machine and flip the power when ready.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistakes</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-1">
+          <li>Assuming zero-cost duplicate resources — plan capacity for parallel environments.</li>
+          <li>Forgetting session or database compatibility — migrations must be safe to roll back.</li>
+          <li>Not testing the Service selector switch in a staging environment first.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Blue/Green gives instant traffic switch and rollback but requires planning for stateful concerns and capacity during parallel runs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="text-sm text-slate-800 mt-2">This command updates a Service selector to point to the green version's pods. Use it after you validate Green is healthy.</div>
+
+      <pre class="mono bg-slate-100 p-3 rounded mt-3 card-border"><code>oc patch svc my-app-service -p '{"spec":{"selector":{"app":"my-app","version":"green"}}}'</code></pre>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario</div>
+        <div class="text-sm text-slate-700 mt-2">You have my-app-blue and my-app-green; after tests pass on green, patch the Service selector to route real traffic to green, and keep blue available to revert instantly if needed.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+          <div class="text-sm text-slate-700 mt-2">What steps ensure a safe Blue/Green cutover when the app maintains session state?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-[60vh]">
+      <div class="text-lg font-bold text-slate-900">Step-by-step lab</div>
+      <div class="text-sm text-slate-600 mt-2">Execute these commands in order and verify results after each step.</div>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Initialize PVs</div>
+          <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">sudo pvcreate /dev/sdb /dev/sdc
+sudo pvs</pre>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Create VG and LV</div>
+          <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">sudo vgcreate vg_data /dev/sdb /dev/sdc
+sudo lvcreate -L 2G -n lv_web vg_data</pre>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Format, mount, verify</div>
+          <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">sudo mkfs.ext4 /dev/vg_data/lv_web
+sudo mkdir -p /var/www/html
+sudo mount /dev/vg_data/lv_web /var/www/html
+df -h /var/www/html</pre>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Extend and resize</div>
+          <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">sudo lvextend -L +1G /dev/vg_data/lv_web
+sudo lvs
+sudo resize2fs /dev/vg_data/lv_web
+df -h /var/www/html</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Coroutines & WorkManager</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9); overflow:auto;">
+      <div class="text-sm font-bold text-slate-800 mb-2">Coroutine Example</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>viewModelScope.launch {
+  val result = repository.fetchTasks() // suspend function
+  _uiState.value = UiState.Success(result)
+}</code></pre>
+      </div>
+      <p class="text-sm text-slate-700 mt-3">Use lifecycle-aware scopes to avoid leaks and cancel work when views are destroyed.</p>
+    </div>
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9); overflow:auto;">
+      <div class="text-sm font-bold text-slate-800 mb-2">WorkManager Example</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>// Build a one-off work request with network constraint
+val uploadWork = OneTimeWorkRequestBuilder&lt;UploadWorker&gt;()
+  .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+  .build()
+WorkManager.getInstance(context).enqueue(uploadWork)</code></pre>
+      </div>
+      <p class="text-sm text-slate-700 mt-3">Use WorkManager for tasks that must complete even if the app exits or the device restarts.</p>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Coroutines for immediate, lifecycle-tied async work; WorkManager for guaranteed, constraint-aware background tasks.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

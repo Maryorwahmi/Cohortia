@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Subscribe & Update UI</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col h-full">
+      <div class="text-sm font-bold text-slate-800">Activity steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-3">
+        <li>Confirm SimpleStorage includes event NumberChanged and emits it in setNumber.</li>
+        <li>Add an eventLog element in index.html to show incoming events and a displayNumber element to show the stored number.</li>
+        <li>After contract is loaded, call subscribeToContractEvents which registers NumberChanged with fromBlock: 'latest'.</li>
+        <li>In on('data') parse event.returnValues, update displayNumber, and prepend a log entry showing setter and blockNumber.</li>
+        <li>Implement on('changed') to flag removed events and on('error') to report provider issues.</li>
+        <li>Track subscription and unsubscribe when the UI component unmounts or on page unload.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 card-border">
+        <div class="text-sm font-bold text-slate-700">Example snippet</div>
+        <pre class="mt-2 bg-slate-900 text-slate-50 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// inside subscribeToContractEvents()
+simpleStorageContract.events.NumberChanged({ fromBlock: 'latest' })
+  .on('data', (event) => { /* update DOM and eventLog */ })
+  .on('changed', (event) => { /* handle reorg */ })
+  .on('error', (err) => { /* log error */ });
+        </pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Follow these steps to make a live, event-driven UI and avoid common operational mistakes like missing unsubscribes or unspecified fromBlock.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

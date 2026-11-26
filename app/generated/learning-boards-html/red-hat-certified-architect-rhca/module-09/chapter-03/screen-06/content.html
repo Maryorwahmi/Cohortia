@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Resource Agents</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">What they do</div>
+      <p class="text-sm text-slate-600 mt-2">Resource agents implement the operations Pacemaker uses to control resources: start, stop, and monitor. They are typically provided under the OCF namespace and referenced when creating primitives.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="bg-white rounded-md p-3 border card-border">
+          <div class="text-xs font-bold text-slate-700">Common primitive types</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+            <li>IPaddr2 — floating IP addresses</li>
+            <li>Filesystem — mount a block device to a directory</li>
+            <li>apache, MariaDB — service-specific agents</li>
+          </ul>
+        </div>
+
+        <div class="bg-amber-50 rounded-md p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">A filesystem resource must reference a device path available to all nodes and a mount directory that Pacemaker will manage on whichever node owns the resource.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example resource definition</div>
+      <pre class="bg-slate-900 text-white rounded-md p-3 mt-3 text-xs" style="white-space:pre-wrap; tab-size:2"><code>sudo pcs resource create SharedFS ocf:heartbeat:Filesystem device="/dev/mapper/vg_data-lv_data" directory="/mnt/data" fstype="xfs" op monitor interval=20s</code></pre>
+
+      <div class="mt-3 bg-rose-50 rounded-md p-3 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+        <div class="text-xs text-slate-700 mt-1">Do not mount a non-clustered filesystem simultaneously on multiple nodes. That leads to corruption. Use a clustered filesystem or ensure only one node mounts it at a time.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

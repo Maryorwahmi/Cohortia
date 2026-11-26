@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Change Sets — Preview Before You Apply</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">CLI Workflow</div>
+      <pre class="mt-2 bg-slate-900 text-white rounded p-3"><code>aws cloudformation create-change-set \
+  --stack-name MyDevOpsWebServerStack \
+  --template-body file://webserver-updated-template.yaml \
+  --change-set-name MyWebServerUpdateChangeSet \
+  --capabilities CAPABILITY_IAM
+
+aws cloudformation describe-change-set \
+  --change-set-name MyWebServerUpdateChangeSet \
+  --stack-name MyDevOpsWebServerStack
+
+aws cloudformation execute-change-set \
+  --change-set-name MyWebServerUpdateChangeSet \
+  --stack-name MyDevOpsWebServerStack
+</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Inspection Checklist</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-700">
+        <li>Confirm no unexpected resource deletions.</li>
+        <li>Check for resource replacements instead of in-place updates.</li>
+        <li>Ensure IAM capability flags are present when adding roles.</li>
+        <li>Review dependent stacks and outputs that might be impacted.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-lg bg-amber-50 p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro Tip</div>
+      <div class="text-sm text-slate-700 mt-1">Integrate change set creation into your CI pipeline and require human approval for production change sets.</div>
+    </div>
+    <div class="rounded-lg bg-rose-50 p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+      <div class="text-sm text-slate-700 mt-1">Forgetting CAPABILITY_IAM when your update adds roles or policies will prevent change set creation or execution.</div>
+    </div>
+    <div class="rounded-lg bg-emerald-50 p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-700 mt-1">Change Sets are your last chance to catch unexpected deletions before they happen.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

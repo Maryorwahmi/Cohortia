@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Transaction Log and ACID guarantees</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">How ACID works in Delta</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li><span class="font-bold">Atomicity:</span> A commit applies all changes or none, avoiding partial states.</li>
+        <li><span class="font-bold">Consistency:</span> The table moves between valid states recorded in the log.</li>
+        <li><span class="font-bold">Isolation:</span> Concurrent operations do not see each other's in-flight commits.</li>
+        <li><span class="font-bold">Durability:</span> Commits are persisted via the transaction log entries.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Practical Example</div>
+        <div class="text-sm text-slate-700 mt-2">When you run a MERGE that updates and inserts rows, Delta writes a new log file describing which data files were added and removed. That new log file defines a new table version and is either fully visible or not visible at all.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Inspecting the log</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800">
+          <div class="text-[11px] uppercase tracking-wider">DESCRIBE HISTORY</div>
+          <div class="text-sm mt-1">Lists commits with user, timestamp, and operation so you can audit changes and pick a version to time-travel to.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-[11px] uppercase tracking-wider text-slate-600">Misconception check</div>
+          <div class="text-sm mt-1 text-slate-700">Object storage alone doesn’t give isolation or versioned commits. The log is the coordination layer Delta relies on.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">The transaction log is the durable ledger that makes Parquet files behave like a transactional table with version history.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

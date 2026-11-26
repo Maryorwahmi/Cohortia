@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px; }</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Inventory update_stock</span>
+    </div>
+
+    <div class="flex h-[76%] gap-6">
+      <div class="w-2/3 card p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Starter code</div>
+        <pre class="p-3 bg-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size: 2;"><code>class ProductNotFoundError(Exception):
+  """Raised when a product ID is not found in the inventory."""
+  def __init__(self, product_id):
+    self.product_id = product_id
+    super().__init__(f"Product with ID '{product_id}' not found.")
+
+class InvalidQuantityError(ValueError):
+  def __init__(self, message):
+    super().__init__(message)
+
+inventory = {"P101": 50, "P102": 120, "P103": 30}
+
+def update_stock(product_id, quantity_change):
+  if product_id not in inventory:
+    raise ProductNotFoundError(product_id)
+  if not isinstance(quantity_change, int) or quantity_change == 0:
+    raise InvalidQuantityError("Quantity change must be a non-zero integer.")
+  new_stock = inventory[product_id] + quantity_change
+  if new_stock < 0:
+    raise InvalidQuantityError(f"Cannot reduce stock below zero for '{product_id}'. Current: {inventory[product_id]}, Attempted change: {quantity_change}")
+  inventory[product_id] = new_stock
+  return new_stock</code></pre>
+      </div>
+
+      <div class="w-1/3 flex flex-col gap-3">
+        <div class="card p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Test scenarios</div>
+          <ol class="text-sm text-slate-700 mt-2 ml-4 list-decimal">
+            <li>Valid update increments stock.</li>
+            <li>Missing product raises ProductNotFoundError.</li>
+            <li>Non-integer quantity raises InvalidQuantityError.</li>
+            <li>Negative resulting stock raises InvalidQuantityError.</li>
+            <li>Zero quantity raises InvalidQuantityError.</li>
+          </ol>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Domain-specific exceptions make your API easier to test and reason about; they allow callers to react with context-aware logic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Slicing</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border shadow-sm border-[rgba(226,232,240,0.9)] h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h4 class="text-2xl font-bold text-slate-900 mt-2">Value assignment vs pointer/reference</h4>
+      <p class="text-sm text-slate-700 mt-2">Compare the behaviors and choose the right storage for polymorphic objects.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-sm font-semibold">Value assignment (slicing)</div>
+          <p class="text-sm text-slate-700 mt-1">Derived object copied into base object loses derived fields and methods; virtual dispatch no longer reaches derived overrides because the object is now a base instance.</p>
+        </div>
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-sm font-semibold">Pointer/reference</div>
+          <p class="text-sm text-slate-700 mt-1">Pointing or referencing preserves the full derived object, so virtual calls still dispatch to the derived implementation.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Never store polymorphic objects by value if you expect derived behavior; use pointers, references, or smart pointers in containers.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold">Concrete code scenario</div>
+        <p class="text-sm text-slate-700 mt-1">Dog buddy("Buddy"); Animal genericAnimal = buddy; // slicing: genericAnimal behaves like Animal, not Dog.</p>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border mt-3">
+        <div class="text-sm font-semibold">Recommended container</div>
+        <p class="text-sm text-slate-700 mt-1">Use std::vector&lt;Animal*&gt; or std::vector&lt;std::unique_ptr&lt;Animal&gt;&gt; so each element keeps its derived identity and virtual calls work as expected.</p>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border mt-3">
+        <div class="text-sm font-semibold">Misconception</div>
+        <p class="text-sm text-slate-700 mt-1">Some expect virtual to override slicing; it cannot. Slicing happens at the object level, before any virtual dispatch can occur.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">After: Decoupled Services</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border card-border overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">AFTER: Decoupled classes</div>
+      <div class="text-sm text-slate-600 mt-2">Validator, repository, email service, and orchestrator wired by DI.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>class OrderValidator:
+  def validate(self, order_details):
+    if not order_details.get("items"):
+      raise ValueError("Order must contain items.")
+    return True
+
+class OrderRepository:
+  def __init__(self, db_connection):
+    self.db = db_connection
+  def save_order(self, order_details):
+    self.db.execute("INSERT INTO orders ...", order_details)
+
+class EmailService:
+  def send_confirmation(self, order_details):
+    print(f"Sending confirmation email to {order_details.get('customer_email')}")
+
+class OrderService:
+  def __init__(self, validator, repository, email_service):
+    self.validator = validator
+    self.repository = repository
+    self.email_service = email_service
+
+  def place_order(self, order_details):
+    self.validator.validate(order_details)
+    order_id = self.repository.save_order(order_details)
+    self.repository.update_inventory(order_details)
+    self.email_service.send_confirmation(order_details)
+    return order_id
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Benefits</div>
+      <ul class="mt-3 list-disc pl-4 text-sm text-slate-700">
+        <li>Independent unit tests for each class</li>
+        <li>Swappable implementations for DB and email</li>
+        <li>Clearer ownership and smaller blast radius</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Extract responsibilities and inject them to make changes localized and predictable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

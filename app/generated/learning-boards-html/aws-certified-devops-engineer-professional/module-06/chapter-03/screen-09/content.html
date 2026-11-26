@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Lab Walkthrough</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-2/3 rounded-2xl bg-white p-5 border' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-lg font-bold text-slate-800'>Terminal steps (annotated)</div>
+      <pre class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm' style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;'># Create Automation role trust policy
+cat > trust-policy.json <<EOF
+{ "Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ssm.amazonaws.com"},"Action":"sts:AssumeRole"}]} 
+EOF
+
+# Upload document
+aws ssm create-document --name "RestartEC2InstanceCustom" --content file://RestartEC2Automation.yaml --document-type Automation --document-format YAML
+
+# Start automation execution
+aws ssm start-automation-execution --document-name "RestartEC2InstanceCustom" --parameters InstanceId=<YOUR_INSTANCE_ID> --automation-execution-role arn:aws:iam::123456789012:role/SSMAutomationRole</pre>
+    </div>
+    <div class='flex-1 rounded-2xl bg-white p-5 border' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-semibold text-slate-800'>Verification checklist</div>
+      <ul class='mt-3 text-sm text-slate-700 space-y-2'>
+        <li>Confirm the document appears under Systems Manager → Documents.</li>
+        <li>Observe the Automation execution history for step outputs and status.</li>
+        <li>Verify the EC2 instance restarted and the service is running.</li>
+        <li>Record errors and add additional logging or retries as needed.</li>
+      </ul>
+      <div class='mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Common Mistake</div>
+        <p class='text-xs font-medium text-slate-800'>Using broad managed policies in the Automation role for speed. Instead, attach only specific permissions needed by the runbook and expand only after validated needs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

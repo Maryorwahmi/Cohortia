@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .panel { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 1rem; }
+    .step { background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">executemany()</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Bulk insertion with executemany()</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="panel p-4">
+      <div class="font-semibold">Process</div>
+      <div class="mt-3 grid gap-3">
+        <div class="step">1. Prepare a list of tuples: [(username, email), ...]</div>
+        <div class="step">2. Optionally check existing rows with a parameterized SELECT and filter the new list.</div>
+        <div class="step">3. Call cursor.executemany("INSERT INTO users (username, email) VALUES (?, ?)", list_of_tuples)</div>
+        <div class="step">4. Commit the transaction and verify inserted rows with a secure SELECT.</div>
+      </div>
+    </div>
+
+    <div class="panel p-4">
+      <div class="font-semibold">Example snippet</div>
+      <div class="text-sm text-slate-700 mt-3">insert_many_sql = "INSERT INTO users (username, email) VALUES (?, ?);"
+cursor.executemany(insert_many_sql, filtered_new_users)
+conn.commit()</div>
+
+      <div class="mt-3">
+        <div class="text-xs uppercase tracking-wider text-slate-700">Why use executemany</div>
+        <div class="text-sm text-slate-600 mt-2">It reduces overhead and batches parameter binding, improving performance and safety over looping execute calls with concatenation.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-emerald-700">Best practice</div>
+      <div class="text-sm text-slate-600 mt-1">Filter out existing rows before executemany to avoid IntegrityError and wasted work.</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-slate-700">Check your understanding</div>
+      <div class="text-sm text-slate-600 mt-1">Why is executemany safer than building a single long SQL string with many VALUES clauses assembled from input?</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-rose-600">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-1">Assuming executemany bypasses parameterization — it does not; it uses parameterized binding per row when called correctly.</div>
+    </div>
+  </div>
+</div>

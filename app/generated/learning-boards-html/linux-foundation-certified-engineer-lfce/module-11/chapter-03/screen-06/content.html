@@ -1,0 +1,54 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>IP configuration and routing</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl p-5 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>Definition</div>
+      <h3 class='text-xl font-bold text-slate-900'>IP addresses and kernel routing</h3>
+      <p class='text-sm text-slate-700 mt-2'>Verify assigned addresses, prefixes, and the default route so packets go where you expect.</p>
+
+      <pre class='text-sm text-slate-800 bg-white p-3 rounded mt-4' style='white-space: pre-wrap; tab-size:2;'>
+# Show addresses
+ip addr show
+
+# Show routing table
+ip route show
+
+# Simulate kernel routing decision
+ip route get 8.8.8.8
+      </pre>
+
+      <div class='mt-3 rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-semibold text-slate-700'>Concrete example</div>
+        <div class='text-sm text-slate-700 mt-1'>Two VMs on same switch cannot reach each other: compare subnet prefixes; a host with /24 and another with /25 may not see each other if addresses fall outside the shared range.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 rounded-2xl p-5 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700 mb-2'>Explanation & pitfalls</div>
+      <ul class='text-sm text-slate-700 space-y-2 flex-1 overflow-auto'>
+        <li>Missing default gateway prevents external access even if local subnet works.</li>
+        <li>Multiple routes or 0.0.0.0 entries can lead to asymmetric routing and dropped replies.</li>
+        <li>DHCP failures can leave stale or no addresses; validate lease state when applicable.</li>
+      </ul>
+
+      <div class='mt-3 grid grid-cols-2 gap-3'>
+        <div class='rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-semibold text-amber-700'>Pro tip</div>
+          <div class='text-sm text-slate-700 mt-1'>Use ip route get to see the exact outgoing interface and gateway the kernel picks for a destination.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-semibold text-emerald-700'>Key Takeaway</div>
+          <div class='text-sm text-slate-800 mt-1'>Addressing and routes must align with your network design; mismatches are frequent causes of isolation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

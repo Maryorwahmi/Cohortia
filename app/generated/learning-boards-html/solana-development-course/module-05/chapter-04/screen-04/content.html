@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-600">›</span>
+      <span class="text-slate-700">What is a PDA</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-3">Program Derived Address — core idea</div>
+    <div class="text-sm text-slate-600 mt-2">A deterministic account address that has no private key and is owned by a program.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Formal definition</div>
+      <p class="text-sm text-slate-600 mt-2">A PDA is produced by Pubkey::find_program_address using seeds and a program ID; the returned bump seed is required to re-create signer seeds for invoke_signed. The bump forces the address off-curve.</p>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-600">Using seeds [b"profile", user_pubkey.as_ref()] with your program ID yields a user profile PDA and a bump. Store that bump in the account so future CPIs can supply it.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Do not treat the PDA as the program ID. The PDA is a separate account owned by the program; it cannot sign off-chain.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Visual seeds and derivation</div>
+      <div class="mt-3 grid gap-2">
+        <div class="bg-blue-50 rounded-lg p-3 text-sm text-slate-700">Seeds: b"profile" + user_pubkey</div>
+        <div class="bg-violet-50 rounded-lg p-3 text-sm text-slate-700">Program ID: your program public key</div>
+        <div class="bg-emerald-50 rounded-lg p-3 text-sm text-slate-700">Output: PDA pubkey + bump seed (u8)</div>
+      </div>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Quick code snippet (conceptual)</div>
+      <pre class="mt-2 p-3 bg-gray-50 rounded-lg text-xs card-border"><code>// derive PDA and bump
+let (pda, bump) = Pubkey::find_program_address(
+  &[b"profile", user_pubkey.as_ref()],
+  program_id,
+);
+// store bump for future use
+</code></pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">PDAs are deterministic and off-curve; always keep the bump seed with state so invoke_signed can reconstruct signer seeds later.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

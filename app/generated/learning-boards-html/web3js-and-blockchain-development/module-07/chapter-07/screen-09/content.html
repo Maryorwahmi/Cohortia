@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#fbfcff} .card{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px} code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Mocking Web3.js for fast frontend tests</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7">
+      <div class="rounded-xl bg-white p-5 card shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Mock structure</div>
+        <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+          <li>Mock provider methods: getAccounts, getChainId, and helpers like toWei/fromWei if used.</li>
+          <li>Mock Contract: implement a methods object whose functions return objects with call or send that resolve test values.</li>
+          <li>Mock events: provide an events object that allows on('data', cb) to trigger callbacks with simulated payloads.</li>
+        </ul>
+
+        <div class="mt-4 text-sm text-slate-600">Test both normal and failure responses so UI handles errors gracefully, for example when call() rejects or send() fails.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card shadow-sm overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Mock example</div>
+        <pre><code>const mockWeb3 = {
+  eth: {
+    getAccounts: jest.fn(() =&gt; Promise.resolve(['0xMockAccount'])),
+    getChainId: jest.fn(() =&gt; Promise.resolve(1337)),
+    Contract: jest.fn(() =&gt; ({
+      methods: {
+        myViewFunction: jest.fn(() =&gt; ({ call: jest.fn(() =&gt; Promise.resolve('Mocked View Data')) })),
+        myMutateFunction: jest.fn(() =&gt; ({ send: jest.fn(() =&gt; Promise.resolve({ transactionHash: '0xMockTxHash' })) })),
+      },
+      events: {
+        MyEvent: jest.fn(() =&gt; ({ on: jest.fn((event, callback) =&gt; { if (event === 'data') { setTimeout(() =&gt; callback({ event: 'MyEvent', returnValues: { arg1: 'mockValue' }, transactionHash: '0xmockEventTx' }), 100); } return { unsubscribe: jest.fn() }; }) })),
+    })),
+  },
+  utils: { fromWei: jest.fn((val) =&gt; val), toWei: jest.fn((val) =&gt; val) },
+};
+
+jest.mock('web3', () =&gt; jest.fn(() =&gt; mockWeb3));</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Mocks speed tests and let you simulate on-event behavior; pair them with integration tests to be confident about real chain interactions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

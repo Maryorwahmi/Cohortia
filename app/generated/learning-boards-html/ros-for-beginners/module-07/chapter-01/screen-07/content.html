@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Minimal URDF</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm border-[rgba(226,232,240,0.9)] overflow-hidden">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Code example</div>
+      <div class="text-sm font-semibold text-slate-800 mb-2">URDF snippet</div>
+      <div class="text-xs text-slate-600 mb-2">Below is a shortened XML snippet showing base and wheel links, joint, and a gazebo plugin.</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>&lt;?xml version="1.0"?&gt;
+&lt;robot name="my_robot"&gt;
+  &lt;link name="base_link"&gt; ... &lt;/link&gt;
+
+  &lt;link name="right_wheel"&gt; ... &lt;/link&gt;
+  &lt;joint name="right_wheel_joint" type="continuous"&gt;
+    &lt;parent link="base_link" /&gt;
+    &lt;child link="right_wheel" /&gt;
+    &lt;origin xyz="0.2 -0.15 0" rpy="0 1.5708 0" /&gt;
+    &lt;axis xyz="0 0 1" /&gt;
+  &lt;/joint&gt;
+
+  &lt;gazebo&gt;
+    &lt;plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so"&gt;
+      &lt;leftJoint&gt;left_wheel_joint&lt;/leftJoint&gt;
+      &lt;rightJoint&gt;right_wheel_joint&lt;/rightJoint&gt;
+      &lt;commandTopic&gt;cmd_vel&lt;/commandTopic&gt;
+      &lt;odometryTopic&gt;odom&lt;/odometryTopic&gt;
+    &lt;/plugin&gt;
+  &lt;/gazebo&gt;
+&lt;/robot&gt;</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Explanation</div>
+        <ul class="text-sm text-slate-600 space-y-2">
+          <li>Joint names in URDF must match plugin entries for correct mapping.</li>
+          <li>Origin and axis define physical placement and rotation direction of joints.</li>
+          <li>Plugin parameters convert cmd_vel messages into wheel torques and publish odom.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 mb-1">Concrete example</div>
+        <div class="text-sm text-slate-800">If wheelDiameter increases, the same motor angular speed produces greater linear speed. Tune plugin parameters accordingly.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-800">Keep plugin updateRate moderate (e.g., 50 Hz) to balance responsiveness and CPU load.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

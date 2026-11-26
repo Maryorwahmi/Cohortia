@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.4</span><span>›</span><span class="text-slate-700">TGW Peering Routing</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Routing Essentials</div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Configuring Static Routes for TGW Peering</h2><p class="text-base text-slate-600 mb-6">Directing Traffic Across Regions</p><div class="bg-white p-5 rounded-xl shadow-lg border border-slate-200 mb-6"><h3 class="text-lg font-semibold text-slate-800 mb-3">Why Static Routes?</h3><p class="text-sm text-slate-700">TGW peering connections do not automatically exchange routes. You must manually add static routes in each TGW's route table to specify which traffic should traverse the peering link.</p></div><div class="grid grid-cols-1 gap-4"><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Forgetting to add static routes will result in connectivity failures, even if the peering connection is active.</p></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Cost Consideration</div><p class="text-xs font-medium text-slate-800">Data transfer across TGW peering connections incurs charges, making careful routing planning essential for cost optimization.</p></div></div></div><div class="flex-1 flex flex-col justify-center items-center bg-slate-900 rounded-xl shadow-inner p-6"><div class="w-full h-full text-white font-mono text-sm overflow-auto"><pre style="white-space: pre-wrap; tab-size: 2;"><code class="language-bash"># Example: TGW-East (us-east-1) peered with TGW-West (us-west-2)
+# VPC-A (10.1.0.0/16) attached to TGW-East
+# VPC-B (10.2.0.0/16) attached to TGW-West
+
+# 1. Add route in TGW-East's route table (for VPC-B)
+aws ec2 create-transit-gateway-route \
+    --transit-gateway-route-table-id TGW_EAST_RT_ID \
+    --destination-cidr-block "10.2.0.0/16" \
+    --transit-gateway-attachment-id tgwp-0ccc \
+    --region us-east-1
+
+# 2. Add route in TGW-West's route table (for VPC-A)
+aws ec2 create-transit-gateway-route \
+    --transit-gateway-route-table-id TGW_WEST_RT_ID \
+    --destination-cidr-block "10.1.0.0/16" \
+    --transit-gateway-attachment-id tgwp-0ccc \
+    --region us-west-2
+
+# tgwp-0ccc is the TransitGatewayPeeringAttachmentId</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 w-full mt-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Always add static routes in both TGW route tables, pointing to the peering attachment, to enable inter-region traffic flow.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

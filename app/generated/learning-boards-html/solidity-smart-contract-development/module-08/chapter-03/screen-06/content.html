@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre code{white-space:pre-wrap; tab-size:2;}</style>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-800">connectWallet</div>
+      <div class="text-sm text-slate-600 mt-2">Request permission from the user and initialize signer and network state on success.</div>
+
+      <div class="mt-4">
+        <pre class="mono bg-slate-50 rounded-lg p-3 border border-slate-100"><code>const connectWallet = async () =&gt; {
+  if (!provider) { setError('No Ethereum provider found. Please install MetaMask.'); return; }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    setAccount(accounts[0]);
+    const currentSigner = await provider.getSigner();
+    setSigner(currentSigner);
+    const currentNetwork = await provider.getNetwork();
+    setNetwork(currentNetwork.name);
+  } catch (err) {
+    if (err.code === 4001) setError('Wallet connection rejected by user.');
+    else setError('Error connecting to wallet: ' + err.message);
+  }
+};</code></pre>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-700">Example & UX</div>
+      <div class="text-sm text-slate-700 mt-2">If the user rejects, show a neutral message explaining the action is optional and provide a retry button in your UI. If connection succeeds, immediately show the connected address and network name so the user knows the app's context.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Common Mistake</div>
+        <div class="text-sm text-rose-700 bg-rose-50 p-3 rounded-md border border-rose-100">Not handling the rejection error (4001) causes confusing states where the UI waits for an account that never arrives. Always set a clear error state in this case.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">After successful connect, immediately cache the network name and account in local state so renders remain stable while other initialization continues.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

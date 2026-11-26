@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Calling a state-changing function (increment)</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Write call pattern</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+async function incrementCounter() {
+  try {
+    const tx = await counterContract.increment();
+    await tx.wait();
+    await getCount();
+  } catch (error) {
+    console.error('Error incrementing counter:', error);
+  }
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">Show a 'pending' message after tx is submitted and replace it with 'confirmed' after tx.wait resolves to avoid confusing the user.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Example scenario</div>
+        <div class="text-sm text-slate-700 mt-2">User clicks Increment, MetaMask prompts for gas and confirmation, the app shows 'Incrementing... Confirm in MetaMask.', then waits for tx.wait and updates the count when confirmed.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Not awaiting tx.wait leads to stale reads and poor UX because your UI may refresh before the block containing the transaction is mined.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

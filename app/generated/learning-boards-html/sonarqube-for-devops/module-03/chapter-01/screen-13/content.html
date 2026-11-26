@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.1</span><span>›</span><span class="text-slate-700">Local Scan</span></div><div class="flex flex-col lg:flex-row flex-grow gap-8"><div class="flex flex-col lg:w-1/2 justify-center"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Practical Application</div><h1 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Running Analysis and Reviewing Results</h1><p class="text-lg text-slate-700 mb-6">Executing a Maven Scan and Interpreting the Report</p><div class="space-y-4 mb-8"><div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200"><div class="flex items-center gap-3 mb-2"><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg><span class="text-sm font-semibold text-slate-800">Sample Code with Smells</span></div><p class="text-xs text-slate-600">Our `MyClass.java` contains unused fields/methods and high cyclomatic complexity to demonstrate SonarQube's detection capabilities.</p></div><div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200"><div class="flex items-center gap-3 mb-2"><svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><span class="text-sm font-semibold text-slate-800">Execute Maven Scan</span></div><p class="text-xs text-slate-600">Run the Maven Sonar plugin from your project directory to initiate the analysis and send data to the local SonarQube server.</p></div><div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200"><div class="flex items-center gap-3 mb-2"><svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><span class="text-sm font-semibold text-slate-800">Review SonarQube Dashboard</span></div><p class="text-xs text-slate-600">Access `http://localhost:9000` to explore the analysis report, including bugs, vulnerabilities, and Quality Gate status.</p></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Directly observing SonarQube's analysis and reporting on a sample project clarifies its practical application in a CI/CD context.</p></div></div><div class="flex flex-col lg:w-1/2 items-center justify-center relative bg-slate-800 rounded-xl p-6 border border-slate-700"><h3 class="text-lg font-semibold text-white mb-4">Run SonarQube Analysis (Maven)</h3><pre class="text-white text-xs p-2 rounded-md overflow-x-auto w-full" style="white-space: pre-wrap; tab-size: 2;"><code>mvn clean install sonar:sonar \
+    -Dsonar.projectKey=my-java-project \
+    -Dsonar.host.url=http://localhost:9000 \
+    -Dsonar.login=admin</code></pre><p class="text-xs text-slate-400 mt-4"><em>Note: 'admin' login is for local testing only. Use a generated token in real CI/CD.</em></p><h3 class="text-lg font-semibold text-white mt-8 mb-4">Sample `MyClass.java` Snippet</h3><pre class="text-white text-xs p-2 rounded-md overflow-x-auto w-full" style="white-space: pre-wrap; tab-size: 2;"><code>public class MyClass {
+    private String name; // This field is never used, a common smell
+
+    public MyClass(String name) {
+        this.name = name;
+    }
+
+    public String greet(String message) {
+        // High cyclomatic complexity
+        if (message == null || message.isEmpty()) {
+            return "Hello, anonymous!";
+        } else if (message.length() &lt; 5) {
+            return "Hi there!";
+        } else if (message.contains("urgent")) {
+            System.out.println("Urgent message received!"); // System.out is a smell
+            return "URGENT: " + message.toUpperCase();
+        } else {
+            return "Greeting: " + message;
+        }
+    }
+
+    public void unusedMethod() {
+        // This method is never called, another smell
+        System.out.println("I'm here but doing nothing.");
+    }
+}</code></pre></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

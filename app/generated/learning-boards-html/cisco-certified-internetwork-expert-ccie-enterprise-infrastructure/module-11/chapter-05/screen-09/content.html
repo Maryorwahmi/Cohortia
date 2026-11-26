@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">PAT Exercise</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Expected adapted configuration</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Example adapted PAT configuration
+ip access-list standard NAT_ACL
+ permit 192.168.1.0 0.0.0.255
+!
+interface GigabitEthernet0/1
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/2
+ ip address 203.0.113.1 255.255.255.0
+ ip nat outside
+!
+ip nat inside source list NAT_ACL interface GigabitEthernet0/2 overload
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This snippet shows the adapted values for a lab where GigabitEthernet0/1 is the inside interface and GigabitEthernet0/2 holds the public IP. Note the ACL, interface assignments, and the NAT overload statement.</div>
+    </div>
+    <div class="w-1/3 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600 space-y-2">
+        <li>Confirm ACL entries match the internal subnet.</li>
+        <li>Check interfaces have the ip nat inside/outside keywords.</li>
+        <li>Run translation and session commands to confirm overload behavior.</li>
+      </ol>
+      <div class="mt-4 rounded-lg bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+        <p class="text-xs text-slate-800">Forgetting to apply ip nat inside to the correct interface or mismatching the ACL network will prevent translations and appear like NAT failure.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

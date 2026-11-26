@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Teleporter Pad</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-lg font-bold mb-2 text-slate-800">Activity steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Create TeleportPadA and TeleportPadB in Workspace, anchored and non-colliding.</li>
+        <li>Insert a Script into TeleportPadA and get a reference to padB.</li>
+        <li>Validate otherPart, humanoid and player in Touched handler.</li>
+        <li>Find HumanoidRootPart and set its CFrame to padB.CFrame plus an upward offset.</li>
+        <li>Use a teleportCooldowns table and os.time to prevent rapid teleportation.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter code (template)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">-- Script placed inside "TeleportPadA"
+local padA = script.Parent
+local padB = game.Workspace:FindFirstChild("TeleportPadB")
+
+if not padB then
+    warn("TeleportPadB not found! Teleporter will not work.")
+    return
+end
+
+local teleportCooldowns = {}
+
+local function onPadATouched(otherPart)
+    local character = otherPart.Parent
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local player = game.Players:GetPlayerFromCharacter(character)
+
+    if humanoid and player then
+        local lastTeleportTime = teleportCooldowns[player.UserId] or 0
+        if os.time() - lastTeleportTime < 2 then return end
+
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = padB.CFrame + Vector3.new(0, 5, 0)
+            teleportCooldowns[player.UserId] = os.time()
+            print(player.Name .. " teleported to Pad B!")
+        end
+    end
+end
+
+padA.Touched:Connect(onPadATouched)</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

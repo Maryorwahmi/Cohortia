@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2</span>
+    <span>›</span>
+    <span class="text-slate-700">Text I/O</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white border rounded-2xl p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Code Walkthrough</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+#include &lt;stdio.h&gt;
+
+int main() {
+  FILE *outFile = fopen("data.txt", "w");
+  if (outFile == NULL) {
+    perror("Error opening file for writing");
+    return 1;
+  }
+  fprintf(outFile, "Hello, C File I/O!
+");
+  fprintf(outFile, "The answer is %d.
+", 42);
+  fclose(outFile);
+  return 0;
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 bg-white border rounded-2xl p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Reading lines safely</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+#include &lt;stdio.h&gt;
+
+int main() {
+  FILE *inFile = fopen("data.txt", "r");
+  char buffer[256];
+  if (inFile == NULL) {
+    perror("Error opening file for reading");
+    return 1;
+  }
+  if (fgets(buffer, sizeof(buffer), inFile) != NULL) {
+    printf("Read line: %s", buffer);
+  }
+  fclose(inFile);
+  return 0;
+}
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Notes</div>
+        <ul class="list-disc list-inside mt-2">
+          <li>fgets preserves the newline if it fits; trim it for comparisons.</li>
+          <li>Check fscanf return value to confirm parsed items.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

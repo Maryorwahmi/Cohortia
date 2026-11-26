@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+      <span>›</span>
+      <span class='text-slate-700'>Branch Office Lab</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2'>
+      <div class='p-4 rounded-xl border bg-white h-full'>
+        <div class='text-sm font-semibold text-slate-800'>Given scenario</div>
+        <div class='text-xs text-slate-600 mt-2'>VLAN 10 clients not receiving DHCP. DHCP and DNS servers are at 172.16.1.10. NTP server is 172.16.1.20. Use BR1 to triage and fix.</div>
+        <div class='mt-4 text-xs text-slate-600'>Follow reachability → config → show → debug sequence for each service and verify each remediation step with show commands.</div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col'>
+      <div class='p-4 rounded-xl border bg-slate-50 flex-1'>
+        <div class='text-sm font-semibold text-slate-800'>Commands to run on BR1</div>
+        <pre class='mt-3 text-sm text-slate-800 p-3 rounded bg-black/5'>
+! Check interface for helper
+show running-config interface Vlan10
+
+! If missing, configure helper
+interface Vlan10
+ ip helper-address 172.16.1.10
+!
+! Debug relay to observe DHCP
+debug ip dhcp relay
+
+! DNS checks
+ip domain-lookup
+ip name-server 172.16.1.10
+nslookup www.example.com 172.16.1.10
+
+! NTP configure and verify
+ntp server 172.16.1.20
+show ntp status
+show ntp associations detail
+        </pre>
+        <div class='mt-3 text-xs text-slate-600'>Expected verification: DHCP relays seen in the debug output, nslookup returns the A record, and show ntp status reports Clock is synchronized.</div>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Apply the same checklist across DHCP, DNS, and NTP: reachability, correct config, server state, and targeted debug.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

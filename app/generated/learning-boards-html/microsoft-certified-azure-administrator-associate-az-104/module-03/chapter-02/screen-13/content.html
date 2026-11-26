@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Generating User Delegation SAS</span>
+  </div>
+
+  <div class="flex flex-col flex-grow">
+    <h2 class="text-3xl font-bold text-slate-900 mb-2">Generating a User Delegation SAS via CLI</h2>
+    <p class="text-base text-slate-600 mb-6">A secure, step-by-step process for granting temporary access.</p>
+
+    <div class="flex flex-grow gap-6">
+      <div class="w-2/3 flex flex-col">
+        <div class="bg-slate-800 rounded-2xl p-6 shadow-lg flex-grow font-mono text-sm text-slate-200 overflow-auto mb-4" style="tab-size: 2; white-space: pre-wrap;">
+          <div class="text-emerald-400 mb-4"># First, get a user delegation key (valid for a limited time)</div>
+          <div class="text-emerald-400 mb-4"># Requires Azure AD login with appropriate RBAC permissions</div>
+          <div class="text-amber-400">start=$(date -u -d "5 minutes ago" '+%Y-%m-%dT%H:%MZ')</div>
+          <div class="text-amber-400 mb-6">expiry=$(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ')</div>
+
+          <div class="text-blue-400">key_info=$(az storage account generate-user-delegation-key \</div>
+          <div class="ml-4 text-white">  --account-name <span class="text-green-400">$AZURE_STORAGE_ACCOUNT</span> \</div>
+          <div class="ml-4 text-white">  --resource-group <span class="text-green-400">az104storage-rg</span> \</div>
+          <div class="ml-4 text-white">  --start <span class="text-green-400">$start</span> \</div>
+          <div class="ml-4 text-white">  --expiry <span class="text-green-400">$expiry</span> \</div>
+          <div class="ml-4 text-white">  --query <span class="text-green-400">"{value:value}"</span> -o <span class="text-green-400">tsv</span>)</div>
+
+          <div class="text-emerald-400 mt-6 mb-4"># Now, use the user delegation key to generate a SAS token for a specific blob</div>
+          <div class="text-blue-400">sas_token=$(az storage blob generate-sas \</div>
+          <div class="ml-4 text-white">  --account-name <span class="text-green-400">$AZURE_STORAGE_ACCOUNT</span> \</div>
+          <div class="ml-4 text-white">  --container-name <span class="text-green-400">myprivatecontainer</span> \</div>
+          <div class="ml-4 text-white">  --name <span class="text-green-400">myimage.jpg</span> \</div>
+          <div class="ml-4 text-white">  --permissions <span class="text-green-400">r</span> \</div>
+          <div class="ml-4 text-white">  --expiry <span class="text-green-400">$expiry</span> \</div>
+          <div class="ml-4 text-white">  --auth <span class="text-green-400">login</span> \</div>
+          <div class="ml-4 text-white">  --as-user \</div>
+          <div class="ml-4 text-white">  --query <span class="text-green-400">"value"</span> -o <span class="text-green-400">tsv</span>)</div>
+
+          <div class="text-white mt-6">echo <span class="text-green-400">"SAS Token: $sas_token"</span></div>
+          <div class="text-white">echo <span class="text-green-400">"Full Blob URL with SAS: https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/myprivatecontainer/myimage.jpg?$sas_token"</span></div>
+        </div>
+      </div>
+
+      <div class="w-1/3 flex flex-col gap-4">
+        <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-200 flex-grow">
+          <div class="flex items-center mb-3">
+            <svg class="w-6 h-6 text-violet-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-lg font-semibold text-slate-800">SAS Generation Steps</h3>
+          </div>
+          <ul class="list-disc list-inside text-sm text-slate-600 space-y-2">
+            <li><strong>Step 1:</strong> Generate a user delegation key (requires Azure AD login and RBAC permissions).</li>
+            <li><strong>Step 2:</strong> Use the key to generate the SAS token for a specific blob/container, defining permissions and expiry.</li>
+            <li><strong>Result:</strong> A secure URL for temporary, restricted access without exposing account keys.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">User delegation SAS is the most secure way to grant temporary access to blobs, leveraging Azure AD for authentication and granular control.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

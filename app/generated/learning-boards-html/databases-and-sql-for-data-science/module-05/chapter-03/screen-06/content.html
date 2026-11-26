@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .editor { background: #0f172a; color: #e6eef8; border-radius: 0.75rem; padding: 1rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Insecure example</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Insecure Python snippet (illustration only)</h3>
+    <p class="text-sm text-slate-600 mt-2">This snippet shows the pattern to avoid. Do not run code that concatenates user input into SQL strings.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="editor mono p-4">
+      <div class="text-sm"># Vulnerable pattern - do not execute
+user_input = "admin' OR '1'='1"
+query = f"SELECT * FROM users WHERE username = '{user_input}';"
+# Executing the query in this form would allow input to change SQL behavior</div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs uppercase tracking-wider text-rose-600">Why it is bad</div>
+        <div class="text-sm text-slate-700 mt-2">Interpolated input can turn a filter into a universal truth or inject additional statements. This can leak rows or modify schema.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Quick fix</div>
+        <div class="text-sm text-slate-700 mt-2">Replace the string building with a parameterized query using question-mark placeholders and pass a tuple of values to execute.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-xs uppercase tracking-wider text-slate-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Add unit tests that pass malicious-looking strings to queries to confirm they do not alter database structure or return unexpected rows.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

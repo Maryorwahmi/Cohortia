@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Broken Access Control</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-lg font-bold text-slate-800 mt-2">ID tampering and missing checks</h3>
+        <p class="text-sm text-slate-600 mt-2">Change resource identifiers and validate whether the server enforces object-level authorization. If not, you can access others' data or perform unauthorized actions.</p>
+      </div>
+
+      <div class="rounded-xl bg-slate-50 p-4 card-border">
+        <div class="text-sm font-bold text-slate-800">Concrete example</div>
+        <p class="text-sm text-slate-600 mt-2">Request /api/users/123 then modify the path to /api/users/124 in an intercepted request. If you receive the full profile for 124, the endpoint is missing authorization checks.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Relying on obscured or sequential IDs as a control instead of enforcing server-side authorization.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Testing steps</div>
+      <ol class="text-sm text-slate-600 mt-3 list-decimal ml-5 space-y-2">
+        <li>Intercept the request retrieving a resource.</li>
+        <li>Change the identifier to another value and send the request.</li>
+        <li>Observe whether the response returns data for the modified identifier.</li>
+        <li>Report with original and modified requests and the responses showing unauthorized access.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Remediation</div>
+          <div class="text-xs text-slate-800">Add server-side, object-level authorization checks and centralize enforcement in middleware or service layers; never rely on client obfuscation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

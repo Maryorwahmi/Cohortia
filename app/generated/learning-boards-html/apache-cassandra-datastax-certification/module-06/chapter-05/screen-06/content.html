@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .layout{display:flex;gap:18px;height:100%;} .left{width:48%;} .right{width:52%;} .pill{padding:8px;border-radius:10px;background:#fff;border:1px solid rgba(226,232,240,0.9);} pre.cmd{background:#0b1220;color:#dff3ff;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="w-full max-w-6xl mx-auto h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span>›</span>
+      <span class="text-slate-700">nodetool repair</span>
+    </div>
+
+    <div class="layout">
+      <div class="left pill">
+        <div class="text-lg font-bold text-slate-800">What repair does</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+          <li>Per-token-range anti-entropy: compares and updates replicas to match the most recent data.</li>
+          <li>Propagates deletes (tombstones) so they are honored cluster-wide before gc_grace_seconds expires.</li>
+          <li>Should be run regularly and after restores or extended outages.</li>
+        </ul>
+
+        <div class="mt-4 text-sm font-semibold text-slate-800">Scheduling guidance</div>
+        <div class="text-sm text-slate-600 mt-2">Run repairs during maintenance windows. Consider incremental or range-based repairs to reduce load when supported by tooling.</div>
+
+        <div class="mt-6">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Example command</div>
+          <pre class="cmd mt-2"><code>nodetool repair my_keyspace
+# or for specific table ranges
+nodetool repair my_keyspace my_table</code></pre>
+        </div>
+      </div>
+
+      <div class="right pill">
+        <div class="text-lg font-bold text-slate-800">Operational considerations</div>
+        <div class="mt-3 text-sm text-slate-700">
+          Repair can be CPU and I/O intensive. If you run full cluster repairs concurrently, plan capacity or use staggered schedules. Track repair duration and success, and avoid running heavy repairs during peak traffic if latency spikes matter for your application.
+        </div>
+
+        <div class="mt-4 text-sm font-semibold text-slate-800">Common misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Thinking repairs are a one-time fix after failure. In fact, regular repairs are preventative maintenance to keep replicas in sync over time.</div>
+
+        <div class="mt-6">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+            <p class="text-xs font-medium text-slate-800">Document repair ownership, frequency, and window lengths in your DR playbook so that repairs consistently run and are audited.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

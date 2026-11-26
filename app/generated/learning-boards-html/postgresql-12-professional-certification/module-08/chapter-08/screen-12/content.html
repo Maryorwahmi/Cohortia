@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+  </style>
+
+  <div class="flex flex-col h-full">
+    <div class="mb-3">
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+        <span>›</span>
+        <span>Chapter 8.8</span>
+        <span>›</span>
+        <span class="text-slate-700">DR Test Commands</span>
+      </div>
+    </div>
+
+    <div class="flex gap-4 flex-1 min-h-0">
+      <div class="w-2/3 card p-4 overflow-auto">
+        <div class="text-sm font-bold text-slate-700 mb-2">Representative DR test commands (staging only)</div>
+        <pre class="mono bg-slate-50 p-3 rounded text-sm"># 1. Take a physical base backup on primary
+pg_basebackup -h localhost -D /var/lib/postgresql/12/backup/base_backup -U postgres -P -Xs -R
+
+# 2. Ensure WAL archiving is functioning (check logs for "archived WAL file")
+# 3. Simulate primary failure
+sudo systemctl stop postgresql@12-main
+
+# 4. Promote standby (example)
+pg_ctlcluster 12 main promote
+# Or create trigger file if configured
+# touch /var/lib/postgresql/12/main/trigger_file
+
+# 5. Restore from base backup to a new server and replay WAL
+# a) Initialize new data directory and copy base backup
+# b) Create recovery.signal and set restore_command
+#    restore_command = 'cp /path/to/wal_archive/%f %p'
+#    recovery_target_time = 'YYYY-MM-DD HH:MM:SS'
+# c) Start PostgreSQL
+pg_ctlcluster 12 main start
+
+# 6. Verify data integrity and application connectivity after recovery</pre>
+      </div>
+
+      <div class="w-1/3 flex flex-col gap-3">
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Validation checklist</div>
+          <ul class="text-sm text-slate-700 pl-5 list-disc space-y-2">
+            <li>Confirm WAL files archived and replayed without errors.</li>
+            <li>Run basic application health checks and sample queries.</li>
+            <li>Check for missing objects or corruption reports in logs.</li>
+            <li>Record elapsed time and compare to RTO target.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs font-medium text-slate-800">Measure restore times and validate data integrity regularly. That is the only reliable way to trust your DR plan.</div>
+        </div>
+
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Safety Reminder</div>
+          <div class="text-sm text-slate-700">Run these commands only in staging or tightly controlled environments that mirror production; never perform destructive tests on a live primary.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

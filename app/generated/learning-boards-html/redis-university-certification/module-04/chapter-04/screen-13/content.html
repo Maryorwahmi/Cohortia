@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Races & Fixes</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Why races happen</div>
+      <div class="text-sm text-slate-600 mt-2">Separate client calls can fail in between, leaving inconsistent state.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold text-slate-700">Mitigation options</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc ml-5">
+            <li>Use pipelines to send INCR and EXPIRE together.</li>
+            <li>Use MULTI/EXEC for transactional execution if needed.</li>
+            <li>Use Lua scripting for true server-side atomicity.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example Lua idea</div>
+      <div class="mt-3 text-sm text-slate-600">A Lua script that increments the key, sets expiry if needed, and returns the new count in a single atomic call removes client crash concerns entirely.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Gotcha</div>
+        <div class="text-sm text-slate-700 mt-1">Pipelines lower the chance of a race but do not provide server-side atomicity in the face of mid-client failures.</div>
+      </div>
+    </div>
+  </div>
+</div>

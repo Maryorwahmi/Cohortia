@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process</span>
+    <span>›</span>
+    <span class='text-slate-700'>Enforce SSE-KMS</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='rounded-xl p-4 bg-white border shadow-sm h-1/2'>
+        <div class='text-sm font-semibold text-slate-800'>Denial conditions</div>
+        <ul class='list-disc list-inside text-sm text-slate-600 mt-3 space-y-2'>
+          <li>Null s3:x-amz-server-side-encryption header</li>
+          <li>s3:x-amz-server-side-encryption not equal to aws:kms</li>
+          <li>KMS key id not equal to the required ARN</li>
+        </ul>
+      </div>
+
+      <div class='rounded-xl p-3 bg-emerald-50 border border-gray-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1'>Testing checklist</div>
+        <ul class='text-sm text-slate-700 mt-2 space-y-2'>
+          <li>Upload without encryption: expect Access Denied.</li>
+          <li>Upload with wrong KMS key: expect Access Denied.</li>
+          <li>Upload with correct KMS ARN: expect success.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='rounded-xl p-4 bg-slate-50 border shadow-sm flex-1 overflow-auto'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Example policy (concept)</div>
+        <pre style='white-space:pre-wrap;tab-size:2' class='text-sm text-slate-700 bg-white p-2 rounded'>{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "DenyUnEncryptedObjectUploads", "Effect": "Deny", "Principal": "*", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::my-sensitive-data-bucket-123/*", "Condition": { "Null": { "s3:x-amz-server-side-encryption": true } } },
+    { "Sid": "DenyIncorrectEncryptionHeader", "Effect": "Deny", "Principal": "*", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::my-sensitive-data-bucket-123/*", "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } } },
+    { "Sid": "DenyObjectUploadWithIncorrectKMSKey", "Effect": "Deny", "Principal": "*", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::my-sensitive-data-bucket-123/*", "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption-aws-kms-key-id": "arn:aws:kms:REGION:ACCOUNT_A_ID:key/YOUR_KMS_KEY_ID" } } }
+  ]
+}</pre>
+      </div>
+
+      <div class='rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>A denial-first bucket policy provides reliable enforcement; always include a test suite of negative cases.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

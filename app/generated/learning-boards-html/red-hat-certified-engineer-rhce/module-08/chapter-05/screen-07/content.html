@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Troubleshooting web servers vs databases</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Web server checklist (Apache/Nginx)</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>Run apachectl configtest or nginx -t to catch syntax errors.</li>
+        <li>Confirm listening ports: ss -tunap | grep :80</li>
+        <li>Verify document root exists and is readable by the server user.</li>
+        <li>Check SELinux context and audit.log for AVC denials.</li>
+      </ul>
+      <div class='mt-4 text-sm font-bold text-slate-800'>Concrete command</div>
+      <pre class='mt-2 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+apachectl configtest
+ss -tunap | grep :80
+ls -l /var/www/html
+ls -Zd /var/www/html
+</pre>
+    </div>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Database checklist (MariaDB/PostgreSQL)</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>Check service status and server logs for startup errors.</li>
+        <li>Test client connectivity from the app host to isolate network vs credentials.</li>
+        <li>Validate database user privileges for the application account.</li>
+      </ul>
+      <div class='mt-4 text-sm font-bold text-slate-800'>Concrete command</div>
+      <pre class='mt-2 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+systemctl status mariadb
+# Example client test
+mysql -u appuser -p -h 127.0.0.1
+</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

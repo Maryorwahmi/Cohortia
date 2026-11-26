@@ -1,0 +1,96 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploy and Expose</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white border p-5" style="border-color:rgba(226,232,240,0.9); box-shadow:0 6px 18px rgba(15,23,42,0.03); min-height:0;">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Deployment, Service, and Route YAML</h3>
+
+      <div class="mt-4 text-sm text-slate-600">Apply these manifests with oc apply -f to create a simple nginx microservice, expose it internally, and create an external Route.</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-nginx
+  labels:
+    app: hello-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-nginx
+  template:
+    metadata:
+      labels:
+        app: hello-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-nginx-service
+spec:
+  selector:
+    app: hello-nginx
+  ports:
+    - protocol: TCP
+      port: 8080 # Port exposed by the service
+      targetPort: 80 # Port the container is listening on
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hello-nginx-route
+spec:
+  to:
+    kind: Service
+    name: hello-nginx-service
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect</code></pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-700">Verification steps</div>
+        <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-1">
+          <li>oc apply -f deployment.yaml and oc apply -f service.yaml</li>
+          <li>Run a debug pod and curl http://hello-nginx-service:8080</li>
+          <li>Create the Route and run oc get route hello-nginx-route to retrieve the external URL</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white border p-5 flex flex-col" style="border-color:rgba(226,232,240,0.9); box-shadow:0 6px 18px rgba(15,23,42,0.03);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Supporting Notes</div>
+      <div class="mt-3 text-sm text-slate-600">Port semantics: targetPort is the container's listening port; port is the service port clients use inside the cluster. Route binds to the Service to expose external traffic.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <p class="text-xs font-medium text-slate-800">Deployments manage pods, Services provide internal DNS names, and Routes expose HTTP endpoints externally on OpenShift.</p>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <div class="text-sm text-slate-700">Expecting a Service to automatically be reachable from outside the cluster without a Route or ingress configuration.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

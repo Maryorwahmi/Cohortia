@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span>Partitioner</span>
+    <span>›</span>
+    <span class="text-slate-700">Definition</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 card rounded-2xl p-5 flex flex-col">
+      <div class="text-xl font-bold text-slate-800">What a partitioner does</div>
+      <div class="text-sm text-slate-600 mt-2">Maps partition key → hash token → ring range → primary replica. This deterministic mapping is the foundation of distribution.</div>
+
+      <div class="mt-4 flex-1 flex flex-col">
+        <div class="rounded-xl p-3 bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">Explanation</div>
+          <ul class="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-1">
+            <li>A partitioner computes a token from the partition key using a hash function.</li>
+            <li>The token locates a position on the ring; the node owning the range becomes primary for that key.</li>
+            <li>Consistent hashing ensures the same key always resolves to the same node unless topology changes.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-xl p-3 bg-white border">
+            <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Concrete example</div>
+            <div class="text-sm text-slate-700">Inserting user id '42' runs the partitioner, produces a token, and the ring map sends that row to a primary replica determined by that token.</div>
+          </div>
+
+          <div class="rounded-xl p-3 bg-white border">
+            <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Common misconception</div>
+            <div class="text-sm text-slate-700">Partitioners only affect reads — false. They affect both where data is stored and how load is balanced across nodes.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">The partitioner determines data placement; choose one that balances distribution needs and any range-scan requirements.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="card rounded-2xl p-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Analogy</div>
+        <div class="text-sm font-bold text-slate-800 mt-2">Postal sorter</div>
+        <div class="text-sm text-slate-600 mt-1">A partitioner is like a postal sorter that reads an address and routes the mail to a delivery zone.</div>
+      </div>
+
+      <div class="card rounded-2xl p-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Why it matters</div>
+        <div class="text-sm text-slate-700 mt-2">Even distribution prevents hot spots, which improves throughput and reduces latency across the cluster.</div>
+      </div>
+    </div>
+  </div>
+</div>

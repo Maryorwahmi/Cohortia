@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-3">
+    <div class="text-xl font-bold text-slate-900">Hooks vs Off-chain Workers</div>
+    <div class="text-sm text-slate-600 mt-1">A concise comparison to decide where logic should run.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Runtime Hooks</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Deterministic, executed by every validator.</li>
+        <li>Fast, bound CPU and storage work.</li>
+        <li>Good for scheduled state changes and cleanups.</li>
+      </ul>
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-600">Example</div>
+      <div class="p-3 mt-2 rounded-lg bg-blue-50 text-blue-700">Expire an offer exactly at block X and update a counter.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Off-chain Workers</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Run off the Wasm runtime on node threads (std feature).</li>
+        <li>Allow HTTP, heavy compute, and non-deterministic work.</li>
+        <li>Submit signed transactions back to the chain for deterministic effect.</li>
+      </ul>
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-600">Example</div>
+      <div class="p-3 mt-2 rounded-lg bg-violet-50 text-violet-800">Fetch a price feed, aggregate results, and submit the median price on-chain.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-white p-4 shadow-sm card-border">
+    <div class="text-sm font-semibold text-slate-800">Best practices</div>
+    <div class="grid grid-cols-3 gap-3 mt-3 text-sm text-slate-700">
+      <div class="p-3 rounded-lg bg-emerald-50">Validate OCW data on-chain.</div>
+      <div class="p-3 rounded-lg bg-amber-50">Use aggregation or signatures to reduce trust on one node.</div>
+      <div class="p-3 rounded-lg bg-rose-50">Keep hooks lightweight and bounded.</div>
+    </div>
+  </div>
+</div>

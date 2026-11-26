@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Create Roles & Grant Privileges</span>
+  </div>
+  <div class="flex-1 flex gap-6">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process</div>
+        <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-3">
+          <li>Create the role as SECURITYADMIN or a role with CREATE ROLE privilege.</li>
+          <li>Grant USAGE on warehouses, databases, and schemas as required.</li>
+          <li>Grant object privileges like SELECT or CREATE TABLE to the role.</li>
+          <li>Grant roles to other roles to form a hierarchy if needed.</li>
+          <li>Grant roles to users and verify with SHOW GRANTS.</li>
+        </ol>
+        <div class="mt-4 text-xs text-slate-600">Pitfall: Without USAGE on database and schema, table-level privileges won't let users query data.</div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1 mono">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example SQL</div>
+        <pre class="mt-3 text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2;">-- As SECURITYADMIN or equivalent
+CREATE ROLE DATA_ANALYST;
+CREATE ROLE DATA_ENGINEER;
+
+-- Inherit analyst privileges in engineer role
+GRANT ROLE DATA_ANALYST TO ROLE DATA_ENGINEER;
+
+-- Grants for DATA_ANALYST
+GRANT USAGE ON WAREHOUSE COMPUTE_WH TO ROLE DATA_ANALYST;
+GRANT USAGE ON DATABASE SALES_DB TO ROLE DATA_ANALYST;
+GRANT USAGE ON SCHEMA SALES_DB.PUBLIC TO ROLE DATA_ANALYST;
+GRANT SELECT ON ALL TABLES IN SCHEMA SALES_DB.PUBLIC TO ROLE DATA_ANALYST;
+
+-- Additional engineer privileges
+GRANT CREATE TABLE ON SCHEMA SALES_DB.RAW_DATA TO ROLE DATA_ENGINEER;</pre>
+        <div class="mt-3 text-xs text-slate-600">Run verification queries like SHOW GRANTS TO ROLE DATA_ANALYST to confirm the assigned rights.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

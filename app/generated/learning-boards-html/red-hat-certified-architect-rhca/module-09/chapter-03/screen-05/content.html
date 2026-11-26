@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .step{background:#f1f5f9;border-radius:12px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Using pcs &amp; the CIB</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Recommended sequence</div>
+        <div class="mt-3 flex flex-col gap-3 flex-grow">
+          <div class="step flex items-start gap-3">
+            <div class="text-sm font-bold text-blue-700">1. Enter maintenance</div>
+            <div class="text-xs text-slate-600">sudo pcs property set maintenance-mode=true — prevents Pacemaker from acting on incomplete configs while you make multiple changes.</div>
+          </div>
+
+          <div class="step flex items-start gap-3">
+            <div class="text-sm font-bold text-violet-700">2. Create resources</div>
+            <div class="text-xs text-slate-600">Use pcs resource create to add primitives; pcs writes changes to the CIB and Pacemaker on each node will later act on them.</div>
+          </div>
+
+          <div class="step flex items-start gap-3">
+            <div class="text-sm font-bold text-amber-700">3. Verify</div>
+            <div class="text-xs text-slate-600">Run pcs status and inspect the CIB to ensure resources and constraints are correct before enabling orchestration.</div>
+          </div>
+
+          <div class="step flex items-start gap-3">
+            <div class="text-sm font-bold text-emerald-700">4. Exit maintenance</div>
+            <div class="text-xs text-slate-600">sudo pcs property set maintenance-mode=false — allow Pacemaker to start and monitor resources using the updated CIB.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+      <div class="text-xs text-slate-600 mt-2">Maintenance mode prevents premature recovery attempts while interdependent resources are being created. This reduces the risk of partial starts or repeated restart loops that complicate debugging.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Quick commands</div>
+        <pre class="bg-slate-900 text-white rounded-md p-3 text-xs overflow-auto" style="white-space:pre-wrap; tab-size:2"><code>sudo pcs property set maintenance-mode=true
+# make changes
+sudo pcs property set maintenance-mode=false
+sudo pcs status
+sudo pcs status resources
+sudo pcs constraint</code></pre>
+
+        <div class="bg-rose-50 rounded-md p-3 mt-4 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+          <div class="text-xs text-slate-700 mt-1">Skipping maintenance mode during multi-step configuration can lead to Pacemaker acting on incomplete resource sets and generating confusing failures.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

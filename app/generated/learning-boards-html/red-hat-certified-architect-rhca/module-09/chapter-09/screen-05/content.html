@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Client Request Flow</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Request lifecycle</div>
+      <div class="text-sm text-slate-600 mt-1">Follow the steps from client to backend and back.</div>
+
+      <ol class="mt-4 list-decimal ml-5 text-sm text-slate-700 space-y-3 flex-1">
+        <li>Client connects to the Keepalived VIP address used as the single entry point.</li>
+        <li>Active HAProxy receives traffic and runs health checks against backends.</li>
+        <li>HAProxy selects a healthy backend and forwards the request.</li>
+        <li>The backend interacts with shared storage or the database managed under Pacemaker.</li>
+        <li>Response flows back to the client through HAProxy and the VIP remains stable while the active node is healthy.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Failover sequence</div>
+      <div class="text-sm text-slate-600 mt-1">Simulate HAProxy host failure and observe VIP movement.</div>
+
+      <div class="mt-3 rounded-lg p-3 bg-amber-50 border flex-1">
+        <div class="text-sm font-semibold text-amber-700">Failover steps</div>
+        <ul class="mt-2 list-disc ml-5 text-sm text-slate-700 space-y-2">
+          <li>HAProxy process stops or host loses network.</li>
+          <li>Keepalived detects missing VRRP adverts or failing vrrp_script.</li>
+          <li>Standby Keepalived promotes to MASTER and acquires the VIP.</li>
+          <li>Clients reconnect to the same IP, served by standby HAProxy.</li>
+          <li>HAProxy health checks and Pacemaker's checks ensure backends and resources are consistent.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Failover preserves reachability but acceptance tests must account for short disruptions and validate post-failover health.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

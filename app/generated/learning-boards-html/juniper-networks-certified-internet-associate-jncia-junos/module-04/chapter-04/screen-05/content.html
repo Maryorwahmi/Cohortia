@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+    <span>›</span>
+    <span class='text-slate-700'>Enable OSPF & Assign Interfaces</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 min-w-0'>
+      <div class='rounded-2xl bg-white p-5 card-border h-full shadow-sm flex flex-col'>
+        <h3 class='text-xl font-bold text-slate-900 mb-2'>Enable OSPF — CLI walkthrough</h3>
+        <p class='text-sm text-slate-600 mb-3'>Follow these commands in configuration mode to enable OSPF and add interfaces to Area 0.</p>
+        <pre style='white-space:pre-wrap; tab-size:2' class='text-sm bg-slate-900 text-green-200 p-3 rounded-md overflow-auto'><code>user@R1# edit
+user@R1# set routing-options router-id 1.1.1.1
+user@R1# set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+user@R1# set protocols ospf area 0.0.0.0 interface ge-0/0/1.0
+user@R1# commit and-quit</code></pre>
+        <div class='mt-3 text-sm text-slate-700'>Note: include logical unit suffix such as .0. After commit, Junos sends Hellos and begins neighbor discovery on those interfaces.</div>
+      </div>
+    </div>
+    <div class='w-1/2 min-w-0'>
+      <div class='rounded-2xl bg-white p-5 card-border h-full shadow-sm flex flex-col'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-700 mb-2'>Explanation</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 mb-3'>
+          <li>Defining area and interface turns on OSPF Hello packets on that logical interface unit.</li>
+          <li>OSPF network type is auto-detected but can be overridden if needed.</li>
+          <li>Interfaces must reside in the same area ID to form adjacency on that segment.</li>
+        </ul>
+        <div class='bg-amber-50 rounded-lg p-3 mb-3'>
+          <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Common mistake</div>
+          <div class='text-sm text-slate-800'>Forgetting the unit, for example ge-0/0/0 vs ge-0/0/0.0, prevents Junos from applying OSPF to the intended logical interface.</div>
+        </div>
+        <div class='mt-auto'>
+          <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+            <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+            <p class='text-xs font-medium text-slate-800'>Enable OSPF by assigning logical interface units to area 0.0.0.0 to begin neighbor discovery and LSA exchange.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

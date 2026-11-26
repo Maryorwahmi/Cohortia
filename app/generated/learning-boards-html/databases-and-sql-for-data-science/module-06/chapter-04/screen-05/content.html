@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">B-tree internals</h3>
+      <p class="text-sm text-slate-600 mt-2">A balanced, multi-way tree storing sorted keys and child pointers so operations stay logarithmic in cost.</p>
+      <div class="mt-4 space-y-2 text-sm text-slate-700">
+        <div>• Nodes hold multiple keys and pointers, reducing tree height for large datasets.</div>
+        <div>• Lookup: traverse from root to leaf, choose child pointers by comparing keys.</div>
+        <div>• Range queries: contiguous keys in leaves enable efficient sequential reads.</div>
+        <div>• Maintenance: inserts/deletes may split or merge nodes to keep balance.</div>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="text-sm text-slate-800 mt-1">An index on sale_date helps queries like WHERE sale_date &gt; '2021-01-01' by locating the first matching leaf and scanning forward through sorted dates.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">B-tree operations are logarithmic, not constant; the structure still costs maintenance on writes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Illustration: node-level view</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-700">Root node</div>
+          <div class="text-sm text-slate-700 mt-2">Contains a small number of keys and pointers to child nodes; selects which branch to follow.</div>
+        </div>
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-700">Internal nodes</div>
+          <div class="text-sm text-slate-700 mt-2">Hold keys and pointers that narrow the search range rapidly.</div>
+        </div>
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-700">Leaf nodes</div>
+          <div class="text-sm text-slate-700 mt-2">Hold actual key entries and pointers to table rows; contiguous leaves support range scans.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Note: this conceptual view helps you reason about why index scans often avoid large amounts of I/O.</div>
+    </div>
+  </div>
+</div>

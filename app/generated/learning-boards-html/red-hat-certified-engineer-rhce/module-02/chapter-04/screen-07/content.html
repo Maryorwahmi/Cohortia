@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.safe-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-lg font-semibold text-slate-800">Looping dictionaries and conditional parameters</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Pattern</div>
+      <div class="mt-2 text-sm text-slate-600">Use dot notation to read keys from the current loop item and apply filters to handle absent keys.</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3">
+        <pre class="safe-pre"><code>- name: Create users with conditional UID
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid | default(omit) }}"
+    state: present
+    shell: /bin/bash
+  loop: "{{ users_to_create }}"
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Practical tip: use default(omit) rather than default("") so modules receive no parameter instead of an empty value.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <div class="mt-2 text-sm text-slate-600">You have a mixed list of users; some require specific UIDs for ownership consistency, others can use system-assigned IDs. The loop handles both cleanly.</div>
+      <div class="mt-3 text-xs text-slate-600">Misconception: trying to branch inside the loop with separate tasks adds repetition; prefer the default filter to keep one task handling both cases.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

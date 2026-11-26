@@ -1,0 +1,58 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <style>pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="h-full grid grid-cols-2 gap-5">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-lg font-semibold text-slate-800 mt-2">Event tests for CounterWithEvents</h3>
+      <pre class="mt-3 rounded bg-slate-100 p-3"><code>// test/CounterWithEvents.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("CounterWithEvents", function () {
+  let CounterWithEvents, counter, owner, addr1;
+  beforeEach(async function () {
+    CounterWithEvents = await ethers.getContractFactory("CounterWithEvents");
+    [owner, addr1] = await ethers.getSigners();
+    counter = await CounterWithEvents.deploy();
+    await counter.deployed();
+  });
+
+  it("Should emit a CountChanged event on increment", async function () {
+    await expect(counter.increment())
+      .to.emit(counter, "CountChanged")
+      .withArgs(owner.address, 1, "Incremented count");
+  });
+
+  it("Should emit a CountChanged event on decrement", async function () {
+    await counter.increment();
+    await expect(counter.decrement())
+      .to.emit(counter, "CountChanged")
+      .withArgs(owner.address, 0, "Decremented count");
+  });
+
+  it("Should not emit an event if transaction reverts", async function () {
+    await expect(counter.decrement()).to.be.revertedWith("Count cannot go below zero");
+  });
+});
+</code></pre>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="card bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>to.emit(contract, "Event") asserts the transaction produced the named event on that contract instance.</li>
+          <li>withArgs compares the event payload to expected values, including indexed addresses.</li>
+          <li>Reverted transactions should be asserted with revert matchers; they imply no successful emission.</li>
+        </ul>
+      </div>
+      <div class="card bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete advice</div>
+        <p class="text-sm text-slate-700 mt-2">Always use the signer address you expect in withArgs and keep messages consistent. If you change the event signature, update tests immediately to prevent silent integration breakage.</p>
+      </div>
+      <div class="card p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Matcher-based tests make failures explicit: mismatched event arguments fail tests, protecting off-chain consumers.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

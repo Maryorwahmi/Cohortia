@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Define custom error enums</span>
+  </div>
+  <div class="flex-grow grid grid-cols-2 gap-6">
+    <div class="rounded-xl bg-white p-4 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Rust enum example</div>
+      <pre class="bg-slate-900 text-slate-50 p-3 rounded-md text-sm"><code>use solana_program::{program_error::ProgramError};
+use thiserror::Error; // crate for error messages
+
+#[derive(Clone, Debug, PartialEq, Error)]
+pub enum EscrowError {
+  #[error("Invalid instruction data provided.")]
+  #[num_enum(error = 0)]
+  InvalidInstruction,
+
+  #[error("Account is not initialized.")]
+  #[num_enum(error = 1)]
+  UninitializedAccount,
+
+  #[error("Insufficient funds in the source account.")]
+  #[num_enum(error = 3)]
+  InsufficientFunds,
+  // ... other variants
+}
+
+impl From<EscrowError> for ProgramError {
+  fn from(e: EscrowError) -> Self { ProgramError::Custom(e as u32) }
+}
+</code></pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 shadow-sm card flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-semibold text-slate-800 mb-2">Explanation</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>• thiserror attaches readable messages used when printing logs.</li>
+          <li>• num_enum assigns the numeric discriminant that becomes ProgramError::Custom(u32).</li>
+          <li>• From impl converts enum into ProgramError for ProgramResult returns.</li>
+        </ul>
+      </div>
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="rounded-xl bg-amber-50 p-3 border border-amber-100 text-sm text-amber-700">Document numeric codes so frontends map them reliably. Reserve ranges if you expect many errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

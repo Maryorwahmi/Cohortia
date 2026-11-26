@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Order: Successful Transaction</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Place order and update stock atomically</h3>
+
+      <div class="mt-4 text-sm text-slate-700">Follow this pattern to avoid partial writes. Capture returning ids so subsequent inserts reference the same transaction scope.</div>
+
+      <pre class="mt-4 p-3 bg-slate-900 text-slate-100 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+BEGIN;
+INSERT INTO orders (customer_id, total_amount) VALUES (1, 1620.00) RETURNING order_id;
+-- assume returned order_id = 101
+INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES (101, 1, 1, 1500.00);
+INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES (101, 2, 1, 120.00);
+UPDATE products SET stock_quantity = stock_quantity - 1 WHERE product_id = 1;
+UPDATE products SET stock_quantity = stock_quantity - 1 WHERE product_id = 2;
+COMMIT;
+      </pre>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your work</div>
+      <div class="mt-3 text-sm text-slate-700">After commit, run queries to validate that the orders and stock changes are present and that product stock values decreased by the expected amounts.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Combine related DML in one transaction so the commit reflects the complete business operation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Configure Virtual Aliases & Quotas</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full overflow-hidden">
+    <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Lab Steps</div>
+    <h3 class="text-2xl font-bold mt-2 text-slate-900">Hands-on checklist to validate aliasing and quotas</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="font-semibold text-slate-800">Step 1 — System aliases</div>
+        <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/aliases
+webmaster: root
+root: mailuser1@your_domain.com
+sudo newaliases
+sudo systemctl reload postfix</pre>
+        <div class="mt-2 text-xs text-slate-600">Test: send mail to webmaster and confirm mailuser1 receives it.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="font-semibold text-slate-800">Step 2 — Virtual alias maps</div>
+        <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/postfix/main.cf
+virtual_alias_domains = example.net
+virtual_alias_maps = hash:/etc/postfix/virtual
+# /etc/postfix/virtual
+info@example.net    mailuser1@your_domain.com
+sudo postmap /etc/postfix/virtual
+sudo systemctl reload postfix</pre>
+        <div class="mt-2 text-xs text-slate-600">Test: send mail to info@example.net and confirm delivery to mailuser1.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="font-semibold text-slate-800">Step 3 — Dovecot quotas</div>
+        <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/dovecot/conf.d/20-imap.conf
+protocol imap { mail_plugins = $mail_plugins quota imap_quota }
+# /etc/dovecot/conf.d/90-quota.conf
+plugin { quota = maildir:storage=100M }
+sudo systemctl reload dovecot</pre>
+        <div class="mt-2 text-xs text-slate-600">Test: verify quota in an IMAP client or with doveadm.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="font-semibold text-amber-700">Watchouts</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+          <li>Always run newaliases/postmap after edits.</li>
+          <li>Ensure /var/vmail is owned by vmail:vmail and virtual_minimum_uid matches the vmail UID.</li>
+          <li>Keep /etc/dovecot/users.db at chmod 600 to protect credentials.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Follow the edit → postmap/newaliases → reload → test cycle to ensure maps and quotas take effect.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

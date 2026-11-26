@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Execution Model</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Definition & Impact</div>
+      <p class="text-sm text-slate-600 mt-3">Fabric splits transaction processing into three phases: execute, order, validate. This gives you room for parallel execution but creates sensitivity to data contention and chaincode cost.</p>
+
+      <div class="mt-4 space-y-2">
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div class="text-xs font-semibold text-slate-700">Example</div>
+          <div class="text-sm text-slate-600 mt-1">Multiple transfers on distinct account keys run concurrently and increase throughput.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-xs font-semibold text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Ordering does not execute transactions; it only sequences them. Heavy on-chain computation still consumes peer resources.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <div class="text-xs font-semibold text-emerald-700">Why It Matters</div>
+          <div class="text-sm text-slate-700 mt-1">Proper data modeling and lean chaincode unlock Fabric's parallelism and avoid unnecessary validation failures.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Annotated Flow</div>
+      <div class="mt-3 grid grid-cols-3 gap-3 flex-1">
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Execute</div>
+          <div class="text-sm text-slate-600 mt-2">Endorsing peers simulate transactions and return read/write sets.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Order</div>
+          <div class="text-sm text-slate-600 mt-2">Orderers sequence transactions into blocks based on BatchSize and BatchTimeout.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Validate</div>
+          <div class="text-sm text-slate-600 mt-2">Peers check MVCC read versions and commit valid transactions to the ledger.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-700">Concrete Scenario</div>
+          <div class="text-sm text-slate-600 mt-1">A hot counter that all transactions update will produce many read-write conflicts and low commit rates. Shard the counter or use per-user counters to remove contention.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-700">Key Takeaway</div>
+          <div class="text-sm text-slate-600 mt-1">Design for independent state updates and keep on-chain logic minimal to benefit from parallel execution.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>TokenBalances activity walkthrough</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl p-6 bg-white border' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-lg font-bold text-slate-800'>Starter steps</div>
+      <ol class='list-decimal ml-6 mt-3 text-sm text-slate-700'>
+        <li>Implement individual balanceOf calls and measure time.</li>
+        <li>Refactor to Multicall aggregate and compare results.</li>
+        <li>Add a simple in-memory cache with TTL and measure again.</li>
+      </ol>
+    </div>
+
+    <div class='rounded-2xl p-6 bg-white border font-mono text-sm' style='border-color: rgba(226,232,240,0.9); white-space: pre-wrap; tab-size: 2;'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Starter code snippet (read-only)</div>
+<pre><code>const cache = useRef({});
+const CACHE_LIFETIME = 5 * 60 * 1000; // 5 minutes
+
+// Build multicall calls
+const calls = TOKEN_CONFIG.map(token =&gt; ({
+  target: token.address,
+  callData: web3.eth.abi.encodeFunctionCall(ERC20_ABI.find(m =&gt; m.name === 'balanceOf'), [account])
+}));
+
+// Call aggregate and decode
+const { returnData } = await multicallContract.methods.aggregate(calls).call();
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

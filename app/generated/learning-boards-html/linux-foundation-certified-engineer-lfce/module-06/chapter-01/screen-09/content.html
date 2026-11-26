@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 rounded-2xl bg-white card-border shadow-sm p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Implement tmpfs for temporary dirs</h3>
+      <p class="mt-2 text-sm text-slate-600">tmpfs keeps temporary files in RAM and clears them on reboot. Use with mount hardening options for extra protection.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">Add to /etc/fstab</div>
+          <pre class="mt-2 p-2 bg-slate-900 text-slate-50 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+tmpfs /tmp tmpfs defaults,noexec,nosuid,nodev 0 0
+          </pre>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">Validation</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-5 space-y-1">
+            <li>Run mount or findmnt to confirm options.</li>
+            <li>Test common application workflows to detect compatibility issues.</li>
+            <li>If execution is required, create a controlled exception with strict ACLs.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white card-border shadow-sm p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+      <div class="mt-3 text-sm text-slate-600">Without tmpfs and hardened options, an attacker can drop a binary into /tmp and execute it, or create device files. This practice reduces these vectors and makes temporary files ephemeral.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use tmpfs plus noexec,nosuid,nodev for /tmp and /var/tmp to reduce execution and device-related risks and to avoid persistent malicious files across reboots.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Starter code</div>
+      <div class="mt-3 bg-slate-900 rounded-md p-3 text-white"><pre><code>using UserData = std::vector&lt;std::pair&lt;std::string,int&gt;&gt;;
+UserData users = {{"userA",100},{"userB",150}};
+
+std::thread t([&users]() {
+  for (const auto& [id, score] : users) {
+    std::cout << id << ": " << score << std::endl;
+  }
+});
+
+t.join();
+</code></pre></div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-bold">Notes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Capturing users by const reference is acceptable here because t.join() happens before users is destroyed.</li>
+        <li>If t was detached, capturing by value or using a shared pointer would be safer.</li>
+        <li>Always reason about lifetime when a lambda escapes its defining scope.</li>
+      </ul>
+    </div>
+
+    <div class="col-span-2 mt-3 rounded-xl bg-emerald-50 p-3 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Try this</div>
+      <div class="text-xs text-slate-800 mt-1">Experiment: change join to detach and observe potential undefined behavior when users is a local variable. Then update the lambda to capture users by value and compare behavior.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

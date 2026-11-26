@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} .step{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Create cache policies & WAF</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="step p-4">
+      <div class="text-sm font-bold text-slate-800">Part 1: Create Cache Policies</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Create LongLivedStaticAssetsPolicy with Min 86400, Default 2592000, Max 31536000, no headers/cookies/query strings, enable Brotli/Gzip.</li>
+        <li>Create ShortLivedAPICachePolicy with Min 0, Default 300, Max 300, include Authorization and Accept headers if response varies, include query strings as needed.</li>
+      </ol>
+      <div class="mt-3 text-xs text-slate-500">Tip: name policies clearly so you can reuse them across behaviors and distributions.</div>
+    </div>
+    <div class="step p-4">
+      <div class="text-sm font-bold text-slate-800">Part 2: Attach Behaviors & WAF</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Create behavior for <span class="font-mono">/assets/*</span> and attach LongLivedStaticAssetsPolicy and an appropriate origin request policy.</li>
+        <li>Create behavior for <span class="font-mono">/api/v1/*</span> and attach ShortLivedAPICachePolicy; use HTTPS-only viewer policy.</li>
+        <li>Create Global WAF Web ACL, add managed rule sets in Count mode, associate with distribution, then monitor and switch to Block when safe.</li>
+      </ol>
+      <div class="mt-3 text-xs text-slate-500">Misconception check: Do not forward or include per-session cookies in static asset cache keys.</div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-sm text-slate-800">Deploy targeted policies for different content types, attach behaviors with correct origin forwarding, and validate using CacheHitRatio and WAF logs.</p>
+  </div>
+</div>

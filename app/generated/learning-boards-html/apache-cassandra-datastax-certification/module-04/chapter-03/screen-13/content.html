@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Assessment</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Task</div>
+      <p class="text-sm text-slate-700 mt-2">Create orders_by_customer with customer_id as the partition key and order_date as the clustering key. Include customer_name as a denormalized column.</p>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>CREATE TABLE orders_by_customer (
+  customer_id uuid,
+  order_id uuid,
+  customer_name text,
+  order_date timestamp,
+  total_amount decimal,
+  PRIMARY KEY ((customer_id), order_date, order_id)
+) WITH CLUSTERING ORDER BY (order_date DESC);</code></pre>
+      <div class="mt-3 text-sm text-slate-700">When customer_name changes, update orders_by_customer rows for that customer as part of your update strategy.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Assessment criteria</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-2">
+        <li>Table serves the query in a single read.</li>
+        <li>Clustering order returns newest orders first.</li>
+        <li>Update strategy described for duplicated customer_name.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Map relational queries to denormalized tables that return complete results in one read and explain how duplicates will be kept consistent.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

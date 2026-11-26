@@ -1,0 +1,84 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:var(--bg,#ffffff)} .card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.6</span>
+      <span>›</span>
+      <span class='text-slate-700'>RBAC Design Exercise</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white p-5 card-border shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>1. Permissions</div>
+      <ul class='mt-3 text-sm text-slate-600 list-disc ml-5 space-y-1'>
+        <li>document:create</li>
+        <li>document:read_any</li>
+        <li>document:read_public</li>
+        <li>document:update_any</li>
+        <li>document:delete_any</li>
+        <li>user:read_profile_any</li>
+        <li>user:update_profile_self</li>
+        <li>admin_panel:access</li>
+      </ul>
+
+      <div class='mt-4 text-xs text-slate-500'>
+        <div class='rounded-md bg-violet-50 p-3'>
+          <div class='text-[10px] font-bold text-violet-700'>Design note</div>
+          <div class='text-xs text-slate-700 mt-1'>Keep permission names consistent and scoped by resource to ease audits.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-5 card-border shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>2. Roles</div>
+      <div class='mt-3 space-y-2 text-sm text-slate-600'>
+        <div class='rounded-md bg-blue-50 p-3'>
+          <div class='font-semibold text-blue-700'>admin</div>
+          <div class='text-xs mt-1'>All document and user permissions plus admin_panel:access.</div>
+        </div>
+        <div class='rounded-md bg-amber-50 p-3'>
+          <div class='font-semibold text-amber-700'>editor</div>
+          <div class='text-xs mt-1'>document:create, document:read_any, document:update_any, user:read_profile_any, user:update_profile_self</div>
+        </div>
+        <div class='rounded-md bg-emerald-50 p-3'>
+          <div class='font-semibold text-emerald-700'>viewer</div>
+          <div class='text-xs mt-1'>document:read_any, user:read_profile_any</div>
+        </div>
+        <div class='rounded-md bg-slate-50 p-3'>
+          <div class='font-semibold text-slate-700'>guest</div>
+          <div class='text-xs mt-1'>document:read_public</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='col-span-2 rounded-2xl bg-white p-5 card-border shadow-sm mt-4'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>3. Example JWT claims (Editor)</div>
+      <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm'>
+{
+  "sub": "user-editor-123",
+  "name": "Editor User",
+  "email": "editor@example.com",
+  "roles": ["editor"],
+  "permissions": [
+    "document:create",
+    "document:read_any",
+    "document:update_any",
+    "user:read_profile_any",
+    "user:update_profile_self"
+  ],
+  "exp": 1678886400
+}
+      </pre>
+
+      <div class='mt-3 text-xs text-slate-500'>
+        <div class='rounded-md bg-blue-50 p-3'>
+          <div class='text-[10px] font-bold text-blue-700'>Practical tip</div>
+          <div class='text-xs text-slate-700 mt-1'>Consider including only roles in tokens and letting services resolve permissions to keep token sizes small and policies dynamic.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

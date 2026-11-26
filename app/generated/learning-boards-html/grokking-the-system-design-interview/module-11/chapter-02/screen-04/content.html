@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 h-full rounded-xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Core Concept</div>
+      <div class='text-xl font-bold text-slate-800 mb-2'>Entities & Access Patterns</div>
+      <div class='text-sm text-slate-600 mb-3'>Define the shape of each entity and the operations you need most.</div>
+
+      <div class='space-y-3 flex-1'>
+        <div class='rounded-lg bg-blue-50 p-3'>
+          <div class='font-bold text-slate-800'>User</div>
+          <div class='text-sm text-slate-600 mt-1'>ID, username, profile picture, created_at. Low write rate, high need for integrity.</div>
+        </div>
+        <div class='rounded-lg bg-violet-50 p-3'>
+          <div class='font-bold text-slate-800'>Post</div>
+          <div class='text-sm text-slate-600 mt-1'>post_id, author_id, content, timestamps, counts. High write and read volume; time-ordered reads matter.</div>
+        </div>
+        <div class='rounded-lg bg-amber-50 p-3'>
+          <div class='font-bold text-slate-800'>Follower Relationship</div>
+          <div class='text-sm text-slate-600 mt-1'>Many-to-many mapping; queries in both directions may be required.</div>
+        </div>
+      </div>
+
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Document your most frequent queries first; entities with different access patterns should use storage tailored to those patterns.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 h-full rounded-xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='font-bold text-slate-800 mb-2'>Examples & Misconceptions</div>
+      <div class='text-sm text-slate-600 mb-3'>Concrete example: fetching a user's activity feed is a direct lookup by that user's ID. Fetching a home feed requires combining posts from many followees and is the expensive case.</div>
+
+      <div class='grid grid-cols-2 gap-3 flex-1'>
+        <div class='rounded-lg bg-white p-3 card-border'>
+          <div class='font-bold text-slate-800'>Example</div>
+          <div class='text-sm text-slate-600 mt-1'>Store recent posts keyed by author to efficiently fetch a user's own timeline.</div>
+        </div>
+        <div class='rounded-lg bg-white p-3 card-border'>
+          <div class='font-bold text-slate-800'>Misconception</div>
+          <div class='text-sm text-slate-600 mt-1'>Treating follower relationships as lightweight when they drive most feed queries leads to poor design.</div>
+        </div>
+      </div>
+
+      <div class='mt-3 text-sm text-slate-600'>Pro tip: write down the exact read query you must optimize before choosing keys. This keeps schema design practical.</div>
+    </div>
+  </div>
+</div>

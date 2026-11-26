@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>:root{--amber:#f5a623;--emerald:#10b981} pre{white-space:pre-wrap;tab-size:2; font-family:ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">NAT interactions with VPNs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full">
+      <h3 class="text-2xl font-bold text-slate-800">Why NAT can break VPNs</h3>
+      <p class="text-sm text-slate-600 mt-3">If translation happens before encryption, the crypto ACL may not match the translated packet and the tunnel will not carry the intended traffic.</p>
+
+      <div class="mt-4 rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Practical checks</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc list-inside">
+          <li>show ip nat translations — inspect active translations</li>
+          <li>review ip nat inside/outside interface assignments</li>
+          <li>confirm the ACL used by ip nat inside source matches original internal addresses</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full">
+      <div class="font-semibold text-slate-700">Concrete example</div>
+      <p class="text-sm text-slate-600 mt-2">If 10.1.1.0/24 is translated to a public IP before the crypto ACL runs, pinging the remote protected subnet will not be encrypted. To correct this, add a nat exemption — for example nat 0 with an ACL matching 10.1.1.0/24 to the remote 10.2.2.0/24 — so that traffic destined for the tunnel bypasses NAT.</p>
+
+      <div class="mt-4 rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Always exempt VPN traffic from NAT when the translation would occur before the crypto pipeline inspects it.</p>
+      </div>
+    </div>
+  </div>
+</div>

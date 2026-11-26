@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Sudoers example</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Visudo snippet</div>
+      <div class="text-sm text-slate-600 mt-2">Define aliases and give the user only the service restart commands needed.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># Sudoers snippet example
+User_Alias APACHE_NGINX_ADMINS = opsadmin
+Cmnd_Alias SERVICE_RESTARTS = /usr/bin/systemctl restart nginx, /usr/bin/systemctl restart apache2
+APACHE_NGINX_ADMINS ALL=(root) SERVICE_RESTARTS
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Testing</div>
+        <ol class="list-decimal pl-5 mt-2 space-y-1">
+          <li>Run an allowed restart command as the opsadmin user and expect success.</li>
+          <li>Attempt a disallowed command such as opening a shell with sudo; expect denial and a log entry.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical notes</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5 mt-2 space-y-1">
+        <li>Prefer absolute paths in Cmnd_Alias to avoid ambiguity.</li>
+        <li>Avoid NOPASSWD unless required and reviewed for accountability impacts.</li>
+        <li>Group similar commands into aliases to make audits and reviews easier.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700">Using broad wildcards or directories in command lists can unintentionally widen privileges. Be explicit and conservative.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

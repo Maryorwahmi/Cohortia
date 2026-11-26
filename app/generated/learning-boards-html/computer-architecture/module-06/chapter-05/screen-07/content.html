@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Speculative Memory Disambiguation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xl font-bold text-slate-800">How speculation works</div>
+      <div class="text-sm text-slate-600 mt-2">Predict no conflict and issue the load early, then validate later.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-violet-50">
+          <div class="text-sm font-semibold text-violet-700">Predict</div>
+          <div class="text-xs text-slate-600 mt-1">Guess that prior stores do not match this load's address and schedule the load early.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-sm font-semibold text-amber-700">Validate</div>
+          <div class="text-xs text-slate-600 mt-1">When store addresses become known, compare them against speculatively executed loads.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-sm font-semibold text-rose-700">Recover</div>
+          <div class="text-xs text-slate-600 mt-1">If a match is found, re-execute the load and its dependents to restore correct state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-700">Concrete scenario</div>
+      <div class="mt-3 text-sm text-slate-700">Suppose LW R4 is issued before SW R3's address is known. The processor predicts no conflict and executes the load. If SW R3 later computes address 0x1004 and R4 read 0x1000, speculation was correct. If SW R3 computes 0x1000, R4 must be re-executed and dependent instructions replayed.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Speculation trades a small chance of costly replay for frequent gains in parallelism. Accurate predictors make this trade worthwhile.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

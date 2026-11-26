@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Hands-on Scenario: R1 Configuration Walkthrough</div>
+    <div class="text-sm text-slate-600 mt-1">Implement FNF and IP SLA together on a border router and verify detection and automated response.</div>
+  </div>
+
+  <div class="bg-white rounded-xl border p-4 shadow-sm h-full overflow-auto">
+    <div class="text-sm font-semibold text-slate-800 mb-2">R1 Configuration (concise)</div>
+    <pre class="bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>enable
+configure terminal
+
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ no shutdown
+
+! Step 1: Configure Flexible NetFlow
+flow record FNF_SECURITY_RECORD
+ match ipv4 protocol
+ match ipv4 source address
+ match ipv4 destination address
+ match transport source-port
+ match transport destination-port
+ collect transport tcp flags
+ collect counter bytes long
+ collect counter packets long
+!
+flow exporter FNF_EXPORTER
+ destination 192.168.10.40
+ transport udp 2055
+ source Loopback0
+!
+flow monitor FNF_MONITOR
+ record FNF_SECURITY_RECORD
+ exporter FNF_EXPORTER
+ cache timeout active 60
+!
+interface GigabitEthernet0/0/1
+ description Internal_LAN_Interface
+ ip address 192.168.1.1 255.255.255.0
+ ip flow monitor FNF_MONITOR input
+ ip flow monitor FNF_MONITOR output
+ no shutdown
+
+! Step 2: Configure IP SLA operation
+ip sla 10
+ icmp-echo 192.168.1.100 source-interface Loopback0
+ timeout 2000
+ frequency 5
+!
+ip sla schedule 10 life forever start-time now
+
+! Step 3: Create tracking object
+track 1 ip sla 10 reachability
+
+! Step 4: Configure static route with tracking
+ip route 192.168.1.100 255.255.255.255 192.168.1.1 track 1
+
+end
+write memory</code></pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-emerald-50 p-3">Verification: show flow monitor FNF_MONITOR cache & statistics.</div>
+      <div class="rounded-lg bg-amber-50 p-3">Verification: show ip sla summary, show ip sla detail 10.</div>
+      <div class="rounded-lg bg-rose-50 p-3">Verification: show track 1 and simulate server failure to observe state change.</div>
+      <div class="rounded-lg bg-white p-3 border">Verification: show ip route 192.168.1.100 to confirm route is conditional on track state.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

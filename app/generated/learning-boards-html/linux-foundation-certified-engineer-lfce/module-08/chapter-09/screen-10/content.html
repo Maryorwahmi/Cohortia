@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 8.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Access the VM</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"># If serial console is configured
+virsh console mytestvm
+
+# Or use SSH if enabled
+ssh user@&lt;VM_IP_ADDRESS&gt;</pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Deploy nginx inside the VM</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"># Using Docker
+docker run -d --name vm-nginx -p 80:80 nginx:latest
+
+# Or using Podman
+podman run -d --name vm-nginx -p 80:80 nginx:latest</pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Verify and monitor</div>
+      <div class="mt-3 text-sm text-slate-700">From your host, confirm the site loads at http://&lt;VM_IP_ADDRESS&gt;. Then monitor:
+        <ul class="mt-2 list-disc ml-5 space-y-2 text-sm text-slate-700">
+          <li>On the host: virt-top or virsh list --all</li>
+          <li>Inside the VM: top</li>
+          <li>Container-level: docker stats vm-nginx or podman stats vm-nginx</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Network tip</div>
+        <p class="text-sm text-slate-700 mt-1">Ensure host and VM firewalls allow inbound traffic. If the container needs external access, open the VM firewall port that maps to the container.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Sys.wait — busy-loop timing</span>
+  </div>
+  <div class="flex gap-6 flex-grow">
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm">
+      <h3 class="text-lg font-bold text-slate-900">Implementation pattern</h3>
+      <pre class="bg-slate-900 text-slate-50 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>function void wait(int duration) {
+  var int i, j;
+  let i = 0;
+  while (i &lt; duration) {
+    let j = 0;
+    while (j &lt; 100) {
+      let j = j + 1;
+    }
+    let i = i + 1;
+  }
+  return;
+}</code></pre>
+      <div class="mt-3 text-sm text-slate-700">
+        <p>Inner loop bound (100 above) sets granularity. Increase or decrease to adjust per-iteration cost when calibrating on actual hardware.</p>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm">
+      <h3 class="text-lg font-bold text-slate-900">Pros and cons</h3>
+      <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-700">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="font-bold text-slate-800">Pros</div>
+          <div class="mt-1">Portable, simple to implement, no hardware dependencies.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-rose-50">
+          <div class="font-bold text-rose-700">Cons</div>
+          <div class="mt-1">Consumes full CPU, imprecise timing, unsuitable for multitasking.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="font-bold text-slate-800">Test idea</div>
+          <div class="mt-1">Run wait with durations 1, 2, 5 and measure relative pauses to confirm scaling.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

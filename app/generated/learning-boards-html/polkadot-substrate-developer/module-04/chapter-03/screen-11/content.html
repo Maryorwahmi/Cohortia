@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.code{background:#0b1220;color:#e6eefc;padding:12px;border-radius:8px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-3">
+    <div class="text-xl font-bold text-slate-900">Price Oracle activity — OCW implementation plan</div>
+    <div class="text-sm text-slate-600 mt-1">A step-by-step checklist to implement and validate the OCW flow.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Checklist</div>
+      <ol class="text-sm text-slate-700 space-y-2">
+        <li>Run OCW only every 5 blocks using block_number % 5 == 0.</li>
+        <li>Request the mock API and collect response bytes safely.</li>
+        <li>Parse JSON and convert price to scaled u64.</li>
+        <li>Use Signer::any_account() to send Call::set_price.</li>
+        <li>Add ensure!(block_number > LastPriceUpdateBlock) in set_price.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Starter code sketch</div>
+      <div class="code">// within offchain_worker
+if (block_number % 5 == 0) {
+  let resp = Request::get(&url).send().unwrap().wait().unwrap();
+  let body = resp.body().collect::<Vec<u8>>();
+  // parse price, convert to u64 scaled value
+  // let call = Call::set_price(price_u64, block_number);
+  // Signer::any_account().send_signed_transaction(|_| call);
+}
+
+// in set_price dispatchable
+ensure!(block_number > <LastPriceUpdateBlock<T>>::get(), Error::<T>::StalePrice);
+</div>
+      <div class="mt-3 text-sm text-slate-700">Run the node with offchain logging enabled to observe the HTTP and signing steps in the terminal output.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

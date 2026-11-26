@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Logs Insights</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Query example</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-3 rounded card-border" style="white-space:pre-wrap; tab-size:2;">fields @timestamp, @message
+| filter @logStream like /ERROR/
+| parse @message "Request ID: *" as request_id
+| stats count(*) by request_id, bin(1m)
+| sort @timestamp desc
+| limit 20</pre>
+      <div class="text-sm text-slate-600 mt-3">Explanation: filter finds candidate events, parse extracts a field, stats groups and counts by time bin, and limit prevents large result sets.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tips and pitfalls</div>
+      <ul class="list-disc list-inside text-sm text-slate-600 mt-3">
+        <li>Start broad; refine with filters to avoid missing variant messages.</li>
+        <li>Use parse with simple patterns; complex regex can be slow.</li>
+        <li>Always apply limit and binning to keep queries responsive.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold">Example scenario</div>
+          <div class="text-sm text-slate-600 mt-1">Find all errors in the last five minutes and count by request id to find a failing client or API endpoint.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

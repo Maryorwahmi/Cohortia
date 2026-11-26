@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+    <span>›</span>
+    <span class='text-slate-700'>Hands-on Activity</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 overflow-auto'>
+      <div class='text-sm font-bold text-slate-800'>Starter commands</div>
+      <div class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;'>
+<pre><code>-- Connect to the database (example)
+-- psql -U postgres -d project_alpha_db
+
+-- Create partial index
+CREATE INDEX idx_orders_pending_date ON orders (order_date) WHERE status = 'pending';
+
+-- Create expression index
+CREATE INDEX idx_products_name_lower ON products (lower(product_name));
+
+-- Analyze and test
+ANALYZE orders;
+EXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'pending' AND order_date &lt; '2023-09-01';
+
+-- Rebuild concurrently
+REINDEX INDEX CONCURRENTLY idx_products_name_lower;
+
+-- Inspect index stats
+SELECT relname, indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan DESC;
+</code></pre>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-700'>Follow these steps in a test environment first. Capture EXPLAIN ANALYZE output before and after index creation and after any rebuild to measure impact.</div>
+    </div>
+
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Example scenario</div>
+      <div class='mt-3 text-sm text-slate-700'>Imagine your orders table has heavy reads for pending orders. Creating the partial index should reduce read latency and shrink index size compared to a full order_date index. If you see no change, re-check predicate alignment and run ANALYZE to refresh statistics.</div>
+
+      <div class='mt-auto rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <div class='text-xs font-medium text-slate-800'>Measure before and after: sensible index design plus monitoring is the path to sustainable performance.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

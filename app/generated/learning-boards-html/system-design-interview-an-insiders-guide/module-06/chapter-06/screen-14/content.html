@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Scalability & Reliability</span><span>›</span><span>Chapter 6.6</span><span>›</span><span class="text-slate-700">Email Sender Activity</span></div><div class="flex flex-col h-full w-full"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Practical Application</div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Building an Asynchronous Email Sender</h1><p class="text-lg text-slate-700">Extending Celery for Real-World Scenarios</p></div><div class="flex flex-grow gap-6"><div class="flex-1 flex flex-col justify-between"><div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-4"><h2 class="text-xl font-bold text-slate-800 mb-3">Scenario & Task</h2><p class="text-sm text-slate-700 mb-3">You have a web service that needs to send a large number of personalized emails. Sending each email synchronously would be too slow and block the UI.</p><p class="text-sm text-slate-700"><strong>Task:</strong> Extend the Celery example to create an asynchronous email sending service.</p></div><div class="bg-slate-800 rounded-xl shadow-lg p-5 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># Modify proj/tasks.py</div><pre><code class="language-python"># ... (existing code) ...
+import random
+
+@app.task
+def send_personalized_email(recipient_email, subject, body_template):
+    print(f"Sending email to {recipient_email} - Subject: '{subject}'")
+    time.sleep(random.uniform(1, 3)) # Simulate email sending time
+    final_body = body_template.replace("{recipient}", recipient_email.split('@')[0])
+    print(f"Email to {recipient_email} sent. Body snippet: '{final_body[:50]}...' ")
+    return {"status": "sent", "recipient": recipient_email, "subject": subject}</code></pre></div></div><div class="flex-1 flex flex-col justify-between"><div class="bg-slate-800 rounded-xl shadow-lg p-5 mb-4 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># Modify client.py</div><pre><code class="language-python">from proj.tasks import add, process_image, send_personalized_email
+import time
+
+print("Sending tasks...")
+# ... (existing add and process_image tasks) ...
+
+print("
+Sending email tasks...")
+email_tasks = []
+recipients = [
+    "alice@example.com", "bob@example.com", "charlie@example.com",
+    "david@example.com", "eve@example.com", "frank@example.com"
+]
+subject = "Welcome to Our Service!"
+body_template = "Hello {recipient},
+
+Thank you for joining..."
+
+for recipient in recipients:
+    async_result_email = send_personalized_email.delay(recipient, subject, body_template)
+    email_tasks.append(async_result_email)
+    print(f"Email task for {recipient} sent. Task ID: {async_result_email.id}")
+
+print("
+Waiting for all email results...")
+for i, task in enumerate(email_tasks):
+    try:
+        result = task.get(timeout=10)
+        print(f"Email task {i+1} result: {result}")
+    except Exception as e:
+        print(f"Email task {i+1} failed: {e}")
+
+print("
+All tasks processed and results retrieved.")</code></pre></div><div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-lg"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Instructions</div><ul class="list-disc list-inside text-xs text-slate-800 space-y-1"><li class="flex items-start"><span class="mr-2 text-emerald-500">•</span><span>Ensure Redis is running.</span></li><li class="flex items-start"><span class="mr-2 text-emerald-500">•</span><span>Start the Celery worker.</span></li><li class="flex items-start"><span class="mr-2 text-emerald-500">•</span><span>Run the modified client.</span></li><li class="flex items-start"><span class="mr-2 text-emerald-500">•</span><span>Observe client and worker terminals.</span></li></ul></div></div></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">This activity demonstrates how Celery can efficiently offload high-volume, time-consuming operations like email sending, maintaining application responsiveness.</p></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

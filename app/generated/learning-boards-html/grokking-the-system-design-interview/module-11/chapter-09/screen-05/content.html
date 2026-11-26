@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Statelessness and Externalized State</div>
+    <div class="text-sm text-slate-600 mt-1">Move durable session and history into dedicated services to allow server replacement and autoscaling.</div>
+    <div class="mt-6 grid grid-cols-3 gap-4 h-full">
+      <div class="col-span-2 rounded-xl bg-slate-50 p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">What this means</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>• Presence and message history live in external services designed for durability.</li>
+          <li>• Any chat server can accept any client once the server reads the required state from those services.</li>
+          <li>• Client reconnect logic must fetch state and replay unread messages or presence changes.</li>
+          <li>• External services must be designed with high availability and scalability.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-2">User presence is stored in a highly available presence service. Chat servers query it to display online status; when a server dies, another server can continue without data loss.</div>
+        <div class="mt-3 text-xs text-slate-500">Misconception: stateless means fewer network calls. Reality: it increases dependency calls that must be reliable.</div>
+      </div>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Pro Tip</div>
+        <div class="text-sm text-slate-800 mt-1">Cache presence for short windows to reduce read load but rely on the presence service for correctness.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Check</div>
+        <div class="text-sm text-slate-800 mt-1">Ensure reconnection flow rehydrates unread messages from the Message Database.</div>
+      </div>
+    </div>
+  </div>
+</div>

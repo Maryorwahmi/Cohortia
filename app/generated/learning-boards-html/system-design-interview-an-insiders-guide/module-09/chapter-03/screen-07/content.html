@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 3</span>
+    <span>›</span>
+    <span class="text-slate-700">Choreography-based Saga</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Event-driven flow</div>
+      <div class="mt-3 text-sm text-slate-700">Each service publishes an event after its local transaction, and interested services react. No central orchestrator issues commands; the behavior emerges from event subscriptions.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">
+          <div class="text-sm font-semibold">OrderCreatedEvent → Payment</div>
+          <div class="text-xs text-slate-700 mt-1">OrderService publishes, PaymentService processes payment and publishes PaymentProcessedEvent.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-700">
+          <div class="text-sm font-semibold">PaymentProcessedEvent → Inventory</div>
+          <div class="text-xs text-slate-700 mt-1">InventoryService reserves stock and publishes success or failure events.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-rose-50 text-rose-700">
+          <div class="text-sm font-semibold">Failure events drive compensation</div>
+          <div class="text-xs text-slate-700 mt-1">InventoryReservationFailedEvent triggers refunds and order cancellation via subscriptions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Advantages and trade-offs</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-5">
+        <li>Low coupling between services.</li>
+        <li>Scales with event-driven architectures.</li>
+        <li>Harder to visualize end-to-end flow; debugging requires good observability.</li>
+      </ul>
+
+      <div class="mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Best practices</div>
+        <div class="text-sm text-slate-700 mt-2">Document event contracts, build tracing for event chains, and design compensations as explicit events with idempotent handlers.</div>
+      </div>
+    </div>
+  </div>
+</div>

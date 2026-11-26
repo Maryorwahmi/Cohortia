@@ -1,0 +1,17 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.3</span><span>›</span><span class="text-slate-700">Retrieving Interface Configuration (GET)</span></div><div class="flex flex-col lg:flex-row h-full gap-6"><div class="lg:w-1/2 flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Practical Example</div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Retrieving Interface Configuration (GET)</h2><p class="text-lg text-slate-700 mb-6">Using Python `requests` to fetch data from a RESTCONF endpoint.</p><div class="bg-white rounded-xl p-4 shadow-lg border border-slate-200 mb-6"><div class="font-semibold text-slate-800 mb-2">Function Breakdown</div><ul class="list-disc list-inside text-sm text-slate-600 space-y-1"><li><strong>URL Construction:</strong> Dynamically builds the URL using the base path, YANG module (e.g., <code>Cisco-IOS-XE-native:native</code>), and specific interface details.</li><li><strong>HTTP GET Request:</strong> Uses <code>requests.get()</code> with authentication and headers to fetch data.</li><li><strong>Error Handling:</strong> <code>response.raise_for_status()</code> checks for HTTP errors (4xx/5xx) and raises an exception if found.</li><li><strong>JSON Parsing:</strong> <code>response.json()</code> converts the response body into a Python dictionary for easy access.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">A successful RESTCONF GET request requires precise URL construction, proper authentication, and robust error handling to retrieve configuration or operational data.</p></div></div><div class="lg:w-1/2 flex flex-col justify-center items-center bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-700"><div class="text-lg font-semibold text-white mb-4">Python `get_interface_config` Function</div><pre class="bg-gray-800 text-white p-4 rounded-lg text-xs overflow-x-auto w-full" style="white-space: pre-wrap; tab-size: 2;"><code>def get_interface_config(interface_type, interface_name):
+    """Retrieves configuration for a specific interface."""
+    url = f"{BASE_URL}/Cisco-IOS-XE-native:native/interface/{interface_type}={interface_name}"
+    
+    print(f"
+--- Attempting GET from: {url} ---")
+    try:
+        response = requests.get(url, auth=(USER, PASS), headers=HEADERS, verify=False)
+        response.raise_for_status()
+        
+        print(json.dumps(response.json(), indent=2))
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error retrieving interface config: {e}")
+        if response and response.text:
+            print(f"Response content: {response.text}")
+        return None</code></pre><div class="mt-4 text-sm text-slate-400 text-center w-full"><p>This function fetches the configuration for a specified interface and prints the JSON response.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

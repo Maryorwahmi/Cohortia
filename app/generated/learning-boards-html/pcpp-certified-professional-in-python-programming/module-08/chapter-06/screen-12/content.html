@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: JSONPlaceholder</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3">
+      <div class="rounded-xl card p-4 h-full">
+        <div class="text-sm font-semibold text-slate-800">Starter Template (terminal demo)</div>
+        <pre class="code mt-3"><code>import requests
+import json
+
+BASE_URL = 'https://jsonplaceholder.typicode.com'
+
+def fetch_posts():
+    print('--- Fetching Posts ---')
+    try:
+        response = requests.get(f"{BASE_URL}/posts")
+        response.raise_for_status()
+        posts = response.json()
+        print('First 5 post titles:')
+        for i, post in enumerate(posts[:5]):
+            print(f"{i+1}. {post['title']}")
+    except requests.exceptions.RequestException as e:
+        print('Error fetching posts:', e)
+
+def main_api_interaction():
+    fetch_posts()
+
+    with requests.Session() as session:
+        session.headers.update({'User-Agent': 'CohortiaPCPPApp/1.0'})
+        print(f"Session User-Agent set: {session.headers['User-Agent']}")
+
+        # 2. Create a New Post
+        # TODO: Make a POST request using the session and print response JSON
+
+        # 3. Update an Existing Post (ID 1)
+        # TODO: Make a PUT request using the session and print response JSON
+
+        # 4. Delete a Post (ID 1)
+        # TODO: Make a DELETE request using the session and print the status code
+
+if __name__ == '__main__':
+    main_api_interaction()
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl bg-white border p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Tasks</div>
+        <ol class="text-sm text-slate-600 mt-2 list-decimal list-inside space-y-2">
+          <li>Implement POST to create and print the full JSON response.</li>
+          <li>Implement PUT for post id 1 and print returned JSON.</li>
+          <li>Implement DELETE for post id 1 and print the status code.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">Use raise_for_status after each response and catch RequestException to handle failures gracefully.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Why this lab</div>
+        <p class="text-xs font-medium text-slate-800">Completing these tasks demonstrates the common CRUD patterns and session usage you need for real APIs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

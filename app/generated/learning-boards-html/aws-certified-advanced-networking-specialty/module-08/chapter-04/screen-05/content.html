@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Activating Transfer Acceleration</span>
+  </div>
+
+  <div class="flex flex-grow">
+    <div class="w-1/2 pr-8 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Configuration Guide</div>
+      <h2 class="text-3xl font-bold text-slate-900 mb-2">Activating Transfer Acceleration</h2>
+      <p class="text-lg text-slate-700 mb-6">Simple steps to enable faster S3 uploads</p>
+
+      <div class="space-y-4 mb-6">
+        <div class="flex items-start bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm mr-3">1</span>
+          <div>
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Enable on S3 Bucket</h3>
+            <p class="text-sm text-slate-700">Activate Transfer Acceleration via the AWS Management Console, CLI, or SDK within your S3 bucket's properties.</p>
+          </div>
+        </div>
+        <div class="flex items-start bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-violet-100 text-violet-700 font-bold text-sm mr-3">2</span>
+          <div>
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Use Specific Endpoint</h3>
+            <p class="text-sm text-slate-700">For uploads, switch to the S3 Transfer Acceleration endpoint: <code>your-bucket-name.s3-accelerate.amazonaws.com</code>.</p>
+          </div>
+        </div>
+        <div class="flex items-start bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-sm mr-3">3</span>
+          <div>
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Update Applications</h3>
+            <p class="text-sm text-slate-700">Ensure all client applications or scripts are configured to use the new acceleration endpoint for uploads.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A simple configuration change and endpoint update are all that's needed to leverage S3 Transfer Acceleration for faster data uploads.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex items-center justify-center bg-slate-50 rounded-xl p-6 shadow-inner border border-slate-200">
+      <div class="w-full max-w-md">
+        <div class="bg-slate-800 rounded-lg p-4 font-mono text-sm text-slate-200 overflow-x-auto">
+          <div class="text-amber-400 mb-2"># AWS CLI Example: Enable Transfer Acceleration</div>
+          <pre><code class="language-bash">aws s3api put-bucket-accelerate-configuration \
+  --bucket my-accel-test-bucket-YOURNAME \
+  --accelerate-configuration Status=Enabled
+
+# Example S3 Transfer Acceleration Endpoint
+<span class="text-emerald-400">my-accel-test-bucket-YOURNAME.s3-accelerate.amazonaws.com</span>
+
+# AWS CLI Example: Upload using acceleration endpoint
+aws s3 cp localfile.txt \
+  s3://my-accel-test-bucket-YOURNAME \
+  --endpoint-url https://my-accel-test-bucket-YOURNAME.s3-accelerate.amazonaws.com</code></pre>
+        </div>
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Important Note</div>
+          <p class="text-xs text-slate-800">Always verify the new endpoint is correctly configured in your applications or scripts to ensure data is routed through the acceleration service.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

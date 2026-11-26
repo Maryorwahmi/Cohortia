@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace;}</style>
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+    <div class="text-lg font-bold text-slate-900">Safe sequence when mixing >> and getline</div>
+    <div class="mt-3 text-sm text-slate-600">Follow these steps to avoid empty-line reads and ensure robust input handling.</div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3 h-full">
+      <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+        <div class="font-bold text-blue-700">Step 1: Extract token</div>
+        <div class="text-sm text-slate-700 mt-1">Use std::cin >> value for numbers or single words.</div>
+      </div>
+      <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="font-bold text-amber-700">Step 2: Ignore leftover</div>
+        <div class="text-sm text-slate-700 mt-1">Call std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '
+');</div>
+      </div>
+      <div class="p-3 rounded-lg bg-violet-50 border border-violet-100">
+        <div class="font-bold text-violet-700">Step 3: Read full line</div>
+        <div class="text-sm text-slate-700 mt-1">Call std::getline to read user input that may contain spaces.</div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <pre class="code rounded-lg p-3 bg-slate-50 border border-slate-100"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;limits&gt;
+
+int main() {
+  int age;
+  std::string fullName;
+
+  std::cin &gt;&gt; age;
+  // discard leftover newline
+  std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '
+');
+
+  std::getline(std::cin, fullName);
+  std::cout &lt;&lt; "Name: " &lt;&lt; fullName &lt;&lt; " Age: " &lt;&lt; age &lt;&lt; std::endl;
+}
+</code></pre>
+    </div>
+
+    <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Always clear the buffer before switching from token extraction to line-based reads; use the numeric-limits pattern for safety.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

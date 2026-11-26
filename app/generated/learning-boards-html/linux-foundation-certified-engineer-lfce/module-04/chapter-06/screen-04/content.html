@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Replication: Definition</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Replication — core definition</div>
+      <div class="text-sm text-slate-700 mt-2">Replication copies data by reading the master's binary log and applying it on replicas. This creates multiple live copies of the dataset.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3m10 0h3a1 1 0 001-1V7M7 21h10"></path></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">High Availability</div>
+            <div class="text-xs text-slate-600">Promote a replica to master if the primary fails to minimize downtime.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"></path></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Scalability</div>
+            <div class="text-xs text-slate-600">Distribute read queries to replicas to reduce master load.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20l9-5-9-5-9 5 9 5z"></path></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Redundancy</div>
+            <div class="text-xs text-slate-600">Multiple copies protect against single-server failures.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Replication is asynchronous by default; plan for possible lag and monitor Slave_IO and Slave_SQL thread status.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <div class="text-sm text-slate-700 mt-2">A master receives writes. It appends events to mysql-bin. A replica connects using a replication user and fetches binlog events, applying them so its dataset mirrors the master's changes. After initial sync, the master writes event X, the replica applies X and eventually shows Seconds_Behind_Master returning to zero when caught up.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Common misconception</div>
+        <div class="text-xs text-slate-600 mt-1">Replicas are not instant. Asynchronous replication can lag and is not a substitute for tested backups. Relying on replicas as the only data copy risks data loss if the binlog or master state is corrupted.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Check your understanding</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 mt-2">
+          <li>Why might a read replica report non-zero replication lag during peak traffic?</li>
+          <li>When would you prefer a physical backup over a logical one?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

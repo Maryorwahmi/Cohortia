@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .box{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff;padding:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Acquire & Release</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="text-xl font-bold text-slate-800">Acquire and release explained</div>
+      <div class="box">
+        <div class="text-sm font-bold text-slate-800">Acquire (reader)</div>
+        <div class="mt-2 text-sm text-slate-700">Blocks reordering of subsequent operations before the acquire. Use it when entering a critical section so you see the latest updates.</div>
+      </div>
+
+      <div class="box mt-2">
+        <div class="text-sm font-bold text-slate-800">Release (writer)</div>
+        <div class="mt-2 text-sm text-slate-700">Ensures all prior operations complete before the release is made visible. Use when leaving a critical section to publish work done inside.</div>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Pairing example: writer updates data then performs a release. Reader performs an acquire then reads data. This sequence guarantees the reader sees the writer’s updates.</div>
+    </div>
+
+    <div class="w-1/2 panel p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code-like conceptual outline</div>
+      <pre class="mt-3">/* Writer */
+data = 42;
+release();   // ensure data is visible
+
+/* Reader */
+acquire();   // ensure subsequent reads see writer's updates
+read = data;</pre>
+      <div class="mt-3 text-xs text-slate-700">Remember: acquire must be on reader side and release on writer side. Missing either breaks the synchronization guarantee.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="mt-2 text-sm text-slate-800">Acquire/release give just enough ordering for lock-based synchronization, improving performance over full fences when used correctly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

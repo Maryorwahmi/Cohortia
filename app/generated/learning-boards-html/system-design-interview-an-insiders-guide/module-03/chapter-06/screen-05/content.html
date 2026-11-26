@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Race Conditions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Step-by-step illustration</div>
+      <div class="space-y-2 text-sm text-slate-700 mb-4">
+        <div>1. Two nodes read a shared value concurrently.</div>
+        <div>2. Each computes an update independently.</div>
+        <div>3. Writes occur without serialization, causing one update to overwrite another.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border border-slate-100 mb-3">
+        <div class="text-sm font-bold text-slate-800 mb-1">Concrete scenario</div>
+        <div class="text-sm text-slate-700">Counter at 10. Node A reads 10, computes 11, pauses. Node B reads 10, computes 11, writes 11. Node A writes 11. Final value 11 instead of 12.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 card-border mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro-tip</div>
+        <div class="text-sm text-slate-800">Ask who owns the write path. If ownership is singular you can avoid global locks by routing writes to the owner node.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Prevention approaches</div>
+      <div class="grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Single-machine</div>
+          <div class="text-sm text-slate-700 mt-1">Use mutexes, semaphores, or atomic operations to protect critical sections.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Distributed</div>
+          <div class="text-sm text-slate-700 mt-1">Use distributed locks, strong consensus, or switch to mergeable data types like CRDTs when partition tolerance is required.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-sm text-slate-800">Locate shared mutable state. Either serialize access or design replica-merge semantics to avoid lost updates.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

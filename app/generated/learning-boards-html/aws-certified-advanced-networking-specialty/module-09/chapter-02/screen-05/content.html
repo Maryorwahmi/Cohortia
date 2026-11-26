@@ -1,0 +1,67 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">Basic VPC Template</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Template snippet (YAML)</div>
+      <div class="mono bg-slate-50 rounded-md p-3 text-sm h-full overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A simple VPC with a public subnet and Internet Gateway
+
+Parameters:
+  VpcCidrBlock:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+  PublicSubnetCidrBlock:
+    Type: String
+    Default: 10.0.1.0/24
+    Description: CIDR block for the public subnet
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+        </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Explanation & Notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 leading-relaxed">
+        <li><strong>Parameters:</strong> Allow runtime values such as CIDR blocks so templates stay reusable across stacks.</li>
+        <li><strong>Intrinsic functions:</strong> !Ref and !GetAZs help reference resources and pick availability zones dynamically for portability.</li>
+        <li><strong>DependsOn:</strong> Ensures resources are created in the proper order, e.g., route creation after IGW attachment.</li>
+        <li><strong>Outputs:</strong> Provide VPC and Subnet IDs for other stacks or automation to consume.</li>
+      </ul>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-md p-3 bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common Mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Hardcoding availability zone names instead of using !GetAZs causes deployments to fail in other regions.</div>
+        </div>
+        <div class="rounded-md p-3 bg-blue-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Try This</div>
+          <div class="text-sm text-slate-700 mt-1">Deploy the snippet and verify the Outputs return the VPC and PublicSubnet IDs as expected.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

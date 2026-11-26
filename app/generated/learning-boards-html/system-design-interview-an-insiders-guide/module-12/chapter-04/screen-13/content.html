@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Design Exercise</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter SQL Schema</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-md p-3" style="white-space: pre-wrap; tab-size: 2;"><code>-- SQL Schema Design
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE posts (
+    post_id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(user_id),
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id, created_at DESC)
+);
+
+CREATE TABLE tags (
+    tag_id UUID PRIMARY KEY,
+    tag_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE post_tags (
+    post_id UUID NOT NULL REFERENCES posts(post_id),
+    tag_id UUID NOT NULL REFERENCES tags(tag_id),
+    PRIMARY KEY (post_id, tag_id)
+);</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">API Contract (Selected)</div>
+      <pre class="bg-slate-50 text-slate-800 rounded-md p-3" style="white-space: pre-wrap; tab-size: 2;"><code>POST /users                    - Create a new user (201)
+GET /users/{user_id}           - Get profile (200)
+POST /posts                    - Create a post (201) [Auth required]
+GET /posts/{post_id}           - Get post (200)
+PUT /posts/{post_id}           - Update post (200) [Owner only]
+DELETE /posts/{post_id}        - Delete post (204) [Owner or admin]
+GET /users/{user_id}/posts     - Get user's posts (200) paginated</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Sample create post curl: include Authorization header and expect 201 Created with post_id in the response body.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Document index purpose and auth requirements for each endpoint to make the design reviewable and testable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {background:#0b1220;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;white-space:pre-wrap;tab-size:2} .card {border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white;padding:12px;} </style>
+  <div class="mb-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <h3 class="text-2xl font-bold text-slate-800 mt-2">Integer Overflow & Safe Arithmetic</h3>
+    <div class="text-sm text-slate-600 mt-1">Protect numeric operations with checked arithmetic and explicit error handling.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Why it matters</div>
+      <p class="text-sm text-slate-700">A wrapped integer can turn a credit into a huge balance or make counters reset. Attackers and edge cases can exploit absent checks, so prefer checked arithmetic and return explicit errors.</p>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Common Fix</div>
+        <pre class="code">let new = current.checked_add(amount).ok_or(ProgramError::Custom(0))?;
+account.value = new;
+account.serialize(&mut &mut acct.data.borrow_mut()[..])?;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Anchor & Safe Arithmetic</div>
+      <p class="text-sm text-slate-700">Anchor offers patterns and community crates to make checked math less noisy. When possible, centralize arithmetic checks in helper functions to keep instruction handlers readable.</p>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Explicitly check arithmetic results and return clear errors to make failures diagnosable on-chain.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Concrete Code Example</div>
+    <pre class="code">// Example: safe increment
+let mut data = Counter::try_from_slice(&acct.data.borrow())?;
+let next = data.value.checked_add(1).ok_or(ProgramError::Custom(1))?;
+data.value = next;
+data.serialize(&mut &mut acct.data.borrow_mut()[..])?;</pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">PRIVATE / PUBLIC / INTERFACE</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">PRIVATE</div>
+      <p class="text-sm text-slate-700 mt-2">Dependency is only used to build this target. Do not propagate to dependents.</p>
+      <div class="mt-3 p-3 bg-slate-50 rounded-md text-sm"><code>target_link_libraries(MyLib PRIVATE LibB)</code></div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">PUBLIC</div>
+      <p class="text-sm text-slate-700 mt-2">Required to build this target and also required by anything that links this target.</p>
+      <div class="mt-3 p-3 bg-slate-50 rounded-md text-sm"><code>target_link_libraries(MyLib PUBLIC LibCore)</code></div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">INTERFACE</div>
+      <p class="text-sm text-slate-700 mt-2">Only describes usage requirements for consumers; this target itself does not need the dependency to compile.</p>
+      <div class="mt-3 p-3 bg-slate-50 rounded-md text-sm"><code>target_link_libraries(MyHeaderOnly INTERFACE LibHeaders)</code></div>
+    </div>
+
+    <div class="col-span-3 rounded-2xl bg-white p-4 card-border mt-2">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <p class="text-sm text-slate-700 mt-2">LibA uses LibB internally. Use target_link_libraries(LibA PRIVATE LibB). App links LibA as PRIVATE. App will not inherit LibB because LibB is an implementation detail of LibA.</p>
+
+      <div class="mt-4 flex gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 flex-1">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Answer the question: does a consumer need this dependency to compile against my target's headers? Use PRIVATE unless it must be visible.</p>
+        </div>
+
+        <div class="rounded-xl bg-rose-50 border-l-4 border-l-rose-400 p-3 w-1/3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using PUBLIC for internal-only libs, which propagates unnecessary dependencies to consumers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Preparing for Deployment</span>
+  </div>
+
+  <div class="flex flex-col flex-grow">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Deployment Walkthrough</span>
+    </div>
+    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Preparing for Azure Firewall Deployment</h2>
+    <p class="text-base text-slate-600 mb-6">Setting up the foundational network infrastructure</p>
+
+    <div class="flex flex-grow gap-6">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-5 flex-grow">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3">Key Steps for Network Setup</h3>
+          <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+            <li>Create a Resource Group to organize all related resources.</li>
+            <li>Define a Hub Virtual Network (VNet) to host the firewall.</li>
+            <li>Create a dedicated subnet named `AzureFirewallSubnet` within the Hub VNet.</li>
+            <li>Ensure the `AzureFirewallSubnet` is exactly `/26` in size.</li>
+            <li>Plan IP addressing to avoid conflicts and meet requirements.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Forgetting to create the `AzureFirewallSubnet` or using an incorrect size (e.g., not /26) will cause deployment failure.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Proper network preparation, especially the dedicated /26 subnet, is crucial for successful Azure Firewall deployment.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-slate-800 rounded-xl shadow-lg p-6 font-mono text-white text-sm flex flex-col">
+        <div class="text-amber-400 mb-4"># Azure CLI Commands: Network Setup</div>
+        <pre class="whitespace-pre-wrap mb-4"><code style="tab-size: 2;"><span class="text-emerald-400"># 1. Create Resource Group</span>
+az group create --name <span class="text-cyan-400">Firewall-Demo-RG</span> --location <span class="text-cyan-400">eastus</span>
+
+<span class="text-emerald-400"># 2. Create Hub VNet and Firewall Subnet</span>
+az network vnet create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">HubVNet</span> \
+  --address-prefix <span class="text-cyan-400">10.0.0.0/16</span> \
+  --location <span class="text-cyan-400">eastus</span>
+
+az network vnet subnet create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --vnet-name <span class="text-cyan-400">HubVNet</span> \
+  --name <span class="text-cyan-400">AzureFirewallSubnet</span> \
+  --address-prefix <span class="text-cyan-400">10.0.0.0/26</span></code></pre>
+        <div class="text-slate-400 text-xs mt-auto">These commands establish the necessary resource group and hub VNet with the required firewall subnet.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

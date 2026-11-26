@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Client: Application</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 flex-1">
+    <div class="col-span-7 bg-white rounded-2xl p-4 border shadow-sm" style="border-color: rgba(226,232,240,0.9); min-height: 320px;">
+      <div class="text-sm font-bold text-slate-800">Client code</div>
+      <div class="mt-3 text-sm text-slate-700">The client composes with the abstract factory and uses only abstract product members.</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+<pre><code>// Client: Uses the Abstract Factory and Abstract Products.
+public class Application
+{
+    private IGUIFactory _factory;
+    private IButton _button;
+    private ICheckbox _checkbox;
+
+    public Application(IGUIFactory factory)
+    {
+        _factory = factory;
+        _button = _factory.CreateButton();
+        _checkbox = _factory.CreateCheckbox();
+    }
+
+    public void Paint()
+    {
+        Console.WriteLine(_button.Render());
+        Console.WriteLine(_checkbox.Render());
+        Console.WriteLine($"Is checkbox checked? {_checkbox.IsChecked()}");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("--- Windows Application ---");
+        Application windowsApp = new Application(new WindowsGUIFactory());
+        windowsApp.Paint();
+        Console.WriteLine();
+
+        Console.WriteLine("--- Mac Application ---");
+        Application macApp = new Application(new MacGUIFactory());
+        macApp.Paint();
+        Console.WriteLine();
+    }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-4 border shadow-sm" style="border-color: rgba(226,232,240,0.9); min-height: 320px;">
+      <div class="text-sm font-bold text-slate-800">Runtime behavior</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Swap the concrete factory to change the entire family returned to the client.</li>
+        <li>Client code remains unchanged; only factory instantiation differs.</li>
+        <li>Dependency injection makes switching and testing straightforward.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 text-emerald-700">Example output
+        <div class="text-xs text-slate-600 mt-1">Windows and Mac runs show different Render strings but identical client calls.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

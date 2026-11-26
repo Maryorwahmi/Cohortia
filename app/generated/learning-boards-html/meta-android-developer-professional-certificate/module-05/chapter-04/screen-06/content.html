@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Espresso Sync</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">How Espresso Synchronizes</h3>
+      <p class="text-sm text-slate-600 mt-2">Espresso waits for the UI thread and common framework tasks to finish before each action to reduce timing-related failures.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-blue-100 w-8 h-8 flex items-center justify-center font-bold text-blue-700">1</div>
+          <div>
+            <div class="text-sm font-bold text-slate-800">Detect UI idle</div>
+            <div class="text-sm text-slate-700">Espresso checks that the UI thread is not executing pending tasks before proceeding.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-100 w-8 h-8 flex items-center justify-center font-bold text-violet-700">2</div>
+          <div>
+            <div class="text-sm font-bold text-slate-800">Handle known async work</div>
+            <div class="text-sm text-slate-700">Built-in synchronization covers common framework async patterns.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-amber-100 w-8 h-8 flex items-center justify-center font-bold text-amber-700">3</div>
+          <div>
+            <div class="text-sm font-bold text-slate-800">Register IdlingResource</div>
+            <div class="text-sm text-slate-700">For custom background threads or executors, register an IdlingResource so Espresso knows when to wait.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Example</div>
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <p class="text-sm text-slate-700">If a button click triggers a background save, the test should wait for the save to complete. If Espresso does not know when the save is done, register an IdlingResource around the save operation or use a test-friendly synchronous path.</p>
+      </div>
+
+      <div class="mt-6">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Common mistake</div>
+        <p class="text-sm text-slate-700">Using Thread.sleep() to wait for UI changes. This creates slow and flaky tests. Prefer synchronization and IdlingResource.</p>
+      </div>
+    </div>
+  </div>
+</div>

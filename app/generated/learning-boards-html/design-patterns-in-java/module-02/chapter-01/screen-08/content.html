@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Double-Checked Locking</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Double-Checked Locking</div>
+      <div class="text-sm text-slate-600 mt-2">Optimize synchronization by locking only during initial creation.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 overflow-auto h-56">
+        <pre><code>// DCLSingleton.java
+public class DCLSingleton {
+  // volatile ensures changes are visible across threads
+  private static volatile DCLSingleton instance;
+
+  private DCLSingleton() {
+    System.out.println("DCLSingleton instance created.");
+  }
+
+  public static DCLSingleton getInstance() {
+    if (instance == null) { // First check: no lock
+      synchronized (DCLSingleton.class) { // Synchronize only if instance is null
+        if (instance == null) { // Second check: inside synchronized block
+          instance = new DCLSingleton();
+        }
+      }
+    }
+    return instance;
+  }
+
+  public void showMessage() {
+    System.out.println("Hello from DCLSingleton!");
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why volatile matters</div>
+      <p class="text-sm text-slate-600 mt-3">volatile prevents instruction reordering that could allow a thread to see a reference to an object before its constructor has finished. Without volatile a thread could observe a partially constructed instance.</p>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When to use</div>
+        <div class="text-sm text-slate-600 mt-2">Use DCL when lazy initialization is required and synchronized method overhead is unacceptable. Prefer enum Singletons if possible for simplicity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,84 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Shape Hierarchy</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Starter & Solution</div>
+      <div class="mt-3 text-sm text-slate-600">Below is a completed implementation matching the activity steps: Shape with protected color; Circle and Rectangle call the base constructor and implement calculateArea.</div>
+
+      <pre class="mt-3 bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cmath&gt; // For M_PI
+
+class Shape {
+protected:
+    std::string color;
+public:
+    Shape(const std::string& c) : color(c) {
+        std::cout << "Shape constructor called for color: " << color << std::endl;
+    }
+    void displayColor() const {
+        std::cout << "This shape is " << color << "." << std::endl;
+    }
+    ~Shape() {
+        std::cout << "Shape destructor called for color: " << color << std::endl;
+    }
+};
+
+class Circle : public Shape {
+private:
+    double radius;
+public:
+    Circle(const std::string& c, double r) : Shape(c), radius(r) {
+        std::cout << "Circle constructor called for a " << color << " circle." << std::endl;
+    }
+    double calculateArea() const { return M_PI * radius * radius; }
+    ~Circle() { std::cout << "Circle destructor called for a " << color << " circle." << std::endl; }
+};
+
+class Rectangle : public Shape {
+private:
+    double width;
+    double height;
+public:
+    Rectangle(const std::string& c, double w, double h) : Shape(c), width(w), height(h) {
+        std::cout << "Rectangle constructor called for a " << color << " rectangle." << std::endl;
+    }
+    double calculateArea() const { return width * height; }
+    ~Rectangle() { std::cout << "Rectangle destructor called for a " << color << " rectangle." << std::endl; }
+};
+
+int main() {
+    Circle myCircle("Red", 5.0);
+    Rectangle myRectangle("Blue", 4.0, 6.0);
+    myCircle.displayColor();
+    std::cout << "Circle area: " << myCircle.calculateArea() << std::endl;
+    myRectangle.displayColor();
+    std::cout << "Rectangle area: " << myRectangle.calculateArea() << std::endl;
+    return 0;
+}
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 list-disc ml-4 text-sm text-slate-600">
+        <li>Shape's constructor sets the protected color and prints a message to confirm initialization.</li>
+        <li>Circle and Rectangle call Shape(c) in their initializer lists so color is set before derived setup.</li>
+        <li>calculateArea implements formulas from the activity: pi·r² for Circle and width·height for Rectangle.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Follow the activity steps to practice initializer lists and protected members; run the main to observe constructor and destructor ordering.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

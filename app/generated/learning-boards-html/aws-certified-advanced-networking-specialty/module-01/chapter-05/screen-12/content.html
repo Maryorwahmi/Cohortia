@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .terminal{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Console-style steps (conceptual)</div>
+      <div class="terminal">
+1) Create stateless rule group: block-icmp-stateless
+   - Type: Stateless
+   - Default action: Pass
+   - Add rule: Priority 100, Action: Drop, Protocol: ICMP, Source/Dest: 0.0.0.0/0
+
+2) Create firewall policy: my-first-firewall-policy
+   - Add stateless group: block-icmp-stateless
+
+3) Create Network Firewall: my-vpc-firewall
+   - VPC: my-advanced-networking-vpc
+   - Policy: my-first-firewall-policy
+   - Subnets: firewall-subnet-az1, firewall-subnet-az2
+
+4) Update route tables:
+   - App subnet route 0.0.0.0/0 -> firewall endpoint ENI
+   - Firewall subnet route 0.0.0.0/0 -> Internet Gateway
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Verification checklist</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>• Endpoint status: Ready and ENI IDs visible.</li>
+        <li>• App instance fails ping to public IP but can curl web pages if allowed.</li>
+        <li>• Firewall subnet has IGW route for outbound traffic.</li>
+        <li>• Security Groups/NACLs permit inspection flows and management traffic.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow a route-then-policy-then-verify order. Route traffic through endpoints, attach policies, then validate with both ICMP and HTTP checks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

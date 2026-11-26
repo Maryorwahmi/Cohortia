@@ -1,0 +1,63 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class='text-slate-700'>Refactor Example</span>
+    </div>
+    <div class='grid grid-cols-2 gap-4 h-full'>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold'>Starter Code (before)</div>
+        <pre><code>def calculate_order_total_web(items, customer_tier):
+    total = sum(item['price'] * item['quantity'] for item in items)
+    if customer_tier == "Gold":
+        if total > 100:
+            total *= 0.90
+        else:
+            total *= 0.95
+    return total
+
+
+def generate_invoice_pdf(items, customer_tier):
+    total = sum(item['price'] * item['quantity'] for item in items)
+    if customer_tier == "Gold":
+        if total > 100:
+            total *= 0.90
+        else:
+            total *= 0.95
+    print(f"Generating invoice for total: ${total:.2f}")
+    return f"Invoice generated for ${total:.2f}"</code></pre>
+      </div>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold'>Refactored Code (after)</div>
+        <pre><code>def apply_gold_discount(total):
+    if total > 100:
+        return total * 0.90
+    return total * 0.95
+
+
+def calculate_order_total_web(items, customer_tier):
+    total = sum(item['price'] * item['quantity'] for item in items)
+    if customer_tier == 'Gold':
+        total = apply_gold_discount(total)
+    return total
+
+
+def generate_invoice_pdf(items, customer_tier):
+    total = sum(item['price'] * item['quantity'] for item in items)
+    if customer_tier == 'Gold':
+        total = apply_gold_discount(total)
+    print(f"Generating invoice for total: ${total:.2f}")
+    return f"Invoice generated for ${total:.2f}"</code></pre>
+      </div>
+    </div>
+    <div class='mt-4 grid grid-cols-3 gap-3'>
+      <div class='p-3 rounded-lg bg-emerald-50 text-emerald-700'>Tests: add unit tests for apply_gold_discount to lock behavior.</div>
+      <div class='p-3 rounded-lg bg-blue-50 text-blue-700'>Placement: locate the helper in a shared utilities module and import it.</div>
+      <div class='p-3 rounded-lg bg-slate-50 text-slate-700'>Pitfall: avoid duplicating the helper in multiple modules; prefer a single import source.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

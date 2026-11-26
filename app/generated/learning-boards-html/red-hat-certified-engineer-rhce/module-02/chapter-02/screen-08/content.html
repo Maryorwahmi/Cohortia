@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">copy vs file</h3>
+      <p class="text-sm text-slate-600 mt-2">Decide based on whether you need to transfer content or only manage filesystem state and attributes.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="font-semibold text-amber-800">Use copy</div>
+          <p class="text-sm text-slate-700 mt-1">To transfer files from the control node and enforce content plus metadata.</p>
+        </div>
+
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="font-semibold text-violet-800">Use file</div>
+          <p class="text-sm text-slate-700 mt-1">To create directories, set modes, or manage symlinks without copying content.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold">Concrete examples</div>
+      <div class="mt-2 mono text-xs bg-slate-50 rounded p-3 card-border" style="white-space:pre-wrap; tab-size:2;">
+- name: Copy Nginx configuration file
+  ansible.builtin.copy:
+    src: /path/to/local/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure application log directory exists
+  ansible.builtin.file:
+    path: /var/log/my_app
+    state: directory
+    mode: '0755'
+      </div>
+
+      <div class="mt-3 rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Common misconception</div>
+        <p class="text-sm text-slate-600 mt-1">Using file to try to copy content will not work. If you need templated content, choose template; if static files, use copy.</p>
+      </div>
+    </div>
+  </div>
+</div>

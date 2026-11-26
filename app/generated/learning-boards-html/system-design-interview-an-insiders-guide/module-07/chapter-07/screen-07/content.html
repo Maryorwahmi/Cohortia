@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Mass Assignment</span>
+  </div>
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full flex flex-col">
+        <div class="text-xl font-bold text-slate-800">Vulnerable Conceptual PATCH</div>
+        <div class="text-sm text-slate-600 mt-2">Review the conceptual vulnerable behavior and the reasoning for DTO-based fixes.</div>
+        <div class="mt-4 flex-1">
+          <div class="rounded-lg bg-slate-50 p-3 h-full overflow-hidden">
+            <pre class="text-sm font-mono text-slate-800" style="white-space:pre-wrap;tab-size:2;"># Vulnerable conceptual flow
+# Service applies body directly to model without whitelisting
+PATCH /users/{userId}
+body = request.json()
+user = db.find_user(userId)
+for k,v in body.items():
+  setattr(user, k, v)
+db.save(user)
+return 200</pre>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Exploit example</div>
+          <div class="text-sm text-slate-800 mt-2">Attacker PATCHes someone else's id and includes {"is_admin": true} and the service applies it, granting privilege escalation.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Mitigation pattern</div>
+          <div class="text-sm text-slate-800 mt-2">Use DTOs that list allowed fields, validate types and lengths, and reject unexpected fields.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800 mb-3">Secure alternative sketch</div>
+        <div class="flex-1 space-y-3 text-sm text-slate-700">
+          <div><strong>1.</strong> Parse request into an UpdateUserDTO that only includes email, firstName, lastName.</div>
+          <div><strong>2.</strong> Inside User Service, verify requester.user_id == path.userId or requester has admin role.</div>
+          <div><strong>3.</strong> Apply validated DTO fields to model and run field-level validators before saving.</div>
+          <div><strong>4.</strong> Ensure password changes use a dedicated endpoint with current-password verification and hashing.</div>
+        </div>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Check your understanding</div>
+          <div class="text-xs text-slate-700">How would you write a unit test that asserts is_admin cannot be changed via PATCH /users/{userId}?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Set local-preference</div>
+      <div class="text-sm text-slate-600 mt-2">Raise the local-preference to steer inbound choice of exit from your AS.</div>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-3 rounded"><code>set policy-options policy-statement SET_LOCAL_PREF term T1 from neighbor 203.0.113.1
+set policy-options policy-statement SET_LOCAL_PREF term T1 then local-preference 300
+set policy-options policy-statement SET_LOCAL_PREF term T1 then accept</code></pre>
+
+      <div class="text-xs text-slate-600 mt-3">Verify with show route protocol bgp detail and look for 'Local preference: 300' in the route details for routes learned from that neighbor.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">If ISP A is a preferred exit for most traffic, set a higher local-preference for routes learned from ISP A to bias egress through that provider.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-rose-50 p-3 text-xs text-rose-700">Misconception: local-preference changes how other ASes prefer your advertised routes. It does not. Local-pref is internal to your AS for selecting exit.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use local-preference for internal egress control; it is a strong and reliable lever in the BGP decision process.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

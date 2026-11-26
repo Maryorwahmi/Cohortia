@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Python Hashing Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-5 overflow-hidden">
+      <div class="text-lg font-bold text-slate-800 mb-2">Starter code</div>
+      <div class="text-sm text-slate-600">Copy this into your Python environment. Update the transaction fields and re-run to observe hash changes.</div>
+
+      <pre class="mt-3 p-3 rounded-md bg-slate-900 text-white text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">import hashlib
+import json
+
+def generate_transaction_hash(sender, recipient, amount, timestamp):
+  transaction = {
+    'sender': sender,
+    'recipient': recipient,
+    'amount': amount,
+    'timestamp': timestamp
+  }
+  # Convert the transaction dictionary to a JSON string, ensuring consistent order
+  transaction_string = json.dumps(transaction, sort_keys=True).encode('utf-8')
+  
+  # Create a SHA-256 hash object
+  sha256 = hashlib.sha256()
+  
+  # Update the hash object with the transaction string
+  sha256.update(transaction_string)
+  
+  # Get the hexadecimal representation of the hash
+  return sha256.hexdigest()
+
+# Example transaction data
+sender_address = "Alice123"
+recipient_address = "Bob456"
+amount_to_send = 10.5
+transaction_time = "2023-10-27T10:00:00Z"
+
+# Generate the hash
+original_hash = generate_transaction_hash(sender_address, recipient_address, amount_to_send, transaction_time)
+print(f"Original Transaction Hash: {original_hash}")</pre>
+
+      <div class="mt-3 p-3 rounded-lg bg-amber-50 text-amber-800 text-sm">Tip: Change recipient_address slightly and re-run. Notice how the printed hex changes completely.</div>
+    </div>
+
+    <div class="w-1/2 card p-5">
+      <div class="text-lg font-bold text-slate-800 mb-2">What to observe</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Consistent JSON ordering gives repeatable hashes across environments.</li>
+        <li>Even a small change produces an unpredictable, different digest.</li>
+        <li>Hashes are compact identifiers you can use to build Merkle trees.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Practicing hashing in code reinforces the importance of canonical input and shows how tamper-detection works in real systems.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

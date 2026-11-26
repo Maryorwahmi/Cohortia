@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter Config (R1)</div>
+      <pre class="mt-3 text-sm text-slate-800 bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap;tab-size:2"><code>username webuser password WebPass!23
+
+webvpn gateway MY_WEBVPN_GATEWAY
+ hostname webvpn.cohortia.com
+ ip address 198.51.100.1 port 443
+ ssl trustpoint MY_TRUSTPOINT
+ inservice
+
+webvpn context MY_WEBVPN_CONTEXT
+ gateway MY_WEBVPN_GATEWAY
+ ssl authenticate verify all
+ policy group MY_WEB_POLICY
+  functions url-list-enabled
+  functions file-access-enabled
+  url-list MY_INTERNAL_WEB_APPS
+  file-access-list MY_FILE_ACCESS
+  authentication local
+  exit
+ default-group-policy MY_WEB_POLICY
+ inservice
+
+url-list MY_INTERNAL_WEB_APPS
+ url-list-item "Internal Wiki" "https://wiki.cohortia.local"
+
+file-access-list MY_FILE_ACCESS
+ file-access-list-item "Public Docs" "//fileserver.cohortia.local/public"
+
+interface GigabitEthernet0/1
+ ip address 198.51.100.1 255.255.255.0
+ webvpn</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification & Tests</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>From a remote browser, go to https://198.51.100.1 and log in as webuser. Click Internal Wiki.</li>
+        <li>On the router run show webvpn session all to confirm session and proxy mappings.</li>
+        <li>If you see Page Not Found, run ping and traceroute from the router to the internal host and verify DNS resolution.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Testing both portal login and backend connectivity ensures that both TLS and resource reachability are validated for successful WebVPN access.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

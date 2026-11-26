@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Example: Deploying an NGINX Web Server</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col space-y-4">
+      <div class="text-sm font-bold uppercase tracking-wider text-amber-600">Example</div>
+      <h2 class="text-3xl font-bold text-slate-800">Deploying an NGINX Web Server</h2>
+      <p class="text-base text-slate-600 leading-relaxed">Define a Deployment for NGINX Pods and a LoadBalancer Service to expose them externally via an Azure Load Balancer.</p>
+      <div class="space-y-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This example demonstrates the fundamental pattern of defining application components (Deployment) and their network exposure (Service) in Kubernetes.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Hands-on</div>
+          <p class="text-xs font-medium text-slate-800">Refer to the 'Hands-on activity' section for the exact YAML manifests and `kubectl` commands to deploy this NGINX server yourself.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col gap-4">
+      <div class="flex flex-col p-4 rounded-xl border border-slate-200 bg-white shadow-lg">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">nginx-deployment.yaml</div>
+        <pre class="text-xs font-mono text-slate-800 whitespace-pre-wrap overflow-auto h-32 p-2 bg-slate-50 rounded-md border border-slate-100">
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+</pre>
+      </div>
+      <div class="flex flex-col p-4 rounded-xl border border-slate-200 bg-white shadow-lg">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">nginx-service.yaml</div>
+        <pre class="text-xs font-mono text-slate-800 whitespace-pre-wrap overflow-auto h-32 p-2 bg-slate-50 rounded-md border border-slate-100">
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

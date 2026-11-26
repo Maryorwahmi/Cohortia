@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="safe-area h-full grid grid-cols-2 gap-4">
+    <div class="col-span-1 bg-white rounded-2xl p-4 border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-2">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900">Rule examples</h3>
+      <div class="mt-3 grid gap-3">
+        <div class="p-3 rounded bg-slate-50">
+          <div class="text-sm font-semibold">Static assets — /static/*</div>
+          <div class="text-sm text-slate-700 mt-1">Cache long-term, ignore query strings, allow GET/HEAD only.</div>
+        </div>
+        <div class="p-3 rounded bg-slate-50">
+          <div class="text-sm font-semibold">Public API — /api/v1/public/*</div>
+          <div class="text-sm text-slate-700 mt-1">Micro-cache 1-5s for GET, forward selected query params used in responses.</div>
+        </div>
+        <div class="p-3 rounded bg-slate-50">
+          <div class="text-sm font-semibold">Private endpoints — /api/v1/private/*</div>
+          <div class="text-sm text-slate-700 mt-1">Do not cache. Forward cookies and authentication headers, block caching by default.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-2xl p-4 border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-semibold text-slate-700">Operational checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Set rule priority so specific patterns override defaults.</li>
+        <li>Ignore tracking query parameters to avoid fragmentation.</li>
+        <li>Limit forwarded cookies and headers to only those required to vary responses.</li>
+        <li>Test changes in staging and verify per-path hit ratio afterward.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-800">Forwarding all query parameters by default causes logically identical content to be cached under many keys, drastically lowering hit ratio.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Map caching rules to content semantics; prefer ignoring irrelevant query parameters and keep rule sets minimal and testable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

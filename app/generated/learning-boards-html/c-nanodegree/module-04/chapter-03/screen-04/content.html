@@ -1,0 +1,68 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Instantiation</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 flex flex-col justify-between">
+      <div>
+        <div class="text-2xl font-bold text-slate-800">Instantiation</div>
+        <div class="text-sm text-slate-600 mt-2">How the compiler makes a concrete function or class from a template.</div>
+
+        <div class="mt-4 bg-white rounded-xl border p-4">
+          <div class="text-sm font-semibold text-slate-800">Definition</div>
+          <div class="text-sm text-slate-600 mt-2">A template is a blueprint. Instantiation substitutes template parameters with concrete types and then compiles and checks the resulting code.</div>
+        </div>
+
+        <div class="mt-4 grid gap-3">
+          <div class="p-3 rounded-lg bg-violet-50 border border-violet-100">
+            <div class="text-sm font-semibold text-violet-700">Concrete example</div>
+            <div class="text-sm text-slate-700 mt-1">Calling printValue(10) causes creation of printValue<int>. The compiler checks the body using int now.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+            <div class="text-sm font-semibold text-amber-700">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-1">Templates are not compiled for every possible type by default; only used combinations are instantiated.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Think "instantiate on use." If no translation unit asks for a type, no code is generated for it there.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card p-4 h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Annotated Example</div>
+        <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>// template declaration and definition
+template &lt;typename T&gt;
+void printValue(const T&amp; value) {
+  std::cout &lt;&lt; "Value: " &lt;&lt; value &lt;&lt; std::endl;
+}
+
+// usage in main
+printValue(10); // instantiates printValue&lt;int&gt;
+printValue("hi"); // instantiates printValue&lt;const char*&gt;
+</code></pre>
+
+        <div class="mt-3 grid gap-2">
+          <div class="p-2 rounded-md bg-white border border-slate-100 text-sm">Example Card: Implicit instantiation happens when usage appears in the translation unit.</div>
+          <div class="p-2 rounded-md bg-white border border-slate-100 text-sm">Check: If a .cpp file contains only a declaration, other .cpp files may request instantiation without seeing the definition.</div>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-lg bg-rose-50 border border-rose-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Try this</div>
+        <div class="text-sm text-rose-700 mt-2">Ask yourself: which translation unit will instantiate printValue&lt;int&gt;? If the .cpp with the definition never uses int, the linker will not find the symbol.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

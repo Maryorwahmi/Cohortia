@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Storage Risks</span>
+  </div>
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why collisions happen</div>
+      <p class="text-sm text-slate-700 mt-3">Solidity assigns storage slots based on declaration order. Altering that order or changing types moves data between slots and can corrupt state when a new implementation reads incorrect values.</p>
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="text-sm font-bold">Safe practices</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-2">
+            <li>Keep storage declarations stable across versions.</li>
+            <li>Use reserved gaps or unstructured storage patterns.</li>
+            <li>Use tooling to compare storage layouts before upgrading.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Danger</div>
+          <p class="text-xs font-medium text-slate-800">Storage corruption is subtle and often irreversible. Do not change storage layout without explicit compatibility checks.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-white border p-4 flex-1">
+        <div class="text-sm font-semibold text-slate-800">Example contrast</div>
+        <div class="mt-3 text-sm text-slate-700 space-y-2">
+          <div><strong>Version A:</strong> uint256 a; uint256 b;</div>
+          <div><strong>Version B (unsafe):</strong> address newAddr; uint256 a; uint256 b;</div>
+          <div>The inserted address shifts slots and misinterprets existing numeric data as an address.</div>
+        </div>
+      </div>
+      <div class="rounded-lg bg-white border p-3 mt-4">
+        <div class="text-sm font-semibold text-slate-800">Check your upgrade</div>
+        <p class="text-sm text-slate-700 mt-2">Run the storage-layout diff tool and add unit tests that assert storage invariants before and after upgrade to detect accidental collisions early.</p>
+      </div>
+    </div>
+  </div>
+</div>

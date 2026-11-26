@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span></div>
+    <div class="text-xl font-bold text-slate-900 mt-3">FLIP Setup Workflow</div>
+    <div class="text-sm text-slate-600 mt-1">Emitter to solver to surfacing — follow these steps to produce a reliable pour.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800 mb-2">Step-by-step</div>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="flex items-start gap-2"><div class="font-bold text-blue-700">1.</div><div>Create emitter and container geometry in SOPs: a Box emitter and a Tube container with end caps.</div></div>
+        <div class="flex items-start gap-2"><div class="font-bold text-blue-700">2.</div><div>Add a DOP Network and connect OUT_CONTAINER and OUT_EMITTER to its inputs.</div></div>
+        <div class="flex items-start gap-2"><div class="font-bold text-blue-700">3.</div><div>Inside DOPs: add FLIP Source (SOP Path to emitter) and FLIP Solver, plus a Static Object for the container and Gravity Force.</div></div>
+        <div class="flex items-start gap-2"><div class="font-bold text-blue-700">4.</div><div>Merge nodes into the solver, run sim, then use DOP Import and Particle Fluid Surface to mesh particles for render.</div></div>
+      </div>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Quick code-like checklist</div>
+      <pre class="mt-2 bg-slate-900 text-white p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># SOPs
+Create Tube -> OUT_CONTAINER
+Create Box -> Translate Y = 2.5 -> OUT_EMITTER
+
+# DOP Network
+Inside dopnet:
+FLIP Source: SOP Path = /obj/flip_pour_sim/OUT_EMITTER, Particle Separation = 0.05
+FLIP Solver
+Static Object: SOP Path = /obj/flip_pour_sim/OUT_CONTAINER, Collision Type = Volume
+Gravity Force
+Merge -> FLIP Solver -> Output</pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Visualization and checks</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5">
+        <li>Confirm container normals and ensure End Caps are on for watertight geometry.</li>
+        <li>Match Particle Fluid Surface Particle Separation to source value to avoid artifacts.</li>
+        <li>Watch for particle leaks; if present, increase collision fidelity or fix geometry.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-bold text-slate-800 mb-1">Example outcome</div>
+      <div class="text-sm text-slate-700">Play the timeline to watch water pour into the tube, forming splashes at the impact and settling into a coherent volume governed by the FLIP Solver.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

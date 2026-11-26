@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">tpstats — Thread Pools</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xl font-bold text-slate-900">tpstats: thread pool snapshot</div>
+      <div class="text-sm text-slate-600 mt-2">tpstats reports ActiveTasks, PendingTasks and BlockedTasks for named pools like ReadStage and MutationStage.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+            <li>PendingTasks rising indicates work is queuing and latency will increase.</li>
+            <li>BlockedTasks often point to resource waits or thread deadlocks.</li>
+            <li>Compare pools to see which workload type is affected.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example</div>
+          <div class="text-sm text-slate-800">During heavy writes tpstats shows MutationStage PendingTasks growing. Correlate with disk I/O and commit log throughput to confirm a write I/O bottleneck.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Checklist</div>
+          <div class="text-sm text-slate-600 mt-2">Correlate tpstats with tablestats and netstats, check node resource metrics, and consider scaling or data-model changes if a pool is consistently saturated.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-white border border-[rgba(226,232,240,0.9)] p-4 flex-1">
+        <div class="text-sm font-semibold text-slate-800">Visual: simulated tpstats output</div>
+        <pre class="mt-3 text-sm bg-slate-50 p-3 rounded text-slate-700" style="white-space:pre-wrap;tab-size:2;">Pool name                    Active   Pending   Completed
+ReadStage                      4        12        150000
+MutationStage                  2        48        420000
+CompactionExecutor             1         0         9000
+</pre>
+        <div class="text-xs text-slate-500 mt-2">Interpretation: MutationStage shows high pending; investigate write path and I/O.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Assuming tpstats alone reveals root cause. Always correlate with metrics like disk latency and tablestats for hotspots.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm font-medium text-slate-800 mt-2">Use tpstats to detect queuing; use other metrics to identify whether the queue is caused by disk, CPU, network, or data-model problems.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

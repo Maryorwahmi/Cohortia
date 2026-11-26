@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code { background:#071023; color:#f0f9ff; padding:12px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2; }</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Calculator Example: List Handling</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step code</div>
+      <pre class="code mt-3"><code>private List<Integer> numbers = new ArrayList<>();
+
+@Given("I have entered the numbers {string}")
+public void i_have_entered_the_numbers_string(String inputNumbersString) {
+  numbers = Arrays.stream(inputNumbersString.split(", "))
+                  .map(Integer::parseInt)
+                  .collect(Collectors.toList());
+  System.out.println("Entered numbers: " + numbers);
+}
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This prepares the numbers field for when the add button is pressed and the result is asserted.</div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example scenario</div>
+      <pre class="code mt-3"><code>Scenario: Adding multiple numbers
+  Given I have entered the numbers 10, 20, 30
+  When I press the add button
+  Then the result should be 60 on the screen
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">If parsing fails, print a helpful message that includes the original string so debugging is fast during test runs.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+    <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+    <p class="text-sm text-slate-600 mt-2">Factor parsing into a utility method. Unit-test that utility independently so parsing errors are caught before running scenarios.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

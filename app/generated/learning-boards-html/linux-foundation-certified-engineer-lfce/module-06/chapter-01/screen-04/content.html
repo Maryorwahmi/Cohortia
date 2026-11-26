@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-4">
+    <div class="w-2/5 rounded-2xl bg-white card-border shadow-sm p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2">Core Concept</div>
+      <h2 class="text-xl font-bold text-slate-900">What are ACLs?</h2>
+      <p class="mt-2 text-sm text-slate-600">ACLs let you set permissions for specific users or groups beyond owner, group, and others.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="font-semibold text-slate-800">Definition</div>
+          <div class="text-sm text-slate-600 mt-1">An ACL is a list of permission entries attached to a file or directory that names users or groups and their permissions.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="font-semibold text-slate-800">Common misconception</div>
+          <div class="text-sm text-slate-600 mt-1">ACLs always increase access. In reality, the mask can reduce effective permissions, so verification is required.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-50">
+          <div class="font-semibold text-slate-800">Key takeaway</div>
+          <div class="text-sm text-slate-600 mt-1">Use ACLs for specific exceptions. Maintain group-based control for broader membership rules.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 rounded-2xl bg-white card-border shadow-sm p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Illustration & Example</div>
+      <div class="mt-3 flex-1 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-medium text-slate-800">Scenario</div>
+          <div class="text-sm text-slate-600 mt-1">A shared config directory must allow appadmin full control, appdevs group read access, and a single testuser temporary write access without changing group membership.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-medium text-slate-800">Command example</div>
+          <pre class="mt-2 p-2 bg-slate-900 text-slate-50 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Grant user write access with ACL
+sudo setfacl -m u:testuser:rwx /opt/app/config
+# View ACLs
+getfacl /opt/app/config
+          </pre>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+          <ul class="text-sm text-slate-600 mt-1 list-disc pl-5 space-y-1">
+            <li>After setfacl, run getfacl to inspect the mask and effective permissions.</li>
+            <li>If a user still cannot write, verify the mask is not restricting access.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

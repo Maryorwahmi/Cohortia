@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Resource Definitions</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Apache resource</div>
+      <pre class='bg-slate-50 p-3 rounded mt-3'><code>sudo pcs resource create WebService ocf:heartbeat:apache configfile='/etc/httpd/conf/httpd.conf' statusurl='http://127.0.0.1/server-status' op monitor interval=30s op start timeout=40s op stop timeout=60s
+# Add to group with SharedFS and VirtualIP
+sudo pcs resource group add WebAppGroup SharedFS WebService VirtualIP</code></pre>
+
+      <div class='mt-3 text-sm text-slate-700'>
+        <div class='rounded-lg p-3 bg-amber-50'>
+          <div class='font-semibold text-amber-700'>Monitoring tip</div>
+          <div class='text-xs mt-2'>Use a statusurl that returns 200 when Apache can serve content. Pacemaker will mark the resource failed if the URL check fails.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>MariaDB resource</div>
+      <pre class='bg-slate-50 p-3 rounded mt-3'><code>sudo pcs resource create MariaDB_Service ocf:heartbeat:mysql binary='/usr/libexec/mysqld' config='/etc/my.cnf' datadir='/mnt/data/mysql' socket='/var/lib/mysql/mysql.sock' op monitor interval=30s op start timeout=120s op stop timeout=60s
+# Create virtual IP and group
+sudo pcs resource create VirtualIP_DB ocf:heartbeat:IPaddr2 ip=192.168.1.101 cidr_netmask=24 op monitor interval=10s
+sudo pcs resource group add DBGroup SharedFS_for_DB MariaDB_Service VirtualIP_DB</code></pre>
+
+      <div class='mt-3 text-sm text-slate-700'>
+        <div class='rounded-lg p-3 bg-rose-50'>
+          <div class='font-semibold text-rose-600'>Safety note</div>
+          <div class='text-xs mt-2'>Do not skip STONITH fencing for the DB group; always ensure fencing is configured before use in production.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

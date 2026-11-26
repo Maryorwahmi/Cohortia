@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lifecycle policy JSON</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full overflow-auto">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+    <h3 class="text-xl font-bold text-slate-800">Policy JSON example</h3>
+    <p class="text-sm text-slate-600 mt-3">This JSON contains two rules: expire old untagged images and keep only the five most recent prod-tagged images.</p>
+
+    <div class="mt-4">
+      <pre class="rounded-lg bg-slate-900 text-white p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>{
+    "lifecyclePolicyText": "[{\"rulePriority\":1,\"description\":\"Expire images older than 90 days\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countUnit\":\"days\",\"countNumber\":90},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Keep only the 5 most recent images tagged 'prod'\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"prod\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":5},\"action\":{\"type\":\"expire\"}}]",
+    "registryId": "&lt;YOUR_ACCOUNT_ID&gt;",
+    "repositoryName": "my-web-app"
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="font-semibold">Field notes</div>
+        <ul class="mt-2 space-y-1">
+          <li>• rulePriority: evaluation order when multiple rules could match.</li>
+          <li>• selection.tagStatus: whether rule targets tagged or untagged images.</li>
+          <li>• countType and countNumber: choose between age-based or count-based expiration.</li>
+          <li>• action.type: typically expire to remove matching images.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use explicit tag prefixes and careful priorities to ensure retention rules match your release policy and avoid accidental deletions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

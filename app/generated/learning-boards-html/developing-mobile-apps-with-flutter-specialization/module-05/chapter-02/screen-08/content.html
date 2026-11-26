@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Google Sign-In</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Google sign-in example</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>// Example for Google Sign-In
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final GoogleSignIn _googleSignIn = GoogleSignIn();
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
+Future<User?> signInWithGoogle() async {
+  try {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    if (googleAuth == null) {
+      return null; // User cancelled
+    }
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential userCredential = await _auth.signInWithCredential(credential);
+    print('Signed in with Google: ${userCredential.user?.displayName}');
+    return userCredential.user;
+  } on FirebaseAuthException catch (e) {
+    print('Firebase Auth Error during Google Sign-In: ${e.message}');
+    return null;
+  } catch (e) {
+    print('Error during Google Sign-In: $e');
+    return null;
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Notes and best practices</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Add google_sign_in to pubspec.yaml and run flutter pub get.</li>
+        <li>Verify OAuth client IDs in the Firebase Console for each platform.</li>
+        <li>Handle the null authentication case when the user cancels the account chooser.</li>
+        <li>Clear the Google session on sign-out to force account choice next time.</li>
+      </ul>
+
+      <div class="mt-auto pt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Key takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">Google Sign-In improves UX but requires both package setup and Console configuration; treat it as a complement to firebase_auth, not a replacement.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

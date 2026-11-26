@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda Remediation</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Remediation checklist</div>
+      <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2 mb-4">
+        <li>Confirm the finding's resource and severity before acting.</li>
+        <li>Enforce sandbox or test tags for automatic actions.</li>
+        <li>Create snapshots and log metadata for forensic needs.</li>
+        <li>Provide rollback steps and metrics for success/failure.</li>
+      </ul>
+
+      <div class="text-sm font-semibold text-slate-800 mb-2">Small code example (conceptual)</div>
+      <div class="rounded-lg bg-slate-50 p-3 border overflow-auto">
+        <pre><code>def handler(event, context):
+  # Validate severity and resource tag
+  finding = event['detail']
+  if finding['severity'] &lt; 6:
+    return 'Ignored: low severity'
+  # Check for test account tag
+  if not is_test_resource(finding['resource']):
+    return 'Requires manual review'
+  snapshot_volume(finding['resource'])
+  isolate_instance(finding['resource'])
+  log_action(finding)
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Precautions</div>
+      <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2 mb-4">
+        <li>Use least-privilege IAM roles for Lambda.</li>
+        <li>Include dry-run modes and manual gates for production.</li>
+        <li>Test thoroughly in sandbox accounts with representative data.</li>
+      </ul>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Design small, single-purpose remediations that are auditable and reversible. Monitor their metrics and failures closely.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

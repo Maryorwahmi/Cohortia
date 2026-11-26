@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">CPU Pinning</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 flex flex-col">
+      <div class="font-semibold text-slate-800">Pinning Example (XML)</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-md p-3 mt-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;"><code>&lt;vcpu placement='static' cpuset='0-1'&gt;2&lt;/vcpu&gt;
+&lt;cputune&gt;
+  &lt;vcpupin vcpu='0' cpuset='0'/&gt;
+  &lt;vcpupin vcpu='1' cpuset='1'/&gt;
+&lt;/cputune&gt;</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Run lscpu -e to confirm physical core numbers. After applying, use mpstat -P ALL or htop to ensure pinned vCPU threads run on intended cores and that no unexpected contention appears.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="font-semibold text-slate-800">Pinning Checklist</div>
+        <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+          <li>Inspect host topology with <span class="font-medium">lscpu -e</span>.</li>
+          <li>Choose physical cores, not just logical IDs.</li>
+          <li>Pin selectively and preserve host capacity.</li>
+        </ul>
+      </div>
+
+      <div class="bg-slate-50 rounded-xl border p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+        <p class="text-sm font-medium text-slate-800">Pinning to hyperthreads without checking core layout can leave two vCPUs contending on one physical core. That increases latency, not reduces it.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

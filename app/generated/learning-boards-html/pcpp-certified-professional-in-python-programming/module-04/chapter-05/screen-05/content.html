@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.code{background:#0b1220;color:#e6edf3;padding:10px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Comparison</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Await vs Task</div>
+      <div class="rounded-xl bg-white p-4 card-border flex-1">
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <div class="text-sm font-semibold">Sequential await example</div>
+            <div class="code mt-2" style="white-space:pre-wrap; tab-size:2;"><pre><code>async def main_seq():
+  await worker("A", 2)
+  await worker("B", 1)</code></pre></div>
+          </div>
+          <div>
+            <div class="text-sm font-semibold">create_task example</div>
+            <div class="code mt-2" style="white-space:pre-wrap; tab-size:2;"><pre><code>async def main_concurrent():
+  t1 = asyncio.create_task(worker("A", 2))
+  t2 = asyncio.create_task(worker("B", 1))
+  await t1
+  await t2</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+            <li>Awaiting is simple and predictable when order and isolation matter.</li>
+            <li>create_task is required when you want parallelism or background work while performing other actions.</li>
+            <li>Remember to await or otherwise handle Tasks to collect results and exceptions.</li>
+            <li>Combine tasks with semaphores to avoid resource exhaustion when creating many concurrent operations.</li>
+          </ul>
+        </div>
+        <div class="mt-4 grid gap-2">
+          <div class="rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+            <p class="text-xs font-medium text-slate-800">Creating a Task is not the same as awaiting; it does not block but begins execution. Avoid assuming tasks will finish before later code runs unless you await them.</p>
+          </div>
+          <div class="rounded-lg bg-white p-2 border card-border text-xs text-slate-600">
+            <div class="font-semibold">Check your understanding</div>
+            <div class="mt-1">If two tasks have delays 3s and 1s, which total runtime do you expect for task-based concurrency? (Answer: close to 3s, plus any main work.)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

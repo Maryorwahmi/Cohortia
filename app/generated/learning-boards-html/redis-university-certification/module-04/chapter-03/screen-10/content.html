@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Cache stampede</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Why it happens</div>
+      <p class="text-sm text-slate-600 mt-2">When a hot key expires, many clients request the same resource at once. Each request sees a miss and hits the backend, causing a spike in load.</p>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-slate-50 p-3">
+          <div class="font-semibold text-slate-700">Defenses</div>
+          <ul class="mt-2 list-disc pl-5 text-sm text-slate-600 space-y-2">
+            <li>Lock-based rebuild: SETNX allows a single request to repopulate cache.</li>
+            <li>Probabilistic early expiration: randomly refresh before TTL to stagger rebuilds.</li>
+            <li>Serve stale while rebuilding: return slightly stale data to avoid blocking.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Concrete pattern: SETNX lock</div>
+      <p class="text-sm text-slate-600 mt-2">On a cache miss attempt SETNX lock:key with a short TTL. If SETNX succeeds, rebuild the cache and delete the lock. If not, wait or return a fallback value until the rebuild completes.</p>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Operational note</div>
+        <p class="text-sm text-slate-700">Locks must have a TTL to avoid permanent deadlocks. Test under concurrency to verify latency behavior and safety.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white p-4 card">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-900">Design a two-level TLB and simulate</div>
+      <p class="text-sm text-slate-600 mt-3">Given parameters: 4 KB pages, L1 TLB 32 entries fully-associative, L2 TLB 512 entries 4-way. Sequentially scan 1 MB array and estimate hit rates.</p>
+
+      <div class="mt-4 bg-blue-50 p-3 rounded">
+        <pre><code>// Given
+array_size = 1 * 1024 * 1024    // 1 MB
+page_size = 4 * 1024            // 4 KB
+pages_accessed = array_size / page_size  // 256 pages
+
+// TLBs
+L1_entries = 32
+L2_entries = 512
+
+// Analysis
+// L1 cannot hold all 256 pages: many L1 misses. L2 can hold 256 pages, so most L1 misses hit L2.
+// Effective page walk rate ≈ fraction of accesses that miss both L1 and L2, which is near zero here.
+
+// With 2 MB pages:
+// pages_accessed = 1 MB / 2 MB = 0.5 → single page covers whole array
+// TLB entries needed = 1 → near-perfect TLB hit rate</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white p-4 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Reflection</div>
+      <div class="text-xs text-slate-600">A small L1 gives low latency for a handful of hot pages; a larger L2 prevents costly page walks for streaming patterns. Large pages can collapse many entries into one, radically improving hit rates when possible.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When predicting TLB behaviour, convert memory footprint to page count and compare to TLB capacities; this gives quick, practical insight.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

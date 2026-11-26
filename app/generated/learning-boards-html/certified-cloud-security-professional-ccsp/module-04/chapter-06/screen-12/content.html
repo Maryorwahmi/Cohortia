@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Enforcing MFA with IAM Policies</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-md mb-4 inline-block w-fit">Hands-on Practice</div>
+      <div class="text-3xl font-bold text-slate-800 mb-3">Enforcing MFA with IAM Policies</div>
+      <div class="text-lg text-slate-600 mb-6">A Practical Example in AWS</div>
+      <div class="flex-grow space-y-4 text-base text-slate-700">
+        <p>Use IAM policies to enforce MFA for privileged users.</p>
+        <p><strong>Policy Logic:</strong></p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Deny Effect:</strong> Block actions when conditions are met.</li>
+          <li><strong>Condition:</strong> `"aws:MultiFactorAuthPresent": "false"` checks if MFA was used.</li>
+          <li><strong>`NotAction` Exceptions:</strong> Allow users to set up and use MFA devices (e.g., `iam:CreateVirtualMFADevice`, `sts:GetSessionToken`).</li>
+        </ul>
+        <p>This ensures users must authenticate with MFA for most operations.</p>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col justify-center items-center bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div class="text-center mb-4">
+        <div class="text-lg font-bold text-slate-100">AWS IAM Policy Example</div>
+        <div class="text-sm text-slate-400">Enforcing MFA</div>
+      </div>
+      <div class="w-full max-w-md">
+        <pre class="language-json"><code class="text-xs font-mono text-left whitespace-pre-wrap p-3 rounded-lg bg-slate-900 text-slate-200 overflow-x-auto" style="tab-size: 2;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAllExceptMFA",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:CreateVirtualMFADevice",
+        "iam:EnableMFADevice",
+        "iam:ListMFADevices",
+        "iam:ResyncMFADevice",
+        "iam:DeleteVirtualMFADevice",
+        "sts:GetSessionToken"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": {
+          "aws:MultiFactorAuthPresent": "false"
+        }
+      }
+    }
+  ]
+}</code></pre>
+      </div>
+      <div class="text-xs text-slate-400 mt-4">Note the `NotAction` exceptions for MFA setup.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

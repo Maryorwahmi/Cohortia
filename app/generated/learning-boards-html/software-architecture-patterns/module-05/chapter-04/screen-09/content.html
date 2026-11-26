@@ -1,0 +1,66 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;tab-size:2}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class='text-slate-700'>Order Fulfillment Saga</span>
+    </div>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Message examples</div>
+      <div class='text-sm text-slate-700 mb-2'>Minimal shapes with correlation ids and timestamps.</div>
+
+      <pre><code>{
+  "event": "OrderCreated",
+  "orderId": 42,
+  "userId": 1001,
+  "items": [{ "productId": "P-9", "qty": 2 }],
+  "total": 120.00,
+  "correlationId": "corr-abc-123",
+  "timestamp": "2026-01-01T12:00:00Z"
+}
+
+{
+  "event": "StockReserved",
+  "reservationId": "res-77",
+  "orderId": 42,
+  "reservedItems": [{ "productId": "P-9", "qty": 2 }],
+  "correlationId": "corr-abc-123"
+}
+
+{
+  "event": "PaymentProcessed",
+  "paymentId": "pay-55",
+  "orderId": 42,
+  "status": "success",
+  "correlationId": "corr-abc-123"
+}</code></pre>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-600'>Guidelines</div>
+        <ul class='ml-4 mt-2 text-sm text-slate-600 list-disc space-y-2'>
+          <li>Include correlationId to trace the saga across services.</li>
+          <li>Keep events focused: send only data required by subscribers.</li>
+          <li>Design steps to be idempotent and safe to retry.</li>
+        </ul>
+      </div>
+
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-600'>Misconception</div>
+        <div class='text-sm text-slate-700 mt-2'>Don't publish huge domain snapshots; large events complicate backward compatibility and increase coupling.</div>
+      </div>
+
+      <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Design concise event shapes and idempotent handlers so saga steps are observable, traceable, and safe to retry.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

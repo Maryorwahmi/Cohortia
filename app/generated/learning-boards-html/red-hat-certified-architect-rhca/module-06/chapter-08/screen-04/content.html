@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Ceph Pools & Erasure Coding</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div>
+        <div class="text-xl font-bold text-slate-900">Pools, Replication, and Erasure Coding</div>
+        <div class="text-sm text-slate-600 mt-1">Definition and operational implications for capacity and recovery.</div>
+        <div class="mt-4 text-sm text-slate-700 leading-relaxed">Pools group objects and determine placement and protection policies. Erasure coding encodes objects into k data chunks and m parity chunks to provide redundancy more efficiently than full replication. Use replication for small, latency-sensitive workloads and erasure coding for large, cold data sets where capacity efficiency matters more than rebuild speed.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+          <div class="text-sm text-slate-700 mt-2">Create an erasure code profile with two data and one parity chunk, then create a pool using that profile for archival data.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Using erasure coding for small, highly-updated objects can degrade performance and complicate recovery.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Match pool protection to workload. Verify cluster health and PG distribution after creating or changing pools.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900">Commands (example)</div>
+        <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Define an erasure code profile (k=2, m=1)
+sudo cephadm shell -- ceph osd erasure-code-profile set myecprofile k=2 m=1
+
+# Create an erasure-coded pool using the profile
+sudo cephadm shell -- ceph osd pool create myecpool 8 8 erasure myecprofile
+# 8 8 are PGs and PGs per OSD.
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">Note: adjust PGs to match your OSD count. Monitor with ceph -s while the pool initializes to watch backfill activity and cluster health.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Two‑Phase Commit</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900 mb-2">Phase 1 — Prepare (Voting)</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>Coordinator sends PREPARE to all participants.</li>
+          <li>Each participant applies local changes to a temporary area and logs them, then returns VOTE_COMMIT or VOTE_ABORT.</li>
+          <li>If a participant votes commit it must hold locks until the coordinator decides.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900 mb-2">Phase 2 — Commit (Decision)</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>If all votes are commit, coordinator sends GLOBAL_COMMIT; participants make changes permanent and release locks.</li>
+          <li>If any vote is abort or a participant fails, coordinator sends GLOBAL_ABORT; participants roll back and release locks.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-900 mb-2">Example trace</div>
+        <div class="text-sm text-slate-700">Order service PREPARE → VOTE_COMMIT. Payment service PREPARE → VOTE_COMMIT. Inventory service PREPARE → VOTE_ABORT. Coordinator sees an abort and sends GLOBAL_ABORT; all participants roll back.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Blocking behavior</div>
+        <div class="text-sm text-slate-800">Participants that voted commit hold locks until they receive the final decision; if the coordinator crashes, those locks may be held indefinitely.</div>
+      </div>
+
+      <div class="mt-2">
+        <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">2PC gives atomicity but at the cost of blocking and a coordinator bottleneck; model these costs when designing cross-service commits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

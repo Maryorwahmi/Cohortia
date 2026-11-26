@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex mb-3">
+    <div class="flex-1">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-800">The when Keyword</div>
+      <div class="text-sm text-slate-600 mt-2">Use when to make decisions based on facts or previous results so tasks only run where appropriate.</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>- name: Install Apache on RedHat-like systems
+  ansible.builtin.package:
+    name: httpd
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install Nginx on Debian-like systems
+  ansible.builtin.package:
+    name: nginx
+    state: present
+  when: ansible_os_family == "Debian"</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc ml-4 space-y-1">
+          <li>Conditions use facts like ansible_os_family, custom variables, or registered outputs.</li>
+          <li>Always quote string literals to avoid type confusion in comparisons.</li>
+          <li>Facts are host-scoped and evaluated per host at runtime.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & Tips</div>
+      <div class="text-sm text-slate-600 mt-2 flex-1">
+        <p class="mb-2">When expressions are powerful but can be brittle if they reference missing keys or mix types. Use the default filter to provide safe fallbacks and avoid undefined errors. For example, ansible_distribution | default('') ensures the expression can still be evaluated.</p>
+        <div class="rounded-lg border-l-4 border-l-amber-400 bg-amber-50 p-3 mb-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <div class="text-xs text-slate-800">Comparing numbers to strings or assuming a fact exists. Example: ansible_distribution_major_version == "20" vs an integer 20.</div>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use when to express per-host decisions and guard expressions with defaults to avoid undefined errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

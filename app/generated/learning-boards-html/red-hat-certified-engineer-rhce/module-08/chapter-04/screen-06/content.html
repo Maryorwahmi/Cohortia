@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Inspecting block devices</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl bg-white border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Primary commands</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm mt-3" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+# tree of block devices
+lsblk
+
+# detailed partition table
+fdisk -l
+
+# modern partition tool output
+parted -l
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">Cross-check lsblk with findmnt or /etc/mtab so you know which device backs which mount point. Save outputs for auditing and recovery plans.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold">Example output snippet</div>
+      <pre class="bg-slate-100 text-slate-800 rounded-lg p-3 text-sm mt-3" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda               8:0    0  100G  0 disk 
+├─sda1            8:1    0    1G  0 part /boot
+└─sda2            8:2    0   99G  0 part 
+  └─vg01-lvroot 253:0    0   90G  0 lvm  /
+      </pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-2">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Warning</div>
+          <div class="text-sm text-slate-700 mt-1">Do not repartition a device until you have verified the mapping and taken backups; partitioning can destroy data.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

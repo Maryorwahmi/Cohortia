@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">What Hardhat does during compilation</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <div class="text-xl font-bold text-slate-800 mt-2">How Hardhat orchestrates compilation</div>
+        <div class="text-sm text-slate-600 mt-3">Each step affects the outputs you inspect in artifacts and cache.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Key internal steps</div>
+          <ol class="list-decimal ml-5 mt-2 text-sm text-slate-700">
+            <li>Read hardhat.config.js for compiler and path settings.</li>
+            <li>Scan contracts/ for .sol and resolve imports.</li>
+            <li>Invoke solc to produce bytecode, ABI, and metadata.</li>
+            <li>Update cache/ and write artifacts/ JSON files.</li>
+          </ol>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-700">
+          <div class="font-semibold">Practical check</div>
+          <div class="mt-2">If the compiler outputs unexpected warnings, first look at hardhat.config.js to see what compiler version and optimization settings were selected. Mismatches between contract pragmas and the configured compiler are a frequent source of confusion.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800 mt-2">If you see cached behavior that hides a recent change, try clearing cache/ and rerunning compilation to force a full rebuild.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Compact config example (structure only)</div>
+        <div class="text-xs text-slate-700 mt-2">This shows the fields Hardhat reads; use your project values in the actual file.</div>
+        <pre class="bg-slate-900 text-white p-3 rounded-lg mt-3"><code>module.exports = {
+  solidity: 'pragma-version',
+  paths: {
+    sources: './contracts',
+    artifacts: './artifacts'
+  },
+  // optimizer and other settings are read here
+};</code></pre>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Why cache/ exists</div>
+          <div class="text-sm text-slate-700 mt-2">The cache stores intermediate compilation state so repeated compilations only rebuild changed units. This reduces waiting time during iterative development.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common misconception</div>
+        <p class="text-xs font-medium text-slate-800 mt-2">The cache is not a substitute for understanding outputs; clearing it can be necessary when changing compiler settings or resolving strange compilation errors.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

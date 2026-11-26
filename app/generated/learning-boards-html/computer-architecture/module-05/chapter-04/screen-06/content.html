@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">RAT & Recovery</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="text-xl font-bold text-slate-800">Register Alias Table and recovery</div>
+      <div class="text-sm text-slate-600">A compact map used on every rename operation.</div>
+
+      <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold">Properties of the RAT</div>
+        <ul class="text-xs text-slate-600 mt-2 space-y-2">
+          <li>One entry per architectural register; small and fast.</li>
+          <li>Read at rename for sources; written at rename for destination mapping updates.</li>
+          <li>Old mapping must be saved to permit precise recovery after speculatively executing instructions.</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Saved mapping example</div>
+        <div class="text-xs text-slate-700 mt-2">If RAT[R1] = P1 and ADD allocates P10 for R1, update RAT[R1] = P10 and record P1 as the old mapping for recovery.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl p-4 bg-white border shadow-sm border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-sm font-semibold text-slate-800">Checkpoint options</div>
+        <div class="text-xs text-slate-600 mt-2 space-y-2">
+          <div>Reorder buffer stores old mappings per writer.</div>
+          <div>Checkpointed RAT copies allow fast restore for broader speculative windows.</div>
+        </div>
+
+        <div class="mt-4 text-xs text-slate-600">Design trade-off: storing full RAT checkpoints is faster to restore but uses area; per-instruction saved mappings use less area but slower recovery logic.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Keep the RAT small and fast; save old mappings per rename so precise state can be restored after speculation is undone.</p>
+      </div>
+    </div>
+  </div>
+</div>

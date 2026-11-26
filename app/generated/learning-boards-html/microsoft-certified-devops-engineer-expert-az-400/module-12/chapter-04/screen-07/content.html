@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module: Advanced Azure Pipelines</span><span>›</span><span>Chapter: Templates, Environments, and Gates</span><span>›</span><span class="text-slate-700">Template Code</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="lg:w-1/2 flex flex-col justify-center p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Code Example</div><h2 class="text-2xl font-bold text-slate-900 mb-3">YAML Template Example: Build and Deploy</h2><p class="text-base text-slate-700 mb-4">Standardizing common build and deployment processes with reusable templates.</p><div class="bg-slate-800 text-white rounded-lg p-4 font-mono text-xs overflow-auto mb-6" style="tab-size: 2; white-space: pre-wrap;"><pre><code># templates/build-dotnet.yml
+parameters:
+- name: projectName
+  type: string
+- name: buildConfiguration
+  type: string
+  default: 'Release'
+
+jobs:
+- job: DotNetBuild
+  displayName: 'Build .NET Application'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: | 
+      echo "Building ${{ parameters.projectName }} in ${{ parameters.buildConfiguration }}..."
+      dotnet build ${{ parameters.projectName }}.csproj --configuration ${{ parameters.buildConfiguration }}
+    displayName: 'Run .NET Build'
+</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Templates abstract complex logic, making build and deploy processes consistent and easier to manage across many projects.</p></div></div><div class="lg:w-1/2 flex flex-col justify-center p-4 bg-slate-50 rounded-xl shadow-sm border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Deployment Template</div><div class="bg-slate-800 text-white rounded-lg p-4 font-mono text-xs overflow-auto mb-6" style="tab-size: 2; white-space: pre-wrap;"><pre><code># templates/deploy-aks.yml
+parameters:
+- name: imageName
+  type: string
+- name: kubernetesServiceConnection
+  type: string
+- name: namespace
+  type: string
+  default: 'default'
+- name: tag
+  type: string
+  default: '$(Build.BuildId)'
+
+jobs:
+- deployment: DeployToAKS
+  displayName: 'Deploy to AKS'
+  environment: 'KubernetesEnv'
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: KubernetesManifest@1
+          displayName: 'Deploy to Kubernetes'
+          inputs:
+            kubernetesServiceConnection: ${{ parameters.kubernetesServiceConnection }}
+            namespace: ${{ parameters.namespace }}
+            manifests: |
+              $(System.DefaultWorkingDirectory)/k8s/deployment.yml
+              $(System.DefaultWorkingDirectory)/k8s/service.yml
+            containers: | 
+              ${{ parameters.imageName }}:${{ parameters.tag }}
+</code></pre></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Analogy</div><p class="text-xs font-medium text-slate-800">Think of templates as functions in programming: they take inputs (parameters) and perform a defined set of actions, making your code modular and reusable.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

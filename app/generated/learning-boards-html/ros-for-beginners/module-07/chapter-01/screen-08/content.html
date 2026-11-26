@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Launch & Spawn</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border p-4 shadow-sm border-[rgba(226,232,240,0.9)] overflow-hidden">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Launch file example</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>&lt;launch&gt;
+  &lt;param name="robot_description" textfile="$(find my_first_robot)/urdf/my_robot.urdf" /&gt;
+  &lt;include file="$(find gazebo_ros)/launch/empty_world.launch" /&gt;
+  &lt;node pkg="gazebo_ros" type="spawn_model" name="spawn_robot"
+        args="-param robot_description -urdf -model my_robot -x 0 -y 0 -z 0.1" /&gt;
+  &lt;node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" /&gt;
+&lt;/launch&gt;</code></pre>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Checklist</div>
+        <ul class="text-sm text-slate-600 space-y-2">
+          <li>robot_description param contains URDF text.</li>
+          <li>spawn_model uses -urdf flag and correct model name.</li>
+          <li>robot_state_publisher is running to publish TF frames.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 mb-1">Test command</div>
+        <pre class="text-xs bg-slate-100 rounded-md p-2 text-slate-700" style="white-space:pre-wrap; tab-size:2;">rostopic pub /cmd_vel geometry_msgs/Twist "linear:
+  x: 0.5
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.2"</pre>
+        <div class="text-xs text-slate-600 mt-2">Publish this small twist and watch the robot move forward and rotate in Gazebo.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 mb-1">Common error</div>
+        <div class="text-sm text-slate-600">Forgetting the -urdf flag or mismatching model names prevents the spawn node from inserting the robot into the world.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Relational vs Cassandra</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Relational</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Normalized schema</h3>
+      <p class="text-sm text-slate-700 mt-2">Separate tables, foreign keys, and joins keep data single-sourced and reduce storage costs. Joins reconstruct views at query time.</p>
+      <div class="mt-4 space-y-2">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When it works</div>
+          <div class="text-sm text-slate-700 mt-1">Applications where joins are inexpensive and writes are relatively infrequent.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Denormalization equals poor design — actually it is intentional for read performance.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Cassandra</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Denormalized, query-first</h3>
+      <p class="text-sm text-slate-700 mt-2">Design each table to serve a specific query. Duplicate fields so a single partition read returns a complete result without joins.</p>
+      <div class="mt-4 space-y-2">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">When it works</div>
+          <div class="text-sm text-slate-700 mt-1">High-read, horizontally distributed workloads that require predictable latency.</div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Model from queries and accept controlled duplication; plan update paths for duplicated fields.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+      <div class="mt-2 grid grid-cols-2 gap-3">
+        <div class="rounded p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Relational flow</div>
+          <div class="text-sm text-slate-700 mt-2">Orders join Customers to show the customer's name beside each order at query time.</div>
+        </div>
+        <div class="rounded p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Cassandra flow</div>
+          <div class="text-sm text-slate-700 mt-2">Orders_by_customer stores customer_name so a single read returns order and display name without a join.</div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Model for queries: duplication is a tool to avoid distributed joins and ensure fast reads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

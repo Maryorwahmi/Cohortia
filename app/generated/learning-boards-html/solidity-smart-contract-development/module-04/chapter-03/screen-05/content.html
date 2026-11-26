@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Pull vs Push</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Vulnerable Push</div>
+        <pre class="bg-slate-50 p-3 rounded-lg"><code>// Vulnerable Push Payment
+function distributeRewards() public onlyOwner {
+    for (uint i = 0; i &lt; participants.length; i++) {
+        address recipient = participants[i];
+        uint256 reward = rewards[recipient];
+        if (reward &gt; 0) {
+            rewards[recipient] = 0; // State update
+            (bool success, ) = recipient.call{value: reward}(""); // External call
+            require(success, "Transfer failed");
+        }
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Why it's risky</div>
+        <p class="text-sm text-slate-600 mt-2">Loops across dynamic arrays can fail when the number of recipients grows. External calls inside loops also amplify reentrancy risk.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Secure Pull</div>
+        <pre class="bg-slate-50 p-3 rounded-lg"><code>// Secure Pull Payment
+mapping(address =&gt; uint256) public payouts; // Amount available for withdrawal
+
+function depositReward(address _recipient, uint256 _amount) public onlyOwner {
+    payouts[_recipient] += _amount;
+}
+
+function withdrawReward() public {
+    uint256 amount = payouts[msg.sender];
+    require(amount &gt; 0, "No pending rewards");
+
+    payouts[msg.sender] = 0; // Effect: Clear balance FIRST
+    (bool success, ) = msg.sender.call{value: amount}(""); // Interaction: Send Ether
+    require(success, "Withdrawal failed");
+}
+</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Store payouts and let users withdraw. This keeps operations atomic and scalable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

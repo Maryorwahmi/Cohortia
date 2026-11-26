@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Getters & Setters</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card shadow-sm">
+      <div class="text-lg font-bold text-slate-800">TemperatureSensor example</div>
+      <div class="text-sm text-slate-600 mt-2">A const getter and a setter that rejects impossible temperatures enforce correctness.</div>
+
+      <div class="mt-4">
+        <pre><code>// TemperatureSensor snippet for learning
+class TemperatureSensor {
+private:
+  double currentTempCelsius;
+
+public:
+  TemperatureSensor(double initialTemp) : currentTempCelsius(initialTemp) {}
+
+  // Getter declared const so it can be called on const objects
+  double getTempCelsius() const {
+    return currentTempCelsius;
+  }
+
+  // Setter validates input before updating
+  void setTempCelsius(double newTemp) {
+    if (newTemp >= -273.15) {
+      currentTempCelsius = newTemp;
+      std::cout << "Temperature updated" << std::endl;
+    } else {
+      std::cout << "Error: Temperature cannot be below absolute zero." << std::endl;
+    }
+  }
+};</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>getTempCelsius is const, so const objects can call it safely.</li>
+        <li>setTempCelsius enforces a domain check against absolute zero.</li>
+        <li>Validation keeps the sensor object in a meaningful state and prevents downstream errors.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Concrete scenario</div>
+        <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-500">
+          <div class="text-sm text-slate-800">When reading from multiple sensors, you may store const copies. Const getters allow you to read those copies without accidental mutation.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+          <div class="text-sm text-slate-600 mt-2">Why would you prefer a setter that rejects invalid input over one that silently clamps values? Think about caller expectations and hidden side effects.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

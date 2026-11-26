@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS50 — Module 1, Chapter 1 Audio</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #172033; }
+    audio { width: 100%; margin: 1rem 0 1.5rem; }
+    button { display: block; width: 100%; text-align: left; margin: .45rem 0; padding: .8rem 1rem; border: 1px solid #d5dbea; border-radius: .5rem; background: #f8f9fc; cursor: pointer; }
+    button:hover { background: #eaf0ff; }
+    small { color: #667085; }
+  </style>
+</head>
+<body>
+  <h1>CS50’s Introduction to Computer Science</h1>
+  <p>Module 1 · Chapter 1 · Gemini TTS voice: Despina</p>
+  <audio id="player" controls preload="metadata" src="chapter.wav"></audio>
+  <div id="screens">Loading screen cues…</div>
+  <script>
+    const player = document.querySelector('#player');
+    const list = document.querySelector('#screens');
+    fetch('manifest.json').then(r => r.json()).then(manifest => {
+      list.replaceChildren(...manifest.screenAudio.map(cue => {
+        const button = document.createElement('button');
+        button.innerHTML = `<strong>Screen ${cue.screen}: ${cue.title}</strong><br><small>${cue.startSeconds}s–${cue.endSeconds}s · ${cue.durationSeconds}s</small>`;
+        button.onclick = () => { player.currentTime = cue.startSeconds; player.play(); };
+        return button;
+      }));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fcfeff}.card{background:white;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Query UTxOs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 card rounded-2xl p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Ensure node socket is set</div>
+      <div class="text-sm text-slate-600 mt-2">Set CARDANO_NODE_SOCKET_PATH to your node socket before running queries.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"><code>export CARDANO_NODE_SOCKET_PATH=~/cardano-dev/preview-node/node.socket
+
+cardano-cli query utxo \
+  --address $(cat base.addr) \
+  --testnet-magic 2</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Read the output table carefully: each row corresponds to a TxHash and TxIx pair and lists amounts including lovelace and native tokens. These rows are the inputs you can reference when building transactions.</div>
+    </div>
+
+    <div class="w-1/3 p-4 flex flex-col gap-3">
+      <div class="card rounded-xl p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Interpreting output</div>
+        <div class="text-sm text-slate-700 mt-2">TxHash and TxIx uniquely identify an output. Amount shows ADA in lovelace and any attached tokens.</div>
+      </div>
+
+      <div class="card rounded-xl p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-800">Running the query before node sync or with the wrong socket will show no UTxOs. Verify the node is fully synced.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the TxHash and TxIx values from the utxo query as inputs for transaction building and confirm amounts before spending.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

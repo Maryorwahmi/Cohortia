@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Process</span>
+      <span>›</span>
+      <span class="text-slate-700">Many-to-Many</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col justify-between">
+      <div>
+        <div class="text-2xl font-bold text-slate-900">Student ↔ Course via enrollments</div>
+        <div class="text-sm text-slate-600 mt-2">Define a Table as the bridge and pass it as secondary to relationship() on both models.</div>
+
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-xl bg-white p-3 card-border">
+            <div class="text-sm font-bold text-slate-900">When to use a Table vs model</div>
+            <div class="text-sm text-slate-700 mt-2">Use a simple Table when the association has no extra attributes. Convert to a full ORM model if you need grade, timestamps, or other per-association data.</div>
+          </div>
+
+          <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete step</div>
+            <p class="text-sm text-slate-800">Create the Table with both FKs, set primary_key=True on both columns, then use secondary in relationship(). Add students and courses, then append courses into student.courses and commit.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Try</div>
+          <div class="text-sm text-slate-700 mt-2">Add three students and three courses, enroll them in different combinations, then query students with selectinload(Student.courses) to print enrollments without N+1.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-4 card-border h-full">
+        <div class="text-sm font-bold text-slate-900">Starter code (association table)</div>
+        <pre class="code">from sqlalchemy import Table, Column, Integer, ForeignKey
+
+enrollment_table = Table(
+  'enrollments', Base.metadata,
+  Column('student_id', Integer, ForeignKey('students.id'), primary_key=True),
+  Column('course_id', Integer, ForeignKey('courses.id'), primary_key=True)
+)
+
+# Student.courses = relationship('Course', secondary=enrollment_table, back_populates='students')
+# Course.students  = relationship('Student', secondary=enrollment_table, back_populates='courses')
+</pre>
+
+        <div class="mt-3 text-sm text-slate-700">Remember to create tables with Base.metadata.create_all(engine) before adding rows so the enrollments table exists.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

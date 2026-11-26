@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Build and upload RPM</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Spec file and build steps</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code># Create a dummy RPM spec file
+cat <<EOF > /tmp/my-custom-app.spec
+Name: my-custom-app
+Version: 1.0.0
+Release: 1
+Summary: A dummy custom application
+License: GPLv3+
+BuildArch: x86_64
+Requires: bash
+%description
+This is a dummy application for testing custom content in Satellite.
+%install
+mkdir -p %{buildroot}/opt/%{name}
+echo "Hello from my custom app!" > %{buildroot}/opt/%{name}/hello.txt
+%files
+/opt/%{name}/hello.txt
+EOF
+
+# Build the RPM
+sudo dnf install rpm-build -y
+rpmbuild -bb /tmp/my-custom-app.spec
+# RPM appears in ~/rpmbuild/RPMS/x86_64/
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">After building, copy or upload the RPM to Satellite. You can create a custom product and repository then upload via the UI or hammer upload commands when the file is accessible to the Satellite server.</div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Repository creation (CLI example)</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>hammer product create --name "My Custom Apps" --label "my_custom_apps" --organization "MyOrg"
+hammer repository create --name "My Custom App RPMs" --product "My Custom Apps" --content-type yum --publish-via-http true --organization "MyOrg"
+# Upload and synchronize the RPM
+# hammer repository upload-content --name "My Custom App RPMs" --product "My Custom Apps" --path ~/rpmbuild/RPMS/x86_64/my-custom-app-1.0.0-1.el8.x86_64.rpm --organization "MyOrg"
+# hammer repository synchronize --name "My Custom App RPMs" --product "My Custom Apps" --organization "MyOrg"
+</code></pre>
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Test uploads in a non-production Satellite instance first and verify file permissions for the upload path.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">PluginManagerMetaclass</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>class PluginManagerMetaclass(type):
+  _plugins = {}
+  def __new__(mcs, name, bases, namespace):
+    cls = super().__new__(mcs, name, bases, namespace)
+    if name != 'BasePlugin':
+      mcs._plugins[name] = cls
+    return cls
+  @classmethod
+  def get_plugins(mcs):
+    return mcs._plugins</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Usage</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>class BasePlugin(metaclass=PluginManagerMetaclass):
+  pass
+class CSVExporter(BasePlugin):
+  def export(self, data):
+    print('Exporting CSV...')
+class JSONExporter(BasePlugin):
+  def export(self, data):
+    print('Exporting JSON...')
+print(PluginManagerMetaclass.get_plugins())</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Explanation: registry is populated as classes are defined. Test by importing modules and asserting expected entries exist.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

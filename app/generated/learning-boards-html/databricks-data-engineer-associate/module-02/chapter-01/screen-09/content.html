@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Spark DataFrames</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-lg font-bold text-slate-800">DataFrame basics</div>
+      <div class="text-sm text-slate-600 mt-2">DataFrames are distributed and use lazy evaluation; actions trigger execution.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded"><code># Read a CSV into a DataFrame
+df = spark.read.option("header","true").option("inferSchema","true").csv("/FileStore/tables/sales_data.csv")
+
+df.printSchema()
+df.show(5)
+
+# Register for SQL access
+df.createOrReplaceTempView("sales_view")
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-700">Common operations</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Select columns: df.select('col1', 'col2')</li>
+        <li>Filter rows: df.filter(df.col > 100)</li>
+        <li>Aggregations: df.groupBy('category').count()</li>
+        <li>Write results: df.write.parquet('/path/to/output')</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+        <div class="text-sm text-slate-800">Calling show or printSchema triggers computation; avoid using these on very large datasets without sampling.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

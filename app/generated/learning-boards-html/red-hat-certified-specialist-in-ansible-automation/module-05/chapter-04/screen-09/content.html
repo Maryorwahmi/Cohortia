@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Include role in a loop</div>
+      <div class="text-sm text-slate-600 mt-3">Runtime inclusion supports per-item configuration and dynamic counts.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Best practices</div>
+      <ul class="list-disc pl-5 mt-2 text-sm text-slate-600 space-y-2">
+        <li>Use explicit loop_var to avoid variable collisions.</li>
+        <li>Keep the role idempotent so repeated includes are safe.</li>
+        <li>Test with representative loop items in a dry-run scenario first.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Practical looped include</div>
+      <div class="mono text-sm bg-slate-50 p-3 rounded mt-2">
+<pre><code>- name: Dynamically include a role based on a loop
+  ansible.builtin.include_role:
+    name: config_app
+  loop:
+    - app_name: frontend
+      app_port: 80
+    - app_name: backend
+      app_port: 8080
+  loop_control:
+    loop_var: current_app
+  vars:
+    app_name: "{{ current_app.app_name }}"
+    app_port: "{{ current_app.app_port }}"</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">Each iteration runs the role with the variables set from the current loop item. This pattern is commonly used to deploy or configure multiple applications using one reusable role.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

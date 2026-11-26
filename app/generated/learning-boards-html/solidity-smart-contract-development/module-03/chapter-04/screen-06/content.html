@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">delegatecall</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">What delegatecall does</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Executes code at the target address.</li>
+        <li>Uses the calling contract's storage slots for reads and writes.</li>
+        <li>Preserves msg.sender and msg.value from the original external caller.</li>
+      </ul>
+
+      <div class="mt-6 text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-700">Proxy receives increment call. It delegatecalls implementation. Implementation increases counter, and the counter in proxy storage changes.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Contrast: call vs delegatecall</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div class="flex gap-2"><span class="font-semibold">call:</span> callee uses its own storage and msg.sender is the caller contract.</div>
+        <div class="flex gap-2"><span class="font-semibold">delegatecall:</span> callee's code runs but uses caller storage; msg.sender remains the original external caller.</div>
+      </div>
+
+      <div class="mt-6 rounded-lg p-3 bg-rose-50 text-rose-700">
+        <div class="text-xs font-bold uppercase tracking-wider">Danger</div>
+        <div class="text-sm mt-1">Storage layout mismatch causes writes to unexpected slots and can corrupt proxy state or the implementation pointer itself.</div>
+      </div>
+    </div>
+  </div>
+</div>

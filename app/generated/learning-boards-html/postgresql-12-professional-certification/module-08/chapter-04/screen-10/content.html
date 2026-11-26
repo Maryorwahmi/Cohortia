@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.query{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Connections</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800">Queries to inspect connections</div>
+      <pre class="mt-3 query text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">-- Current active connections
+SELECT count(*) FROM pg_stat_activity;
+
+-- Find idle in transaction sessions
+SELECT pid, usename, datname, state, query_start, query
+FROM pg_stat_activity
+WHERE state = 'idle in transaction';
+
+-- Terminate a backend
+SELECT pg_terminate_backend(12345);</pre>
+      <div class="mt-3 text-sm text-slate-600">Use these queries to identify problematic sessions and terminate them when safe. Document and coordinate with app teams before killing connections in production.</div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800">When to increase max_connections</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Only after verifying that connections are legitimate and not leaked by bad client behavior.</li>
+        <li>Plan for a restart and increased memory usage per connection.</li>
+        <li>Consider connection pooling as a scalable alternative.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

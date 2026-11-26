@@ -1,0 +1,31 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2}</style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Override Mechanism</div>
+    <h3 class="text-2xl font-bold text-slate-800">Extra variables (-e) and overrides</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">Command-line override</div>
+      <pre class="bg-slate-50 p-3 rounded"><code>ansible-playbook configure_app.yml -e "app_port=80 app_env=production"
+# or with a file
+ansible-playbook configure_app.yml -e @prod_vars.yml</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Extra-vars provide a direct way to change values for a run without editing inventory or playbooks.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">When to use</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>CI/CD pipelines that inject environment-specific values.</li>
+        <li>Temporary overrides during debugging or emergency fixes.</li>
+        <li>Passing sensitive values from a secure pipeline step (prefer Vault for long-term secrets).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+    <p class="text-xs font-medium text-slate-800">Relying on ad-hoc extra-vars in local runs without recording them can cause irreproducible deployments. Use documented pipeline overrides for consistency.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

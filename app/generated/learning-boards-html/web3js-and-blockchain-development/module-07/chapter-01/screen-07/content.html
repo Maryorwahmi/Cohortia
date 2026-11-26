@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Subscribing to Transfer events</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code</div>
+      <div class="mt-3 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>import Web3 from 'web3'
+
+const web3 = new Web3(new Web3.providers.WebsocketProvider('wss://...'))
+const tokenAbi = [ /* Transfer event ABI inputs */ ]
+const tokenAddress = '0x...'
+const sig = web3.utils.sha3('Transfer(address,address,uint256)')
+
+web3.eth.subscribe('logs', { address: tokenAddress, topics: [sig] })
+  .on('data', (log) =&gt; {
+    const decoded = web3.eth.abi.decodeLog(tokenAbi[0].inputs, log.data, log.topics.slice(1))
+    // decoded.from, decoded.to, decoded.value
+  })
+  .on('error', (err) =&gt; console.error('Subscription error', err))
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <p>Keep the code readable, convert values using token decimals, and store blockNumber for confirmation checks.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4">
+        <li>sig is topic[0] and filters to Transfer events only.</li>
+        <li>decodeLog maps raw data to named fields using the ABI inputs.</li>
+        <li>log.topics.slice(1) are indexed parameters like from and to when marked indexed.</li>
+      </ul>
+
+      <div class="mt-auto space-y-3">
+        <div class="rounded-xl p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">When a Transfer arrives, decode and push a short object {from,to,value,blockNumber} into UI state to render immedately.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-rose-50 border border-rose-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">Assuming value uses 18 decimals. Always confirm token decimals before converting raw units.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">prim(), point(), detail()</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold uppercase tracking-wider text-slate-700">Code walkthrough</div>
+    <div class="mt-3 grid grid-cols-2 gap-4 flex-1">
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>// Run Over: Points
+// Read a primitive float and a detail integer
+float prim_float_val = prim(0, "prim_id_float", @primnum);
+i@prim_id_int = (int)prim_float_val; // explicit cast
+
+int detail_scale = detail(0, "global_scale_int");
+
+// Modify point position using the read values
+@P.y += (float)i@prim_id_int * detail_scale * 0.1;
+
+// Demonstrate implicit broadcast: float to color
+@Cd = prim_float_val / 10.0; // becomes {v,v,v}
+</code></pre>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold text-slate-800">Step explanation</div>
+          <div class="text-sm text-slate-600 mt-1">Read primitive and detail, cast primitive float to int for index-like use, then update point position and color.</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold text-slate-800">Validation</div>
+          <div class="text-sm text-slate-600 mt-1">Open Geometry Spreadsheet to verify prim_id_float, prim_id_int, global_scale_int and the modified @P and @Cd.</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold text-slate-800">Misconception check</div>
+          <div class="text-sm text-slate-600 mt-1">prim() won’t implicitly pick the primitive for you unless you supply the correct prim index; confirm with @primnum or computed mapping.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">When reading across classes, always supply correct indexes and cast results explicitly when they feed logic or indexing operations.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

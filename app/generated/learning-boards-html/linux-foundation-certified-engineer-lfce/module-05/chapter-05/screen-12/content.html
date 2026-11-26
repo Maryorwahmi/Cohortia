@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+      <span>›</span>
+      <span class="text-slate-700">Integrate Postfix & Dovecot</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[66vh]">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+        <div class="text-lg font-bold text-slate-800">Step-by-step checklist</div>
+        <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+          <li>Verify <span class="font-mono">/etc/dovecot/conf.d/15-lda.conf</span> and mail_location.</li>
+          <li>Set <span class="font-mono">mailbox_command</span> in <span class="font-mono">/etc/postfix/main.cf</span> to the correct binary.</li>
+          <li>Ensure your domain is in <span class="font-mono">mydestination</span> and reload Postfix.</li>
+          <li>Send a test message and check <span class="font-mono">Maildir/new</span> for the new file.</li>
+          <li>For aliases, edit <span class="font-mono">/etc/postfix/virtual</span>, run <span class="font-mono">sudo postmap /etc/postfix/virtual</span>, and reload Postfix.</li>
+        </ol>
+      </div>
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+        <div class="text-sm font-bold text-slate-700">Verification & expected checks</div>
+        <div class="mt-3 text-sm text-slate-700">
+          <ul class="list-disc list-inside space-y-2">
+            <li>Maildir contains a new file: <span class="font-mono">ls -la /home/mailuser1/Maildir/new/</span>.</li>
+            <li>Postfix logs show delivery via dovecot-lda: look for "delivered via dovecot-lda" lines.</li>
+            <li>For aliased mail, confirm forwarding targets receive messages after postmap and reload.</li>
+          </ul>
+        </div>
+        <div class="mt-4 rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Note</div>
+          <div class="mt-1 text-sm text-slate-800">If multiple issues appear, fix the path and permissions first, then address mapping errors.</div>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Follow the checklist in order: LDA config, mailbox_command, reload, test, and then alias mapping with postmap to ensure clean integration.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

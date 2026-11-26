@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.3</span>
+      <span>›</span>
+      <span class="text-slate-700">SQLQuery Builder</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Product and builder starter</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+class SQLQuery:
+  def __init__(self):
+    self.select_parts = []
+    self.from_table = ""
+    self.where_conditions = []
+    self.order_by_parts = []
+    self.limit_count = None
+
+  def build_query(self) -> str:
+    query_parts = []
+    if self.select_parts:
+      query_parts.append(f"SELECT {', '.join(self.select_parts)}")
+    if self.from_table:
+      query_parts.append(f"FROM {self.from_table}")
+    if self.where_conditions:
+      query_parts.append(f"WHERE {' AND '.join(self.where_conditions)}")
+    if self.order_by_parts:
+      query_parts.append(f"ORDER BY {', '.join(self.order_by_parts)}")
+    if self.limit_count is not None:
+      query_parts.append(f"LIMIT {self.limit_count}")
+    return " ".join(query_parts) + ";"
+      </pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Concrete builder (starter)</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+class PostgreSQLQueryBuilder(QueryBuilder):
+  def select(self, *columns: str):
+    self.query.select_parts.extend(columns)
+    return self
+
+  def from_table(self, table_name: str):
+    self.query.from_table = table_name
+    return self
+
+  def where(self, condition: str):
+    self.query.where_conditions.append(condition)
+    return self
+
+  def order_by(self, *columns: str, ascending: bool = True):
+    for col in columns:
+      self.query.order_by_parts.append(f"{col} {'ASC' if ascending else 'DESC'}")
+    return self
+
+  def limit(self, count: int):
+    self.query.limit_count = count
+    return self
+      </pre>
+
+      <div class="text-sm text-slate-600 mt-3">Compose a query by chaining calls and then call get_query().build_query() to get the final SQL string.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

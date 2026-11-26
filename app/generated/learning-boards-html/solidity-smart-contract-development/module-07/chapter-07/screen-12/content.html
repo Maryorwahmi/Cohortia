@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{background:white;border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Terminal Demo</span>
+  </div>
+
+  <div class="rounded-2xl card p-6 h-full grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-lg font-bold text-slate-800">Quick runbook</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Deploy updated Counter and copy address.</li>
+        <li>Run listener: npx hardhat run scripts/listen_events.js --network sepolia (or localhost).</li>
+        <li>In another terminal, call increment and decrement via a script or console.</li>
+        <li>Observe listener output and verify parsed receipt logs.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border mono">
+        <pre><code>// Example: send tx and parse
+const tx = await counter.increment();
+const receipt = await tx.wait();
+for (const log of receipt.logs) {
+  try { const parsed = counter.interface.parseLog(log); console.log(parsed.name, parsed.args); } catch (e){}
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Run the full cycle in your dev environment to observe how emit, listen, query, and parse work together in practice.</p>
+      </div>
+
+    </div>
+
+    <div>
+      <div class="font-semibold text-slate-800">Try this edge case</div>
+      <div class="text-sm text-slate-600 mt-2">Interact with another contract in the same block to inject unrelated logs and see why parseLog requires try-catch handling when iterating receipt.logs.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border">
+        <div class="font-semibold">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-1">When reconstructing history for a UI, paginate by block windows and cache results to avoid repeated heavy queries.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border">
+        <div class="font-semibold">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-1">After running the demo, explain why you would index user addresses and what would break if you relied on events for on-chain decision logic.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

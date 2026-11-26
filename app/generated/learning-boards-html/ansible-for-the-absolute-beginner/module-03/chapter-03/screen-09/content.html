@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Dynamic user creation</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">group_vars/webservers.yml</div>
+      <pre class="rounded-lg p-3 bg-slate-50 border">---
+# Variables for webservers group
+default_user_shell: /bin/bash
+default_user_groups:
+  - developers
+  - sudo</pre>
+
+      <div class="mt-4 text-sm text-slate-700">These values supply the shell and groups used when creating the user across all webservers.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-6 bg-white shadow-sm card flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">dynamic_user.yml (key tasks)</div>
+      <pre class="rounded-lg p-3 bg-slate-50 border">- name: Create new user '{{ new_username }}' with specified shell and groups
+  ansible.builtin.user:
+    name: "{{ new_username }}"
+    comment: "{{ user_comment }}"
+    shell: "{{ default_user_shell }}"
+    groups: "{{ default_user_groups | join(',') }}"
+    append: yes
+    state: present
+
+- name: Create a custom directory for the user's projects if OS is Debian-based
+  ansible.builtin.file:
+    path: "/home/{{ new_username }}/projects"
+    state: directory
+    owner: "{{ new_username }}"
+    group: "{{ new_username }}"
+    mode: '0750'
+  when: ansible_os_family == "Debian"</pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Expected result</div>
+          <div class="text-xs font-medium text-slate-800">The developers group and ansibleuser are created, and the projects directory is created only on Debian-family hosts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

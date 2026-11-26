@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Common Mistakes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-700">Failure modes</div>
+        <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-600">
+          <div>
+            <div class="font-semibold text-slate-700">Crash loop</div>
+            <div class="mt-1">Cause: heavy liveness checks against external dependencies. Fix: move such checks to readiness and make liveness internal-only.</div>
+          </div>
+
+          <div>
+            <div class="font-semibold text-slate-700">Readiness never passes</div>
+            <div class="mt-1">Cause: too-short initial delay or overly strict checks. Fix: increase initialDelaySeconds and relax non-critical dependency checks.</div>
+          </div>
+
+          <div>
+            <div class="font-semibold text-slate-700">Flapping</div>
+            <div class="mt-1">Cause: transient network or tight thresholds. Fix: increase failureThreshold and timeoutSeconds, or reduce periodSeconds frequency.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-700">Troubleshooting process</div>
+        <ol class="text-sm text-slate-600 mt-3 list-decimal list-inside space-y-2">
+          <li>Inspect pod events and probe logs to find failure reasons.</li>
+          <li>Reproduce the failure locally with simulated dependency outages.</li>
+          <li>Simplify liveness, tune readiness delays, and increase thresholds progressively.</li>
+          <li>Observe behavior under load and iterate until stable.</li>
+        </ol>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">When in doubt, make liveness cheaper and readiness stricter. It prevents unnecessary restarts while preserving traffic safety.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

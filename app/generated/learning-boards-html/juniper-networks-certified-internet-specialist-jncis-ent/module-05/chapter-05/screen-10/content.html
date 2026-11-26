@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">PBR Filter Example</span>
+  </div>
+  <div class="h-full grid grid-cols-2 gap-4">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Firewall filter for PBR</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+set firewall family inet filter PBR_POLICY term VOICE_TRAFFIC from source-address 10.0.0.0/24
+set firewall family inet filter PBR_POLICY term VOICE_TRAFFIC from destination-port 5060
+set firewall family inet filter PBR_POLICY term VOICE_TRAFFIC then next-hop 192.168.1.1
+set firewall family inet filter PBR_POLICY term VOICE_TRAFFIC then accept
+set firewall family inet filter PBR_POLICY term DEFAULT_TRAFFIC then accept
+set interfaces ge-0/0/0 unit 0 family inet filter input PBR_POLICY
+      </pre>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Verification steps</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Confirm filter applied: show interfaces ge-0/0/0.0 detail.</li>
+        <li>Observe redirected traffic: monitor traffic interface ge-0/0/0.0 extensive.</li>
+        <li>Check forwarding decisions: show route forwarding-table to see chosen next-hop for matched flows.</li>
+      </ul>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50">
+        <div class="font-semibold">Misconfiguration check</div>
+        <div class="text-sm text-slate-700 mt-1">Avoid next-hops that lead back to the same router and ensure other traffic is permitted by the default term.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

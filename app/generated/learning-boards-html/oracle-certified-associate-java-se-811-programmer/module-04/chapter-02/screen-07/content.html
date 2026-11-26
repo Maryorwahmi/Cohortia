@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="col-span-1 bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 rounded-lg bg-slate-50 p-3 flex-1 overflow-hidden"><code>class Vehicle {
+  public void service() {
+    System.out.println("Generic vehicle service.");
+  }
+}
+
+class Car extends Vehicle {
+  @Override
+  public void service() {
+    System.out.println("Car specific service: oil change, tire rotation.");
+  }
+  public void wash() {
+    System.out.println("Washing the car.");
+  }
+}
+
+public class PolymorphismDemo {
+  public static void main(String[] args) {
+    Vehicle v1 = new Car();
+    Vehicle v3 = new Vehicle();
+
+    v1.service(); // Car specific service
+    v3.service(); // Generic vehicle service
+    // v1.wash(); // Compile error: wash not visible on type Vehicle
+  }
+}</code></pre>
+    </div>
+    <div class="col-span-1 bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <div class="text-sm font-bold text-slate-900 mt-2">What happens at compile and runtime</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>v1 is a Vehicle reference to a Car object — upcasting happened automatically.</li>
+        <li>When service() is called, the JVM dispatches to Car's implementation because the object is a Car.</li>
+        <li>Attempting v1.wash() fails at compile time because Vehicle does not declare wash().</li>
+        <li>Creating new Vehicle() and calling service runs the Vehicle implementation.</li>
+      </ul>
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-xs text-slate-700 mt-1">If you need subclass-specific behavior frequently, expose it through the common type or redesign so callers can depend on behavior rather than concrete type.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

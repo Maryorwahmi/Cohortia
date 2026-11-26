@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}
+    pre.cmd{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">strace Deep Dive</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common commands</div>
+      <pre class="cmd" style="white-space:pre-wrap;tab-size:2"># Attach to running process
+sudo strace -p 12345 -s 200 -o /tmp/strace-12345.log
+
+# Trace a new command, following forks
+sudo strace -f -o /tmp/trace.log mycommand arg1 arg2
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Options shown: -s sets string size, -o writes output for later review, -f follows child processes. Use short captures to limit overhead.</div>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Interpreting a snippet</div>
+        <pre class="bg-white p-2 rounded border text-sm" style="white-space:pre-wrap;tab-size:2">open("/etc/myapp/config", O_RDONLY) = -1 EACCES (Permission denied)
+poll([{fd=3, events=POLLIN}], 1, 60000) = 0 (Timeout)
+write(1, "failed
+", 7) = 7
+</pre>
+        <div class="text-xs text-slate-600 mt-1">Look for negative return values and errno labels (EACCES, ENOENT) to pinpoint the cause.</div>
+      </div>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example workflow</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600">
+        <li>Collect process id and small strace output to a file.</li>
+        <li>Search the trace for failing calls like open, connect, stat, or read.</li>
+        <li>Confirm filesystem paths and permissions or socket endpoints.</li>
+      </ol>
+
+      <div class="mt-3 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Caution</div>
+        <div class="text-sm text-slate-800">Strace can change timing and expose sensitive data. Use with care in production and rotate trace files promptly.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Strace shows exactly what syscalls fail and why. Use its failures to guide fixes for permissions, missing files, or socket errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Telemetry Subscription</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-900">Example config</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm mt-2" style="white-space:pre-wrap; tab-size:2;"><code>telemetry ietf subscription MY_SUBSCRIPTION
+ encoding encode-kvgpb
+ filter xpath /interfaces-state/interface/statistics
+ stream cisco-push
+ update-policy periodic 1000
+ receiver ip address 192.168.1.40 57000 protocol grpc-tcp
+</code></pre>
+      <div class="mt-2 text-xs text-slate-500">Replace the receiver IP with your collector address and tune update-policy to manage load.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-900">What each line does</div>
+      <ul class="list-disc ml-5 mt-2 text-sm text-slate-600">
+        <li>encoding: serialization format for the payload.</li>
+        <li>filter xpath: YANG path selecting the subtree to stream.</li>
+        <li>stream: push mechanism used by IOS XE.</li>
+        <li>update-policy: periodic or on-change timing.</li>
+        <li>receiver: collector IP and transport protocol.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 card p-4">
+    <div class="font-bold text-slate-900">Verification command</div>
+    <pre class="bg-slate-100 p-3 rounded text-sm mt-2" style="white-space:pre-wrap; tab-size:2;"><code>show telemetry ietf subscription MY_SUBSCRIPTION
+</code></pre>
+    <div class="text-sm text-slate-600 mt-2">Look for State: Connected or Active and a Last-sent-time to confirm successful streaming.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

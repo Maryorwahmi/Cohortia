@@ -1,0 +1,60 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Lab walkthrough: repairing a Flask app permission error</h3>
+    <p class="text-sm text-slate-600 mt-2">Use the lab steps to practice the checklist and tools on a controlled example service failure.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white border card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter files (place under /opt/my_app)</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># my_app.py
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+  return 'Hello, Cohortia!'
+
+if __name__ == '__main__':
+  app.run(host='0.0.0.0', port=5000)
+
+# /etc/systemd/system/my_app.service
+[Unit]
+Description=My Cohortia Flask App
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/my_app
+ExecStart=/usr/bin/python3 my_app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white border card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Fault injection & diagnosis</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Make the script unreadable: sudo chmod 000 /opt/my_app/my_app.py</li>
+        <li>Restart the unit and run: systemctl status my_app and journalctl -u my_app -xe</li>
+        <li>Inspect ownership and traversal: ls -l /opt/my_app/my_app.py and namei -l /opt/my_app/my_app.py</li>
+        <li>Reproduce as service user: sudo -u www-data python3 /opt/my_app/my_app.py</li>
+        <li>Fix and verify: sudo chmod 644 /opt/my_app/my_app.py && sudo chown -R www-data:www-data /opt/my_app && sudo systemctl restart my_app && curl localhost:5000</li>
+      </ol>
+
+      <div class="mt-3 p-3 rounded-xl bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-700 mt-1">Reproduce the error as the service user and inspect path permissions before applying fixes. This avoids guesswork and ensures the fix is targeted.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

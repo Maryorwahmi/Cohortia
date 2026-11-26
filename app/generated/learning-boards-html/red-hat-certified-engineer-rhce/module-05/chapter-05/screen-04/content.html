@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Why DNS and NTP Matter</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Definition and consequences</div>
+      <div class="text-sm text-slate-600 mt-3">DNS maps names to addresses. NTP aligns clocks. Failures affect availability, logging, authentication, and certificates.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50">
+          <div class="font-semibold text-blue-700">Concrete Example</div>
+          <div class="text-sm text-slate-700 mt-2">A service configured to reach database.example.com fails if /etc/resolv.conf points to unreachable DNS servers. The host cannot resolve the backend even though IP routing is fine.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="font-semibold text-emerald-700">NTP Example</div>
+          <div class="text-sm text-slate-700 mt-2">A server with a skewed clock may reject valid certificates or fail Kerberos authentication until clocks are synchronized.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="font-semibold text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Manually editing /etc/resolv.conf is persistent. In RHEL, NetworkManager typically manages this file, so change the connection profile instead.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat DNS and time as first-class automation targets. Use connection profiles and templates to make configuration reliable and reproducible.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-700">Visual checklist</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600">
+        <li>Ensure DNS servers are set in NetworkManager profiles.</li>
+        <li>Deploy chrony.conf via template and notify a restart.</li>
+        <li>Open UDP port 53 for DNS and UDP port 123 for NTP where necessary.</li>
+        <li>Verify with dig/host and chronyc sources after a short interval.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="font-semibold text-slate-700">Reflection</div>
+          <div class="text-sm text-slate-600 mt-2">Which service would you verify first after noticing authentication failures: DNS or NTP? Consider the symptoms to decide.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

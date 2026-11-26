@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-lg font-bold text-slate-800">CREATE INDEX examples</div>
+      <div class="mt-3 text-sm text-slate-600">Run these in psql to add B-tree indexes used in many examples.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border border-slate-100">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:12px; margin:0;">-- Single-column B-tree index
+CREATE INDEX idx_customers_email ON customers (email);
+
+-- Composite index: customer then date
+CREATE INDEX idx_orders_customer_date ON orders (customer_id, order_date);
+
+-- Index supporting descending order
+CREATE INDEX idx_products_price_desc ON products (price DESC);</pre>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-600">Tip: use descriptive names that indicate table and column usage to make maintenance easier.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">Practical checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Choose the column order in composite indexes to match common WHERE and ORDER BY patterns.</li>
+        <li>Test performance before and after with EXPLAIN ANALYZE to measure real effect.</li>
+        <li>Consider concurrent index creation on very large production tables to minimize locking.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">CREATE INDEX is simple; the harder part is matching index structure to query patterns and validating the result.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

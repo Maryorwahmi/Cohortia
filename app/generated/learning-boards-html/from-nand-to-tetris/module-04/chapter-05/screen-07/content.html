@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Parser</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border">
+      <div class="text-lg font-bold text-slate-800">Parsing steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Open and read the input .asm file into lines.</li>
+        <li>Strip comments (text after //) and trim whitespace.</li>
+        <li>Skip empty lines.</li>
+        <li>Classify instructions and extract fields with accessor methods.</li>
+      </ol>
+      <div class="mt-4 p-3 rounded-lg bg-white card-border mono" style="white-space:pre-wrap;tab-size:2;font-size:13px;">
+<pre><code>def advance():
+  line = next_raw_line()
+  line = remove_comment(line).strip()
+  if not line: continue
+  if line.startswith('('): type = 'L_INSTRUCTION'
+  elif line.startswith('@'): type = 'A_INSTRUCTION'
+  else: type = 'C_INSTRUCTION'
+</code></pre>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Examples to test</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>• Leading tabs and spaces mixed with code.</li>
+        <li>• Lines like "D=M // comment" that include inline comments.</li>
+        <li>• Label lines such as "(LOOP)" that must not increment ROM address.</li>
+      </ul>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-1">Skipping comment removal is easy to miss and leads to wrong ROM addresses because labels are recorded for the next actual instruction.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,298 @@
+{
+  "course_id": "from-nand-to-tetris",
+  "course_title": "From Nand to Tetris",
+  "module_id": "module-6-vm",
+  "module_title": "Module 5",
+  "chapter_id": "project-6-vm-translator-i-stack-arithmetic-and-memory-access",
+  "chapter_title": "Project 6: VM Translator I (Stack Arithmetic and Memory Access)",
+  "chapter_summary": "Project 6 is the first part of the VM translator. You will implement a program that translates VM code to Hack assembly code. The translator handles the arithmetic and memory access commands, which are the foundation of the VM execution model.\n\n**Project 6 specification:**\n\nImplement a VM translator that accepts a `.vm` file or a directory containing `.vm` files and produces a single `.asm` file. The translator must handle:\n- Stack arithmetic: `add`, `sub`, `neg`, `eq`, `gt`, `lt`, `and`, `or`, `not`.\n- Memory access: `push` and `pop` for all segments (`constant`, `local`, `argument`, `this`, `that`, `pointer`, `temp`, `static`).\n- Program flow: `label`, `goto`, `if-goto`.\n\n**VM translator structure:**\n\nThe translator can be structured as a pipeline:\n1. **Parser:** Reads each VM command, parses it into type and arguments.\n2. **CodeWriter:** Generates the corresponding assembly code for each command.\n3. **Main:** Orchestrates the translation process, handling files and directories.\n\n**Example:**\n\nInput (`SimpleAdd.vm`):\n```\npush constant 7\npush constant 8\nadd\n```\n\nOutput (`SimpleAdd.asm`):\n```asm\n// push constant 7\n@7\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n// push constant 8\n@8\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n// add\n@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nD=D+M\nM=D\n@SP\nM=M+1\n```\n\n**Testing:**\n\nTest the VM translator with the provided test programs:\n- **SimpleAdd.vm:** Tests push constant and add.\n- **StackTest.vm:** Tests all arithmetic and comparison commands.\n- **BasicTest.vm:** Tests push and pop for all segments.\n- **PointerTest.vm:** Tests pointer manipulation.\n- **StaticTest.vm:** Tests static variables across multiple files.\n\nFor each test, compare the generated assembly with the reference output. Run the assembly through the assembler and execute it on the Computer Simulator to verify correctness.\n\n**The VM translator as a compiler backend:**\n\nThe VM translator is essentially the backend of a compiler. It takes an intermediate representation (VM code) and generates target code (assembly). This is the same role that LLVM backends play in modern compilers. Understanding the VM translator gives you insight into how compilers generate code for real hardware.",
+  "screens": [
+    {
+      "id": "screen-01",
+      "order": 1,
+      "type": "hero",
+      "template": "hero",
+      "eyebrow": "Module 6 › Chapter 5.5",
+      "title": "Project 6: VM Translator I",
+      "subtitle": "Translate stack arithmetic and memory access VM commands into Hack assembly",
+      "narration": {
+        "text": "This chapter guides you through Project 6, where you build the first VM translator to convert virtual machine commands into Hack assembly. You will learn how the VM implements stack-based arithmetic and how push and pop map into concrete memory operations. Building a translator forces you to reason about both the VM’s abstract model — a stack and segments — and the concrete hardware primitives available in the Hack platform. In practical terms you will implement a Parser that reads VM commands, a CodeWriter that emits assembly for each command, and a Main driver that handles files and directories and writes a single. asm output. Along the way you’ll test your translator using the provided programs such as SimpleAdd and StackTest and compare your output with the reference assembly. By the end you will understand the VM as a small compiler backend: why a single VM instruction expands into several assembly instructions, how the stack pointer is initialized, and how segments like local and argument map to memory. This foundation is essential: it is the bridge between high-level language constructs and hardware instructions and sets the stage for function calls in the next module.",
+        "durationSeconds": 80
+      },
+      "keyIdea": {
+        "title": "Core Aim",
+        "text": "Translate VM arithmetic and memory access commands to Hack assembly using a Parser and CodeWriter, and verify the output with provided tests."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>\n    .cohortia-bg { background: #f8fafc; }\n    .card-border { border: 1px solid rgba(226,232,240,0.9); }\n    pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }\n  </style>\n  <div class=\"flex items-center justify-between mb-4\">\n    <div>\n      <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2\">\n        <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 6</span>\n        <span>›</span>\n        <span>Chapter 5.5</span>\n        <span>›</span>\n        <span class=\"text-slate-700\">Project 6 Overview</span>\n      </div>\n      <div class=\"text-3xl font-bold leading-tight text-slate-800\">Project 6: VM Translator I</div>\n      <div class=\"text-sm text-slate-600 mt-2 max-w-prose\">Translate VM stack arithmetic and memory access commands into Hack assembly. Prepare a Parser, CodeWriter, and Main to produce a single .asm output for testing.</div>\n    </div>\n    <div class=\"text-xs bg-blue-50 text-blue-700 px-3 py-2 rounded-xl font-bold\">Interactive 16:9 Masterclass</div>\n  </div>\n\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-7/12 bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">What you will build</div>\n      <div class=\"grid grid-cols-1 gap-3\">\n        <div class=\"p-3 rounded-xl bg-gradient-to-r from-blue-50 to-white card-border\">\n          <div class=\"text-sm font-semibold text-slate-800\">Parser</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Tokenizes VM source, identifies command type and arguments so the translator can generate code.</div>\n        </div>\n        <div class=\"p-3 rounded-xl bg-gradient-to-r from-violet-50 to-white card-border\">\n          <div class=\"text-sm font-semibold text-slate-800\">CodeWriter</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Emits assembly sequences for arithmetic, logical, push, pop, and flow commands following the specification.</div>\n        </div>\n        <div class=\"p-3 rounded-xl bg-gradient-to-r from-emerald-50 to-white card-border\">\n          <div class=\"text-sm font-semibold text-slate-800\">Main</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Orchestrates file I/O, handles directories, and produces a single .asm file for the assembler and simulator.</div>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"w-5/12 flex flex-col gap-3\">\n      <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border flex-1\">\n        <div class=\"text-sm font-bold text-slate-700 mb-2\">Visual Summary</div>\n        <div class=\"flex flex-col gap-3\">\n          <div class=\"flex items-center gap-3\">\n            <svg class=\"w-6 h-6 text-blue-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M8 17l4-4 4 4m0-10l-4 4-4-4\"/></svg>\n            <div class=\"text-sm text-slate-600\">VM commands expand into multiple assembly instructions to implement stack semantics.</div>\n          </div>\n          <div class=\"flex items-center gap-3\">\n            <svg class=\"w-6 h-6 text-violet-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 7h18M3 12h18M3 17h18\"/></svg>\n            <div class=\"text-sm text-slate-600\">Testing with reference outputs ensures correctness across provided examples.</div>\n          </div>\n          <div class=\"flex items-center gap-3\">\n            <svg class=\"w-6 h-6 text-amber-500\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 8c1.657 0 3 1.343 3 3v2a3 3 0 01-6 0v-2c0-1.657 1.343-3 3-3z\"/></svg>\n            <div class=\"text-sm text-slate-600\">Project 6 is the compiler backend step that links language operations to hardware actions.</div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"bg-white rounded-xl p-3 shadow-sm card-border\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2\">Explore Key Topics</div>\n        <div class=\"grid grid-cols-3 gap-2\">\n          <div class=\"p-2 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold\">Stack Arithmetic<br><span class=\"text-[11px] font-normal text-slate-600\">Implement add, sub, neg, eq, gt, lt, and, or, not</span></div>\n          <div class=\"p-2 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold\">Memory Access<br><span class=\"text-[11px] font-normal text-slate-600\">Push/pop across all VM segments</span></div>\n          <div class=\"p-2 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold\">Testing<br><span class=\"text-[11px] font-normal text-slate-600\">Run reference comparisons and simulator execution</span></div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-02",
+      "order": 2,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Learning Objectives",
+      "title": "What you will learn in this project",
+      "subtitle": "Four clear milestones to complete Project 6",
+      "narration": {
+        "text": "These learning objectives link the project tasks to the skills you’ll demonstrate. First, you will complete the first part of the VM translator by producing a program that accepts. vm files or a directory and emits a single. asm file. This shows you can manage file input and orchestrate translation across modules. Second, you will implement stack arithmetic and memory access commands — these are the core VM primitives you must map to explicit assembly sequences. Third, you will test the translator with the supplied VM programs and compare the generated assembly with the reference outputs, learning what correct output looks like and how to debug mismatches. Fourth, you will see the VM’s role as a bridge between high-level language constructs and hardware, giving you insight into compiler backends. Each objective includes a competency milestone you can verify by running the assembler and the Computer Simulator. Together, these milestones make Project 6 both an engineering task and a conceptual lesson about abstraction layers in computing.",
+        "durationSeconds": 80
+      },
+      "keyIdea": {
+        "title": "Four Milestones",
+        "text": "Build I/O, implement commands, validate with tests, and reflect on the VM-to-hardware relationship."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 6</span>\n    <span>›</span>\n    <span>Chapter 5.5</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Learning Objectives</span>\n  </div>\n  <div class=\"text-xl font-bold text-slate-800 mb-2\">Learning Objectives — details and verification</div>\n  <div class=\"text-sm text-slate-600 mb-4\">Learn, Understand, Apply, Master</div>\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"rounded-full bg-blue-50 text-blue-700 w-9 h-9 flex items-center justify-center font-bold\">01</div>\n        <div>\n          <div class=\"text-sm font-semibold text-slate-800\">Complete the translator program</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Write a program that reads a .vm file or a directory and writes a single .asm file. This milestone proves you can handle file I/O and integration across multiple VM sources.</div>\n          <div class=\"text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider\">Verified competency milestone</div>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"rounded-full bg-violet-50 text-violet-700 w-9 h-9 flex items-center justify-center font-bold\">02</div>\n        <div>\n          <div class=\"text-sm font-semibold text-slate-800\">Implement arithmetic and memory commands</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Support add, sub, neg, eq, gt, lt, and, or, not and push/pop for all segments. This shows you can translate VM semantics into concrete sequences of assembly instructions.</div>\n          <div class=\"text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider\">Verified competency milestone</div>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"rounded-full bg-amber-50 text-amber-700 w-9 h-9 flex items-center justify-center font-bold\">03</div>\n        <div>\n          <div class=\"text-sm font-semibold text-slate-800\">Test with provided VM programs</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Use SimpleAdd, StackTest, BasicTest, PointerTest, and StaticTest. Compare your output to the reference assembly and run it in the simulator to confirm behavior.</div>\n          <div class=\"text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider\">Verified competency milestone</div>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"rounded-full bg-emerald-50 text-emerald-700 w-9 h-9 flex items-center justify-center font-bold\">04</div>\n        <div>\n          <div class=\"text-sm font-semibold text-slate-800\">Explain the VM as a backend</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Describe how VM commands map to hardware primitives, why translation expands instruction count, and how this relates to real compiler backends.</div>\n          <div class=\"text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider\">Verified competency milestone</div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-03",
+      "order": 3,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Learning Objectives — continued",
+      "title": "Skills and verification checklist",
+      "subtitle": "How to know you’ve completed each objective",
+      "narration": {
+        "text": "Use a small checklist as you implement the translator. For the Parser, verify it breaks commands into a type and up to two arguments and ignores comments and whitespace. For the CodeWriter, verify that each VM arithmetic command produces the expected assembly snippet, and that push and pop for each segment maps to the proper memory addresses or base pointers. For file handling, verify the translator accepts a single. vm file or a directory and writes one. asm file with assembly for all input files. For testing, run each provided test program, compare your assembly to the reference, then run it in the Computer Simulator to confirm runtime behavior. These verification steps are not optional; they are how you prove competency. When a mismatch appears, check the generated assembly line by line and examine how your CodeWriter mapped the VM semantics into pointer arithmetic and memory stores. That diagnostic approach will also teach you how small differences in addressing produce incorrect runtime behavior.",
+        "durationSeconds": 78
+      },
+      "keyIdea": {
+        "title": "Verification",
+        "text": "Check parser tokens, validate assembly snippets for every VM command, and run the simulator to confirm runtime correctness."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 6</span>\n    <span>›</span>\n    <span>Chapter 5.5</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Checklist</span>\n  </div>\n  <div class=\"grid grid-cols-3 gap-4 h-full\">\n    <div class=\"col-span-2 bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-800 mb-2\">Checklist — concrete tests</div>\n      <ul class=\"list-disc ml-5 text-sm text-slate-600 space-y-2\">\n        <li><strong>Parser:</strong> produces commandType, arg1, arg2 for every non-comment line.</li>\n        <li><strong>CodeWriter:</strong> emits assembly for add, sub, neg, eq, gt, lt, and, or, not, push, and pop.</li>\n        <li><strong>File handling:</strong> accepts file or directory and writes one .asm file.</li>\n        <li><strong>Testing:</strong> compare outputs for SimpleAdd, StackTest, BasicTest, PointerTest, StaticTest.</li>\n      </ul>\n      <div class=\"mt-4 text-xs text-slate-500 uppercase tracking-wider font-bold\">Tip</div>\n      <div class=\"text-sm text-slate-600 mt-2\">When comparing reference assembly, ignore comments and spacing first; focus on instruction sequences and labels for control flow and comparisons.</div>\n    </div>\n\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-800\">Mnemonic</div>\n      <div class=\"text-sm text-slate-600 mt-2\">Parser → CodeWriter → Main. Think of it as a translation pipeline: parse, translate, write.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-04",
+      "order": 4,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Core Concept",
+      "title": "What the VM translator does",
+      "subtitle": "Define the translator’s role and pipeline",
+      "narration": {
+        "text": "A VM translator converts virtual machine instructions into Hack assembly. Practically, it implements the VM’s stack and segment semantics using the limited primitives of the Hack machine: memory addresses, registers, the ALU, and conditional jumps. The translator functions like a small compiler backend: it takes an intermediate representation — the VM language — and generates target code. The typical structure is a three-stage pipeline. First, the Parser reads each. vm line, strips comments and whitespace, and extracts a command type plus arguments. This isolates syntax handling from code generation. Second, the CodeWriter receives parsed commands and emits the corresponding assembly sequences. For example, a push constant command becomes a sequence that loads an immediate into D, stores D at the address pointed to by SP, and increments SP. Third, Main coordinates file access: it accepts a single. vm file or a directory of. vm files, invokes the Parser and CodeWriter for each source file, and writes a single. asm output. A common misconception is that translation is simple line-for-line; in fact, each VM command often expands into multiple assembly instructions and sometimes needs unique labels or temporary storage. Recognizing this expansion clarifies why the translation stage must be precise and systematic.",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "Translator Pipeline",
+        "text": "Parser breaks down commands, CodeWriter emits assembly sequences, Main manages files and produces one .asm file."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-6/12 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Pipeline overview</div>\n      <div class=\"flex flex-col gap-3\">\n        <div class=\"p-3 rounded-lg bg-blue-50 text-blue-700\">Parser: tokenize and classify commands</div>\n        <div class=\"p-3 rounded-lg bg-violet-50 text-violet-700\">CodeWriter: convert parsed commands to assembly</div>\n        <div class=\"p-3 rounded-lg bg-emerald-50 text-emerald-700\">Main: file handling and single .asm output</div>\n      </div>\n      <div class=\"mt-4 text-sm text-slate-600\">Common pitfall: treating translation as one-to-one mapping. Instead, plan for multi-instruction expansion and unique label generation for comparisons and flow commands.</div>\n    </div>\n\n    <div class=\"w-6/12 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Annotation: why expansion happens</div>\n      <div class=\"grid grid-cols-1 gap-3 flex-1\">\n        <div class=\"p-3 rounded-lg bg-white card-border\">\n          <div class=\"text-sm font-semibold text-slate-800\">Example reason</div>\n          <div class=\"text-sm text-slate-600 mt-1\">A single VM add must: pop two values from the stack, perform ALU addition, push the result. Hack lacks native push/pop, so the translator emits several instructions.</div>\n        </div>\n        <div class=\"p-3 rounded-lg bg-white card-border\">\n          <div class=\"text-sm font-semibold text-slate-800\">Label management</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Comparison commands require unique labels for branching. The CodeWriter must create per-command unique symbols to avoid collisions across files.</div>\n        </div>\n      </div>\n      <div class=\"mt-4\">\n        <div class=\"rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Key Takeaway</div>\n          <p class=\"text-xs font-medium text-slate-800\">Translation is a structured pipeline that systematically replaces VM abstractions with concrete assembly patterns.</p>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-05",
+      "order": 5,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "architecture",
+      "eyebrow": "Process Flow",
+      "title": "Parser, CodeWriter, Main — responsibilities",
+      "subtitle": "Design the translator components and their interactions",
+      "narration": {
+        "text": "Designing the translator into Parser, CodeWriter, and Main splits responsibilities and makes the program maintainable. The Parser focuses only on text: it reads lines, strips comments, and identifies the command type (arithmetic, push, pop, label, goto, if-goto) and up to two arguments. Keeping parsing logic separate reduces errors when adding new commands. The CodeWriter is the heart of translation. It exposes methods to write arithmetic commands, write push/pop for segments, and write program flow commands. For arithmetic, CodeWriter must emit correct pop/push sequences and create unique labels for comparisons. For memory access, it must calculate addresses for base-pointer segments versus direct segments like temp and pointer. Main ties everything together: it iterates input files, gives each line to the Parser, and calls the CodeWriter to append assembly to the output buffer. A common implementation detail is to create an output file with a file-level bootstrap if needed; for Project 6 static initialization of SP is essential in some test harnesses. Modular design makes testing simpler: you can unit-test the Parser on strings and the CodeWriter on parsed command objects. Misconception check: do not let Main emit translation logic; keep it orchestration-only to preserve separation of concerns.",
+        "durationSeconds": 102
+      },
+      "keyIdea": {
+        "title": "Component Roles",
+        "text": "Keep parsing, code generation, and file orchestration separate to simplify testing and correctness."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"grid grid-cols-3 gap-4 h-full\">\n    <div class=\"col-span-2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-3\">Component responsibilities</div>\n      <div class=\"flex gap-3\">\n        <div class=\"w-1/3 p-3 rounded-lg bg-blue-50 text-blue-700\">\n          <div class=\"font-semibold\">Parser</div>\n          <div class=\"text-sm text-slate-600 mt-2\">Tokenizes commands, removes comments, returns type, arg1, arg2.</div>\n        </div>\n        <div class=\"w-1/3 p-3 rounded-lg bg-violet-50 text-violet-700\">\n          <div class=\"font-semibold\">CodeWriter</div>\n          <div class=\"text-sm text-slate-600 mt-2\">Emits assembly sequences for each parsed command, maintains label counters for comparisons.</div>\n        </div>\n        <div class=\"w-1/3 p-3 rounded-lg bg-amber-50 text-amber-700\">\n          <div class=\"font-semibold\">Main</div>\n          <div class=\"text-sm text-slate-600 mt-2\">Traverses files, uses Parser and CodeWriter, writes the final .asm file.</div>\n        </div>\n      </div>\n      <div class=\"mt-4 text-sm text-slate-600\">Testing tip: feed the Parser controlled strings with comments and whitespace to ensure it returns the correct command type and arguments. Then feed those parsed objects into the CodeWriter and compare the emitted assembly with reference snippets.</div>\n    </div>\n\n    <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Example interface</div>\n      <pre class=\"bg-slate-50 p-3 rounded-md text-sm\"><code>// Parser returns an object like\n{ commandType: 'C_PUSH', arg1: 'constant', arg2: 7 }\n\n// CodeWriter provides methods\nwritePushPop(commandType, segment, index)\nwriteArithmetic(command)\n</code></pre>\n    </div>\n  </div>\n<style>pre, code, [class*=\"code\"], [class*=\"editor\"], [class*=\"snippet\"], [class*=\"source\"] { white-space: pre-wrap; tab-size: 2; }</style></div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-06",
+      "order": 6,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Definition",
+      "title": "Stack arithmetic commands",
+      "subtitle": "Implement add, sub, neg, eq, gt, lt, and, or, not",
+      "narration": {
+        "text": "Stack arithmetic commands operate on values on the VM stack. They fall into unary operations like neg and not, binary arithmetic or logical operations like add, sub, and, or, and comparison operations like eq, gt, lt. Implementing them requires a consistent pattern: pop operand(s) from the stack into registers, perform the ALU operation, then push the result back and update SP. For binary ops you will pop the top value into D, decrement SP again, compute D op M where M points to the new top, store the result at that address, and increment SP. For unary ops you can operate directly on the top stack element. Comparisons are trickier: you must compute the difference, then set the result to true (usually -1) or false (0) using conditional jumps and unique labels to avoid name clashes. A common misconception is to try to perform comparisons without creating unique labels; collisions will corrupt behavior when multiple comparisons exist. Example: the VM add command expands into about seven assembly instructions that implement two pops, an addition, and a push. Precise stack discipline and label uniqueness are the two concerns that must pass your tests.",
+        "durationSeconds": 105
+      },
+      "keyIdea": {
+        "title": "Stack Patterns",
+        "text": "Follow the pop-compute-push pattern for each arithmetic command and ensure unique labels for comparisons."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Operation patterns</div>\n      <div class=\"space-y-3 text-sm text-slate-600\">\n        <div><strong>Binary op (add/sub/and/or):</strong> pop y, pop x, compute x op y, push result.</div>\n        <div><strong>Unary op (neg/not):</strong> pop x or read top, compute op, write back.</div>\n        <div><strong>Comparison (eq/gt/lt):</strong> pop y, pop x, compute x-y, use conditional jump to write -1 or 0 and produce unique labels.</div>\n      </div>\n      <div class=\"mt-4\">\n        <div class=\"rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1\">Common mistake</div>\n          <p class=\"text-xs font-medium text-slate-800\">Reusing fixed label names across comparisons causes collisions; always use a counter or file-scoped prefix for labels.</p>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Concrete example: add</div>\n      <pre class=\"bg-slate-50 p-3 rounded-md text-sm\"><code>// add expands approximately to:\n@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nD=D+M\nM=D\n@SP\nM=M+1\n</code></pre>\n      <div class=\"text-sm text-slate-600 mt-3\">This sequence pops two values, adds them in D, stores the sum, and increments SP. Ensure your CodeWriter emits this pattern for every add command.</div>\n    </div>\n  </div>\n<style>pre, code, [class*=\"code\"], [class*=\"editor\"], [class*=\"snippet\"], [class*=\"source\"] { white-space: pre-wrap; tab-size: 2; }</style></div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-07",
+      "order": 7,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "code_walkthrough",
+      "eyebrow": "Code Walkthrough",
+      "title": "Memory access: push and pop",
+      "subtitle": "Translate push/pop for all VM segments with examples",
+      "narration": {
+        "text": "Memory access commands move values between the stack and VM segments. The translator must support push and pop across constant, local, argument, this, that, pointer, temp, and static. Each segment maps differently: constant is immediate; local, argument, this, and that use base pointers stored in R A M; temp and pointer map to fixed R A M addresses; static maps to a file-level variable region. Implement push constant by loading the immediate into D, storing it at the address SP points to, and incrementing SP. Implement pop by decrementing SP, computing the target address, and storing the popped value there. A concrete example from the specification: pushing constants 7 and 8 then adding yields the provided SimpleAdd. vm and the reference assembly. Your CodeWriter must emit the identical sequence for push constant 7, push constant 8, and add to pass the SimpleAdd test. A frequent error is mishandling base-pointer addressing: when translating push local i, compute the base from LCL plus index before accessing memory. For static variables, use a symbol incorporating the file name to avoid collisions across files. Testing each segment with BasicTest and StaticTest will reveal addressing errors quickly.",
+        "durationSeconds": 105
+      },
+      "keyIdea": {
+        "title": "Segment Mapping",
+        "text": "Each VM segment has a distinct translation pattern: immediate, base-pointer, fixed-address, or file-scoped static region; implement push/pop accordingly."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Segment categories</div>\n      <div class=\"grid grid-cols-1 gap-2 text-sm text-slate-600\">\n        <div class=\"p-2 rounded-md bg-blue-50\">constant — immediate value loaded into D, then pushed</div>\n        <div class=\"p-2 rounded-md bg-violet-50\">local/argument/this/that — use base pointer (LCL/ARG/THIS/THAT) + index</div>\n        <div class=\"p-2 rounded-md bg-amber-50\">pointer/temp — fixed RAM addresses (pointer maps to THIS/THAT base, temp is 5..12)</div>\n        <div class=\"p-2 rounded-md bg-emerald-50\">static — file-scoped symbols, one variable per index</div>\n      </div>\n      <div class=\"mt-4 text-sm text-slate-600\">Remember: computing addresses correctly for base-pointer segments is the most common source of bugs. Use temporary registers only when needed and ensure SP is adjusted exactly once per push or pop.</div>\n    </div>\n\n    <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Concrete example: SimpleAdd</div>\n      <div class=\"text-sm text-slate-600 mb-2\">Input VM:</div>\n      <pre class=\"bg-slate-50 p-3 rounded-md text-sm\"><code>push constant 7\npush constant 8\nadd\n</code></pre>\n      <div class=\"text-sm text-slate-600 mb-2\">Reference assembly excerpt (must match your output):</div>\n      <pre class=\"bg-slate-50 p-3 rounded-md text-sm\"><code>// push constant 7\n@7\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n// push constant 8\n@8\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n// add\n@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nD=D+M\nM=D\n@SP\nM=M+1\n</code></pre>\n    </div>\n  </div>\n<style>pre, code, [class*=\"code\"], [class*=\"editor\"], [class*=\"snippet\"], [class*=\"source\"] { white-space: pre-wrap; tab-size: 2; }</style></div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-08",
+      "order": 8,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Translating comparisons (eq, gt, lt)",
+      "subtitle": "Implement branching with unique labels and test behavior",
+      "narration": {
+        "text": "Comparison commands produce boolean results based on two stack values. To translate eq, gt, and lt you must generate assembly that: pops the top two values, computes their difference, and uses conditional jumps to set the stack cell to true or false. The translator cannot reuse fixed labels because multiple comparisons in one program would collide. Instead, the CodeWriter should maintain a running counter to create unique labels per comparison, for example LABEL_TRUE_3 and LABEL_END_3. The pattern is: compute x-y into D, jump to LABEL_TRUE_n on the appropriate condition, otherwise fall through and write 0, then jump to LABEL_END_n; at LABEL_TRUE_n write -1 and then LABEL_END_n continues normal execution. A point of confusion is the sign of true: the Hack convention used in the reference outputs is to store -1 for true. Testing with StackTest. vm verifies correct behavior for equality and ordering. Misconception check: comparing unsigned values is not required here; assume two’s complement arithmetic and use the ALU subtraction followed by the standard conditional jumps provided by Hack assembly. Always run comparisons within tests that include multiple comparison commands to ensure label uniqueness.",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "Unique-label comparisons",
+        "text": "Use a counter to create unique labels for each comparison so branching sequences do not collide across commands."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"flex h-full gap-4\">\n    <div class=\"w-2/3 bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Comparison translation pattern</div>\n      <div class=\"text-sm text-slate-600 space-y-2\">\n        <div>1. Pop y into D.</div>\n        <div>2. Decrement SP and refer to x in M, compute D = x - y.</div>\n        <div>3. Use conditional jump (JEQ/JGT/JLT) to a unique true-label.</div>\n        <div>4. Write 0 for false, jump to end-label. At true-label write -1, then continue.</div>\n      </div>\n      <div class=\"mt-4 text-xs text-slate-500 uppercase tracking-wider font-bold\">Implementation tip</div>\n      <div class=\"text-sm text-slate-600 mt-2\">Maintain an internal counter like compareCount and append it to label names so that each eq/gt/lt emits distinct labels.</div>\n    </div>\n\n    <div class=\"w-1/3 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Quick analogy</div>\n      <div class=\"text-sm text-slate-600\">Think of each comparison as a mini subroutine that needs its own local labels. Without unique labels, one comparison could jump into another’s code and break logic.</div>\n      <div class=\"mt-4\">\n        <div class=\"rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1\">Common pitfall</div>\n          <p class=\"text-xs font-medium text-slate-800\">Reusing 'TRUE' or 'END' labels globally causes incorrect branching when multiple comparisons exist.</p>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-09",
+      "order": 9,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "comparison",
+      "eyebrow": "Comparison",
+      "title": "Handling all VM segments",
+      "subtitle": "Address computation patterns for every segment",
+      "narration": {
+        "text": "Translating push and pop requires a clear mapping for each VM segment. The specification groups segments into categories. Constant is the simplest: push constant i loads the immediate and writes it to the stack. Local, argument, this, and that are base-pointer segments: their addresses are computed as base (LCL, ARG, THIS, THAT) plus index. Your translator must compute base+index and then either read from that address for push or write to it for pop. Temp and pointer are fixed-address segments: temp is R A M[5] through R A M[12] and pointer maps to THIS and THAT base addresses; these are addressed directly and do not require base-pointer arithmetic. Static variables live in the file-scoped region: use a symbol that combines the file name and index so that static variables in different files do not collide. A common misconception is to treat static like temp; static requires a symbolic name because it must survive across files in the same translation unit. When implementing pop, remember to decrement SP exactly once and to compute the destination address before writing the popped value. Use BasicTest and PointerTest to validate each mapping until behavior matches the reference output.",
+        "durationSeconds": 102
+      },
+      "keyIdea": {
+        "title": "Segment Addressing",
+        "text": "Implement distinct address-computation rules for constant, base-pointer segments, fixed segments, and file-scoped static variables."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border h-full flex flex-col\">\n    <div class=\"text-sm font-bold text-slate-700 mb-3\">Segment address patterns</div>\n    <div class=\"grid grid-cols-2 gap-3 flex-1\">\n      <div class=\"p-3 rounded-lg bg-blue-50 text-blue-700\">\n        <div class=\"font-semibold\">Constant</div>\n        <div class=\"text-sm text-slate-600 mt-1\">Immediate value loaded into D, then pushed to *SP.</div>\n      </div>\n\n      <div class=\"p-3 rounded-lg bg-violet-50 text-violet-700\">\n        <div class=\"font-semibold\">Local / Argument / This / That</div>\n        <div class=\"text-sm text-slate-600 mt-1\">Compute address: base pointer + index, then read or write via that address.</div>\n      </div>\n\n      <div class=\"p-3 rounded-lg bg-amber-50 text-amber-700\">\n        <div class=\"font-semibold\">Temp / Pointer</div>\n        <div class=\"text-sm text-slate-600 mt-1\">Fixed RAM addresses: temp is 5..12, pointer maps to THIS or THAT base pointers.</div>\n      </div>\n\n      <div class=\"p-3 rounded-lg bg-emerald-50 text-emerald-700\">\n        <div class=\"font-semibold\">Static</div>\n        <div class=\"text-sm text-slate-600 mt-1\">File-scoped symbol like FileName.index to avoid collisions across files in one directory translation.</div>\n      </div>\n    </div>\n    <div class=\"mt-4 text-sm text-slate-600\">Testing strategy: instrument translations to show computed addresses for a sample index and compare against expected addresses in BasicTest. For static variables, confirm symbols are unique per file and persist across operations.</div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-10",
+      "order": 10,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Testing",
+      "title": "Testing the translator with provided programs",
+      "subtitle": "Run reference checks and simulator execution",
+      "narration": {
+        "text": "Testing is central to confirming your translator's correctness. Use the provided test programs and follow two verification steps. First, generate the. asm output from a test VM file and compare it to the reference assembly. When you compare, ignore comments and whitespace differences initially; focus on instruction sequences, labels, and memory accesses. If the assembly diverges, inspect the segments and label naming conventions. Second, assemble the generated. asm and run it in the Computer Simulator. Observing the runtime behavior often reveals stack mismanagement, incorrect pointer arithmetic, or wrong label jumps that line-by-line comparison might miss. Test programs to run include SimpleAdd (push constant and add), StackTest (covers arithmetic and comparison commands), BasicTest (push/pop across segments), PointerTest (pointer segment behavior), and StaticTest (static variables across files). For each test, confirm the simulator’s final memory and stack state matches expectations. When a test fails, create a minimal repro that isolates the failing command and iterate on the CodeWriter until both assembly and runtime output match the reference. Testing the translator with provided programs means compare assembly outputs to references, assemble and run in the simulator, and iterate on mismatches until behavior matches expected results.. In practical terms, run reference checks and simulator execution. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 104
+      },
+      "keyIdea": {
+        "title": "Test-driven translation",
+        "text": "Compare assembly outputs to references, assemble and run in the simulator, and iterate on mismatches until behavior matches expected results."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Test workflow</div>\n      <ol class=\"list-decimal ml-5 text-sm text-slate-600 space-y-2\">\n        <li>Run translator on a test VM to produce .asm.</li>\n        <li>Diff your .asm against the reference assembly.</li>\n        <li>Assemble and run on the Computer Simulator.</li>\n        <li>Inspect memory/stack to validate runtime behavior.</li>\n        <li>Fix CodeWriter patterns and repeat.</li>\n      </ol>\n    </div>\n    <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border\">\n      <div class=\"text-sm font-bold text-slate-700 mb-2\">Provided test programs</div>\n      <ul class=\"text-sm text-slate-600 space-y-2\">\n        <li><strong>SimpleAdd.vm</strong> — push constant, add.</li>\n        <li><strong>StackTest.vm</strong> — arithmetic and comparisons.</li>\n        <li><strong>BasicTest.vm</strong> — push/pop across segments.</li>\n        <li><strong>PointerTest.vm</strong> — pointer behavior for THIS/THAT.</li>\n        <li><strong>StaticTest.vm</strong> — static vars across files.</li>\n      </ul>\n      <div class=\"mt-4 text-xs text-slate-500 uppercase tracking-wider font-bold\">Debug tip</div>\n      <div class=\"text-sm text-slate-600 mt-2\">When an assembly diff is large, isolate a single command sequence and unit-test the CodeWriter output for that command until it matches the reference exactly.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-11",
+      "order": 11,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "architecture",
+      "eyebrow": "Conceptual",
+      "title": "The VM translator as a compiler backend",
+      "subtitle": "Trade-offs: expansion, abstraction, and SP initialization",
+      "narration": {
+        "text": "Project 6 demonstrates how a higher-level virtual machine maps down to hardware-level instructions. One notable effect is code expansion: a single VM command often becomes multiple assembly instructions. This expansion is necessary because the Hack machine provides only low-level operations — memory access, register operations, ALU arithmetic, and jumps — and no native stack semantics. The translator implements the stack with explicit loads, stores, and pointer arithmetic. This seems inefficient at first, but it is a trade-off that provides portability and a compact intermediate language that is easy for compilers to generate. Real systems mitigate expansion with optimizations; the static Hack translator does not, but the conceptual lesson is the same. Another crucial detail is the stack pointer initialization: SP is set to 256 because the addresses below 256 are reserved for special pointers and temp segments (for example, R A M[0] holds SP, R A M[1..4] for LCL, ARG, THIS, THAT, and R A M[5..12] for temp). Reserving the first 256 addresses gives a predictable layout for segments and leaves the stack starting at a well-known address. Reflect: how does this static layout simplify translation and testing, and what limits would real systems need to address?",
+        "durationSeconds": 108
+      },
+      "keyIdea": {
+        "title": "Backend trade-offs",
+        "text": "The VM abstracts hardware for ease of compilation but expands into many assembly instructions; initialization of SP at 256 reserves special RAM ranges used by the VM."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"bg-white rounded-2xl p-4 shadow-sm card-border h-full\">\n    <div class=\"text-sm font-bold text-slate-700 mb-2\">Why the VM exists</div>\n    <div class=\"text-sm text-slate-600 mb-3\">The VM is a compact intermediate representation that hides hardware details from higher-level code generators. The translator implements those abstractions with explicit instructions.</div>\n    <div class=\"grid grid-cols-2 gap-4\">\n      <div class=\"p-3 rounded-lg bg-emerald-50 text-emerald-700\">\n        <div class=\"font-semibold\">Why expansion happens</div>\n        <div class=\"text-sm text-slate-600 mt-1\">VM operations like push/pop require multiple primitive instructions to implement stack semantics on hardware that lacks them.</div>\n      </div>\n\n      <div class=\"p-3 rounded-lg bg-blue-50 text-blue-700\">\n        <div class=\"font-semibold\">Stack pointer initialization</div>\n        <div class=\"text-sm text-slate-600 mt-1\">SP is initialized to 256 so addresses below are reserved for special pointers and temp registers. This deterministic layout simplifies translation and testing.</div>\n      </div>\n    </div>\n    <div class=\"mt-4 text-sm text-slate-600\">Assessment idea from the chapter: explain why the assembly expansion is necessary and whether the VM approach is inefficient. The answer: expansion is required because higher-level VM abstractions do not have direct hardware support; efficiency can be regained through optimizations or JITs in more advanced systems, but the VM’s value is portability and simplicity for compiler front-ends.</div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-12",
+      "order": 12,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "What to Remember",
+      "title": "Key Concepts — Part 1",
+      "subtitle": "Three core ideas to retain",
+      "narration": {
+        "text": "Keep these core ideas front of mind as you implement Project 6. First, the translator is a pipeline: Parser, CodeWriter, and Main separate concerns and make code testable. Second, each VM command expands into multiple Hack instructions because the VM’s stack and segment abstractions must be implemented using low-level primitives. Third, segment addressing matters: constant, base-pointer segments, fixed-address segments, and file-scoped statics require different translation rules. Use the provided tests to validate each mapping and make label uniqueness and address calculation the first rules you check when debugging. Key Concepts — Part 1 means parser/codewriter/main, multi-instruction expansion, and careful segment addressing are the heart of project 6.. In practical terms, three core ideas to retain. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 78
+      },
+      "keyIdea": {
+        "title": "Summary",
+        "text": "Parser/CodeWriter/Main, multi-instruction expansion, and careful segment addressing are the heart of Project 6."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 6</span>\n    <span>›</span>\n    <span>Chapter 5.5</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Key Concepts</span>\n  </div>\n  <div class=\"grid grid-cols-3 gap-4\">\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-blue-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 7h18M3 12h18M3 17h18\"/></svg>\n        <div class=\"text-sm font-semibold\">Pipeline structure</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Parser, CodeWriter, and Main split parsing, generation, and orchestration.</div>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-violet-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 8c1.657 0 3 1.343 3 3v2a3 3 0 01-6 0v-2c0-1.657 1.343-3 3-3z\"/></svg>\n        <div class=\"text-sm font-semibold\">Instruction expansion</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Each VM command maps to multiple assembly instructions to implement stack semantics.</div>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-emerald-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\"/></svg>\n        <div class=\"text-sm font-semibold\">Segment addressing</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Handle constant, base-pointer, temp/pointer, and static with their respective addressing rules.</div>\n    </div>\n  </div>\n  <div class=\"mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n    <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Final takeaway</div>\n    <p class=\"text-xs font-medium text-slate-800\">Project 6 trains you to translate abstract VM operations into concrete machine actions reliably and testably.</p>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-13",
+      "order": 13,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "What to Remember",
+      "title": "Key Concepts — Part 2",
+      "subtitle": "Implementation notes and testing reminders",
+      "narration": {
+        "text": "As you implement Project 6, remember three practical notes. First, comparisons require unique labels; use a counter or file prefix. Second, initialize the stack pointer to 256 so reserved R A M addresses below it can hold pointers and temp segments as specified. Third, test often: diff generated assembly against the reference, then run the assembled code in the Computer Simulator to validate runtime behavior. These concrete practices will reduce debugging time and ensure your translator behaves like the reference implementation. Key Concepts — Part 2 means use unique labels for comparisons, initialize sp to 256, and validate both assembly and runtime behavior with the provided tests.. In practical terms, implementation notes and testing reminders. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 74
+      },
+      "keyIdea": {
+        "title": "Practical Notes",
+        "text": "Use unique labels for comparisons, initialize SP to 256, and validate both assembly and runtime behavior with the provided tests."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <div class=\"grid grid-cols-3 gap-4\">\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-blue-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 7h18M3 12h18M3 17h18\"/></svg>\n        <div class=\"text-sm font-semibold\">Unique labels</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Create per-comparison labels with a counter to avoid collisions.</div>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-amber-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 8c1.657 0 3 1.343 3 3v2a3 3 0 01-6 0v-2c0-1.657 1.343-3 3-3z\"/></svg>\n        <div class=\"text-sm font-semibold\">SP = 256</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Initialize SP at 256 so RAM below that holds reserved pointers and temp segment addresses.</div>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 shadow-sm card-border\">\n      <div class=\"flex items-center gap-2 mb-2\">\n        <svg class=\"w-6 h-6 text-emerald-600\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\"/></svg>\n        <div class=\"text-sm font-semibold\">Test often</div>\n      </div>\n      <div class=\"text-sm text-slate-600\">Diff outputs and run the simulator; isolate failing commands to iterate on the CodeWriter implementation.</div>\n    </div>\n  </div>\n  <div class=\"mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n    <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Closing reflection</div>\n    <p class=\"text-xs font-medium text-slate-800\">Project 6 trains you to make the VM concrete: accurate address computation, disciplined stack updates, and careful label management are the keys to success.</p>\n  </div>\n</div>",
+        "css": ""
+      }
+    }
+  ],
+  "module_number": 5,
+  "chapter_number": 5,
+  "presentation_mode": "lab_walkthrough",
+  "main_diagram_requested": false,
+  "ai_generation_note": "Create a project walkthrough showing the VM translator architecture. Show the parser reading VM commands and extracting fields. Show the code writer generating assembly for each command. Show the testing process with SimpleAdd, StackTest, BasicTest, PointerTest, and StaticTest. Show the comparison with reference output. Show the VM translator as a bridge between VM code and hardware. End with a reflection: \"What would a VM translator for a real processor (like x86 or ARM) look like?\"\n\n---",
+  "course_level": "intermediate"
+}

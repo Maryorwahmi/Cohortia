@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hash Index</div>
+      <div class="text-sm font-semibold text-slate-800 mt-2">Best for exact equality</div>
+      <div class="text-xs text-slate-600 mt-2">Faster for = lookups in some cases but lacks range and ORDER BY support and had limitations in PG12.</div>
+      <div class="mt-3 text-xs text-slate-600">Example:
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:11px; margin:0;">CREATE INDEX idx_products_name_hash ON products USING HASH (product_name);</pre>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">GiST Index</div>
+      <div class="text-sm font-semibold text-slate-800 mt-2">Flexible for spatial and range types</div>
+      <div class="text-xs text-slate-600 mt-2">Handle geometric data, ranges, and some full-text needs where operator classes are supported.</div>
+      <div class="mt-3 text-xs text-slate-600">Use case: indexing POINT or POLYGON columns for spatial queries.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">GIN Index</div>
+      <div class="text-sm font-semibold text-slate-800 mt-2">For multi-valued columns like JSONB and arrays</div>
+      <div class="text-xs text-slate-600 mt-2">Maps values to locations; excellent for containment and membership queries in JSONB or array columns.</div>
+      <div class="mt-3 text-xs text-slate-600">Example:
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:11px; margin:0;">CREATE INDEX idx_products_details_gin ON products USING GIN (product_details);</pre>
+      </div>
+    </div>
+
+    <div class="col-span-3 mt-4 rounded-xl p-3 bg-slate-50 border border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Choosing among types</div>
+      <div class="text-sm text-slate-600 mt-2">Match the index to the query pattern: equality only → consider Hash; complex spatial or range queries → GiST; multi-value containment → GIN. Always test with EXPLAIN ANALYZE to observe how the planner uses the index and to compare maintenance costs.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+      <div class="text-2xl font-bold text-slate-800">Batching: Static vs Dynamic</div>
+      <div class="text-sm text-slate-600 mt-2">Understand the trade-offs and how material reuse enables batching.</div>
+
+      <div class="mt-6 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-white p-4 card-border">
+          <div class="font-semibold text-slate-800">Static Batching</div>
+          <div class="text-sm text-slate-600 mt-2">For objects marked Static. Combines meshes at build time to reduce draw calls, ideal for immovable level geometry. Watch memory usage.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-4 card-border">
+          <div class="font-semibold text-slate-800">Dynamic Batching</div>
+          <div class="text-sm text-slate-600 mt-2">For small moving objects sharing a material and below vertex limits. Helps CPU-side draw call overhead but has constraints.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-4 card-border">
+          <div class="font-semibold text-slate-800">Material Reuse</div>
+          <div class="text-sm text-slate-600 mt-2">Batching only works when objects share materials. Consolidate textures into atlases and reuse shaders to maximize batching benefit.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white p-5 card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <div class="text-sm text-slate-600 mt-3">A large furnished hall: mark fixed furniture and architectural detail as Static for static batching. For many identical moving coins, use dynamic batching if they meet limits and share a material.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3 flex-grow">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Validation</div>
+            <div class="text-sm text-slate-700 mt-2">Before and after batching, inspect draw call counts in the Profiler's Rendering section to see CPU savings.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="font-semibold text-slate-800">Common mistake</div>
+            <div class="text-sm text-slate-700 mt-2">Assuming GPU cost is reduced by batching. Batching reduces CPU overhead; heavy shaders and many triangles still tax the GPU.</div>
+          </div>
+
+          <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Batching reduces draw calls and CPU cost but must be combined with shader and triangle optimizations for full benefit.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Deadlock Patterns</div>
+      <ol class="list-decimal pl-5 text-slate-600">
+        <li class="mb-2">Establish a global order for mutex acquisition and follow it everywhere.</li>
+        <li class="mb-2">Use std::lock(m1, m2, ...) to acquire multiple mutexes atomically.</li>
+        <li class="mb-2">Use try_lock or timed try_lock to attempt and back off instead of blocking forever.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">Example: if you always lock mutex A then B, no two threads can deadlock by reversing the order.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">std::lock example</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;">std::mutex m1, m2;
+
+void transfer() {
+  std::lock(m1, m2); // acquires both without deadlock
+  std::lock_guard&lt;std::mutex&gt; lk1(m1, std::adopt_lock);
+  std::lock_guard&lt;std::mutex&gt; lk2(m2, std::adopt_lock);
+  // safe to work with both resources
+}</pre>
+      <div class="mt-3 text-sm text-slate-600">std::adopt_lock tells lock_guard that the mutexes are already locked by std::lock. This prevents a deadlock in many multi-mutex scenarios.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

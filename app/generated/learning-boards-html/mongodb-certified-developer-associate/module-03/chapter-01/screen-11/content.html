@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Combine Operators</span>
+  </div>
+  <div class="bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full grid grid-cols-2 gap-4">
+    <div>
+      <h3 class="text-xl font-bold text-slate-800">Stepwise construction</h3>
+      <p class="text-sm text-slate-600 mt-2">Build queries iteratively: comparisons, then sets, then element checks, and finally logical grouping.</p>
+      <div class="mt-4 bg-slate-50 p-3 rounded border border-[rgba(226,232,240,0.9)]">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;" class="text-sm text-slate-800">// Step 1: price filter
+{ "price": { "$gt": 100, "$lt": 500 } }
+
+// Step 2: add categories
+{ "price": { "$gt": 100, "$lt": 500 }, "category": { "$in": ["Electronics","Home Goods"] } }
+
+// Step 3: add discount logic as a branch
+{ "$and": [
+  { "price": { "$gt": 100, "$lt": 500 } },
+  { "category": { "$in": ["Electronics","Home Goods"] } },
+  { "$or": [ { "discount": { "$exists": false } }, { "discount": { "$lt": 0.10 } } ] }
+] }</pre>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3">
+      <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-1">This pattern finds products priced between 100 and 500, in two categories, and either with no discount field or a discount below 10%.</p>
+      </div>
+      <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-600">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common pitfall</div>
+        <p class="text-sm text-slate-700 mt-1">Placing the discount check at top-level rather than inside the $and or $or can change which products are returned. Test each step.</p>
+      </div>
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Compose queries incrementally and run them against sample data to verify the logical grouping behaves as intended.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

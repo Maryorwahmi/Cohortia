@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Lab</span>
+    </div>
+    <div class="flex gap-6 h-[calc(100%-64px)]">
+      <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-lg font-bold text-slate-800">Starter configuration (paste into router)</div>
+        <pre class="rounded-lg bg-slate-900 text-green-200 p-3 mt-3"><code>Router(config)# snmp-server community cohortia_ro RO
+Router(config)# snmp-server host 192.168.1.100 traps version 2c cohortia_ro
+Router(config)# snmp-server enable traps
+
+Router(config)# ip flow-export version 9
+Router(config)# ip flow-export destination 192.168.1.100 2055
+Router(config)# ip flow-cache timeout active 1
+Router(config)# ip flow-cache timeout inactive 15
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip flow ingress
+Router(config-if)# exit
+
+Router(config)# logging host 192.168.1.100
+Router(config)# logging trap informational
+
+Router(config)# ip sla 10
+Router(config-ip-sla)# icmp-echo 172.16.1.5 source-interface GigabitEthernet0/1
+Router(config-ip-sla)# threshold 200
+Router(config-ip-sla)# frequency 60
+Router(config-ip-sla)# exit
+Router(config)# ip sla schedule 10 life forever start-time now</code></pre>
+      </div>
+      <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Verification checklist</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-700">
+          <li>show snmp — confirm community or SNMPv3 user and traps enabled.</li>
+          <li>show ip flow export — verify exporter destination and statistics.</li>
+          <li>show logging — confirm syslog host and trap level.</li>
+          <li>show ip sla summary and show ip sla statistics 10 — confirm the probe is scheduled and reporting.</li>
+        </ul>
+        <div class="mt-4 p-3 bg-amber-50 rounded-lg">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Lab note</div>
+          <div class="text-xs text-slate-700 mt-2">If the collector shows no records, verify reachability and ACLs; for NetFlow ensure the monitored interface is carrying traffic and ip flow is applied.</div>
+        </div>
+        <div class="mt-auto pt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Follow the checklist, verify with show commands, and correlate collector data to confirm successful telemetry flow.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

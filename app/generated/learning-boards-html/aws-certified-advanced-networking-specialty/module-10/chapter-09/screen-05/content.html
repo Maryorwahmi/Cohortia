@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-800">CloudWatch Metrics for ALBs</div>
+      <div class="text-sm text-slate-600 mt-3">Use grouped metrics to pinpoint whether the load balancer or targets are the source of errors.</div>
+
+      <div class="mt-5 grid gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">HTTPCode_ELB_5XX_Count — errors from the ALB itself, often no healthy targets.</div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-700">HTTPCode_Target_5XX_Count — backend application errors; check application logs and resource usage.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">TargetConnectionErrorCount — connection failures between ALB and targets; check SGs and NACLs.</div>
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-700">HealthyHostCount / UnHealthyHostCount — fast indicator whether targets pass health checks.</div>
+      </div>
+
+      <div class="mt-5">
+        <div class="text-sm font-bold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">If HTTPCode_ELB_5XX_Count spikes and UnHealthyHostCount increases, check the target group. If the target returns 502 on health checks, inspect the service and its logs.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Quick metric comparison</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-1">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-bold text-slate-800">When ELB metric up</div>
+          <div class="text-sm text-slate-600 mt-2">Suspect load balancer-level issue or zero healthy targets.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-bold text-slate-800">When Target metric up</div>
+          <div class="text-sm text-slate-600 mt-2">Suspect backend application errors or resource exhaustion.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-bold text-slate-800">High Latency</div>
+          <div class="text-sm text-slate-600 mt-2">Investigate target performance, threads, DB calls, or network congestion.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-bold text-slate-800">TLS negotiation errors</div>
+          <div class="text-sm text-slate-600 mt-2">For HTTPS, ClientTLSNegotiationErrorCount shows handshake problems between client and ALB.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro-tip</div>
+        <div class="text-sm text-slate-600 mt-2">Always correlate at least two metrics before changing infrastructure: a single spike rarely tells the full story.</div>
+      </div>
+    </div>
+  </div>
+</div>

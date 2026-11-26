@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}.code{background:#0f172a;color:#e6eef8;padding:10px;border-radius:.5rem;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:0.9rem}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Comprehensive Lab</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 shadow-sm card overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Recommended command sequence</div>
+      <div class="mt-3 code">
+<pre><code># Full Nmap discovery
+nmap -sS -sV -O -A -p- &lt;target_IP&gt;
+
+# If SMB found
+enum4linux -a &lt;target_IP&gt;
+
+# DNS zone transfer (if DNS server identified)
+dig axfr @&lt;DNS_server_IP&gt; &lt;domain&gt;
+
+# SNMP check
+snmpwalk -c public -v 1 &lt;target_IP&gt;
+
+# Web directory brute-force
+gobuster dir -u http://&lt;target_IP&gt; -w /usr/share/wordlists/dirb/common.txt</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-700">Follow the output to build a prioritized verification list: which ports require banner grabs, which services need credential checks, and which findings could cause impact if probed aggressively.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800">Interpretation checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Is a reported version actually reachable at that endpoint? Verify with a direct probe.</li>
+        <li>Does an enumerated share permit read or write access? Check with smbclient safely.</li>
+        <li>Could aggressive scanning disrupt services? If yes, document and stop until authorized.</li>
+      </ul>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100 text-sm">
+        <div class="font-semibold text-amber-800">Reflection prompt</div>
+        <div class="text-amber-800 mt-1">Which outputs would you escalate to a safe proof-of-concept and which would you mark as false positives pending further verification?</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Use this sequence as a template: discover broadly, enumerate protocol-specifically, then validate findings with minimal impact and clear documentation.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

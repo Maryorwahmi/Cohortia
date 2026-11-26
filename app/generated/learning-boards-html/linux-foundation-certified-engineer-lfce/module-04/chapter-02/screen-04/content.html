@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SSL/TLS Essentials</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition</div>
+      <div class="text-sm text-slate-600 mt-2">SSL/TLS encrypts HTTP traffic. Production requires a CA-signed certificate; testing can use self-signed certs.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-bold">Certificate components</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600">
+          <li>Private key (.key) — keep it secret, restrictive permissions.</li>
+          <li>Certificate (.crt) — server identity issued by CA.</li>
+          <li>Chain/bundle (.ca-bundle or .pem) — intermediate certs to complete trust chain.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Analogy</div>
+          <div class="text-sm text-amber-800 mt-1">Think of the key as the house key, the certificate as the notarized deed, and the chain as the notary's credential proving their authority.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Never loosen key permissions; verify chain files so clients validate your certificate successfully.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete Example</div>
+      <pre class="mt-3 bg-slate-900 text-green-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2;"><code>&lt;VirtualHost *:443&gt;
+    ServerAdmin webmaster@secureapp.com
+    DocumentRoot /var/www/secureapp/html
+    ServerName secureapp.com
+
+    SSLEngine on
+    SSLCertificateFile /etc/pki/tls/certs/secureapp.com.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/secureapp.com.key
+    SSLCertificateChainFile /etc/pki/tls/certs/secureapp.com_chain.crt
+&lt;/VirtualHost&gt;</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-bold">Common misconception</div>
+        <p class="mt-2">Developers sometimes think a self-signed certificate is fine for public sites. For production you need a CA-signed cert so clients trust your site automatically.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

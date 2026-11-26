@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: PRODUCT_CATALOG</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Provider steps (example)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3"><code>CREATE DATABASE SALES_ANALYTICS;
+CREATE SCHEMA SALES_ANALYTICS.PUBLIC;
+
+USE DATABASE SALES_ANALYTICS;
+USE SCHEMA PUBLIC;
+CREATE TABLE PRODUCT_CATALOG (
+  PRODUCT_ID INT,
+  PRODUCT_NAME VARCHAR(255),
+  CATEGORY VARCHAR(100),
+  PRICE DECIMAL(10, 2)
+);
+INSERT INTO PRODUCT_CATALOG VALUES
+(1, 'Laptop Pro', 'Electronics', 1200.00),
+(2, 'Wireless Mouse', 'Accessories', 25.00),
+(3, 'Mechanical Keyboard', 'Accessories', 90.00);
+
+CREATE SHARE partner_product_share;
+GRANT USAGE ON DATABASE SALES_ANALYTICS TO SHARE partner_product_share;
+GRANT USAGE ON SCHEMA SALES_ANALYTICS.PUBLIC TO SHARE partner_product_share;
+GRANT SELECT ON TABLE SALES_ANALYTICS.PUBLIC.PRODUCT_CATALOG TO SHARE partner_product_share;
+ALTER SHARE partner_product_share ADD ACCOUNTS = 'YOUR_PARTNER_ACCOUNT_IDENTIFIER';</code></pre>
+      <div class="text-xs text-slate-500 mt-3">Run these as a role with CREATE SHARE privilege.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Consumer steps (example)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3"><code>-- As consumer with CREATE DATABASE privilege
+CREATE DATABASE shared_products FROM SHARE YOUR_PROVIDER_ACCOUNT_IDENTIFIER.partner_product_share;
+USE DATABASE shared_products;
+SELECT * FROM PUBLIC.PRODUCT_CATALOG;</code></pre>
+      <div class="text-xs text-slate-500 mt-3">Expected output: three product rows returned from the provider's table, reflecting live data.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab check</div>
+    <div class="text-sm text-slate-700">If the consumer sees no rows, confirm the provider granted USAGE on both database and schema and added the correct account identifier to the share.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

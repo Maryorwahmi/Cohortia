@@ -1,0 +1,66 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> .cohortia-bg{background:#f8fafc;} </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Security Zones</span>
+  </div>
+
+  <div class='flex-1 grid grid-cols-2 gap-6 min-h-0'>
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 flex flex-col'>
+      <div class='text-xl font-bold text-slate-800'>Definition & behavior</div>
+      <div class='mt-3 text-sm text-slate-600'>Zones group interfaces and set the default security posture between those groups.</div>
+
+      <div class='mt-4 space-y-3 text-sm text-slate-700'>
+        <p><strong>Implicit deny between zones:</strong> Without a zone-pair policy, traffic that tries to flow from one zone to another is dropped.</p>
+        <p><strong>Implicit permit within a zone:</strong> Interfaces in the same zone can communicate without policies.</p>
+        <p><strong>Assigned interfaces only:</strong> Unassigned interfaces do not participate in zoned traffic and can cause unexpected drops.</p>
+      </div>
+
+      <div class='mt-5 grid grid-cols-2 gap-3'>
+        <div class='rounded-lg p-3 bg-blue-50 text-blue-800 border border-blue-100'>
+          <div class='font-bold'>Example</div>
+          <div class='text-sm mt-2 text-slate-700'>LAN initiates HTTP to WAN; LAN-to-WAN inspect permits session and return traffic.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-rose-50 text-rose-700 border border-rose-100'>
+          <div class='font-bold'>Common mistake</div>
+          <div class='text-sm mt-2 text-slate-700'>Forgetting to assign an interface to a zone causes it to be excluded from zone-pair policies.</div>
+        </div>
+      </div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Design zones first, assign every interface, and rely on implicit deny between zones to reduce attack surface.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Quick reference: zone commands</div>
+      <pre class='mt-3 bg-slate-50 text-slate-800 p-3 rounded text-sm overflow-auto' style='white-space:pre-wrap; tab-size:2;'>
+zone security WAN
+zone security LAN
+zone security DMZ
+
+interface GigabitEthernet0/0/0
+ zone-member security WAN
+</pre>
+
+      <div class='mt-4 text-sm text-slate-700'>Verification cards</div>
+      <div class='mt-3 grid grid-cols-1 gap-3'>
+        <div class='rounded-lg p-3 bg-white border text-sm'>
+          <div class='font-medium text-slate-800'>Verify zones and members</div>
+          <div class='text-xs text-slate-600 mt-1'>Use show zone security to list zones and their assigned interfaces.</div>
+        </div>
+        <div class='rounded-lg p-3 bg-white border text-sm'>
+          <div class='font-medium text-slate-800'>Verify implicit deny</div>
+          <div class='text-xs text-slate-600 mt-1'>If no zone-pair exists, cross-zone traffic will not traverse.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,72 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#f8fafc}.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}</style>
+  <div class='h-full flex flex-col gap-4'>
+    <div>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500'>Code Walkthrough</div>
+      <h3 class='text-2xl font-bold text-slate-900'>VulnerableBank vs SecureBank</h3>
+      <p class='text-sm text-slate-600 mt-1'>Compare the exact withdraw flow and see how OpenZeppelin utilities fit in.</p>
+    </div>
+    <div class='flex gap-4 h-full'>
+      <div class='w-1/2 card p-4 overflow-hidden'>
+        <div class='text-sm font-semibold text-slate-900 mb-2'>VulnerableBank.sol (excerpt)</div>
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract VulnerableBank {
+  mapping(address =&gt; uint256) public balances;
+
+  function deposit() public payable {
+    balances[msg.sender] += msg.value;
+  }
+
+  // VULNERABLE WITHDRAW FUNCTION
+  function withdraw(uint256 _amount) public {
+    require(balances[msg.sender] &gt;= _amount, "Insufficient balance");
+
+    // External call before state update - REENTRANCY VULNERABILITY
+    (bool success, ) = msg.sender.call{value: _amount}("");
+    require(success, "Transfer failed");
+
+    balances[msg.sender] -= _amount; // State updated AFTER external call
+  }
+}
+</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Vulnerable because state is decremented after the external call, enabling reentry.</div>
+      </div>
+      <div class='w-1/2 card p-4 overflow-hidden'>
+        <div class='text-sm font-semibold text-slate-900 mb-2'>SecureBank.sol (excerpt)</div>
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract SecureBank is Ownable, ReentrancyGuard {
+  mapping(address =&gt; uint256) public balances;
+
+  constructor() Ownable(msg.sender) {}
+
+  function deposit() public payable {
+    balances[msg.sender] += msg.value;
+  }
+
+  // SECURE WITHDRAW FUNCTION
+  function withdraw(uint256 _amount) public nonReentrant {
+    require(balances[msg.sender] &gt;= _amount, "Insufficient balance");
+
+    balances[msg.sender] -= _amount; // State updated BEFORE external call
+
+    (bool success, ) = msg.sender.call{value: _amount}("");
+    require(success, "Transfer failed");
+  }
+}
+</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Secure because state is updated first and the nonReentrant modifier blocks recursive entry.</div>
+      </div>
+    </div>
+    <div class='card p-3'>
+      <div class='text-sm font-semibold text-slate-900 mb-1'>Example scenario</div>
+      <div class='text-sm text-slate-600'>Deploy the vulnerable contract, deposit some ETH, then run a malicious contract that calls withdraw inside its fallback. The attacker can loop until drained. Test the secure contract the same way to see the guard and ordering block the drain.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

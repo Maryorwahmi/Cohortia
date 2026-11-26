@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Dynamic Configuration Classes</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border">
+      <div class="text-sm font-bold text-slate-900">Factory pattern</div>
+      <pre class="mono text-sm mt-3 p-3 bg-white rounded" style="white-space:pre-wrap;tab-size:2;">def create_config_class(name, attrs):
+  def __init__(self_obj, **kwargs):
+    for k, v in kwargs.items():
+      setattr(self_obj, k, v)
+    for k, v in attrs.items():
+      if not k.startswith('__') and k not in kwargs:
+        setattr(self_obj, k, v)
+  def __repr__(self_obj):
+    attrs_str = ', '.join(f"{k}={getattr(self_obj, k)!r}" for k in self_obj.__dict__)
+    return f"{self_obj.__class__.__name__}({attrs_str})"
+  final_attrs = {**attrs, '__init__': __init__, '__repr__': __repr__}
+  return type(name, (object,), final_attrs)</pre>
+    </div>
+    <div class="bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Example usage</div>
+      <div class="text-sm text-slate-700 mt-3">Create classes from a mapping and instantiate with defaults or overrides. This makes configuration extensible: adding a new section in the data creates a corresponding class automatically.</div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Analogy</div>
+          <div class="text-sm text-slate-700 mt-2">Think of each config section as a template that becomes a typed object at runtime.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Caution</div>
+          <div class="text-sm text-slate-700 mt-2">Document the generated attributes so IDEs and teammates know the expected keys.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

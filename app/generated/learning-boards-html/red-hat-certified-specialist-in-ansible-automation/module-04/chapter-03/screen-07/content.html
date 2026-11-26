@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl bg-white card-border p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example: register with loop</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>- name: Create/manage users from list
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    group: "{{ item.group }}"
+    state: present
+    shell: /bin/bash
+  loop: "{{ users_to_manage }}"
+  register: user_creation_results
+
+- name: Debug user creation results
+  ansible.builtin.debug:
+    var: user_creation_results</code></pre>
+      <div class="text-sm text-slate-600 mt-3">The debug output will show user_creation_results.results, an array where each element corresponds to one loop iteration. Inspect changed flags and rc values to determine per-user outcomes.</div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tips</div>
+      <ul class="text-sm text-slate-600 mt-2 list-disc ml-4 space-y-2">
+        <li>If you need a single aggregated value, consider post-processing the results with set_fact and filters.</li>
+        <li>To check if any iteration failed, filter user_creation_results.results by rc != 0 or failed == true.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="text-xs text-slate-800">Expecting register to contain a single stdout when the task was looped. Always explore results list entries.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

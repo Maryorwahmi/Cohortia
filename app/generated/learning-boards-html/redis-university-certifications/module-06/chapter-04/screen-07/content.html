@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Network & Pipelining</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 h-full">
+      <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+        <div class="text-lg font-bold text-slate-900">Why RTT matters</div>
+        <div class="text-sm text-slate-600 mt-2">Each request incurs a network round-trip. Reduce the number of round-trips to raise throughput.</div>
+
+        <div class="mt-4 space-y-3 text-sm text-slate-700">
+          <div>Small commands are most sensitive to RTT because command processing time is tiny compared to network latency.</div>
+          <div>Collocating clients and Redis or using faster NICs reduces RTT and improves measurable performance.</div>
+          <div>Pipelining groups commands to reduce the total RTT count without changing server-side semantics.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 h-full">
+      <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800 mb-3">Pipelining example</div>
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs text-slate-600">Client intent: set 1,000 keys</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div class="p-3 rounded-md bg-blue-50">
+              <div class="font-semibold text-slate-800">No pipelining</div>
+              <div class="text-xs text-slate-600 mt-1">1,000 requests and 1,000 RTTs; higher overall latency due to many network trips.</div>
+            </div>
+            <div class="p-3 rounded-md bg-emerald-50">
+              <div class="font-semibold text-slate-800">With pipelining</div>
+              <div class="text-xs text-slate-600 mt-1">Batch into 10 groups of 100: only 10 RTTs, dramatically increasing throughput.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+            <p class="text-xs font-medium text-slate-800">Pipelining does not provide atomicity. Use MULTI/EXEC when you need atomic multi-command semantics.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

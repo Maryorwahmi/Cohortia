@@ -1,0 +1,18 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px;padding:12px;} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} </style> <div class="mb-4"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span> <span>›</span> <span class="text-slate-700">Cloud Run Lab</span> </div> </div> <div class="flex gap-6 h-full"> <div class="w-1/2 card"> <div class="text-sm font-bold text-slate-800">Preparation</div> <div class="mt-3 mono p-3 bg-slate-50 rounded-md border text-sm"># requirements.txt
+Flask
+google-cloud-debugger
+
+# Dockerfile snippet
+FROM python:3.9-slim
+ENV PYTHONUNBUFFERED True
+WORKDIR /app
+COPY . ./
+RUN pip install -r requirements.txt
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app</div> </div> <div class="w-1/2 card"> <div class="text-sm font-bold text-slate-800">Deploy & test</div> <div class="mt-3 mono p-3 bg-slate-50 rounded-md border text-sm"># Deploy
+gcloud run deploy cloud-debugger-app \
+  --source . --region=YOUR_REGION --allow-unauthenticated --project=YOUR_PROJECT_ID
+
+# Trigger snapshot
+curl "YOUR_CLOUD_RUN_URL/calculate/10"
+# Trigger logpoint
+curl "YOUR_CLOUD_RUN_URL/?name=Cohortia"</div> <div class="mt-4 text-sm text-slate-600">Remember to remove snapshot and logpoint after verification to avoid unnecessary overhead and log noise.</div> </div> </div> </div>

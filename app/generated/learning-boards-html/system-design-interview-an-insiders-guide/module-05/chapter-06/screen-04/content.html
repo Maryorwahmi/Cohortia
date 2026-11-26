@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="safe-area h-full flex">
+    <div class="w-2/5 pr-4 flex flex-col">
+      <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-2">Core Concept</div>
+      <h2 class="text-2xl font-bold text-slate-900">Cache Hit Ratio</h2>
+      <p class="mt-2 text-sm text-slate-600">The percent of requests satisfied by edge caches instead of your origin.</p>
+
+      <div class="mt-4 bg-white rounded-xl p-3 border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Why it matters</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>High hit ratio reduces origin load and bandwidth costs.</li>
+          <li>Improves user-perceived latency by serving from nearby PoPs.</li>
+          <li>Helps prioritize caching rules for costly endpoints.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 bg-white rounded-xl p-3 border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistakes</div>
+        <p class="text-sm text-slate-700">Relying on global hit ratio alone can hide per-path problems, and forwarding irrelevant query parameters can collapse cache effectiveness.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Break down hit ratio by path, validate query and cookie rules, and track origin requests alongside hits.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-2xl p-4 border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Measurement dashboard (example)</div>
+      <div class="h-full flex flex-col">
+        <div class="flex-1 bg-slate-50 rounded p-3 text-sm text-slate-700 leading-relaxed">
+          <div class="mb-3 font-semibold text-slate-800">Per-path sample metrics</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 rounded bg-white border" style="border-color:rgba(226,232,240,0.9)">
+              <div class="text-xs text-slate-500">/static/images</div>
+              <div class="text-lg font-bold text-slate-800 mt-1">Hit Ratio: 98%</div>
+              <div class="text-sm text-slate-600 mt-2">Origin requests: low — expected for versioned assets.</div>
+            </div>
+            <div class="p-3 rounded bg-white border" style="border-color:rgba(226,232,240,0.9)">
+              <div class="text-xs text-slate-500">/api/v1/public</div>
+              <div class="text-lg font-bold text-slate-800 mt-1">Hit Ratio: 42%</div>
+              <div class="text-sm text-slate-600 mt-2">Origin requests: moderate — consider micro-caching.</div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="text-sm font-semibold text-slate-800">Example investigation</div>
+            <ol class="list-decimal pl-5 text-sm text-slate-700 mt-2 space-y-2">
+              <li>Check if query strings are being forwarded for /static/images.</li>
+              <li>Verify asset URLs changed during a deploy causing new cache keys.</li>
+              <li>Inspect origin logs for 5xx errors that could force revalidation.</li>
+            </ol>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

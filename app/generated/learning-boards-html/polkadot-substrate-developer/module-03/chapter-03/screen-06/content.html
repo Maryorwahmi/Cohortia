@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Dispatchable Functions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Dispatchable pattern</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Accept an Origin parameter and ensure it's signed for user actions.</li>
+        <li>Validate the input and state preconditions with ensure! or conditional checks.</li>
+        <li>Read from storage, compute updates, write back with insert or put.</li>
+        <li>Emit events for off-chain observers and return Ok or a precise error.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Use saturating_add when incrementing counters to avoid overflow panics, and declare reads/writes in weight annotations.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example dispatchable</div>
+      <div class="mt-3 code text-sm text-slate-800">
+<pre><code>#[pallet::call]
+impl<T: Config> Pallet<T> {
+  #[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+  pub fn increment_counter(origin: OriginFor<T>) -> DispatchResult {
+    let who = ensure_signed(origin)?;
+    let mut current = <AccountCounters<T>>::get(&who);
+    current = current.saturating_add(1);
+    <AccountCounters<T>>::insert(&who, current);
+    Self::deposit_event(Event::CounterIncremented { who, new_value: current });
+    Ok(())
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">This pattern demonstrates the full lifecycle of a transaction: authorization, state change, event emission, and a clear return value.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">Activity steps</div>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="flex flex-col gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Scenario 1: Plain-text full restore</div>
+          <div class="text-xs text-slate-700 mt-2">dropdb -U postgres sales_db
+createdb -U postgres sales_db_restore_plain
+psql -U postgres -d sales_db_restore_plain -f /tmp/sales_db_plain.sql
+Verify: SELECT COUNT(*) FROM products;</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Scenario 2: Custom format with --clean/--create</div>
+          <div class="text-xs text-slate-700 mt-2">pg_restore -U postgres --clean --create -d sales_db_restore_custom /tmp/sales_db_custom.dump
+Verify: SELECT COUNT(*) FROM customers;</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Scenario 3: Selective table restore</div>
+          <div class="text-xs text-slate-700 mt-2">createdb -U postgres sales_db_restore_selective
+pg_restore -U postgres -d sales_db_restore_selective --table=products /tmp/sales_db_custom.dump
+Verify: \dt and SELECT COUNT(*) FROM products;</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Scenario 4: List and use-list</div>
+          <div class="text-xs text-slate-700 mt-2">pg_restore -l /tmp/sales_db_custom.dump &gt; mylist.txt
+Edit mylist.txt to include IDs you want, then:
+pg_restore -U postgres -d mydb --use-list=mylist.txt /tmp/sales_db_custom.dump</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border card-border">
+          <div class="text-sm font-semibold text-amber-700">Verification checklist</div>
+          <ul class="text-xs text-slate-700 mt-2 list-disc list-inside">
+            <li>Confirm tables exist (\dt)</li>
+            <li>Run row counts on key tables</li>
+            <li>Check roles and tablespaces</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">Reflection</div>
+          <div class="text-xs text-slate-700 mt-2">When did a selective restore save time? When did a full restore make more sense? Note your answers for later discussion.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

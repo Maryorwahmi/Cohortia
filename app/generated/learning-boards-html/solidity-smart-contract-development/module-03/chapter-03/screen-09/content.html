@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Indexed event parameters</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <h3 class="text-xl font-bold text-slate-800">Choosing indexed fields</h3>
+        <p class="text-sm text-slate-600 mt-2">Indexed parameters allow efficient on-chain log filtering. Limit to three fields and pick ones you expect UIs to query.</p>
+
+        <ol class="mt-3 space-y-2 text-sm text-slate-700 list-decimal list-inside">
+          <li>Identify the most common search values (addresses, IDs).</li>
+          <li>Index those fields to enable bloom-filtered queries.</li>
+          <li>Avoid indexing sensitive or rarely used data to save gas.</li>
+        </ol>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Note on dynamic types</div>
+        <div class="mt-1 text-sm text-slate-700">Strings and arrays when indexed are represented by their hash in the logs, so plan client decoding accordingly.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example event</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>event FundsDeposited(address indexed depositor, address indexed beneficiary, uint amount);
+
+// Depositor and beneficiary are good indexed fields for filtering by user address.</code></pre>
+        <div class="mt-3 text-sm text-slate-700">A UI can ask a node for logs where depositor equals a given address, returning only relevant transactions quickly.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Quick checklist</div>
+        <div class="mt-1 text-sm text-slate-800">Index fields you will query; limit to three; avoid secrets; plan for hashed dynamic types.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

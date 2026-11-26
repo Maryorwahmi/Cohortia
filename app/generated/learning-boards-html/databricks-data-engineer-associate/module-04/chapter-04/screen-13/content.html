@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Operationalizing Governance</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full min-h-0">
+    <div class="col-span-7 bg-white rounded-2xl p-5 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-800 mb-1">Automated checks and verification</h3>
+      <p class="text-sm text-slate-600 mb-4">Use simple commands and tests to validate permissions and column protections as part of your pipeline CI or operational checks.</p>
+
+      <div class="bg-slate-50 p-3 rounded-lg mb-3">
+        <div class="text-xs font-semibold text-slate-700">Verify grants (example)</div>
+        <pre class="text-sm text-slate-800 p-2 rounded bg-white card-border">SHOW GRANTS ON TABLE my_project_catalog.raw_data.customer_pii;</pre>
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded-lg mb-3">
+        <div class="text-xs font-semibold text-slate-700">Test denied access (concept)</div>
+        <pre class="text-sm text-slate-800 p-2 rounded bg-white card-border">-- As a non-privileged role, expect a permission error
+SELECT ssn FROM my_project_catalog.raw_data.customer_pii;  -- should fail if column-level control is active</pre>
+        <div class="text-xs text-slate-500 mt-2">Automate this test and fail your pipeline if the query unexpectedly succeeds.</div>
+      </div>
+
+      <div class="mt-auto p-3 rounded-lg bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operational checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-2">
+          <li>Daily or weekly exports of audit logs to SIEM for anomaly detection.</li>
+          <li>Quarterly permission reviews with owners of catalogs and schemas.</li>
+          <li>CI tests that assert restricted columns remain inaccessible to non-privileged groups.</li>
+          <li>Use groups and service principals as canonical identities for automation.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl p-4 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario</div>
+        <p class="text-sm text-slate-700 mt-1">Integrate a nightly job that exports grants and recent access events, and surface any new broad grants to your security team for review.</p>
+      </div>
+
+      <div class="bg-amber-50 rounded-xl p-3 border-l-4 border-l-amber-400">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <p class="text-sm text-slate-800 mt-1">Keep a lightweight runbook describing permission owners and review cadence; this reduces ambiguity during audits and handoffs.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Convert governance into scheduled reviews, automated tests, and alerting so compliance scales with your data platform.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

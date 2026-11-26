@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Detached Objects & Lifecycle</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border p-4 bg-white">
+      <div class="text-sm font-semibold text-slate-800">Why detachment happens</div>
+      <p class="text-sm text-slate-600 mt-2">When a session closes, objects it returned become detached. Detached objects are not tracked for changes by any active session until reattached or merged.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Solutions</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>Keep read-modify-write in one session where possible.</li>
+          <li>Use session.merge(detached_obj) to attach state to a new session.</li>
+          <li>Use with Session() to scope sessions and avoid leaks.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">merge example</div>
+      <pre class="mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>detached = get_user_somehow()
+with Session() as session:
+  merged = session.merge(detached)
+  merged.email = 'new@example.com'
+  session.commit()</code></pre>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">Design session boundaries deliberately. Reattach detached objects with merge or keep operations in one session to maintain consistent behavior.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

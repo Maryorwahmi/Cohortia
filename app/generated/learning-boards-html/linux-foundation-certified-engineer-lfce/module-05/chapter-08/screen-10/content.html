@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Outgoing Delivery</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Diagnose 'Host not found'</h3>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Run mailq to capture queue IDs and status messages.</li>
+        <li>Check journalctl -u postfix | grep '<queue_id>' for name resolution lines.</li>
+        <li>Verify /etc/resolv.conf and test with dig MX recipient_domain.com.</li>
+        <li>Confirm network access to DNS servers and port 25 outbound firewall rules.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Commands</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>mailq
+sudo journalctl -u postfix | grep "Host not found"
+cat /etc/resolv.conf
+dig MX recipient_domain.com
+dig A mail.recipient_domain.com
+sudo postqueue -f</code></pre>
+
+      <div class="mt-3 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm text-slate-800">Common misconception: changing Postfix routing settings before confirming DNS will mask the real network issue and risk misrouting messages.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When Postfix reports host lookup failures, treat DNS and resolver reachability as primary suspects and verify before changing MTA settings.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

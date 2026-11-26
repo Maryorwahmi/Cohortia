@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Process Flow</div>
+    <div class="text-xl font-bold text-slate-900 mb-3">Send an NFT using cardano-cli</div>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="flex flex-col">
+        <div class="text-sm text-slate-800 mb-2">1. Query your address to find the UTXO containing the NFT.</div>
+        <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>cardano-cli query utxo --address $(cat payment.addr) --testnet-magic 1
+# Identify NFT_TX_IN="nft_txhash#nft_txix" with the 1 $NFT_FULL_ASSET entry</code></pre>
+        <div class="text-sm text-slate-800 mt-3">2. Compute MIN_ADA for the recipient address when sending an NFT to a fresh address.</div>
+      </div>
+      <div class="flex flex-col">
+        <div class="text-sm text-slate-800 mb-2">3. Build a raw transaction that consumes NFT_TX_IN and produces two outputs: recipient + NFT and change back to you.</div>
+        <pre class="rounded-md bg-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>cardano-cli transaction build-raw \
+  --fee 0 \
+  --tx-in $NFT_TX_IN \
+  --tx-out "$(cat recipient.addr) + $MIN_ADA_REQUIRED_FOR_NFT_UTXO lovelace + 1 $NFT_FULL_ASSET" \
+  --tx-out "$(cat payment.addr) + $CHANGE_ADA_AFTER_FEE lovelace" \
+  --out-file send_nft.draft</code></pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-800">No special NFT transfer command exists; it is the same cardano-cli transaction flow as ADA and native tokens.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Identify the NFT UTXO, compute recipient min ADA, build draft, calculate fee, sign, and submit — the familiar steps apply.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

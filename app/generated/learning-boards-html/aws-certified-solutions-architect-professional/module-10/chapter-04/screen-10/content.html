@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Instrument Lambda with X-Ray</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full flex flex-col">
+    <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Code Walkthrough</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Python example with X-Ray</h3>
+    <p class="text-sm text-slate-600 mt-3">This code shows module-level init, a captured handler, and a subsegment for an external call to S3.</p>
+
+    <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+      <pre><code>from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core.lambda_launcher import LambdaContext
+
+# Initialize Boto3 client outside the handler to simulate common initialization tasks
+s3_client = boto3.client('s3')
+print("COLD START: Boto3 S3 client initialized.")
+
+# Wrap the handler for X-Ray
+@xray_recorder.capture('ColdStartTesterHandler')
+def lambda_handler(event, context):
+  start_time = time.time()
+  print(f"Invocation started at {start_time}")
+
+  # Simulate some processing work
+  time.sleep(0.1)
+
+  # Simulate an external call
+  with xray_recorder.in_subsegment('ListS3Buckets'):
+    s3_client.list_buckets()
+    print("Listed S3 buckets.")
+
+  end_time = time.time()
+  duration = (end_time - start_time) * 1000
+  print(f"Invocation finished in {duration:.2f} ms.")
+
+  return {
+    'statusCode': 200,
+    'body': f'Hello from Lambda! Duration: {duration:.2f} ms'
+  }</code></pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold">Deployment steps</div>
+        <div class="text-xs text-slate-600 mt-1">Enable Active tracing in the Lambda console and ensure the role has xray:PutTraceSegments.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold">What to look for</div>
+        <div class="text-xs text-slate-600 mt-1">Service map nodes and a trace showing the handler segment and the ListS3Buckets subsegment timing.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

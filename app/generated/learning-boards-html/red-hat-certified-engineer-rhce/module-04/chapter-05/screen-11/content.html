@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Mounting snapshot</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Mount and backup example</div>
+      <pre class="mt-3 p-3 rounded bg-slate-50" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">- name: Ensure mount point exists
+  ansible.builtin.file:
+    path: /mnt/backup_snapshot
+    state: directory
+
+- name: Mount snapshot
+  ansible.posix.mount:
+    path: /mnt/backup_snapshot
+    src: /dev/data_vg/app_lv_snap
+    fstype: xfs
+    state: mounted
+
+- name: Run backup (example)
+  ansible.builtin.command: rsync -a /mnt/backup_snapshot/ /backups/app_lv_backup/
+
+- name: Unmount snapshot
+  ansible.posix.mount:
+    path: /mnt/backup_snapshot
+    state: unmounted
+
+- name: Remove snapshot LV
+  community.general.lvol:
+    vg: data_vg
+    lv: app_lv_snap
+    state: absent</pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Operational notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Do not write to the snapshot unless you intend to capture those changes.</li>
+        <li>Monitor snapshot LV usage; if it becomes full, it will fail and backups will be impacted.</li>
+        <li>Automate removal of snapshots in the same playbook to avoid stale snapshots consuming space.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+        <p class="text-xs font-medium text-slate-800">Confirm snapshot mount contents before deleting the snapshot and verify backup integrity.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

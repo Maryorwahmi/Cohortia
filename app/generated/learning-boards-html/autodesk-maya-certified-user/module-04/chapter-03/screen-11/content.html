@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Configure Arnold Settings</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">UI steps and a short script</h3>
+      <p class="text-sm text-slate-600 mt-3">Follow the checklist, then optionally run the script to apply the same attributes programmatically.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50 card-border">
+          <div class="font-bold">UI checklist</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-1">
+            <li>Set Render Using → Arnold</li>
+            <li>Common tab: File Format → png; Name → myFirstRender; Start/End → 1</li>
+            <li>Resolution: HD 1080</li>
+            <li>Arnold tab: Camera (AA)=5, Diffuse=4, Specular=4</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 card-border">
+          <div class="font-bold">When to adjust</div>
+          <div class="text-sm text-slate-700 mt-2">If reflections are grainy, raise Specular. For soft-shadow noise, raise Diffuse. Test with single frames before rendering sequences.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-600">Script example (Maya Python)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>import maya.cmds as cmds
+
+# Ensure Arnold is loaded and set as current renderer
+if not cmds.pluginInfo('mtoa', query=True, loaded=True):
+  cmds.loadPlugin('mtoa')
+cmds.setAttr('defaultRenderGlobals.currentRenderer', 'arnold', type='string')
+
+# Set Common Render Settings
+cmds.setAttr('defaultRenderGlobals.imageFormat', 32)  # PNG format
+cmds.setAttr('defaultRenderGlobals.animation', 0)     # Single frame
+cmds.setAttr('defaultRenderGlobals.startFrame', 1)
+cmds.setAttr('defaultRenderGlobals.endFrame', 1)
+cmds.setAttr('defaultRenderGlobals.byFrame', 1)
+cmds.setAttr('defaultRenderGlobals.imageFilePrefix', 'myFirstRender', type='string')
+cmds.setAttr('defaultResolution.width', 1920)
+cmds.setAttr('defaultResolution.height', 1080)
+
+# Set Arnold sampling
+cmds.setAttr('defaultArnoldRenderOptions.AASamples', 5)
+cmds.setAttr('defaultArnoldRenderOptions.GIDiffuseSamples', 4)
+cmds.setAttr('defaultArnoldRenderOptions.GISpecularSamples', 4)</code></pre>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="text-sm mt-2 text-emerald-800">Use the UI for learning and confirmation; use the script for repeatability once you know the right values.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-lg font-bold text-slate-800">Load average vs I/O wait</div>
+      <div class="text-sm text-slate-600 mt-2">Understand the numeric meaning and practical implications for troubleshooting.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Quick comparison</div>
+        <div class="mt-2 grid grid-cols-2 gap-3 text-sm">
+          <div class="p-3 bg-blue-50 rounded">
+            <div class="font-bold text-blue-700">Load average</div>
+            <div class="text-slate-600 mt-1">Average runnable processes over time. Compare to CPU core count.</div>
+          </div>
+          <div class="p-3 bg-amber-50 rounded">
+            <div class="font-bold text-amber-700">I/O wait (wa)</div>
+            <div class="text-slate-600 mt-1">Percent of CPU time waiting for I/O. High values point to disk or storage latency.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always compare load average to the number of cores and verify high wa with iostat or vmstat before changing hardware.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-700">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">A 4-core VM shows load averages 6.2, 5.8, 5.0 and %Cpu(s): 5 us, 2 sy, 92 id, 1 wa. Here, load > cores but CPU is mostly idle. The explanation is blocked processes waiting on disk or swap, making the run queue longer while CPU remains idle waiting for I/O. Resolve by measuring disk latency and queue depth with iostat.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Misconception check</div>
+      <div class="mt-2 text-sm text-slate-600">Don't assume low user CPU means healthy: idle time can hide long I/O waits. Always corroborate multiple metrics.</div>
+    </div>
+  </div>
+</div>

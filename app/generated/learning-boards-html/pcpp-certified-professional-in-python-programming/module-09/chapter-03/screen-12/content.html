@@ -1,0 +1,21 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <style> pre.code{background:#0f1724;color:#e6eef6;padding:12px;border-radius:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;line-height:1.4;white-space:pre-wrap;tab-size:2} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white} </style> <div class="mb-4"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span> <span>›</span> <span>Chapter 9.3</span> <span>›</span> <span class="text-slate-700">Task Manager CRUD</span> </div> </div> <div class="flex gap-4 h-full"> <div class="w-1/2 card p-4"> <div class="text-xl font-bold text-slate-800">Starter patterns</div> <div class="text-sm text-slate-600 mt-2">Implement each operation as a small function that opens a connection, executes a composed expression, and inspects the result.</div> <div class="mt-4 p-3 border rounded-lg"> <div class="font-semibold text-slate-800">Design note</div> <div class="text-sm text-slate-600 mt-2">Keep schema declarations separate from business logic so testing and migrations are simpler.</div> </div> </div> <div class="w-1/2 card p-4"> <div class="text-sm font-semibold text-slate-800">Starter code template</div> <pre class="code"># Define tasks_table (Date is used for due_date)
+from sqlalchemy import Table, Column, Integer, String, Boolean, Date
+
+# tasks_table defined in chapter
+
+# Add task
+insert_stmt = insert(tasks_table).values(
+    title=title,
+    description=description,
+    due_date=due_date_obj,
+    is_completed=False
+)
+
+# Get pending tasks
+select_stmt = select(tasks_table).where(tasks_table.c.is_completed == False)
+
+# Mark complete
+update_stmt = update(tasks_table).where(tasks_table.c.id == task_id).values(is_completed=True)
+
+# Delete
+delete_stmt = delete(tasks_table).where(tasks_table.c.id == task_id)</pre> <div class="mt-3 p-3 border rounded-lg"> <div class="font-semibold text-slate-800">Try</div> <div class="text-sm text-slate-600 mt-2">Run the CLI skeleton and exercise add, view pending, complete, and delete to see effects in the database file.</div> </div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Cache-Aside details</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <ol class="list-decimal ml-5 text-sm text-slate-600">
+        <li class="mt-2">On read: check cache → if hit return result.</li>
+        <li class="mt-2">On miss: fetch from DB → populate cache → return result.</li>
+        <li class="mt-2">On write: update DB → invalidate or update cache entry.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-sm font-semibold text-amber-700">Common Pitfalls</div>
+        <ul class="text-sm text-slate-600 ml-5 mt-2 list-disc">
+          <li>Relying only on TTL for freshness when immediate consistency is required.</li>
+          <li>Over-caching low-value data and increasing memory costs.</li>
+          <li>Cache stampede when popular keys expire simultaneously.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Mitigations</div>
+      <div class="grid gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Single-flight locking</div>
+          <div class="text-sm text-slate-600 mt-1">Allow one request to populate cache while others wait, preventing many DB hits.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Probabilistic TTL / Jitter</div>
+          <div class="text-sm text-slate-600 mt-1">Add small random offsets to TTLs to avoid synchronized expirations.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Pre-fetching</div>
+          <div class="text-sm text-slate-600 mt-1">Refresh hot items before they expire using background tasks.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">Reflection: when your cache miss latency is high, consider moving hot reads into the cache proactively or adding single-flight logic to avoid DB spikes.</div>
+    </div>
+  </div>
+</div>

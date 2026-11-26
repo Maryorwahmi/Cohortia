@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">Bandwidth Calculation</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Estimate effective fetch throughput</h3>
+  </div>
+
+  <div class="flex gap-4 flex-1">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Model derivation</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+Effective IPC = 1 / (1/4 + B + B*(1-A)*P)
+where:
+  B = branch frequency (taken branches per instruction)
+  A = predictor accuracy
+  P = misprediction penalty in cycles
+Example: B=0.2, A=0.9, P=4
+Effective IPC = 1 / (0.25 + 0.2 + 0.02*4) = 1 / 0.53 ≈ 1.89
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">This algebraic form shows why both low B and high A are important, and why P (the penalty) dramatically affects throughput when mispredictions occur.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Concrete example & question</div>
+      <div class="text-sm text-slate-700">Using the numeric example above, the effective fetch supply drops well below the ideal four instructions per cycle. If you change P to 8 cycles, recompute the IPC to see how misprediction penalties amplify the cost of only a small misprediction rate.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Expressing effective IPC with a small formula clarifies how branch frequency, accuracy, and penalty interact to determine fetch throughput.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

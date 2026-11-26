@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Comparison</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">GSI vs LSI</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Global Secondary Index (GSI)</div>
+          <div class="text-sm text-slate-700 mt-1">Different partition key and sort key; eventual consistency by default; consumes separate capacity.</div>
+        </div>
+        <div class="rounded-xl bg-violet-50 p-3">
+          <div class="text-sm font-bold text-violet-700">Local Secondary Index (LSI)</div>
+          <div class="text-sm text-slate-700 mt-1">Same partition key, different sort key; strong consistency; limited to the base table partition key.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Example: Base table keyed by postId. To query by authorId and timestamp, use a GSI with authorId as partition key and timestamp as sort key. To provide alternate sort views for the same userId, use an LSI.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Operational notes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>GSIs require capacity and are eventually consistent by default.</li>
+        <li>LSIs are limited at table creation time and share the partition key.</li>
+        <li>Monitor index replication and consider consistency needs in application design.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border card-border p-3">
+        <div class="text-sm font-bold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Trying to use an LSI to support queries across partitions. LSIs cannot change the partition key.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick GSI for new partition keys and LSIs for alternate sort keys under the same partition key; account for consistency and capacity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

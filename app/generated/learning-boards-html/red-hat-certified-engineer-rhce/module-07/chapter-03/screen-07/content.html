@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Ansible Facts</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-sm font-semibold text-slate-800">What are facts?</div>
+      <p class="mt-2 text-sm text-slate-600">Facts are host-specific variables automatically gathered by Ansible that describe network, OS, CPU, memory, and more. They enable host-aware rendering inside templates.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-xs font-semibold text-slate-700">Common facts</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+            <li>ansible_default_ipv4.address — primary IPv4 address.</li>
+            <li>ansible_distribution — distribution name for distro-specific snippets.</li>
+            <li>ansible_memtotal_mb / ansible_processor — for sizing configs.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-xs font-semibold text-slate-700">Pitfall</div>
+          <p class="mt-1 text-sm text-slate-600">If fact gathering is disabled or a custom fact is missing, direct access can cause failures. Use is defined or default filters to avoid this.</p>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Facts let templates adapt to each node. Always guard fact usage with defined checks or default fallbacks.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="rounded-lg bg-slate-50 p-3 border">
+        <div class="text-xs font-semibold text-slate-700">Concrete example</div>
+        <pre class="mt-2 bg-[#0b1220] text-white rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># Bind service to node's primary address
+bind_address = {{ ansible_default_ipv4.address }}
+
+# Choose distro-specific include
+{% raw %}{% if ansible_distribution == 'RedHat' %}
+include 'rhel.conf'
+{% else %}
+include 'generic.conf'
+{% endif %}{% endraw %}</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-white p-3 border">
+        <div class="text-sm font-semibold text-slate-800">Scenario</div>
+        <div class="mt-2 text-sm text-slate-600">Use facts to generate systemd units that reference the node's IP and memory size so services start with appropriate resource limits per host.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

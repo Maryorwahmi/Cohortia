@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size:2; font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">promise & future Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-4 rounded-xl bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Example code</div>
+        <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto h-full"><code>#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;future&gt;
+#include &lt;chrono&gt;
+
+int calculate_sum(int a, int b) {
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+  return a + b;
+}
+
+int main() {
+  std::promise&lt;int&gt; p;
+  std::future&lt;int&gt; f = p.get_future();
+
+  std::thread t([&p]{
+    try {
+      int result = calculate_sum(10, 20);
+      p.set_value(result);
+    } catch(...) {
+      p.set_exception(std::current_exception());
+    }
+  });
+
+  std::cout &lt;&lt; "Main thread doing other work..." &lt;&lt; std::endl;
+  int sum = f.get();
+  std::cout &lt;&lt; "Sum is: " &lt;&lt; sum &lt;&lt; std::endl;
+  t.join();
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Notes and pitfalls</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Call set_exception on the promise to propagate errors to the waiting thread.</li>
+          <li>Ensure the promise remains valid until set_value or set_exception is called.</li>
+          <li>Remember that future::get is single-use; design ownership accordingly.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 p-5 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Try this</div>
+        <div class="text-sm text-slate-700">Modify the worker to throw an exception and verify that get() rethrows it in main. That helps you see cross-thread exception propagation in action.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

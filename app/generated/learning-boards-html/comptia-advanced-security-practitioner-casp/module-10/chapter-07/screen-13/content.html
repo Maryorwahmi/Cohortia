@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Starter Task</div>
+      <div class="text-sm font-semibold text-slate-800">Deliverable: modify manage_post</div>
+      <pre class="text-xs bg-slate-900 text-white p-3 rounded mt-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# After implementing authorization and validation, test with curl.
+# Replace TOKEN_USER123 and TOKEN_USER456 with your mock tokens.
+
+# 1) Successful PUT by owner (user123)
+curl -i -X PUT http://localhost:5000/api/v1/posts/101 \
+  -H "Authorization: Bearer TOKEN_USER123" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Updated Title", "content": "Updated content that is long enough."}'
+
+# 2) Failed PUT by non-owner (user456)
+curl -i -X PUT http://localhost:5000/api/v1/posts/101 \
+  -H "Authorization: Bearer TOKEN_USER456" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Malicious Update", "content": "Trying to change someone else's post."}'
+
+# 3) Failed PUT by owner with invalid input (missing fields or too short)
+curl -i -X PUT http://localhost:5000/api/v1/posts/101 \
+  -H "Authorization: Bearer TOKEN_USER123" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "x", "content": "short"}'
+      </pre>
+
+      <div class="mt-3 rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Expected responses</div>
+        <div class="text-xs text-slate-600 mt-1">200 for successful owner update, 403 for non-owner attempts, 400 for invalid input. Use these responses to validate behavior in automated tests.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Guidance</div>
+      <div class="flex-1 grid gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">Testing tip</div>
+          <div class="text-xs text-slate-700 mt-1">Create two tokens representing different users and run each curl. Automate these checks in your CI to prevent regressions.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Validation focus</div>
+          <div class="text-xs text-slate-600 mt-1">Enforce required fields and sensible length limits. Reject early to avoid partial updates or inconsistent state.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Remember</div>
+          <div class="text-xs text-slate-700 mt-1">Edge protections help, but object-level authorization must remain in the application for correctness.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Secure code plus reproducible tests are the most reliable way to prevent BOLA and invalid updates.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

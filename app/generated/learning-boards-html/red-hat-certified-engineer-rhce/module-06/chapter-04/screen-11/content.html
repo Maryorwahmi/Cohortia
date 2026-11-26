@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Playbook walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+    <div class="text-sm font-bold">Playbook template (abridged)</div>
+    <pre class="mono mt-3 p-3 bg-slate-50 rounded-md border card-border"><code>---
+- name: Configure SELinux for custom application
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure /var/log/my_app directory exists
+      ansible.builtin.file:
+        path: /var/log/my_app
+        state: directory
+        mode: '0755'
+
+    - name: Define SELinux context for /var/log/my_app as var_log_t
+      ansible.posix.sefcontext:
+        target: '/var/log/my_app(/.*)?'
+        setype: var_log_t
+        state: present
+
+    - name: Apply SELinux context to /var/log/my_app
+      ansible.builtin.command: restorecon -Rv /var/log/my_app
+      changed_when: true
+
+    - name: Ensure /opt/my_app/public directory exists
+      ansible.builtin.file:
+        path: /opt/my_app/public
+        state: directory
+        mode: '0755'
+
+    - name: Define SELinux context for /opt/my_app/public as httpd_sys_content_t
+      ansible.posix.sefcontext:
+        target: '/opt/my_app/public(/.*)?'
+        setype: httpd_sys_content_t
+        state: present
+
+    - name: Apply SELinux context to /opt/my_app/public
+      ansible.builtin.command: restorecon -Rv /opt/my_app/public
+      changed_when: true
+
+    - name: Enable 'allow_execheap' SELinux boolean persistently
+      ansible.posix.seboolean:
+        name: allow_execheap
+        state: yes
+        persistent: yes
+</code></pre>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example result</div>
+        <div class="text-sm text-slate-600 mt-2">Directories labeled correctly and boolean set across reboots.</div>
+      </div>
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Forgetting restorecon leaves existing files unlabeled despite the rule being present.</div>
+      </div>
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">This playbook pattern is repeatable and should be turned into a role for reuse.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

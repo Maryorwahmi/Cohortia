@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-900">Frame-rate independent movement</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+      <div class="text-sm text-slate-600 mt-2">Speeds should be consistent across devices. Multiply MovementSpeed by GetWorld()-&gt;GetDeltaSeconds() so the movement applied each frame equals the fraction of a second passed.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Numeric example</div>
+        <div class="text-sm text-slate-700 mt-2">MovementSpeed = 500 units/s. At 60 FPS delta is ~0.016: per-frame move ≈ 8 units. At 30 FPS delta ~0.033: per-frame move ≈ 16 units, but fewer frames keep distance per second consistent.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Common bug &amp; fix</div>
+      <div class="text-sm text-slate-600 mt-2">Bug: movement tied to frame rate because code omitted delta seconds. Fix: include GetWorld()-&gt;GetDeltaSeconds() when scaling movement input.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Check your code</div>
+        <pre class="mt-2 bg-slate-50 rounded p-3 card-border text-sm"><code>// Incorrect
+AddMovementInput(Forward, InputY * MovementSpeed);
+
+// Correct
+AddMovementInput(Forward, InputY * MovementSpeed * GetWorld()-&gt;GetDeltaSeconds());</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

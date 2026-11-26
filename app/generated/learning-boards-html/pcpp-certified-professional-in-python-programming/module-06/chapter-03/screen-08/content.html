@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-5 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Breadth-First Search</h3>
+      <p class="text-sm text-slate-600 mt-3">Explore level by level using a queue; ideal for shortest path by edges in unweighted graphs.</p>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-md bg-blue-50">
+          <div class="font-semibold">Steps</div>
+          <ol class="ml-5 list-decimal text-sm text-slate-600 mt-2">
+            <li>Enqueue start node and mark visited.</li>
+            <li>Dequeue node, visit it, enqueue its unvisited neighbors.</li>
+            <li>Repeat until queue empty.</li>
+          </ol>
+        </div>
+        <div class="p-3 rounded-md bg-emerald-50">
+          <div class="font-semibold">Example</div>
+          <div class="text-sm text-slate-600 mt-2">Starting at 0 on adjacency list [0:[1,2],1:[0,2],2:[0,1,3],3:[2]], BFS order: 0, then 1 and 2, then 3.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Code example</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md"><code>from collections import deque
+
+def bfs(graph, start_node):
+    visited = set()
+    queue = deque([start_node])
+    visited.add(start_node)
+    traversal_order = []
+
+    while queue:
+        current_node = queue.popleft()
+        traversal_order.append(current_node)
+
+        for neighbor in graph[current_node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return traversal_order
+
+# Example call: bfs(adj_list, 0)
+</code></pre>
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">BFS uses a queue and a visited set to find shortest paths by edges; it is not for weighted shortest path problems.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

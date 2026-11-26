@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Nested Groups</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 bg-white rounded-2xl cohort-card shadow-sm p-6">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Hierarchy</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Production and Staging via children</h3>
+      <p class="text-sm text-slate-600 mt-3">Use :children to create environment groups that include role groups, keeping role variables shared while still allowing environment overrides.</p>
+      <div class="mt-4 bg-slate-50 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>[webservers]
+web1.example.com
+
+[databases]
+db1.example.com
+
+[production:children]
+webservers
+databases
+
+[staging:children]
+webservers
+databases
+</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl cohort-card shadow-sm p-6">
+      <div class="text-sm font-semibold text-slate-700">Variable precedence example</div>
+      <div class="mt-3 text-sm text-slate-600">
+        If web_docroot is set in group_vars/webservers.yml but production-specific logging or replicas are set in group_vars/production.yml, hosts in production will receive both, with production taking precedence for overlapping keys when designed that way.
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="text-sm font-semibold text-slate-700">Check</div>
+          <div class="text-sm text-slate-600 mt-2">Use ansible-inventory --list -i my_inventory to inspect group membership and variable sources before running playbooks.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+          <p class="text-xs font-medium text-slate-800">Nested groups do not change execution order or service readiness. They only affect selection and variable assignment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

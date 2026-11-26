@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Openssl Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Hands-on Activity</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Fetch and inspect a TLS certificate</div>
+      <p class="text-sm text-slate-600 mt-3">Use the s_client command to retrieve the chain and save to a file, then read server certificate details with openssl x509 -text.</p>
+
+      <div class="mt-3">
+        <pre><code># Retrieve the certificate chain and save to a PEM file
+openssl s_client -connect www.google.com:443 -servername www.google.com \
+    -showcerts -print_certs -verify_hostname www.google.com -verify_return_error \
+    &lt; /dev/null 2&gt;/dev/null | openssl x509 -outform PEM &gt; google_cert_chain.pem
+
+# Inspect the first certificate in the chain
+openssl x509 -in google_cert_chain.pem -noout -text
+
+# Look for fields: Subject, Issuer, Validity, X509v3 Subject Alternative Name,
+# X509v3 Key Usage, and X509v3 Extended Key Usage.</code></pre>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-600">Note: interpret the output to confirm SAN entries and permitted EKUs. If a required name is missing in SAN, clients will report a name mismatch.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example interpretation</div>
+      <div class="text-xs text-slate-600 mt-2">After running the commands, check for X509v3 Subject Alternative Name to find covered hostnames. Confirm Key Usage includes digitalSignature if the certificate is used in TLS handshakes for signing, and EKU includes Server Authentication.</div>
+
+      <div class="mt-4 space-y-3 flex-1">
+        <div class="rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-400">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+          <div class="text-xs text-slate-800">If the SAN does not list legacy-app.internal.example.com, what will a client connecting to that hostname report? (Hint: a name mismatch).</div>
+        </div>
+
+        <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs text-slate-800">Practice interpreting openssl output to link fields to policy decisions, such as whether a certificate is suitable for a given service.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

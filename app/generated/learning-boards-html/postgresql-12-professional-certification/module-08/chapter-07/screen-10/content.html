@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Replication slots</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 shadow-sm h-[calc(100%-28px)] flex flex-col">
+    <h3 class="text-lg font-bold text-slate-800">Inspect replication slots</h3>
+    <p class="text-sm text-slate-600 mt-2">Find inactive slots and decide whether to recover or drop them.</p>
+
+    <div class="mt-4 bg-slate-900 rounded-lg p-3 text-xs text-slate-50 font-mono overflow-hidden" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>-- Monitor replication slots
+SELECT slot_name, slot_type, active, wal_status, restart_lsn, catalog_xmin,
+       pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_lag_bytes
+FROM pg_replication_slots;
+
+-- Drop an inactive replication slot (use with caution)
+SELECT pg_drop_replication_slot('my_inactive_slot');
+</code></pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-slate-50 border">
+        <div class="text-sm font-semibold">Checklist before drop</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc ml-5">
+          <li>Confirm slot is inactive and belongs to an unreachable subscriber.</li>
+          <li>Ensure dropping is acceptable for downstream recovery strategy.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg p-3 bg-rose-50 border">
+        <div class="text-sm font-semibold">Consequence</div>
+        <div class="text-sm text-slate-700 mt-2">Dropping a slot may require a full resync of the subscriber.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

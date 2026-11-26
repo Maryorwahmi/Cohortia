@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Permissions & authorized_keys</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Required modes</div>
+      <pre class="mt-3 font-mono text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;">chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+# ensure home is not writable by group/others</pre>
+
+      <div class="mt-4 text-sm text-slate-700">If keys fail, check ownership and file modes. SSH often logs authentication rejections with messages pointing to insecure permissions; consult the system log to confirm the cause.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Diagnostic checklist</div>
+      <ul class="mt-3 list-inside text-sm text-slate-700 space-y-2">
+        <li>Is ~/.ssh owned by the user? (ls -ld ~/.ssh)</li>
+        <li>Are permissions 700 for ~/.ssh and 600 for authorized_keys?</li>
+        <li>Is the user's home directory not writable by group/others?</li>
+        <li>Are there duplicate keys or malformed lines in authorized_keys?</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example log</div>
+        <pre class="mt-2 font-mono text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;">sshd[1234]: Authentication refused: bad ownership or modes for directory /home/adminuser</pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Correct ownership and strict modes are prerequisites for key authentication; fix permissions before assuming configuration errors.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Loopbacks & IGP</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Junos example — Router A</div>
+      <pre class="mt-3"><code>set interfaces lo0 unit 0 family inet address 192.168.100.1/32
+set routing-options autonomous-system 65000
+set protocols bgp group IBGP_PEERS type internal
+set protocols bgp group IBGP_PEERS neighbor 192.168.100.2
+set protocols bgp group IBGP_PEERS local-address 192.168.100.1</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Junos example — Router B</div>
+      <pre class="mt-3"><code>set interfaces lo0 unit 0 family inet address 192.168.100.2/32
+set routing-options autonomous-system 65000
+set protocols bgp group IBGP_PEERS type internal
+set protocols bgp group IBGP_PEERS neighbor 192.168.100.1
+set protocols bgp group IBGP_PEERS local-address 192.168.100.2</code></pre>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-white p-3 mt-2 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Verification steps</div>
+      <div class="mt-2 text-sm text-slate-700">1) Ensure the IGP advertises both loopbacks. 2) On each router run show route &lt;peer-loopback&gt; to confirm reachability. 3) Run show bgp summary and expect Established state. If Active, check IGP and local-address configuration.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre code{white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">MetaMask Integration</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-900 mb-2">React connector pattern</div>
+      <pre class="rounded-lg bg-slate-50 p-3 mono text-sm border border-[rgba(226,232,240,0.9)] overflow-auto h-3/4"><code>async function connectWallet(setWeb3, setAccount, setError) {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      const accounts = await web3Instance.eth.getAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        setError('No accounts found.');
+      }
+    } catch (err) {
+      if (err.code === 4001) setError('User rejected the connection request.');
+      else setError('Error connecting: ' + err.message);
+    }
+  } else {
+    setError('MetaMask not installed.');
+  }
+}</code></pre>
+    </div>
+
+    <div class="w-1/3 h-full flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-700 mb-2">UX & errors</div>
+        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-2">
+          <li>Show clear messages for 'MetaMask not installed' and 'User rejected the connection request'.</li>
+          <li>Do not proceed with transactions until a connected account exists.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <div class="text-sm text-slate-800">Request the minimal permissions you need and explain why you ask for them to increase user trust.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

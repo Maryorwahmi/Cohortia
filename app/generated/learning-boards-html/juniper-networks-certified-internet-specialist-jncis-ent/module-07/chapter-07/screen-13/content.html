@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Apply a CPP filter to lo0</span>
+  </div>
+
+  <div class="bg-white rounded-2xl border p-6 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Step-by-step commands</div>
+    <pre class="bg-slate-900 text-slate-100 p-3 rounded-md text-sm mt-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# 1. Define management host prefix-list
+set policy-options prefix-list MGMT_HOSTS {
+    192.168.1.100/32;
+}
+
+# 2. Define filter terms
+set firewall family inet filter LO0_PROTECTION term ALLOW_MGMT_SSH from source-prefix-list MGMT_HOSTS
+set firewall family inet filter LO0_PROTECTION term ALLOW_MGMT_SSH from protocol tcp
+set firewall family inet filter LO0_PROTECTION term ALLOW_MGMT_SSH from destination-port 22
+set firewall family inet filter LO0_PROTECTION term ALLOW_MGMT_SSH then {
+    count MGMT_SSH_HITS;
+    accept;
+}
+
+set firewall family inet filter LO0_PROTECTION term BLOCK_OTHER_TCP_TO_ROUTER from protocol tcp
+set firewall family inet filter LO0_PROTECTION term BLOCK_OTHER_TCP_TO_ROUTER then {
+    log;
+    discard;
+}
+
+set firewall family inet filter LO0_PROTECTION term ALLOW_ALL_OTHER_PROTOCOLS then accept
+
+# 3. Apply to lo0
+set interfaces lo0 unit 0 family inet filter input LO0_PROTECTION
+set interfaces lo0 unit 0 family inet address 10.0.0.1/32
+
+# 4. Commit and verify
+commit and-quit
+show firewall filter LO0_PROTECTION counter
+show log messages
+monitor traffic interface lo0 detail
+    </pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Verification</div>
+        <p class="text-xs font-medium text-slate-800">From your management host SSH to the lo0 IP should succeed. From a different IP, SSH should fail. Check counters to confirm.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Safety</div>
+        <p class="text-xs font-medium text-slate-800">Keep a console or out-of-band connection available in case the filter blocks remote management access.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

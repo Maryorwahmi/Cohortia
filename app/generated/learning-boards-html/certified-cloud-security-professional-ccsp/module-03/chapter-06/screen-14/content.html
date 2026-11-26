@@ -1,0 +1,24 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3.6</span><span>›</span><span>Chapter 3.6</span><span>›</span><span class="text-slate-700">EBS Restore Lab</span></div><span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Lab Walkthrough</span><h1 class="text-3xl font-extrabold text-slate-900 mb-3">EBS Snapshot: Restoring Data from a Snapshot</h1><p class="text-base text-slate-600 mb-6">Recovering lost data by creating and attaching a new volume.</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col"><div class="bg-slate-800 text-white rounded-xl p-4 flex-grow font-mono text-sm overflow-auto"><pre style="white-space: pre-wrap; tab-size: 2;"><code># 4. Simulate "data loss" (delete the file):
+# SSH into your EC2 instance again
+sudo rm /home/ec2-user/important_data.txt
+
+# 5. Restore from Snapshot (create a new volume):
+aws ec2 create-volume \
+    --snapshot-id snap-YOUR_SNAPSHOT_ID \
+    --availability-zone us-east-1a \
+    --volume-type gp2 \
+    --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value=CCSP-Restored-Volume}]'
+
+# 6. Attach the new volume to your EC2 instance:
+# Find your EC2 instance ID and the new volume ID
+aws ec2 attach-volume \
+    --volume-id vol-YOUR_RESTORED_VOLUME_ID \
+    --instance-id i-YOUR_EC2_INSTANCE_ID \
+    --device /dev/sdf
+
+# 7. Connect to EC2 and mount the restored volume:
+# SSH into your EC2 instance
+sudo mkfs -t xfs /dev/sdf # Only if not formatted
+sudo mkdir /mnt/restored_data
+sudo mount /dev/sdf /mnt/restored_data
+ls /mnt/restored_data/home/ec2-user/ # Verify file exists</code></pre></div></div><div class="w-1/2 flex flex-col justify-between"><div class="space-y-4"><div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-sm font-semibold text-slate-800 mb-1">Step 4 & 5: Simulate Loss & Restore</div><p class="text-xs text-slate-600">Delete the file to simulate data loss. Then, create a new EBS volume from your snapshot. This new volume contains the data from the snapshot's point-in-time.</p></div><div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-sm font-semibold text-slate-800 mb-1">Step 6 & 7: Attach & Mount</div><p class="text-xs text-slate-600">Attach the new volume to your EC2 instance and mount it. You can then verify the recovery of your 'important_data.txt' file, completing the restore process.</p></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Successfully restoring data from an EBS snapshot validates your backup strategy and proves your ability to recover from data loss incidents.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

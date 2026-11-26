@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.safe-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assessment</div>
+    <div class="text-lg font-semibold text-slate-800">Create users with conditional UID</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Task</div>
+      <div class="mt-2 text-sm text-slate-600">Write a user task that loops users_to_create and applies uid only when present.</div>
+      <div class="mt-3 text-xs text-slate-600">Starter list:
+        <pre class="safe-pre"><code>users_to_create:
+  - name: alice
+    uid: 1001
+  - name: bob
+  - name: charlie
+    uid: 1003
+</code></pre>
+      </div>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Correct answer (pattern)</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3">
+        <pre class="safe-pre"><code>- name: Create users with conditional UID
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid | default(omit) }}"
+    state: present
+    shell: /bin/bash
+  loop: "{{ users_to_create }}"
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Explanation: default(omit) removes the uid parameter when absent, allowing the module to assign a default UID.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

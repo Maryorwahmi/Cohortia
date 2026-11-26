@@ -1,0 +1,89 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;tab-size:2;white-space:pre-wrap;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Config Rule → Lambda Remediation</div>
+      <div class="text-sm text-slate-600 mb-4">Detect a non-compliant resource with Config and invoke Lambda to apply a corrective action automatically.</div>
+
+      <div class="flex-1 overflow-hidden">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Lambda remediation (Python)</div>
+        <div class="code">
+&lt;pre&gt;&lt;code&gt;import boto3
+import json
+
+s3 = boto3.client('s3')
+
+def lambda_handler(event, context):
+  # Received event from AWS Config change notification
+  print(f"Received event: {json.dumps(event)}")
+  invoking_event = json.loads(event['invokingEvent'])
+  configuration_item = invoking_event['configurationItem']
+  bucket_name = configuration_item['resourceName']
+  print(f"Attempting to encrypt bucket: {bucket_name}")
+
+  try:
+    s3.put_bucket_encryption(
+      Bucket=bucket_name,
+      ServerSideEncryptionConfiguration={
+        'Rules': [
+          {
+            'ApplyServerSideEncryptionByDefault': {
+              'SSEAlgorithm': 'AES256'
+            }
+          }
+        ]
+      }
+    )
+    print(f"Successfully enabled default encryption for bucket: {bucket_name}")
+    return { 'statusCode': 200, 'body': json.dumps(f"Enabled default encryption for bucket: {bucket_name}") }
+  except Exception as e:
+    print(f"Error encrypting bucket {bucket_name}: {e}")
+    raise e
+&lt;/code&gt;&lt;/pre&gt;
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-3">IAM role for Lambda</div>
+      <div class="text-xs text-slate-600 mb-2">Lambda needs s3:PutBucketEncryption and CloudWatch Logs permissions. Use least privilege.</div>
+      <div class="code">
+&lt;pre&gt;&lt;code&gt;{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:PutBucketEncryption"],
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    }
+  ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl p-3 bg-emerald-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example flow</div>
+          <div class="text-sm text-slate-700">Create an unencrypted bucket, let Config evaluate it as NON_COMPLIANT, then observe Lambda enabling default encryption and Config returning the resource to COMPLIANT.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl p-3 bg-amber-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <div class="text-sm text-slate-700">Automation does not remove the need for logs and evidence. Ensure all steps are recorded for audits.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

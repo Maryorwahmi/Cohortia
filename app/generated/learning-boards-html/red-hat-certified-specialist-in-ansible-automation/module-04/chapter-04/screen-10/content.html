@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">app_deploy.yml Lab</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm h-full p-6 flex flex-col"> 
+    <div class="text-sm font-bold text-slate-700">Starter Code Template</div>
+
+    <div class="mt-4 flex-1 overflow-hidden"> 
+      <pre class="bg-slate-900 text-white rounded p-3" style="white-space:pre-wrap;tab-size:2;"><code>---
+- name: Deploy web application with handler
+  hosts: webservers # Or 'all'
+  become: yes
+  vars:
+    app_db_host: mydatabase.example.com # Define a variable for your template
+  tasks:
+    - name: Deploy application configuration file
+      ansible.builtin.template:
+        src: templates/app_config.conf.j2
+        dest: /etc/myapp/app_config.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart myapp service # Notify the handler if this file changes
+
+    - name: Ensure myapp service is running and enabled
+      ansible.builtin.systemd:
+        name: myapp
+        state: started
+        enabled: yes
+      notify: Restart myapp service # This will also notify, but handler runs once
+
+  handlers:
+    - name: Restart myapp service
+      ansible.builtin.systemd:
+        name: myapp
+        state: restarted</code></pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3"> 
+      <div class="rounded-lg bg-white p-3 card-border"> 
+        <div class="text-sm font-bold text-slate-800">First run</div>
+        <div class="text-sm text-slate-600 mt-2">Template changed → notify → handler runs once at play end.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border"> 
+        <div class="text-sm font-bold text-slate-800">Second run</div>
+        <div class="text-sm text-slate-600 mt-2">No changes → tasks ok → handler not notified and does not run.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border"> 
+        <div class="text-sm font-bold text-slate-800">Optional check</div>
+        <div class="text-sm text-slate-600 mt-2">Add wait_for to confirm myapp port is open if restart time is variable.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

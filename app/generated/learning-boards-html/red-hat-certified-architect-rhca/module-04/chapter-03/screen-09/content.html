@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#fff;} .card{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hardened unit example</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card overflow-auto">
+      <div class="font-bold text-slate-800">Unit file (example)</div>
+      <pre class="mt-3"><code>[Unit]
+Description=My Web Application
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/mywebapp-server
+User=mywebapp
+Group=mywebapp
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+CapabilityBoundingSet=~CAP_SYS_ADMIN ~CAP_DAC_OVERRIDE ~CAP_CHOWN ~CAP_FOWNER ~CAP_KILL ~CAP_SETGID ~CAP_SETUID ~CAP_NET_ADMIN ~CAP_NET_RAW
+RestrictAddressFamilies=AF_INET AF_UNIX
+MemoryLimit=256M
+TasksMax=50
+ReadWritePaths=/var/log/mywebapp /var/cache/mywebapp
+ReadOnlyPaths=/etc/mywebapp/config.d
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card">
+      <div class="font-bold text-slate-800">Annotations</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>User and Group — drop root where possible.</li>
+        <li>PrivateTmp & ProtectSystem — isolate temp and keep system files read-only.</li>
+        <li>CapabilityBoundingSet — explicitly remove unnecessary kernel powers.</li>
+        <li>MemoryLimit & TasksMax — stop resource exhaustion.</li>
+        <li>ReadWritePaths/ReadOnlyPaths — whitelist specific writable and readable paths.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

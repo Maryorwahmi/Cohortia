@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Core Concept</span>
+    <span class="text-slate-700">Shaping — buffer and pace</span>
+  </div>
+  <div class="flex-grow flex gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Shaping behavior</div>
+      <p class="text-sm text-slate-600 mt-2">Shaping queues excess packets and sends them at the average configured rate. It is stateful because it requires buffers and queue management.</p>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Benefit</div>
+          <div class="text-sm text-slate-800 mt-1">Prevents packet loss for short bursts and helps meet SLAs to upstream providers.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Cost</div>
+          <div class="text-sm text-slate-800 mt-1">Adds latency due to buffering; insufficient buffers still cause drops.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Configuration example</div>
+      <pre class="mt-3 p-2 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">policy-map SHAPE_OUTBOUND
+ class ALL_TRAFFIC
+  shape average 1000000
+interface GigabitEthernet0/1
+ service-policy output SHAPE_OUTBOUND</pre>
+      <div class="mt-3 text-xs text-slate-600">shape average instructs the router to pace outgoing packets to an average rate; burst allowances are calculated from the CIR unless explicitly set.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use shaping when you need to avoid packet loss and can tolerate small, controlled delay.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

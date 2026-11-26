@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Modules</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl card p-5 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition & structure</div>
+      <div class="text-sm text-slate-600 mt-2">Modules declare their arguments and return structured JSON. They implement idempotent actions and integrate with Ansible's execution model.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-white border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Key points</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+            <li>Use AnsibleModule for argument parsing and exit_json/fail_json results.</li>
+            <li>Respect check mode and avoid side effects when check mode is enabled.</li>
+            <li>Return changed boolean to let playbooks reason about state transitions.</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-400">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Treating a script as a module without structured output or idempotency leads to brittle automation and difficult debugging.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Modules should be predictable, testable, and report state so they can be packaged and reused safely across teams.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl card p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Concrete example</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># plugins/modules/my_custom_module.py
+#!/usr/bin/python
+from ansible.module_utils.basic import AnsibleModule
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            name=dict(type='str', required=True),
+            state=dict(type='str', default='present', choices=['present', 'absent']),
+            message=dict(type='str', default='Hello from custom module!')
+        ),
+        supports_check_mode=True
+    )
+
+    name = module.params['name']
+    state = module.params['state']
+    message = module.params['message']
+
+    changed = False
+    result = {}
+
+    if state == 'present':
+        if not module.check_mode:
+            with open(f"/tmp/{name}.txt", "w") as f:
+                f.write(message)
+            changed = True
+        result['msg'] = f"Resource '{name}' created with message: '{message}'"
+    elif state == 'absent':
+        if not module.check_mode:
+            import os
+            if os.path.exists(f"/tmp/{name}.txt"):
+                os.remove(f"/tmp/{name}.txt")
+                changed = True
+        result['msg'] = f"Resource '{name}' removed."
+
+    module.exit_json(changed=changed, **result)
+
+if __name__ == '__main__':
+    main()
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">This example shows argument_spec, supports_check_mode, and correct use of exit_json. Use tests that verify both actions and non-actions to ensure idempotency.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

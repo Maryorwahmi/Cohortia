@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Live Environment & chroot Recovery</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Step-by-step commands</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>sudo mount /dev/sda1 /mnt
+sudo mount --bind /dev /mnt/dev
+sudo mount --bind /proc /mnt/proc
+sudo mount --bind /sys /mnt/sys
+sudo chroot /mnt
+# inside chroot
+grub-install /dev/sda
+update-grub
+exit
+sudo umount /mnt/sys /mnt/proc /mnt/dev /mnt</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-700">This code block shows the exact sequence you will run. Replace /dev/sda and /dev/sda1 with the disk and root partition you identified. Note the bind mounts before chroot; they make device information and the process filesystem available inside the chroot.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Support notes</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 space-y-2">
+        <li>Verify partition names with lsblk to avoid installing to the wrong disk.</li>
+        <li>If update-grub is unavailable, use grub-mkconfig -o /boot/grub/grub.cfg to regenerate config.</li>
+        <li>When chrooted, commands affect the installed system; keep changes minimal and reversible.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Bind mounts and the correct install target are the two most common operational mistakes when repairing GRUB from a live environment.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

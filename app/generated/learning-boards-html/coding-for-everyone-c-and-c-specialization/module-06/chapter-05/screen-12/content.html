@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#071028;color:#dff3ff;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2;} .card{border:1px solid rgba(226,232,240,0.9);} svg{width:22px;height:22px} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Functors & Lambdas</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card rounded-2xl p-4 flex flex-col">
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-bold text-slate-700">Functor vs Lambda</div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Patterns</div>
+      </div>
+      <p class="text-sm text-slate-600 my-3">Named functors are useful when you want a callable with persistent state and clear type identity. Lambdas are concise and ideal for local predicates and short transformations.</p>
+
+      <div class="text-sm font-semibold text-slate-700 mb-2">Stateful functor example</div>
+      <pre class="code"><code>struct SumPrinter {
+  int sum = 0;
+  void operator()(int v){ sum += v; std::cout &lt;&lt; "value: " &lt;&lt; v &lt;&lt; '
+'; }
+};
+// Usage: std::for_each(vec.begin(), vec.end(), SumPrinter());
+</code></pre>
+    </div>
+
+    <div class="card rounded-2xl p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Lambda with capture for the same intent</div>
+      <pre class="code"><code>int total = 0;
+std::for_each(vec.begin(), vec.end(),
+  [&total](int v){ total += v; std::cout &lt;&lt; v &lt;&lt; '
+'; });
+// total is updated via captured reference
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Use a captured variable for quick local state. For reusable operations, prefer a named functor to improve testability and clarity.</div>
+    </div>
+  </div>
+
+  <div class="flex gap-3 mt-4">
+    <div class="flex-1 card rounded-xl p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Misconception</div>
+      <div class="text-sm text-slate-600">Lambdas are not inherently slower. Compiler optimizations often inline or optimize both functors and lambdas similarly. Choose for clarity and ownership of state.</div>
+    </div>
+
+    <div class="flex-1 card rounded-xl p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">When to use std::for_each</div>
+      <div class="text-sm text-slate-600">`std::for_each` is convenient for side effects. If you need a transformed container use `std::transform`, and if you need a filtered view prefer copy_if or remove-erase patterns for clarity.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

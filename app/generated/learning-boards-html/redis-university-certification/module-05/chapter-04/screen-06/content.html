@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .term{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Create Cluster</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Start instances and run create</h3>
+        <p class="text-sm text-slate-700 mt-3">Start each server with its redis.conf and run the cluster create command with all node addresses and --cluster-replicas to assign replicas automatically.</p>
+
+        <div class="mt-4">
+          <div class="term">
+            <pre class="text-sm"># start each instance
+redis-server redis-7000.conf
+redis-server redis-7001.conf
+...
+
+# create the cluster
+redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 \
+  127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
+# type yes when prompted</pre>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Verification</div>
+            <pre class="mt-2">redis-cli -p 7000
+> CLUSTER NODES
+redis-cli --cluster check 127.0.0.1:7000</pre>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Provide all instance addresses to the create command and use --cluster-replicas to control replica assignment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Practical notes</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>Include both master and replica addresses during create for a smooth layout.</li>
+          <li>Type yes to accept slot and replica assignments proposed by the helper.</li>
+          <li>After create, nodes will exchange gossip and persist nodes-PORT.conf files.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase text-slate-600">Misconception</div>
+          <p class="text-sm text-slate-700 mt-2">Do not assume redis-cli --cluster create performs live data movement beyond initial slot assignment — it sets the initial distribution so your cluster starts with each master owning a set of slots.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

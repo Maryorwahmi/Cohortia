@@ -1,0 +1,112 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:0.9rem}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">DiscountStrategy Example</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-hidden flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code (abridged)</div>
+      <div class="mt-3 overflow-auto rounded-md bg-slate-900 text-white p-3" style="max-height:60%;">
+        <pre><code>// 1. Strategy Interface
+interface DiscountStrategy {
+  double applyDiscount(double originalPrice);
+}
+
+// 2. Concrete Strategy: No Discount
+class NoDiscountStrategy implements DiscountStrategy {
+  @Override
+  public double applyDiscount(double originalPrice) {
+    System.out.println("Applying no discount.");
+    return originalPrice;
+  }
+}
+
+// 2. Concrete Strategy: Percentage Discount
+class PercentageDiscountStrategy implements DiscountStrategy {
+  private double percentage; // e.g., 0.10 for 10%
+
+  public PercentageDiscountStrategy(double percentage) {
+    this.percentage = percentage;
+  }
+
+  @Override
+  public double applyDiscount(double originalPrice) {
+    System.out.println("Applying " + (percentage * 100) + "% discount.");
+    return originalPrice * (1 - percentage);
+  }
+}
+
+// 2. Concrete Strategy: Fixed Amount Discount
+class FixedAmountDiscountStrategy implements DiscountStrategy {
+  private double fixedAmount;
+
+  public FixedAmountDiscountStrategy(double fixedAmount) {
+    this.fixedAmount = fixedAmount;
+  }
+
+  @Override
+  public double applyDiscount(double originalPrice) {
+    System.out.println("Applying fixed amount discount of $" + fixedAmount);
+    return Math.max(0, originalPrice - fixedAmount);
+  }
+}
+
+// 3. Context Class
+class ShoppingCart {
+  private DiscountStrategy discountStrategy;
+  private double totalPrice;
+
+  public ShoppingCart(double initialPrice) {
+    this.totalPrice = initialPrice;
+    this.discountStrategy = new NoDiscountStrategy();
+  }
+
+  public void setDiscountStrategy(DiscountStrategy discountStrategy) {
+    this.discountStrategy = discountStrategy;
+    System.out.println("Discount strategy set to: " + discountStrategy.getClass().getSimpleName());
+  }
+
+  public double calculateFinalPrice() {
+    return discountStrategy.applyDiscount(totalPrice);
+  }
+
+  public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 p-3 rounded-md bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example scenario</div>
+        <div class="text-sm text-slate-700 mt-2">Create a ShoppingCart, set a PercentageDiscountStrategy, observe the reduced total, then switch to a FixedAmountDiscountStrategy without changing ShoppingCart code.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & guidance</div>
+      <ul class="text-sm text-slate-700 mt-3 list-disc ml-4">
+        <li>Keep applyDiscount implementation details inside each strategy class.</li>
+        <li>Use a default strategy to avoid null checks in the Context.</li>
+        <li>Change strategies at runtime via a setter when client-driven selection is required.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-[rgba(245,166,35,0.08)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Try this</div>
+        <div class="text-sm text-slate-700 mt-2">Add a BuyOneGetOneFree strategy as an exercise. Keep ShoppingCart unchanged and test behavior.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">The code shows how a small Context delegates large algorithm variations to focused Strategy classes that are easy to extend and test.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

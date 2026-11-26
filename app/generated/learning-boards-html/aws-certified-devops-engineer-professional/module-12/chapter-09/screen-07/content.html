@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px}</style>
+  <div class='h-full grid grid-cols-2 gap-6'>
+    <div class='col-span-1 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500 font-bold mb-2'>CI/CD Enhancement</div>
+      <div class='text-2xl font-bold text-slate-900 mb-2'>Shift‑left checks to prevent regressions</div>
+      <div class='text-sm text-slate-600 mb-4'>Add lightweight, fast validations for the most critical risks.</div>
+
+      <div class='rounded-xl p-3 bg-white card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Typical pipeline stages to add</div>
+        <ul class='text-sm text-slate-600 mt-2 space-y-1'>
+          <li>Schema validation and migration checks</li>
+          <li>Security linting and config rules</li>
+          <li>Performance or smoke tests in staging</li>
+        </ul>
+      </div>
+
+      <div class='mt-4 rounded-xl p-3 bg-emerald-50 card-border'>
+        <div class='font-semibold text-slate-800'>Benefit</div>
+        <div class='text-sm text-slate-700 mt-1'>Catching regressions early reduces incident frequency and speeds overall delivery by avoiding emergency fixes.</div>
+      </div>
+    </div>
+
+    <div class='col-span-1'>
+      <div class='rounded-2xl bg-white p-4 card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Example — validation script (shell)</div>
+        <pre><code># validate_db_schema.sh
+#!/bin/bash
+set -euo pipefail
+INDEX_NAME="idx_products_category"
+TABLE_NAME="products"
+# Postgres example: count occurrences of the index
+INDEX_EXISTS=$(psql -t -c "SELECT count(*) FROM pg_indexes WHERE tablename = '$TABLE_NAME' AND indexname = '$INDEX_NAME';")
+if [[ "$INDEX_EXISTS" -eq 1 ]]; then
+  echo "SUCCESS: Index found"
+  exit 0
+else
+  echo "ERROR: Critical index is MISSING"
+  exit 1
+fi</code></pre>
+        <div class='text-xs text-slate-600 mt-2'>Run this in a build stage; if it fails, the pipeline blocks deployment until the schema is fixed.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl p-3 bg-rose-50 card-border'>
+        <div class='font-semibold text-slate-800'>Common objection</div>
+        <div class='text-sm text-slate-600 mt-1'>Checks add time to CI, but catching regressions early is a better trade‑off than debugging production incidents.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

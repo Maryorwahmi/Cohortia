@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">For Loops</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Summing an array with for</h3>
+      <pre class="mt-4 bg-slate-50 p-3 rounded-lg text-sm"><code>contract LoopExample {
+  uint256[] public numbers;
+  constructor() {
+    numbers.push(1);
+    numbers.push(2);
+    numbers.push(3);
+    numbers.push(4);
+    numbers.push(5);
+  }
+  function sumArray() public view returns (uint256) {
+    uint256 total = 0;
+    for (uint256 i = 0; i &lt; numbers.length; i++) {
+      total += numbers[i];
+    }
+    return total;
+  }
+}</code></pre>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-4">
+        <li>The loop increments i from 0 up to numbers.length - 1 and accumulates total.</li>
+        <li>Because sumArray is view, it can be called off-chain without gas in many contexts.</li>
+        <li>If numbers were large and sumArray modified state, you could hit gas limits; keep arrays bounded.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">When to use</div>
+        <p class="text-sm text-slate-800 mt-1">Use for loops for deterministic, bounded iteration, especially in view or pure functions. For unbounded data, rework the pattern.</p>
+      </div>
+
+      <div class="mt-3 rounded-xl p-3 bg-rose-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+        <p class="text-sm text-slate-800 mt-1">Running full-array loops in state-changing functions where the array can grow creates a gas limit risk.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

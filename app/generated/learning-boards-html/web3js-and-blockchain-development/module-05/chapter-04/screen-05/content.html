@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Emitting events</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800">Solidity example</div>
+      <div class="mt-3 text-xs text-slate-600">Event declaration and emit inside a function.</div>
+
+      <pre class="mt-4 rounded-lg bg-slate-900 text-slate-50 p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Storage {
+    uint256 public data;
+    event DataStored(uint256 newData, address indexed sender);
+
+    function store(uint256 _data) public {
+        data = _data;
+        emit DataStored(_data, msg.sender);
+    }
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes & parsing</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>• The indexed keyword marks parameters stored in topics enabling node-side filtering.</li>
+        <li>• Non-indexed parameters are placed into the event's data blob and must be read from returnValues.</li>
+        <li>• When consumed via Web3.js numeric types may be stringified and require parsing or BigNumber handling.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+        <div class="text-xs text-slate-700">Emitting an event does not change contract storage; it records an off-chain-friendly log entry.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use indexed where you expect to filter often, otherwise include data for full context in the event payload.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

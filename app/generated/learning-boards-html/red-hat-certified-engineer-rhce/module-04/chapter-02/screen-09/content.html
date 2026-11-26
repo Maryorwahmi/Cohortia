@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="font-bold text-slate-700">Lab steps</div>
+      <ol class="mt-3 text-sm text-slate-600 space-y-2 list-decimal list-inside">
+        <li>Run lsblk on the target node to find the new disk device name.</li>
+        <li>Create create_partition.yml with the community.general.parted task to create /dev/sdb1.</li>
+        <li>Run ansible-playbook create_partition.yml --check and review the planned changes.</li>
+        <li>Run the playbook normally and then verify with lsblk and sfdisk -l /dev/sdb.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="font-bold text-slate-700">Starter playbook</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>---
+- name: Create a new primary partition on /dev/sdb
+  hosts: your_target_host
+  become: yes
+  tasks:
+    - name: Ensure /dev/sdb exists and create a single primary partition
+      community.general.parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+        part_type: primary
+        part_start: 1MiB
+        part_end: 100%
+      register: new_partition_result
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Replace your_target_host with the specific inventory name for the VM with the new disk. Run check mode before applying changes.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

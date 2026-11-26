@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Patch Baseline Structure</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Policy knobs explained</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Classifications: security, bugfix, enhancement — choose which to auto-approve.</li>
+        <li>Severities: critical, important — often prioritized for quicker approval.</li>
+        <li>ApproveAfterDays: a delay to let initial patches settle in the ecosystem.</li>
+        <li>RejectedPatches: explicitly exclude problematic updates.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Use different baselines for production and non-production to balance stability and speed.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-900">Conceptual baseline (read-only example)</div>
+      <pre class="mt-3 text-sm text-slate-800"># Example: Patch Baseline definition (conceptual)
+PatchBaselines:
+  - Name: "MyLinuxPatchBaseline"
+    OperatingSystem: "AMAZON_LINUX_2"
+    ApprovalRules:
+      PatchFilters:
+        - Key: "CLASSIFICATION"
+          Values: ["Security", "Bugfix"]
+        - Key: "SEVERITY"
+          Values: ["Critical", "Important"]
+      ApproveAfterDays: 7
+    RejectedPatches: ["specific-patch-id-to-avoid"]</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Do not paste this into production; adapt and test. Use least-privilege IAM for Systems Manager roles used by instances.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border-radius:1rem;border:1px solid rgba(226,232,240,0.9);padding:1rem}.code{background:#0b1220;color:#dbeafe;border-radius:.75rem;padding:1rem;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Core Technique</span>
+    <span>›</span>
+    <span>Object Pooling</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Why pool?</div>
+      <div class="text-sm text-slate-700 mt-2">Pooling avoids repeated spawn/destroy overhead that leads to spikes. Use it for short-lived, frequently instantiated actors like projectiles and explosion VFX.</div>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Reset state checklist</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-1">
+        <li>Position and rotation reset</li>
+        <li>Disable collision or re-enable appropriately</li>
+        <li>Reset velocity and gameplay flags</li>
+        <li>Deactivate components like movement or particles before reuse</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pooling trades predictable steady memory for fewer allocation spikes — reset objects to avoid state bugs.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 card flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Blueprint Pattern</div>
+      <div class="text-sm text-slate-700 mt-2">Pool manager holds an Array of pre-spawned BP_Projectile references and provides GetPooledProjectile and ReturnToPool functions to manage activation.</div>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Pseudo-Blueprint example</div>
+      <div class="mt-2 code" style="color:#cbd5e1">
+// ProjectilePool: Array&lt;BP_Projectile&gt;
+// Event BeginPlay:
+//  For Loop 0..9
+//    Spawn Actor BP_Projectile
+//    Set Hidden In Game (True)
+//    Set Enable Collision (False)
+//    Set Tick Enabled (False)
+//    Add to ProjectilePool
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

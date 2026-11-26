@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-bg{background:#0f172a;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Coin.gd Script</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold">Script explanation</div>
+      <div class="text-sm text-slate-700 mt-3">The script extends Area2D, declares a signal, and defines a body_entered callback that checks collider identity, emits collected, and calls queue_free(). Emitting before freeing ensures external handlers run.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50">
+        <div class="text-sm font-semibold">Misconception</div>
+        <div class="text-xs text-slate-600 mt-1">Do not call free(); use queue_free() so deletion happens at the end of the frame and avoids runtime errors.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="text-sm font-semibold mb-2">Code (visual)</div>
+      <div class="code-bg overflow-auto">
+        <pre style="white-space:pre-wrap;tab-size:2"><code># Coin.gd
+extends Area2D
+
+signal collected
+
+func _on_body_entered(body: Node2D) -> void:
+    # Check if the body that entered is the player
+    # A more robust check might be: if body.is_in_group("player"):
+    if body.name == "Player": # Assuming your player node is named "Player"
+        print("Coin collected!")
+        collected.emit()
+        queue_free()
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-white card-border shadow-sm">
+        <div class="text-xs text-slate-600">Editor tip: Connect the body_entered signal in the Node tab to generate the callback stub automatically, which ensures the signature matches the engine expectation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

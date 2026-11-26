@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span class="text-slate-700">Block lifecycle</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">Block lifecycle and hooks</div>
+    <div class="text-sm text-slate-600 mt-1">Understand deterministic timing and safe responsibilities for hooks.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Lifecycle steps</div>
+      <div class="space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-slate-800">1. on_initialize(block_number) — deterministic entry point before transactions; used for scheduled checks and lightweight updates.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-slate-800">2. Transactions — all signed/unsigned extrinsics execute and change state.</div>
+        <div class="p-3 rounded-lg bg-emerald-50 text-slate-800">3. on_finalize(block_number) — final state summaries, cleanup, and emitting summary events.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-600">Common-mistake</div>
+        <div class="p-3 mt-2 rounded-lg bg-rose-50 text-rose-700">Putting HTTP or heavy loops inside hooks. This will slow block import and must be avoided.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Example: auction check</div>
+      <div class="text-sm text-slate-600">A pallet checks for auctions that ended at or before block N. on_initialize can mark them concluded and schedule transfers. Because the logic is simple and deterministic, it belongs in a hook. If verifying external facts about the auction required network calls, that part must be moved to an OCW.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-600">Key observations</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Hooks run in-consensus and are executed by every validator.</li>
+          <li>They must return an accurate weight value for resource accounting.</li>
+          <li>Keep guard rails: limit loops, avoid I/O, and precompute where possible.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat hooks as deterministic, fast checkpoints in the block lifecycle — not as background workers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

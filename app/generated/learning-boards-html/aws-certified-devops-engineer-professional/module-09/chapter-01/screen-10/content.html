@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Nginx Lab</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold">index.html</div>
+      <pre class="mt-3 bg-slate-100 text-slate-900 rounded-lg p-3"><code>&lt;!-- index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My Dockerized Nginx&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hello from Nginx in a Docker Container!&lt;/h1&gt;
+    &lt;p&gt;This page is served by a custom Nginx image.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Create the Dockerfile shown on the right, build with a tag, then run mapping port 8080 on the host to port 80 in the container.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold">Dockerfile</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3"><code># Use the official Nginx image as a base
+FROM nginx:latest
+
+# Remove the default Nginx index.html
+RUN rm /etc/nginx/html/index.html
+
+# Copy your custom index.html into the Nginx web root
+COPY index.html /etc/nginx/html/index.html
+
+# Expose port 80 (Nginx default)
+EXPOSE 80
+
+# Command to run Nginx (default in base image, but good to know)
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Build and run commands:</div>
+      <pre class="mt-2 bg-slate-100 text-slate-900 rounded-lg p-3"><code>docker build -t custom-nginx-web .
+docker run -p 8080:80 --name my-web-server -d custom-nginx-web</code></pre>
+
+      <div class="mt-3 text-xs text-slate-500">Verify at http://localhost:8080, then clean up with docker stop, docker rm, and docker rmi as needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

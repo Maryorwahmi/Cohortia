@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Create an ECR repository</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800">Create repository with CLI</h3>
+      <p class="text-sm text-slate-600 mt-3">Decide mutability and whether to enable scanOnPush, then run the CLI command and note the repository URI.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Command (example)</div>
+        <pre class="mt-2 rounded-lg bg-slate-900 text-white p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>aws ecr create-repository \
+    --repository-name my-web-app \
+    --image-tag-mutability MUTABLE \
+    --image-scanning-configuration scanOnPush=true \
+    --region us-east-1</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Note the repositoryUri in the command output — it is required when tagging images before pushing.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+          <div class="font-semibold text-slate-800">Example decision</div>
+          <p class="text-sm text-slate-600 mt-1">Use MUTABLE in development for fast iteration; prefer IMMUTABLE for production releases to prevent accidental overwrites.</p>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="font-semibold text-slate-800">Common mistake</div>
+          <p class="text-sm text-slate-600 mt-1">Creating the repository in the wrong region or forgetting to record the repositoryUri will block later push steps.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border card-border flex flex-col">
+      <div class="font-semibold text-slate-800">Verification</div>
+      <p class="text-sm text-slate-600 mt-2">After running the command, open the ECR console in the same region, locate my-web-app, and confirm scanOnPush and tag mutability settings.</p>
+
+      <div class="mt-4">
+        <div class="font-semibold text-slate-800">Why it matters</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-1">
+          <li>• Mutability affects deployments and repeatability.</li>
+          <li>• scanOnPush provides early vulnerability detection as part of your pipeline.</li>
+          <li>• Repository URI is the canonical address for pushing images.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Create repositories with the right mutability and scanning settings to match your development and production needs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

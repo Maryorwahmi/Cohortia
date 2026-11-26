@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">$out: Definition</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h2 class="text-xl font-semibold text-slate-800 mt-2">What $out does</h2>
+      <p class="text-sm text-slate-600 mt-3">It writes the aggregation result into the named collection and replaces its contents if the collection already exists. Use it for complete refreshes and materialized views.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-blue-50">Must be the last stage; creates collection if missing.</div>
+        <div class="rounded-lg p-3 bg-rose-50">Danger: existing collection data is overwritten.</div>
+        <div class="rounded-lg p-3 bg-emerald-50">Good for scheduled reports and archive transformations.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="mt-2">
+        <pre><code>db.sales.aggregate([
+  { $match: { date: { $gte: ISODate("2023-11-01T00:00:00Z"), $lt: ISODate("2023-12-01T00:00:00Z") } } },
+  { $group: {
+      _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+      totalRevenue: { $sum: { $multiply: ["$price", "$quantity"] } },
+      totalItems: { $sum: "$quantity" }
+    }
+  },
+  { $sort: { _id: 1 } },
+  { $out: "monthlySalesSummary" }
+])</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">$out is simple but destructive: use it when you want a deterministic full rewrite of the target collection.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

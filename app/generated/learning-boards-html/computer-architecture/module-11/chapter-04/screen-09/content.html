@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class='text-slate-700'>Cache-aware Locking</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-2/5 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>What is bouncing?</div>
+      <p class='text-sm text-slate-600 mt-2'>When a lock's cache line is repeatedly transferred between cores due to writes, latency and bus traffic increase dramatically.</p>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-slate-500'>Techniques to reduce</div>
+      <ul class='mt-2 space-y-2 text-sm text-slate-700'>
+        <li>Test-and-test-and-set: spin on reads, issue TAS only when read sees free.</li>
+        <li>Backoff: randomized or exponential wait before retrying.</li>
+        <li>Ticket locks: assign tickets so only the next ticket holder needs to acquire.</li>
+      </ul>
+    </div>
+
+    <div class='w-3/5 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Concrete scenario</div>
+      <p class='text-sm text-slate-700 mt-2'>In a tight TAS loop with many contending cores, the cache line migrates each time someone writes. Replace immediate TAS with a read-only spin loop and TAS only when the read reports zero. Add a small randomized pause when TAS fails repeatedly to reduce simultaneous retries.</p>
+
+      <div class='mt-auto grid grid-cols-2 gap-3'>
+        <div class='p-3 rounded-xl bg-violet-50'>
+          <div class='text-xs uppercase tracking-wider text-violet-700'>Why it matters</div>
+          <div class='text-sm text-slate-700 mt-1'>Less coherence traffic means higher acquisition throughput and lower power use.</div>
+        </div>
+        <div class='p-3 rounded-xl bg-amber-50'>
+          <div class='text-xs uppercase tracking-wider text-amber-700'>Misconception</div>
+          <div class='text-sm text-slate-700 mt-1'>A single improvement solves all contention — in reality you often combine techniques for best results.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

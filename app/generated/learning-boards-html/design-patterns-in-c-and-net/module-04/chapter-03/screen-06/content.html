@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="p-4 bg-white card border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900">Building the chain with SetNext</div>
+      <div class="text-sm text-slate-700 mt-3">Use SetNext to link handlers; return the successor to allow fluent chaining.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-semibold">Steps to build a chain</div>
+        <ol class="list-decimal list-inside text-sm text-slate-600">
+          <li>Instantiate handlers with their configuration (levels, names).</li>
+          <li>Call SetNext to assign the successor and return it for chaining.</li>
+          <li>Send requests to the first handler only; it will forward as needed.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4 p-3 bg-violet-50 rounded-lg border border-violet-100">
+        <div class="text-sm font-semibold text-violet-700">Runtime reconfiguration</div>
+        <div class="text-sm text-slate-700 mt-1">You can reorder or replace handlers at runtime to change processing order without modifying handler code.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep chain wiring in a single startup location and use SetNext for clear, maintainable configuration.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-white card border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example wiring</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// Pseudocode-style C# wiring (conceptual)
+var consoleLogger = new ConsoleLogger(LogLevel.Info);
+var fileLogger = new FileLogger(LogLevel.Warning);
+var emailLogger = new EmailLogger(LogLevel.Critical);
+
+consoleLogger.SetNext(fileLogger).SetNext(emailLogger);
+
+// Send messages to consoleLogger.HandleRequest(level, message);
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This example shows fluent chaining. The client only calls HandleRequest on the entry handler.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

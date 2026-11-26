@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Task</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Tekton Task explained</div>
+      <div class="text-sm text-slate-600 mt-2">Parameters, workspaces, steps and Results are the building blocks.</div>
+
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li class="flex gap-2"><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/></svg><span>Params allow Tasks to be reused for different inputs like URL or revision.</span></li>
+        <li class="flex gap-2"><svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg><span>Workspaces are mounted volumes shared across steps in a Task or Pipeline.</span></li>
+        <li class="flex gap-2"><svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Results are small outputs a Task can write for later consumption.</span></li>
+      </ul>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">git-clone example</div>
+      <div class="rounded-lg p-3 bg-slate-50 text-sm text-slate-700 overflow-auto">
+        <pre><code>apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  params:
+    - name: url
+      type: string
+    - name: revision
+      type: string
+      default: main
+  workspaces:
+    - name: output
+  steps:
+    - name: clone
+      image: registry.redhat.io/openshift-pipelines/tkn-cli:latest
+      script: |
+        #!/usr/bin/env bash
+        set -eu
+        git clone "$(params.url)" "$(workspaces.output.path)"
+        cd "$(workspaces.output.path)"
+        git checkout "$(params.revision)"</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Design guidance</div>
+      <div class="text-sm text-slate-600 mt-2">Aim for small Tasks with a single responsibility so they remain reusable across Pipelines.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Common pitfall</div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700 text-sm">Avoid monolithic Tasks that both build and deploy. That reduces reuse and makes troubleshooting harder.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete check</div>
+        <div class="rounded-xl bg-emerald-50 p-3 text-sm text-slate-800">Parameterize your git-clone Task and run it with different URLs to verify reuse.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

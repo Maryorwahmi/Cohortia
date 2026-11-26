@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">failed_when</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">How to use</div>
+      <div class="text-sm text-slate-600 mt-2">Register a result, then evaluate fields in failed_when to mark failure precisely.</div>
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div>- Check result.stdout, result.rc, or result.stderr.</div>
+        <div>- Guard against undefined fields using default filters.</div>
+        <div>- Explain why default exit code behavior is overridden with a comment.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-sm font-semibold">Concrete example</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code># After registering download_result
+failed_when: download_result.status != 200 or download_result.status is not defined
+# Or for a script which prints SUCCESS on stdout when rc != 0
+failed_when: "'SUCCESS' not in result.stdout"</code></pre>
+      <div class="mt-3 rounded-lg bg-emerald-50 p-3 text-emerald-800">Misconception: failed_when is a safety net — it's a deliberate override and must be precise to avoid masking errors.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Pilot Light Architecture</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 bg-white shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Definition</div>
+      <div class="text-xs text-slate-600 mt-2">Keep core data replicated in a DR Region while compute is provisioned when required using versioned IaC templates.</div>
+
+      <div class="mt-4 flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">How it works</div>
+        <ol class="list-decimal pl-4 text-sm text-slate-700 space-y-2">
+          <li>Configure Cross-Region read replica for RDS (asynchronous replication).</li>
+          <li>Keep CloudFormation/CDK templates in version control for compute and networking.</li>
+          <li>On failover: promote replica, launch stacks, reconfigure app endpoints, update DNS using failover routing.</li>
+        </ol>
+
+        <div class="mt-4 rounded-xl p-3 bg-amber-50 border border-[rgba(245,166,35,0.12)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example scenario</div>
+          <div class="text-sm text-slate-800 mt-1">Primary DB in us-east-1 with replica in us-west-2. Promote the replica, launch a small EC2/ALB stack from CloudFormation, attach the DB endpoint, then move DNS via Route 53 failover.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl p-3 bg-rose-50 border border-[rgba(239,102,117,0.12)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Not keeping AMIs and templates up-to-date causes configuration drift and failed launches during recovery.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 bg-white shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Visual: Pilot Light flow</div>
+      <div class="flex-1 grid grid-rows-3 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.6)]">
+          <div class="text-sm font-semibold text-slate-800">Data Replication</div>
+          <div class="text-xs text-slate-600 mt-1">RDS primary → Cross-Region read replica (async). S3 objects replicated if needed.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.6)]">
+          <div class="text-sm font-semibold text-slate-800">IaC Templates Stored</div>
+          <div class="text-xs text-slate-600 mt-1">CloudFormation/CDK stacks in version control describe compute, ALB, ASG and networking for DR Region.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(16,185,129,0.12)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Pilot Light trades higher RTO for lower ongoing cost. Test template launches and replica promotion regularly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

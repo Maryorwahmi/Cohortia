@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} svg {flex-shrink:0}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Dependency Graphs</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Edges and latencies</h3>
+      <p class="text-sm text-slate-600 mt-2">Label edges with dependency type and latency to capture timing constraints for scheduling.</p>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50 card">
+          <div class="text-sm font-semibold text-slate-800">RAW example</div>
+          <div class="text-sm text-slate-600 mt-2">t1 = load a[i]; t2 = mul t1, b; t2 depends on t1 with latency equal to the multiply's producer cycle.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">WAR and WAW</div>
+          <div class="text-sm text-slate-600 mt-2">Preserve ordering when reads and writes may alias or when two writes target the same register or memory.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">Memory aliasing</div>
+          <div class="text-sm text-slate-600 mt-2">Assume dependence unless proven independent; unsafe assumptions can break correctness.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete graph</div>
+      <div class="mt-3 flex-1">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-semibold uppercase text-slate-500">Instructions</div>
+          <pre class="mt-2">r1 = load a[i]        ; latency 2
+r2 = load b[i]        ; latency 2
+r3 = mul r1, r2       ; latency 3
+r4 = add sum, r3      ; latency 1
+store sum             ; latency 1</pre>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Graph interpretation</div>
+            <div class="text-xs text-slate-600 mt-2">Loads feed the multiply; multiply feeds add; add feeds store. Latencies define how many cycles before consumers may issue.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Scheduling implication</div>
+            <div class="text-xs text-slate-600 mt-2">To avoid stalls, schedule independent operations or older iterations in the gap defined by latency.</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Treating memory loads as independent without alias checks can produce incorrect schedules.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

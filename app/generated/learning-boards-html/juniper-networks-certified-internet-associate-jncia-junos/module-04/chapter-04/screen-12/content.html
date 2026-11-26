@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100'>Hands-on Activity</span>
+    <span>›</span>
+    <span class='text-slate-700'>R1 & R2 Lab</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 min-w-0'>
+      <div class='rounded-2xl bg-white p-5 card-border h-full shadow-sm'>
+        <h3 class='text-xl font-bold text-slate-900 mb-2'>R1 — configuration</h3>
+        <pre style='white-space:pre-wrap; tab-size:2' class='text-sm bg-slate-900 text-green-200 p-3 rounded-md overflow-auto'><code># For R1
+user@R1# edit
+user@R1# set routing-options router-id 1.1.1.1
+user@R1# set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+user@R1# set interfaces lo0 unit 0 family inet address 192.168.1.1/32
+user@R1# set protocols ospf area 0.0.0.0 interface lo0.0 passive
+user@R1# commit and-quit</code></pre>
+        <div class='mt-3 text-sm text-slate-700'>After commit, verify with show ospf neighbor and show ospf interface on R1.</div>
+      </div>
+    </div>
+    <div class='w-1/2 min-w-0'>
+      <div class='rounded-2xl bg-white p-5 card-border h-full shadow-sm'>
+        <h3 class='text-xl font-bold text-slate-900 mb-2'>R2 — configuration & verification</h3>
+        <pre style='white-space:pre-wrap; tab-size:2' class='text-sm bg-slate-900 text-green-200 p-3 rounded-md overflow-auto'><code># For R2
+user@R2# edit
+user@R2# set routing-options router-id 2.2.2.2
+user@R2# set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+user@R2# commit and-quit
+user@R2> show ospf neighbor
+user@R2> show route protocol ospf</code></pre>
+        <div class='mt-3 text-sm text-slate-700'>Expect R2 to learn 192.168.1.1/32 via OSPF once adjacency reaches Full on ge-0/0/0.0.</div>
+        <div class='bg-amber-50 rounded-lg p-3 mt-3'>
+          <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Pitfall</div>
+          <div class='text-sm text-slate-800'>Do not mark the physical peer link passive. That will prevent adjacency formation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

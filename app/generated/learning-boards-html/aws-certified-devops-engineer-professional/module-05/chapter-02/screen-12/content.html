@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Activity</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Terminal sequence (summary)</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-3 rounded card-border" style="white-space:pre-wrap; tab-size:2;"># Install agent
+sudo yum install -y amazon-cloudwatch-agent
+# Create sample log
+sudo mkdir -p /opt/myapp/logs
+sudo echo "ERROR: Database connection failed" | sudo tee -a /opt/myapp/logs/app.log
+# Apply agent config and start
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/tmp/config.json -s
+
+# Put subscription filter via CLI (example)
+aws logs put-subscription-filter --log-group-name /myapp/ec2-logs --filter-name ErrorToLambda --filter-pattern "ERROR" --destination-arn arn:aws:lambda:region:acct:function:LogProcessor --role-arn arn:aws:iam::acct:role/CloudWatchLogsLambdaAccessRole</pre>
+      <div class="text-sm text-slate-600 mt-3">After these steps, trigger test log writes and check the CloudWatch Logs console, Lambda logs, and S3 objects written by Firehose.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Validation checks</div>
+      <ul class="list-disc list-inside text-sm text-slate-600 mt-3">
+        <li>Log lines appear in the configured log stream.</li>
+        <li>Lambda logs show decoded payload when events match the filter.</li>
+        <li>S3 receives partitioned files from Firehose within buffer interval.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold">Misconception check</div>
+        <div class="text-sm text-slate-600 mt-1">Don’t expect immediate S3 files if buffer settings are large; small buffers deliver faster but at higher cost.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Port Security</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white border p-5 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800'>Configuration pattern</div>
+      <div class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 font-mono text-sm' style='white-space: pre-wrap; tab-size: 2;'>
+interface GigabitEthernet1/0/1
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+</div>
+      <div class='mt-3 text-xs text-slate-600'>Sticky mode simplifies device onboarding. Consider restrict for production to avoid accidental outages from shutdown mode.</div>
+    </div>
+
+    <div class='rounded-2xl bg-white border p-5 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800'>Violation mode comparison</div>
+      <ul class='mt-3 list-disc pl-5 text-sm text-slate-700'>
+        <li>Shutdown: disables the port on violation (most secure)</li>
+        <li>Restrict: drops violating traffic and increments counters (recommended for production)</li>
+        <li>Protect: drops violating traffic silently without counters</li>
+      </ul>
+    </div>
+
+    <div class='col-span-2 rounded-xl bg-white border p-4 shadow-sm'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1'>Why it matters</div>
+      <div class='text-sm text-slate-700'>By limiting MAC learning on an access port you reduce the attack surface for MAC flooding. Combined with DHCP Snooping and IPSG, Port Security ensures only expected endpoints can transmit and limits attacker identity spoofing.</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.10</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-6/12 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700">
+        <li class="mt-2">Verify prerequisites: ASG with multiple instances, tagged instances, FIS IAM role, and a CloudWatch stop alarm.</li>
+        <li class="mt-2">Create and save an experiment template. Use COUNT(1) selection to limit blast radius for the first run.</li>
+        <li class="mt-2">Dry-run the template in staging. Confirm the alarm behavior and that the experiment stops when an alarm is triggered.</li>
+        <li class="mt-2">Start a controlled experiment in production with monitoring engaged and stakeholders notified.</li>
+        <li class="mt-2">Observe EC2 and ASG behavior, CloudWatch metrics, and FIS run status. Stop immediately if metrics breach your hypotheses.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Verify Observation</div>
+          <p class="text-xs font-medium text-slate-800">Confirm the ASG replaced the terminated instance and that the application remained within steady-state thresholds or note the exact deviation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-6/12 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Terminal / Console Callouts</div>
+      <div class="mt-3 text-sm text-slate-700">While the chapter focuses on the console workflow, these are the observation steps you would take in any interface: capture instance IDs, note the ASG activity history, and export the CloudWatch metric windows around the experiment time. Below is an example snippet you might record for documentation.</div>
+
+      <pre class="code bg-black text-white p-3 rounded-md mt-3"># Experiment record
+ExperimentId: fis-experiment-12345
+Start: 2024-01-15T10:32:00Z
+TargetInstance: i-0abcdef1234567890
+ASGAction: terminated -> new instance i-0abcdef9876543210 launched
+CloudWatch: SuccessRate dip 99.9% -> 98.4% (10:32:10 - 10:34:00)</pre>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-[11px] font-bold text-slate-600">Checkpoints</div>
+        <ul class="text-sm text-slate-700 ml-4 mt-2 list-disc">
+          <li>Stop condition did not fire / or fired — note which.</li>
+          <li>Replacement instance passed health checks in X seconds.</li>
+          <li>Any customer-facing errors and their durations.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

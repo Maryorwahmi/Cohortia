@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">next-term vs next-policy</div>
+      <div class="text-sm text-slate-600 mt-2">Decide whether the evaluation continues inside the same policy or moves to the next policy in a chain.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Step sequence</div>
+        <ol class="mt-2 list-decimal ml-5 text-sm text-slate-600">
+          <li>Term matches and applies actions before flow control.</li>
+          <li>If next-term, evaluation resumes at the next term in the same policy.</li>
+          <li>If next-policy, evaluation continues at the first term of the next applied policy.</li>
+          <li>At some point a term must accept or the route is implicitly rejected.</li>
+        </ol>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Map the policy chain before using next-policy. Know which policy follows and whether it will accept the route.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded"><code>set policy-options policy-statement CHAIN term SET_COMM then community add ISP_TAG
+set policy-options policy-statement CHAIN term SET_COMM then next-term
+set policy-options policy-statement CHAIN term FINAL then local-preference 200
+set policy-options policy-statement CHAIN term FINAL then accept
+
+# Or chain policies:
+set policy-options policy-statement POLICY_A term T1 then community add A_TAG
+set policy-options policy-statement POLICY_A term T1 then next-policy
+set policy-options policy-statement POLICY_B term B1 then accept</code></pre>
+      <div class="text-xs text-slate-600 mt-3">In the first example the community is added, then the next term sets local-preference and accepts. In the second, POLICY_A hands the route to POLICY_B for final decision.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-rose-50 p-3 text-xs text-rose-700">Common mistake: forgetting to accept after next-term/next-policy, causing implicit rejection.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

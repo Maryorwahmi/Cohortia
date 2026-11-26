@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Class Templates</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">MyStack&lt;T&gt; example</div>
+      <p class="text-sm text-slate-600 mt-3">Use a template parameter T for the element type. The stack allocates a T array and provides push, pop, and peek. Instantiations like MyStack&lt;int&gt; and MyStack&lt;std::string&gt; create concrete classes.</p>
+
+      <pre class="mt-4 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+&lt;?cpp
+template &lt;typename T&gt;
+class MyStack {
+private:
+  T* arr;
+  int top;
+  int capacity;
+public:
+  MyStack(int size) : capacity(size), top(-1) { arr = new T[capacity]; }
+  ~MyStack() { delete[] arr; }
+  void push(const T&amp; val) { arr[++top] = val; }
+  T pop() { if(top==-1){ return T(); } return arr[top--]; }
+};
+?&gt;
+      </pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4">
+        <div class="text-sm font-semibold text-slate-800">Type requirements</div>
+        <div class="text-sm text-slate-600 mt-2">Templates may require that types support copying, default construction, or certain operators. If a type lacks these, the instantiation will fail at the point it is used.</div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4">
+        <div class="text-sm font-semibold text-slate-800">Practical check</div>
+        <div class="text-sm text-slate-600 mt-2">Instantiate MyStack&lt;int&gt; and MyStack&lt;std::string&gt; in a small main to verify push/pop behavior and to test exception or underflow handling.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Class templates let you design reusable containers, but check the expectations you place on types and keep definitions visible for instantiation.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

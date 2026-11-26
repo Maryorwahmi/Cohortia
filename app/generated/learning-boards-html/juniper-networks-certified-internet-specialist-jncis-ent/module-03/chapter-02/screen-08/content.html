@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring RSTP on Juniper EX</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter configuration snippets</div>
+      <div class="mt-3 text-xs text-slate-600">Use these lines in configuration mode and commit changes when ready.</div>
+
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Enable RSTP
+set protocols rstp
+
+# Set bridge priority to make Switch-A Root
+set protocols rstp bridge-priority 4096
+
+# Apply Loop Guard to inter-switch links
+set protocols rstp interface ge-0/0/0 loop-guard
+set protocols rstp interface ge-0/0/1 loop-guard
+
+# Configure an edge port and BPDU Guard
+set interfaces ge-0/0/2 unit 0 family ethernet-switching port-mode access edge
+set protocols rstp interface ge-0/0/2 bpdu-guard
+
+commit and-quit
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">After commit, run show spanning-tree bridge and show spanning-tree interface to validate roles and the selected root.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example verification</div>
+      <div class="text-sm text-slate-600 mt-3">Expected checks include confirming Switch-A is Root Bridge and access ports configured as edge are forwarding until a BPDU is received when testing BPDU Guard.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold text-slate-600">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Forgetting to apply loop-guard on inter-switch links leaves you vulnerable to unidirectional failures; apply loop-guard consistently on uplinks.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

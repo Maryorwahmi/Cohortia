@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;tab-size:2;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Pitch & Volume</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 card">
+      <div class="text-lg font-bold text-slate-800">DynamicEngineSound</div>
+      <pre class="mt-3"><code>using UnityEngine;
+
+public class DynamicEngineSound : MonoBehaviour
+{
+    public AudioSource engineAudioSource;
+    public float minPitch = 0.8f;
+    public float maxPitch = 1.5f;
+    public float minVolume = 0.3f;
+    public float maxVolume = 1.0f;
+
+    // Assume 'speed' is a variable controlled by your vehicle's movement script
+    public float currentSpeed = 0f; // This would come from actual vehicle physics
+
+    void Update()
+    {
+        // Simulate speed change for demonstration
+        currentSpeed = Mathf.Sin(Time.time) * 0.5f + 0.5f; // Oscillates between 0 and 1
+
+        // Map speed to pitch and volume
+        engineAudioSource.pitch = Mathf.Lerp(minPitch, maxPitch, currentSpeed);
+        engineAudioSource.volume = Mathf.Lerp(minVolume, maxVolume, currentSpeed);
+
+        // Ensure engine sound is playing
+        if (!engineAudioSource.isPlaying)
+        {
+            engineAudioSource.Play();
+        }
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Smooth transitions to avoid clicks: interpolate changes over time.</li>
+        <li>Keep pitch in a small band to maintain natural timbre.</li>
+        <li>Combine subtle volume and pitch changes for realism rather than extreme shifts.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example</div>
+        <p class="text-xs font-medium text-slate-800">Map vehicle speed to pitch to make the engine feel responsive as speed increases, then test and tweak the min/max to taste.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

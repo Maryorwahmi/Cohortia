@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Firewall Rule Example</span>
+  </div>
+
+  <h2 class="text-3xl font-bold text-slate-900 mb-2">Designing Basic Firewall Rules: A Scenario</h2>
+  <p class="text-lg text-slate-600 mb-8">Applying the principle of least privilege in practice</p>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col space-y-6">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 flex-grow">
+        <h3 class="text-xl font-semibold text-slate-800 mb-3">Scenario Overview</h3>
+        <p class="text-base text-slate-700 mb-4">A small office network requires specific traffic control:</p>
+        <ul class="list-disc list-inside text-sm text-slate-600 space-y-2">
+          <li>Internal Network: <code>192.168.1.0/24</code></li>
+          <li>Web Server in DMZ: <code>172.16.0.10</code> (publicly accessible)</li>
+          <li>Internal DNS Server: <code>192.168.1.5</code> (internal access only)</li>
+          <li>Employees need Internet access (HTTP/HTTPS).</li>
+          <li>SSH to Web Server only from office's public IP (<code>YOUR_OFFICE_PUBLIC_IP</code>).</li>
+          <li>All other traffic must be denied by default.</li>
+        </ul>
+      </div>
+
+      <div class="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Goal</div>
+        <p class="text-sm font-medium text-slate-800">Design rules to meet these requirements while adhering to the principle of least privilege.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-slate-900 rounded-2xl shadow-lg p-6 font-mono text-sm overflow-auto relative">
+      <div class="text-slate-400 mb-4"><code># Firewall Rules for Small Office Network</code></div>
+      <pre class="text-slate-200 whitespace-pre-wrap" style="tab-size: 2;">
+<span class="text-blue-400"># 1. Allow internal users to browse the internet</span>
+<span class="text-emerald-400">ALLOW</span> 192.168.1.0/24 ANY TCP 80,443
+
+<span class="text-blue-400"># 2. Allow internet users to access the web server in the DMZ</span>
+<span class="text-emerald-400">ALLOW</span> ANY 172.16.0.10 TCP 80,443
+
+<span class="text-blue-400"># 3. Allow SSH access to the web server from the office's public IP</span>
+<span class="text-emerald-400">ALLOW</span> YOUR_OFFICE_PUBLIC_IP 172.16.0.10 TCP 22
+
+<span class="text-blue-400"># 4. Allow internal users to access the internal DNS server</span>
+<span class="text-emerald-400">ALLOW</span> 192.168.1.0/24 192.168.1.5 UDP 53, TCP 53
+
+<span class="text-blue-400"># 5. Deny all other traffic (implicit or explicit last rule)</span>
+<span class="text-rose-400">DENY</span> ANY ANY ANY ANY</pre>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Carefully crafted firewall rules, like those in this scenario, demonstrate how to precisely control network access, ensuring security while enabling necessary operations.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

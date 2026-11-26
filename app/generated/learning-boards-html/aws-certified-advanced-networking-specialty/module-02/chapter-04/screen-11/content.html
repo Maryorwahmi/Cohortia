@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="grid grid-rows-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-1/2">
+      <div class="text-sm font-bold text-slate-800">Task</div>
+      <div class="mt-3 text-sm text-slate-600">Enable route propagation for the VGW on the main route table, then verify the 10.0.0.0/16 route appears and test connectivity from an EC2 instance.</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm font-mono" style="white-space:pre-wrap; tab-size:2;">
+# Enable Route Propagation
+aws ec2 enable-vpn-gateway-route-propagation \
+  --route-table-id rtb-0fedcba9876543210 \
+  --vpn-gateway-id vgw-0abcdef1234567890
+
+# Verify Route Table
+aws ec2 describe-route-tables --route-table-ids rtb-0fedcba9876543210 --query 'RouteTables[].Routes[]'
+
+# Allow ICMP from on-prem to EC2 SG
+aws ec2 authorize-security-group-ingress --group-id sg-0123456789abcdef0 --protocol icmp --port -1 --cidr 10.0.0.0/16
+      </pre>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-1/2 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification & troubleshooting</div>
+      <ul class="mt-3 list-disc ml-4 text-sm text-slate-600">
+        <li>Confirm describe-route-tables shows 10.0.0.0/16 with origin 'propagated'</li>
+        <li>Ping from an EC2 instance to on-prem and check for replies</li>
+        <li>If ping fails: check tunnel status, security groups, route associations, BGP state and on-prem advertisements</li>
+      </ul>
+      <div class="mt-auto text-xs text-slate-600">Reflection: after enabling propagation, did the route appear immediately? If not, check BGP session state and that your CGW is actually advertising the prefix.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

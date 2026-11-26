@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-900">One-finger Drag</div>
+      <div class="text-sm text-slate-600 mt-3">Use TouchPhase.Moved + raycast to update the object's world position along the plane.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800 text-sm">Instantiate only on first touch if no placedObject exists.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800 text-sm">On moved, raycast and set placedObject.transform.position = hitPose.position.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800 text-sm">Optional: smooth movement with Lerp to improve UX.</div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Common mistake: performing placement Instantiate inside moved logic, which spawns many objects. Only move the existing reference on moved phases.</div>
+    </div>
+
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Code (conceptual)</div>
+      <div class="bg-slate-900 text-slate-100 rounded-lg p-3 mono" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo,monospace;">
+<pre><code>// On TouchPhase.Moved
+if (arRaycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+{
+  Pose hitPose = hits[0].pose;
+  placedObject.transform.position = Vector3.Lerp(placedObject.transform.position, hitPose.position, 0.6f);
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">UX tip: tune the lerp factor for responsiveness. Too low feels laggy; too high can feel jittery on noisy tracking.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

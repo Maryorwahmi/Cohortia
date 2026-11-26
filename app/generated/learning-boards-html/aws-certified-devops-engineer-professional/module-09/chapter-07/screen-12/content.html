@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,monospace;white-space:pre-wrap}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploy MyServerlessApp</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">Commands you'll run</div>
+      <div class="mt-3 term">mkdir my-serverless-app
+cd my-serverless-app
+mkdir my_api_function
+# add template.yaml and my_api_function/app.py
+sam build
+sam deploy --guided
+# note ApiEndpoint printed after deploy</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Verification</div>
+          <p class="text-xs font-medium text-slate-800">Use curl POST and GET against the ApiEndpoint to confirm items are stored, then inspect the CloudFormation stack in the console for created resources.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">Local testing & cleanup</div>
+      <div class="mt-3 term"># Local POST test using event
+sam local invoke MyApiFunction -e event.json
+
+# Local API server
+sam local start-api
+# then curl http://127.0.0.1:3000/items
+
+# Clean up
+aws cloudformation delete-stack --stack-name MyServerlessAppStack --region us-east-1</div>
+    </div>
+  </div>
+</div>

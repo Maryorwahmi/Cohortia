@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">What is a Fake?</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition and contrast</div>
+      <div class="text-sm text-slate-600 mt-2">A fake implements behavior and maintains state but is simplified compared to the real dependency.</div>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="rounded-lg bg-slate-50 p-3">Use case: replace a slow or external database with an in-memory fake for fast, deterministic tests.</div>
+        <div class="rounded-lg bg-slate-50 p-3">Misconception: a fake is not a drop-in production replacement; it’s designed for test needs only.</div>
+        <div class="rounded-lg bg-slate-50 p-3">Rule of thumb: keep fakes minimal — implement only the behavior your tests need.</div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Fakes give you realistic, stateful behavior in tests without external complexity. Keep them small and focused.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Concrete Example</div>
+      <div class="mt-3 text-sm text-slate-700">ShoppingCart relies on ProductRepository.get_product_by_id. A FakeProductRepository stores products in a dictionary and returns them synchronously. Tests can add items, check totals, and verify multi-step flows without a real database.</div>
+
+      <pre class="mt-4 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code># fake_product_repository.py
+class FakeProductRepository:
+  def __init__(self, initial_products: list[dict] = None):
+    self._products = {p['id']: p for p in (initial_products or [])}
+
+  def get_product_by_id(self, product_id: str) -> dict | None:
+    print(f"Fetching product {product_id} from fake repository...")
+    return self._products.get(product_id)
+</code></pre>
+
+      <div class="mt-4 text-xs text-slate-500">Common mistake: building a fake that mirrors every edge case of the real system. Prefer minimal behavior that supports the test scenarios.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

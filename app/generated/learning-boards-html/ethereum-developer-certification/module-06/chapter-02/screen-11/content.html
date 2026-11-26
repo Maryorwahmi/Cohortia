@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; tab-size:2; font-size:13px;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Hands-on Activity</div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Deploy script (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded">const { ethers, upgrades } = require("hardhat");
+
+async function main() {
+  const MyTokenV1 = await ethers.getContractFactory("MyTokenV1");
+  const myToken = await upgrades.deployProxy(MyTokenV1, ["MyUpgradeableToken", "MUT"], {
+    kind: "uups",
+    initializer: "initialize"
+  });
+  await myToken.deployed();
+  console.log("MyTokenV1 deployed to:", myToken.address);
+}
+
+main();
+</pre>
+    </div>
+
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Upgrade script (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded">const { ethers, upgrades } = require("hardhat");
+
+async function main() {
+  const proxyAddress = "YOUR_PROXY_ADDRESS";
+  const MyTokenV2 = await ethers.getContractFactory("MyTokenV2");
+  const upgraded = await upgrades.upgradeProxy(proxyAddress, MyTokenV2);
+  console.log("MyToken upgraded to V2 at:", upgraded.address);
+}
+
+main();
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">After upgrading, call getVersion() on the proxy and test new functions like burn to confirm behavior while balances persist.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

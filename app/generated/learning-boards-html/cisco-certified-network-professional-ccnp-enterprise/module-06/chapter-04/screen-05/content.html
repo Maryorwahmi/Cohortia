@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Common OSPF Configuration Mismatches</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col gap-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+      <h3 class="text-xl font-bold text-slate-800">Step-by-step verification</h3>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Run show ip ospf neighbor and note the state.</li>
+        <li>Use show ip ospf interface &lt;if&gt; to read hello/dead timers and network type.</li>
+        <li>Compare area IDs on both sides; ensure they match.</li>
+        <li>Verify authentication configuration and keys match if enabled.</li>
+      </ol>
+      <div class="mt-auto">
+        <div class="rounded-lg bg-slate-50 p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Misconception</div>
+          <div class="text-xs text-slate-600 mt-1">Don't assume only MTU causes ExStart issues. Network type or timers may equally prevent progress.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col gap-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Commands</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>show ip ospf neighbor
+show ip ospf interface &lt;interface_type/number&gt;
+show ip interface &lt;interface_type/number&gt;
+debug ip ospf adjacency  (use carefully)</code></pre>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="font-semibold text-slate-800">Example Fix</div>
+          <div class="text-xs text-slate-600 mt-1">If R2 has ip ospf hello-interval 5 and R1 uses default 10, align timers by removing the custom hello interval or setting both to the same value.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="font-semibold text-slate-800">Why it matters</div>
+          <div class="text-xs text-slate-600 mt-1">Mismatches silently stop route exchange. A single forgotten authentication setting can keep an entire LSDB from synchronizing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

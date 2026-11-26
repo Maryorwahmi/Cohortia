@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Reliability Patterns</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Outbox Pattern</div>
+      <p class="text-sm text-slate-600 mt-2">Record the domain change and the message in the same transactional write to avoid losing events when publishing to a queue.</p>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Relay process reads outbox and publishes messages to a queue.</li>
+          <li>Ensure idempotent publishing and track published markers to avoid duplicates.</li>
+          <li>Monitor outbox drain rate to detect issues early.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Saga & Compensations</div>
+      <p class="text-sm text-slate-600 mt-2">Coordinate multiple local transactions using a sequence of forward actions and compensating actions if parts fail. This avoids 2PC’s global locks and scales better at the cost of added complexity.</p>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 text-amber-700">Design note: identify clear compensating steps and ensure they can be triggered reliably to restore correctness.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+    <p class="text-sm text-slate-700">Combine Outbox for reliable emission, relays for delivery, and Saga/compensations to reconcile partial failures when atomic global commits are impractical.</p>
+  </div>
+</div>

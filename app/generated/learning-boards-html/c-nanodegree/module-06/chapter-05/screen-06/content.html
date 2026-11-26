@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Reading Files Correctly</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Prefer post-read checks</h3>
+      <p class="text-sm text-slate-600 mt-3">Use while(std::getline(...)) or while(inFile >> var) so you only act on valid input.</p>
+      <div class="mt-4">
+        <pre class="p-3 bg-slate-900 text-slate-100 rounded-md" style="font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2;">
+std::ifstream inFile("scores.txt");
+if (!inFile.is_open()) { /* handle missing file */ }
+std::string name; int score;
+while (inFile >> name >> score) {
+  // process successful read of name and score
+}
+if (inFile.fail() && !inFile.eof()) {
+  std::cerr << "Error: invalid format" << std::endl;
+}
+        </pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-3">
+        <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+        <p class="text-sm text-slate-700 mt-2">Eof-based loops can duplicate the last item or attempt to use partially filled buffers. Post-read checks avoid this class of bugs.</p>
+      </div>
+      <div class="rounded-xl bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-amber-700">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">Loading high scores using extraction or getline ensures each parsed entry is valid before processing and storing.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Loop on the read operation, not on eof. Then check fail/eof to diagnose issues after the loop.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">GDScript Best Practices</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Key patterns</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Cache node references in _ready or onready variables.</li>
+        <li>Avoid object creation in per-frame loops; reuse Vector2/Color where possible.</li>
+        <li>Minimize string building in critical sections.</li>
+        <li>Use engine built-in math and transform helpers when available.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Calling get_node inside _process for frequently accessed nodes, which repeats an expensive lookup every frame.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <pre class="mt-3 text-sm rounded-lg bg-slate-900 text-white p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>&lt;gdscript&gt;
+# Bad: repeated lookup
+func _process(delta):
+  var pos = get_node("Player").position
+  # work with pos
+
+# Better: cache once
+onready var player = get_node("Player")
+func _process(delta):
+  var pos = player.position
+&lt;/gdscript&gt;</code></pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Small code changes can yield large runtime improvements when applied to hot code paths identified by profiling.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

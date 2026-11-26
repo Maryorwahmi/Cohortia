@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mt-1">Buffering and flush()</div>
+      <div class="text-sm text-slate-600 mt-2">Control when data moves from memory to disk.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <p>open() accepts a buffering argument: 0 is unbuffered (binary), 1 is line-buffered (text), >1 sets a fixed buffer size, -1 uses system default.</p>
+        <p class="mt-3">Call f.flush() to push Python's buffers to the OS. For OS-level sync to storage use os.fsync(file.fileno()).</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">When durability matters, flush and fsync after critical writes to avoid lost data after a crash.</div>
+        <div class="rounded-lg bg-amber-50 p-3 mt-3 text-sm text-slate-700">For logging where lines must be visible quickly, line buffering or explicit flush after each write is appropriate.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4 shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Misconception</div>
+      <p class="text-sm text-slate-600 mt-2">Assuming that closing a file always forces data to persistent storage. Close flushes Python buffers to the OS, but OS caching may still delay physical writes until later; use fsync for stronger guarantees.</p>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Quick reference</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>Unbuffered: buffering=0 (binary only)</li>
+          <li>Line buffered: buffering=1 (text only)</li>
+          <li>Set size: buffering=4096 for specific buffer sizes</li>
+        </ul>
+      </div>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Control buffering with the open buffer parameter, call flush to push buffers, and use fsync for stronger durability guarantees.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

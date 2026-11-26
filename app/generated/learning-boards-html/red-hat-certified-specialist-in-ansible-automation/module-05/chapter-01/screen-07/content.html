@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Tasks and handlers</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-3">Sequencing and deferred actions</h3>
+  </div>
+
+  <div class="flex gap-4 h-[72%]">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">tasks/main.yml (excerpt)</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm font-mono text-slate-800" style="white-space:pre-wrap; tab-size:2">- name: Deploy nginx configuration
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: Restart Nginx</pre>
+
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 mt-3">handlers/main.yml (excerpt)</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm font-mono text-slate-800" style="white-space:pre-wrap; tab-size:2">- name: Restart Nginx
+  service:
+    name: nginx
+    state: restarted</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm text-slate-800">Explanation</div>
+      <ul class="list-disc pl-5 mt-2 text-slate-700 space-y-2">
+        <li>Notify names link tasks to handlers by a descriptive string.</li>
+        <li>Handlers run at the end of the current play for the host, avoiding multiple restarts.</li>
+        <li>Handlers colocated with tasks keep role behavior encapsulated and easier to maintain.</li>
+      </ul>
+
+      <div class="mt-4 rounded-md bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistake</div>
+        <p class="text-sm text-slate-800">Defining handlers in a different role or playbook can lead to missed notifications. Keep related handlers inside the same role.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Permissions and ownership — why SSH refuses keys</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm border card-border">
+      <div class="text-sm font-semibold">Required modes</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>~/.ssh directory: 0700</li>
+        <li>~/.ssh/authorized_keys: 0600</li>
+        <li>Files must be owned by the target user, not root or another account</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 border card-border">
+        <div class="text-sm font-semibold">Fix commands</div>
+        <pre class="mt-2 p-3 bg-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+chown -R devops_user:devops_user /home/devops_user/.ssh
+chmod 0700 /home/devops_user/.ssh
+chmod 0600 /home/devops_user/.ssh/authorized_keys
+        </pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-semibold">Debug checklist</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Confirm the user account exists.</li>
+        <li>Check ownership and modes of ~/.ssh and authorized_keys.</li>
+        <li>Inspect SSH server logs for permission-related errors.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Leaving ~/.ssh group- or world-writable will cause SSH to ignore authorized_keys; always enforce strict modes in automation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

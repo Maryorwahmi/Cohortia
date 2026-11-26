@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .col{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Ignore Errors vs Blocks</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 col shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">ignore_errors: quick glance</div>
+      <p class="mt-2 text-sm text-slate-600">Keeps execution moving when a task fails. No automatic recovery or targeted handling. Use only when failure is harmless.</p>
+
+      <div class="mt-3 p-3 rounded bg-slate-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+        <pre class="mt-2"><code>- name: Attempt optional cleanup
+  ansible.builtin.file:
+    path: /tmp/optional
+    state: absent
+  ignore_errors: true</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 col shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">block/rescue/always: structured</div>
+      <p class="mt-2 text-sm text-slate-600">Run a sequence, recover if any step fails, and always perform finalization. This is explicit and auditable.</p>
+
+      <div class="mt-3 p-3 rounded bg-slate-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example (deployment)</div>
+        <pre class="mt-2"><code>- name: Attempt to configure a service with rollback
+  block:
+    - name: Stop the service
+      ansible.builtin.service:
+        name: my_app_service
+        state: stopped
+  rescue:
+    - name: Log configuration failure
+      ansible.builtin.debug:
+        msg: "Failed to deploy, attempting rollback."
+  always:
+    - name: Notify
+      ansible.builtin.debug:
+        msg: "Deployment attempt completed."</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded-lg bg-emerald-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">Block/rescue/always expresses intent and supports rollback; ignore_errors hides intent and should be rare.</div>
+    </div>
+
+    <div class="p-3 rounded-lg bg-rose-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+      <div class="text-sm text-slate-800 mt-1">Using ignore_errors for important tasks and failing to log or recover leads to silent failures.</div>
+    </div>
+
+    <div class="p-3 rounded-lg bg-blue-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Try this</div>
+      <div class="text-sm text-slate-800 mt-1">Replace a critical task that uses ignore_errors with a block/rescue to see clearer behavior on failure.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

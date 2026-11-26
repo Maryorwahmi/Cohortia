@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <div class="mb-3">    
+    <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>    
+    <div class="text-2xl font-bold text-slate-700 mt-2">JSON limitations and workarounds</div>  
+  </div>  
+  <div class="grid grid-cols-2 gap-4 h-full">    
+    <div class="card p-4">      
+      <div class="font-semibold text-slate-700">Types not supported directly</div>      
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-500 space-y-2">        
+        <li>datetime objects</li>        
+        <li>custom class instances with methods</li>        
+        <li>binary blobs and certain numeric types</li>      
+      </ul>    
+    </div>    
+    <div class="card p-4">      
+      <div class="font-semibold text-slate-700">Workaround pattern</div>      
+      <div class="text-sm text-slate-500 mt-3">Convert unsupported types to JSON-friendly representations before dumping, and convert them back after loading. Keep conversion logic near type definitions.</div>      
+      <div class="mt-3 p-3 bg-slate-50 rounded">        
+        <div class="text-sm font-semibold text-slate-700">Datetime example</div>        
+        <pre class="text-sm mt-2" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"># Convert to string before dump
+obj['last_login'] = obj['last_login'].isoformat()
+# After load
+obj['last_login'] = datetime.fromisoformat(obj['last_login'])</pre>      
+      </div>    
+    </div>  
+  
+  <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">    
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>    
+    <p class="text-xs font-medium text-slate-800">Attempting to dump complex types directly will raise a TypeError. Always convert first or supply custom encoder helpers.</p>  
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

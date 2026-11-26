@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Simulation</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-900">Storage calculation</div>
+      <div class="text-sm text-slate-600 mt-1">Fields: state=2 bits, sharer list=16 bits, owner=4 bits → 22 bits per entry</div>
+      <pre class="mt-4 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">// Per-entry bits: 2 + 16 + 4 = 22 bits
+entries = 256
+total_bits = 22 * entries      // 5632 bits
+total_bytes = total_bits / 8   // 704 bytes</pre>
+      <div class="mt-3 text-sm text-slate-700">This small example fits in under 1 KB, but scaling N or blocks M quickly increases storage demands.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-lg font-bold text-slate-900">Simulation sequence</div>
+      <div class="text-sm text-slate-600 mt-1">Sequence: P1: Read 0; P2: Read 0; P3: Write 0; P1: Read 0</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">1) P1: Read 0
+ - Dir sees Uncached -> Dir->Memory request
+ - Memory replies -> Dir sets state=Shared, sharers={P1}
+ - Messages: P1->Dir (read req), Dir->Memory, Memory->Dir (data), Dir->P1 (data)
+
+2) P2: Read 0
+ - Dir sees Shared -> Dir adds P2 to sharers
+ - Messages: P2->Dir (read req), Dir->P2 (data)
+
+3) P3: Write 0
+ - Dir sees Shared -> Dir sends Invalidates to P1 and P2
+ - P1,P2 send ACKs -> Dir sets state=Modified, owner=P3
+ - Messages: P3->Dir(write req), Dir->P1(invalidate), Dir->P2(invalidate), P1->Dir(ACK), P2->Dir(ACK), Dir->P3(grant)
+
+4) P1: Read 0
+ - Dir sees Modified(owner=P3) -> Dir forwards read to P3
+ - P3 supplies data and downgrades to Shared -> Dir updates sharers={P3,P1}
+ - Messages: P1->Dir(read req), Dir->P3(forward), P3->Dir(data & state update), Dir->P1(data)</pre>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+    <p class="text-xs font-medium text-slate-800">The directory avoids broadcasts by targeting messages, but each request incurs directory lookups and targeted messaging costs; compare message counts and latency with snooping for your workload.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">auditd Fundamentals</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col">
+      <div class="text-lg font-bold">What auditd records and how</div>
+      <div class="text-sm text-slate-600 mt-2">auditd captures kernel-level events and writes them to /var/log/audit/audit.log. Rules specify what to record and keys simplify searching.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-blue-50">
+          <div class="font-semibold">Example rule</div>
+          <div class="text-xs text-slate-700 mt-1">auditctl -w /etc/passwd -p wa -k user_auth_changes will log writes and attribute changes to /etc/passwd under the given key.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="font-semibold">Search tools</div>
+          <div class="text-xs text-slate-700 mt-1">Use ausearch -k user_auth_changes to find events and aureport for summaries and reports.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="font-semibold">Operational caution</div>
+          <div class="text-xs text-slate-700 mt-1">Design rules narrowly to avoid excessive noise and ensure log rotation to prevent disk exhaustion.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Concrete CLI</div>
+      <pre class="mono mt-3 p-3 rounded bg-slate-50 border text-sm" style="white-space:pre-wrap; tab-size:2;"># watch /etc/passwd and /etc/shadow
+auditctl -w /etc/passwd -p wa -k user_auth_changes
+auditctl -w /etc/shadow -p wa -k user_auth_changes
+# list rules
+sudo auditctl -l
+# search
+sudo ausearch -k user_auth_changes -i</pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use keys and focused rules so you can efficiently find the events that matter during investigations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

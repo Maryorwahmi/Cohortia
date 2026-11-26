@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Rule Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-lg font-bold text-slate-800 mb-2">Starter rules (file)</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Liberation Mono', monospace;">
+# Monitor all write access to /etc/passwd and /etc/shadow
+-w /etc/passwd -p wa -k passwd_changes
+-w /etc/shadow -p wa -k shadow_changes
+
+# Monitor execve for sudo
+-a always,exit -F arch=b64 -S execve -F path=/usr/bin/sudo -k sudo_exec
+      </pre>
+      <div class="text-sm text-slate-600 mt-3">Save the file to /etc/audit/rules.d/99-custom.rules and run the loader to apply changes.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-lg font-bold text-slate-800 mb-2">Validation steps</div>
+      <ol class="text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>Create the rule file and save it under rules.d.</li>
+        <li>Run the rules loader command to apply rules.</li>
+        <li>Trigger events such as a touch or a sudo command.</li>
+        <li>Use ausearch with the key to find matching events.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border card-border">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Avoid creating overly broad syscall rules without filters; they will flood audit logs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

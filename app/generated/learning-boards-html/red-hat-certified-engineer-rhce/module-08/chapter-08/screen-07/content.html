@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre{white-space:pre-wrap;tab-size:2} :root{--card-border:rgba(226,232,240,0.9)} </style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process</span>
+      <span>›</span>
+      <span class="text-slate-700">Webserver Tasks</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-7 rounded-xl bg-white p-4 border" style="border-color:var(--card-border)">
+        <div class="text-sm font-bold text-slate-800">Core tasks to implement on webserver1</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+          <li>Ensure httpd is installed, running, and enabled using ansible.builtin.systemd.</li>
+          <li>Create an LVM logical volume webapp_data (5G) in vg_app and format it with XFS.</li>
+          <li>Create /srv/webapp, mount the LV persistently, and deploy index.html with copy.</li>
+          <li>Set SELinux file contexts with ansible.posix.sefcontext and notify restorecon handler.</li>
+          <li>Open HTTP in firewalld and create webadmin user and sudoers file for restart privileges.</li>
+        </ul>
+
+        <div class="mt-4 text-xs font-semibold text-slate-600">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">A 403 error after deployment usually indicates SELinux context is missing or restorecon handler did not run. Always include sefcontext and a handler.</div>
+      </div>
+
+      <div class="col-span-5 rounded-xl bg-white p-4 border mono" style="border-color:var(--card-border)">
+        <div class="text-xs font-semibold text-slate-600">Task examples (excerpt)</div>
+        <pre class="text-sm text-slate-800 mt-2">- name: Ensure httpd is installed, running, and enabled
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: yes
+  when: inventory_hostname == 'webserver1'
+
+- name: Create webapp_data Logical Volume
+  community.general.lvol:
+    vg: vg_app
+    lv: webapp_data
+    size: 5G
+    state: present
+  when: inventory_hostname == 'webserver1'
+
+- name: Deploy index.html
+  ansible.builtin.copy:
+    content: "Hello from WebApp!"
+    dest: /srv/webapp/index.html
+    mode: '0644'
+</pre>
+      </div>
+
+      <div class="col-span-12 mt-3 grid grid-cols-3 gap-3">
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Example verification</div>
+          <div class="text-sm text-slate-600 mt-2">curl http://localhost/index.html should return "Hello from WebApp!" and ls -Zd should show httpd_sys_content_t.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-2">Run restorecon -Rv /srv/webapp as a handler after sefcontext changes instead of running it unconditionally to preserve idempotence.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Key Takeaway</div>
+          <div class="text-sm text-slate-600 mt-2">Order matters: storage and mount must exist before file deployment, and SELinux contexts must be correct for httpd to serve non-standard paths.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

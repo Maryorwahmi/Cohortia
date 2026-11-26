@@ -1,0 +1,64 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>Workstation to Web Server Walkthrough</span>
+  </div>
+
+  <div class='rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col'>
+    <div class='text-sm font-semibold text-slate-800 mb-3'>Scenario steps</div>
+
+    <div class='grid grid-cols-2 gap-4 flex-1'>
+      <div class='rounded-lg bg-slate-50 p-4 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Workstation checks</div>
+        <pre class='mono text-sm bg-white p-3 rounded-md card-border'>
+ping 127.0.0.1
+ping 10.1.1.50
+ping [workstation_default_gateway_IP]
+traceroute 192.168.100.10
+        </pre>
+        <p class='text-sm text-slate-600 mt-2'>Confirm local IP and gateway reachability before moving to network devices.</p>
+      </div>
+
+      <div class='rounded-lg bg-slate-50 p-4 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Access switch checks</div>
+        <pre class='mono text-sm bg-white p-3 rounded-md card-border'>
+show interface status
+show mac address-table interface [interface_id]
+show vlan brief
+        </pre>
+        <p class='text-sm text-slate-600 mt-2'>Verify port up, correct VLAN, and MAC learning for the workstation and gateway.</p>
+      </div>
+
+      <div class='rounded-lg bg-slate-50 p-4 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Distribution router checks</div>
+        <pre class='mono text-sm bg-white p-3 rounded-md card-border'>
+show ip interface brief
+show ip route 192.168.100.10
+ping 192.168.100.10 source [distribution_router_interface_ip]
+traceroute 192.168.100.10
+        </pre>
+        <p class='text-sm text-slate-600 mt-2'>If route is missing, hypothesis might be a routing protocol or route redistribution issue.</p>
+      </div>
+
+      <div class='rounded-lg bg-slate-50 p-4 card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Core router checks</div>
+        <pre class='mono text-sm bg-white p-3 rounded-md card-border'>
+show ip interface brief
+show ip route 192.168.100.10
+ping 192.168.100.10 source [core_router_interface_ip]
+        </pre>
+        <p class='text-sm text-slate-600 mt-2'>Confirm core reachability; if core reaches the server then the problem is likely downstream of distribution.</p>
+      </div>
+
+    </div>
+
+    <div class='mt-4 rounded-lg bg-emerald-50 p-3 card-border'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+      <p class='text-sm text-slate-800 mt-1'>Follow the hop-by-hop tests and only run device-level show commands on the first device where connectivity fails.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

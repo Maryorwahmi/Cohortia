@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Bind Dispatcher in Widget</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card">
+      <div class="text-lg font-bold">Widget layout</div>
+      <div class="mt-3 text-sm text-slate-600">Progress Bar: HealthProgressBar. Text Block: HealthValueText. Bind in Event Construct so listeners are active as soon as the widget appears.</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>// In WBP_HealthBar Event Graph
+Event Construct
+  Get Player Character
+  Cast To YourPlayerCharacter (As CharacterRef)
+  Bind Event to OnHealthChanged (Target: As CharacterRef)
+    Event: Create Custom Event -> UpdateHealthBar(NewHealth : Float)
+
+Custom Event: UpdateHealthBar(NewHealth : Float)
+  Percent = NewHealth / CharacterRef.MaxHealth
+  HealthProgressBar.SetPercent(Percent)
+  HealthValueText.SetText( "Health: " + NewHealth ToText + "/" + CharacterRef.MaxHealth ToText )
+
+// After binding, call UpdateHealthBar(CharacterRef.CurrentHealth) to initialize
+</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-6 shadow-sm card">
+      <div class="text-sm font-bold">Pitfalls & fixes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Divide by MaxHealth to convert to 0–1 percent.</li>
+        <li>Always call the update once after binding to prevent initial stale UI.</li>
+        <li>Handle Cast Failed to avoid runtime silence in different game contexts.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.95)} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Step 1 — Create the Read Replica</div>
+      <pre class="text-sm bg-slate-900 text-white p-3 rounded-md"><code>aws rds create-db-instance-read-replica \
+  --db-instance-identifier my-dr-mysql-replica \
+  --source-db-instance-identifier arn:aws:rds:us-west-2:ACCOUNT_ID:db:my-primary-mysql-db \
+  --destination-region us-east-1 \
+  --db-instance-class db.r5.large \
+  --no-multi-az \
+  --region us-east-1</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Verify with describe-db-instances until the replica shows available status. Then go to CloudWatch and inspect the AWS/RDS ReplicaLag metric for the replica's DBInstanceIdentifier dimension.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Step 2 — Create the Alarm</div>
+      <pre class="text-sm bg-slate-900 text-white p-3 rounded-md"><code>aws cloudwatch put-metric-alarm \
+  --alarm-name "RDS-DR-ReplicaLag-High" \
+  --alarm-description "Alarm when RDS Read Replica lag exceeds 60 seconds" \
+  --metric-name "ReplicaLag" \
+  --namespace "AWS/RDS" \
+  --statistic "Maximum" \
+  --period 60 \
+  --threshold 60 \
+  --comparison-operator "GreaterThanThreshold" \
+  --dimensions "Name=DBInstanceIdentifier,Value=my-dr-mysql-replica" \
+  --evaluation-periods 1 \
+  --alarm-actions "arn:aws:sns:us-east-1:ACCOUNT_ID:MySNSTopic" \
+  --region us-east-1</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Test the alarm by simulating a lag condition and ensure the SNS topic receives a notification. Document the promotion steps and ensure operators have access to necessary IAM permissions to promote the replica in a DR event.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

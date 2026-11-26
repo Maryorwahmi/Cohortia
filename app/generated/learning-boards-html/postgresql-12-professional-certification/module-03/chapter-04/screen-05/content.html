@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Entry Structure</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-bold text-slate-900">Fields at a glance</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li><strong>TYPE</strong> — local, host, hostssl, hostnossl</li>
+          <li><strong>DATABASE</strong> — specific name, all, or sameuser</li>
+          <li><strong>USER</strong> — role names, all, or samegroup</li>
+          <li><strong>ADDRESS</strong> — client IP or CIDR (omitted for local)</li>
+          <li><strong>METHOD</strong> — trust, peer, md5, scram-sha-256, etc.</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Quick mnemonic</div>
+        <div class="text-sm text-slate-700 mt-2">Think T-D-U-A-M: Type, Database, User, Address, Method — read left to right when composing a rule.</div>
+      </div>
+    </div>
+    <div class="w-3/5 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border flex-1">
+        <div class="text-sm font-bold text-slate-900">Annotated example</div>
+        <pre class="mt-3 rounded bg-slate-50 p-3"><code># Enforce SSL + SCRAM for a single app IP
+hostssl  my_app_db   app_user   192.168.1.10/32   scram-sha-256
+
+# Local admin via OS user mapping
+local    all         postgres                      peer
+
+# Reject other remote attempts to app_db
+host     app_db      all         0.0.0.0/0       reject</code></pre>
+      </div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-xl bg-rose-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Placing a permissive rule like host all all 0.0.0.0/0 trust above specific entries defeats more secure rules below.</div>
+        </div>
+        <div class="rounded-xl bg-emerald-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Check</div>
+          <div class="text-sm text-slate-800 mt-1">After a change, reload and test both allowed and denied connections to verify behavior.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

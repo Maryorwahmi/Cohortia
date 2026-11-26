@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">SSH automation with paramiko</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full min-h-0">
+    <div class="col-span-7 rounded-2xl bg-white p-4 card shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code walkthrough</div>
+      <div class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>import paramiko
+
+hostname = 'remote_server_ip'
+username = 'your_user'
+private_key_path = '/home/your_user/.ssh/id_rsa'
+
+try:
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Be cautious in production
+    client.connect(hostname=hostname, username=username, key_filename=private_key_path)
+
+    stdin, stdout, stderr = client.exec_command('ls -l /var/log')
+    print("STDOUT:
+", stdout.read().decode())
+    print("STDERR:
+", stderr.read().decode())
+
+    # Example: SFTP file transfer
+    sftp_client = client.open_sftp()
+    sftp_client.put('local_file.txt', '/tmp/remote_file.txt')
+    sftp_client.get('/var/log/syslog', 'local_syslog.log')
+    sftp_client.close()
+
+except paramiko.AuthenticationException:
+    print("Authentication failed. Check username and key.")
+except paramiko.SSHException as e:
+    print(f"SSH connection error: {e}")
+finally:
+    if client:
+        client.close()</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 card shadow-sm h-full flex flex-col justify-between">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes & cautions</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Do not leave AutoAddPolicy in production; load known hosts instead.</li>
+          <li>Handle AuthenticationException separately to surface credential problems quickly.</li>
+          <li>Log outputs and errors; do not discard stderr as it contains important failure clues.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+          <p class="text-xs font-medium text-slate-800">Use paramiko for fine-grained SSH automation but design for explicit host verification and robust exception handling.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

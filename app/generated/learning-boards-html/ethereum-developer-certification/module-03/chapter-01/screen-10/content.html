@@ -1,0 +1,104 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px} pre.contract{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;tab-size:2;max-height:48vh;overflow:auto}</style>
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="contract mt-2">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract BasicTypesAndOperators {
+    // State variables (stored on blockchain)
+    bool public isActive = true;
+    uint256 public counter = 0; // Default uint is uint256
+    int256 public temperature = -5;
+    address public owner; // Stores an Ethereum address
+    bytes32 public documentHash; // Fixed-size byte array
+
+    // Reference type: Struct
+    struct Product {
+        uint productId;
+        string name;
+        uint price;
+        bool inStock;
+    }
+
+    Product public myProduct;
+
+    // Reference type: Dynamic Array
+    uint[] public productIds;
+
+    // Reference type: Mapping
+    mapping(address => uint) public balances;
+
+    // Enum
+    enum Status { Pending, Approved, Rejected }
+    Status public currentStatus;
+
+    constructor() {
+        owner = msg.sender; // Global variable: address of contract deployer
+        documentHash = keccak256(abi.encodePacked("Hello World")); // Example of bytes32
+        myProduct = Product(101, "Laptop", 1200, true);
+        currentStatus = Status.Pending;
+    }
+
+    // Function to demonstrate operators and local variables
+    function performCalculations(uint _a, uint _b) public pure returns (uint sum, uint product, bool isEqual) {
+        uint localResult = _a + _b; // Local variable
+        sum = localResult;
+        product = _a * _b;
+        isEqual = (_a == _b);
+        // Common mistake: integer division. 5 / 2 = 2
+        // uint divisionResult = _a / 2;
+        return (sum, product, isEqual);
+    }
+
+    // Function to demonstrate address payable
+    function sendEther(address payable _recipient) public payable {
+        // msg.value is a global variable holding Ether sent with the call
+        require(msg.value > 0, "Must send Ether");
+        _recipient.transfer(msg.value); // Transfer Ether
+    }
+
+    // Function to update counter, demonstrating potential overflow (handled by Solidity >= 0.8.0)
+    function incrementCounter() public {
+        counter++; // If counter was uint256 max, this would revert
+    }
+
+    // Function to add a product ID to the dynamic array
+    function addProductId(uint _id) public {
+        productIds.push(_id);
+    }
+
+    // Function to update a balance in the mapping
+    function updateBalance(address _user, uint _amount) public {
+        balances[_user] = _amount;
+    }
+}</pre>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="font-semibold">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>State variables like counter and owner persist on-chain and are accessible via public getters.</li>
+          <li>Structs and arrays represent complex and ordered data; mappings associate keys to values efficiently.</li>
+          <li>Constructor sets the deployer as owner using the global msg.sender.</li>
+        </ul>
+      </div>
+
+      <div class="card p-3">
+        <div class="font-semibold">Concrete behaviour to test</div>
+        <ol class="mt-2 text-sm text-slate-600 list-decimal pl-5">
+          <li>Call performCalculations with 5 and 2 and confirm division behavior is integer-based.</li>
+          <li>Deploy and call sendEther with an address payable and a positive value to confirm transfer semantics.</li>
+          <li>Update and read mappings to observe O(1) lookups.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This contract ties types, scope, and operators together; study it to see how declarations map to runtime behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

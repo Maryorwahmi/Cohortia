@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Accept vs Reject</div>
+      <div class="mt-3 text-sm text-slate-600">Both stop processing, but one allows the route, the other drops it. The implicit reject at policy end can surprise you if you omit explicit actions.</div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">Then accept — install or advertise route and stop processing.</div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">Then reject — drop the route and stop processing.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800">Implicit reject — if nothing explicit permits, route is discarded at the end.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Concrete example</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 text-sm">set policy-options policy-statement TAG-ROUTE term 1 from prefix-list EXAMPLE
+set policy-options policy-statement TAG-ROUTE term 1 then community add INTERNAL
+# missing then accept → implicit reject occurs</pre>
+      <div class="mt-3 text-xs text-slate-600">Explanation: The community add runs but without accept the policy will ultimately reject the route, so it won't be installed or advertised.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Be explicit: end intended-allowing terms with accept or next-term to avoid the implicit reject.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

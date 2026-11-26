@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .cohortia-code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">List vs Generator</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">List comprehension example</div>
+      <div class="text-sm text-slate-600 mt-2">Creates the full list in memory.</div>
+
+      <pre class="cohortia-code rounded-md bg-slate-50 p-3 mt-3 card border text-sm">N = 10_000_000
+list_comp = [i * 2 for i in range(N)]
+print(sys.getsizeof(list_comp) / (1024*1024), 'MB')
+del list_comp</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Use when you need random access or multiple passes over the data and memory is adequate.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Generator expression example</div>
+      <div class="text-sm text-slate-600 mt-2">Creates an iterator that yields values on demand without holding them all.</div>
+
+      <pre class="cohortia-code rounded-md bg-slate-50 p-3 mt-3 card border text-sm">gen_exp = (i * 2 for i in range(N))
+print(sys.getsizeof(gen_exp) / (1024*1024), 'MB')
+# To consume: sum(gen_exp) or iterate in a loop</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Analogy: a conveyor belt producing items one by one instead of stacking them in a bin.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl bg-white p-3 card border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">When to use generator</div>
+      <div class="text-xs text-slate-700 mt-1">Streaming large files, piping to aggregators, or memory-limited environments.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-3 card border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+      <div class="text-xs text-slate-700 mt-1">Thinking generators are always slower; they often reduce overall time by avoiding heavy allocations.</div>
+    </div>
+
+    <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Use list comprehensions for small-to-moderate sequences and generators for very large streams you process once.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

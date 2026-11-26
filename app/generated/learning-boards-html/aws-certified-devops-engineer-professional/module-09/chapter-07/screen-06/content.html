@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0b1220;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;tab-size:2;white-space:pre-wrap}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda app.py</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">Lambda code (example)</div>
+      <div class="mt-3 code flex-1">
+<pre><code>import json
+import os
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = os.environ['TABLE_NAME']
+table = dynamodb.Table(table_name)
+
+def lambda_handler(event, context):
+    http_method = event['httpMethod']
+    path = event['path']
+
+    if http_method == 'POST' and path == '/items':
+        body = json.loads(event['body'])
+        item = {'id': body['id'], 'data': body.get('data', 'default')}
+        table.put_item(Item=item)
+        return {
+            'statusCode': 201,
+            'body': json.dumps({'message': 'Item created', 'item': item})
+        }
+    elif http_method == 'GET' and path == '/items':
+        response = table.scan()
+        return {
+            'statusCode': 200,
+            'body': json.dumps(response['Items'])
+        }
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'message': 'Invalid request'})
+        }
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">Explanation cards</div>
+      <div class="mt-3 grid gap-3 flex-1">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Environment variables</div>
+          <div class="text-sm text-slate-600 mt-1">TABLE_NAME is passed from the template so the same code runs across environments without changes.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Permissions</div>
+          <div class="text-sm text-slate-600 mt-1">The function must have DynamoDB read and write permissions; grant them via SAM policies or CDK table grants.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Production note</div>
+          <div class="text-sm text-slate-600 mt-1">Use queries and keys for production read patterns instead of scanning large tables.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Log structured events during local testing to compare emulator behavior with cloud logs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

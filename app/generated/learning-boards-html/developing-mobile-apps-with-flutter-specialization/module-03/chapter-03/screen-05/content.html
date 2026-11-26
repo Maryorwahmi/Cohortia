@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Comparison</span>
+    <span>›</span>
+    <span class="text-slate-700">setState() vs provider</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <h4 class="text-lg font-semibold text-slate-800">setState() (Local)</h4>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Good for widget-private data like form inputs or simple toggles.</li>
+        <li>Easy to implement, minimal ceremony.</li>
+        <li>Becomes hard to manage when siblings need the same data.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">Common pitfall: Prop drilling — passing values and callbacks through many levels.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <h4 class="text-lg font-semibold text-slate-800">provider + ChangeNotifier (Global)</h4>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Provide models high in the tree for shared access.</li>
+        <li>ChangeNotifier plus notifyListeners triggers targeted rebuilds.</li>
+        <li>Consumer and Selector let you limit the rebuild scope for efficiency.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800">Pro tip: Use Provider.of(listen:false) in event handlers to avoid rebuilding the caller.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="col-span-2 rounded-lg p-3 bg-white card-border">
+      <div class="text-sm font-semibold">Example</div>
+      <div class="text-xs text-slate-500 mt-2">Suppose a cart total is needed by a header, product list, and checkout screen. Keeping that total local forces many callbacks; using provider centralizes the logic and exposes add/remove methods across screens.</div>
+    </div>
+    <div class="rounded-lg p-3 bg-white card-border">
+      <div class="text-sm font-semibold">Check</div>
+      <div class="text-xs text-slate-500 mt-2">If you find yourself passing the same prop through three or more widgets, consider elevating to provider.</div>
+    </div>
+  </div>
+</div>

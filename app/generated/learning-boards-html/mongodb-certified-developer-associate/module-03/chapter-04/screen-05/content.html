@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex gap-4 h-full"> 
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col"> 
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-1">Definition</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Single-field index</div>
+      <div class="text-sm text-slate-600 mb-3">An index on one field. Choose 1 or -1 depending on common sort direction.</div>
+
+      <div class="text-sm font-semibold text-slate-700 mb-1">Command examples</div>
+      <pre class="p-3 bg-slate-50 rounded text-sm border card-border"><code>db.users.createIndex({ "email": 1 })
+
+// descending example
+db.sessions.createIndex({ "lastActivity": -1 })</code></pre>
+
+      <div class="text-sm font-semibold text-slate-700 mt-3 mb-1">When order matters</div>
+      <ul class="text-sm text-slate-600 list-disc pl-4"> 
+        <li>Equality lookups: order usually irrelevant.</li>
+        <li>Sorting: match index direction to avoid extra work.</li>
+        <li>Range queries: order can affect index traversal direction.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col"> 
+      <div class="text-sm font-semibold text-slate-700 mb-2">Concrete example</div>
+      <div class="rounded-lg bg-blue-50 p-3 mb-3"> 
+        <div class="text-sm text-slate-800 font-medium">Find newest sessions</div>
+        <pre class="mt-2 p-2 bg-white rounded text-sm border card-border"><code>db.sessions.createIndex({ "lastActivity": -1 })
+
+db.sessions.find({ userId: "U123" }).sort({ lastActivity: -1 })
+// explain() should show index used for sort and filter</code></pre>
+      </div>
+
+      <div class="text-sm font-semibold text-slate-700 mb-1">Misconception check</div>
+      <div class="text-sm text-slate-600">Choosing ascending vs descending does not change equality lookup speed, but it does determine whether a sort can be satisfied entirely by the index.</div>
+
+      <div class="mt-auto"> 
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div> 
+          <p class="text-xs font-medium text-slate-800">Match index order to common sorts to avoid extra in-memory operations and keep queries fast.</p> 
+        </div> 
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

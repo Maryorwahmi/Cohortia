@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Practical Skills</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Register and subscribe</div>
+      <pre class="bg-slate-50 rounded p-3 text-sm"><code>sudo subscription-manager register --username=&lt;YOUR_REDHAT_USERNAME&gt; --password=&lt;YOUR_REDHAT_PASSWORD&gt; --auto-attach
+sudo subscription-manager repos --enable=rhel-8-for-x86_64-baseos-rpms \
+  --enable=rhel-8-for-x86_64-appstream-rpms \
+  --enable=satellite-6.13-for-rhel-8-x86_64-rpms</code></pre>
+      <div class="text-xs text-slate-600 mt-2">Verify consumed subscriptions and enabled repos before installing packages needed by Satellite.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Host identity and time</div>
+      <pre class="bg-slate-50 rounded p-3 text-sm"><code>sudo hostnamectl set-hostname satellite.lab.example.com
+# If no DNS in lab
+echo "192.168.122.10 satellite.lab.example.com satellite" | sudo tee -a /etc/hosts
+sudo dnf install chrony -y
+sudo systemctl enable --now chronyd</code></pre>
+      <div class="text-xs text-slate-600 mt-2">Confirm hostname resolution and chrony status; incorrect values lead to certificate and registration failures.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Installer checklist</div>
+      <ul class="text-sm text-slate-600 list-disc list-inside">
+        <li>Confirm FQDN resolves forward and reverse.</li>
+        <li>Ensure required ports will be open or that you understand the installer changes.</li>
+        <li>Decide on integrated vs external CA for production security.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Troubleshooting and logs</div>
+      <div class="text-sm text-slate-600">If installation fails, consult <span class="font-mono text-xs bg-slate-100 px-1 rounded">/var/log/foreman-installer/satellite.log</span> for detailed errors. Common root causes are DNS, time skew, missing subscriptions, and insufficient disk I/O.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What SELinux enforces and why it matters</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <p class="text-sm text-slate-600 mt-3">SELinux enforces policy using security contexts that label processes and files. These labels control allowed interactions independent of user ownership.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="mt-2 bg-slate-50 p-3 rounded-lg mono">Process label: httpd_t
+File label: httpd_sys_content_t
+Result: httpd can serve files labeled httpd_sys_content_t; files without that type are denied even with correct UNIX permissions.</div>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3 text-sm">Misconception: SELinux only affects logs. Reality: it controls reads, writes, execs, networking and more.</div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Look at the type component of contexts when diagnosing denials; then automate corrections with Ansible modules.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Analogy</div>
+      <p class="text-sm text-slate-600 mt-3">Think of SELinux labels as access badges. Even if a user has a key to a room, the badge determines whether a process can enter or perform certain actions.</p>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+        <ul class="list-disc pl-5 mt-2 space-y-2 text-slate-600">
+          <li>If a web file is denied, check its file type label first.</li>
+          <li>Prefer adding a persistent sefcontext rule over disabling SELinux.</li>
+          <li>Use permissive mode temporarily to gather denials without blocking functionality.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

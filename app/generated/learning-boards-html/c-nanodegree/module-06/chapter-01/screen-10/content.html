@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800">Destructors and exceptions</h3>
+      <p class="mt-3 text-sm text-slate-600">If a destructor throws during stack unwinding while another exception is active, the runtime will call terminate. To prevent this, destructors should not allow exceptions to escape.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl p-3 bg-amber-50">
+          <div class="text-sm font-semibold text-amber-700">Safe patterns</div>
+          <div class="text-sm text-slate-600 mt-2">Make destructors noexcept and perform fallible cleanup in explicit methods that the caller can call where exceptions are acceptable.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-700">RAII note</div>
+          <div class="text-sm text-slate-600 mt-2">RAII still applies: prefer simple resource wrappers whose destructors do not throw.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete advice</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Catch and handle errors inside destructors rather than letting them propagate.</li>
+        <li>Prefer explicit close or flush methods that report errors to callers before destruction.</li>
+        <li>Make destructors noexcept to document the intent and avoid implicit termination on failures.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design destructors to avoid throwing; surface fallible cleanup through explicit, testable operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

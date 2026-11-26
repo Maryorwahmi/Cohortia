@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Critical Section</div>
+      <div class="text-sm text-slate-600 mb-4">Code that accesses shared data and must execute atomically with respect to other threads.</div>
+
+      <div class="text-sm font-semibold text-slate-800">Design checklist</div>
+      <ul class="list-disc pl-5 text-slate-600 mt-2">
+        <li>Identify invariants that must hold after the code runs.</li>
+        <li>Protect only the read-modify-write sequence that touches shared data.</li>
+        <li>Avoid long-running work or blocking calls while holding a lock.</li>
+        <li>Give the mutex ownership close to the data it protects.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Small, focused critical sections reduce contention and make reasoning about correctness easier.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example: protecting a shared vector push_back</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;">// Shared container and mutex
+std::vector&lt;int&gt; shared;
+std::mutex shared_mutex;
+
+void add_item(int v) {
+  std::lock_guard&lt;std::mutex&gt; lock(shared_mutex);
+  shared.push_back(v); // critical: may reallocate underlying storage
+}</pre>
+      <div class="mt-3 text-sm text-slate-600">Explanation: push_back can reallocate and move elements, so it cannot safely run concurrently without a lock. The lock scope is minimal: just the push_back call.</div>
+
+      <div class="mt-4 flex gap-3">
+        <div class="rounded p-3 bg-amber-50 text-amber-800 flex-1">Try this: audit one function in your code and mark the smallest region that needs a lock.</div>
+        <div class="rounded p-3 bg-white border border-[rgba(226,232,240,0.9)] text-slate-700">Common mistake: locking entire higher-level functions instead of the minimal critical sequence.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

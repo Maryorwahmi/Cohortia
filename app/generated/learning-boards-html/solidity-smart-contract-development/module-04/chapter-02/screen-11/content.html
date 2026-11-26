@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tiny text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-800">Batch processing</div>
+      <div class="text-sm text-slate-600 mt-3">Split large operations into repeated bounded transactions to avoid gas limits.</div>
+
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Caller provides startIndex and count.</li>
+        <li>Validate bounds: startIndex + count <= array.length.</li>
+        <li>Loop from startIndex to endIndex and perform safe, limited work.</li>
+        <li>Update progress state to record completed ranges.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <div class="text-sm text-slate-700">Batches give you predictable gas costs and allow the system to make progress even as data grows.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-bold text-slate-700 mb-2">Batch example (concept)</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3 overflow-auto"><code>function withdrawInBatch(uint256 _startIndex, uint256 _count) public onlyOwner {
+    uint256 endIndex = _startIndex + _count;
+    require(endIndex <= beneficiaries.length, "Batch out of bounds");
+
+    for (uint i = _startIndex; i < endIndex; i++) {
+        address b = beneficiaries[i];
+        uint256 amt = balances[b];
+        if (amt > 0) {
+            balances[b] = 0; // effect first
+            (bool success, ) = b.call{value: amt}("");
+            require(success, "Transfer failed");
+        }
+    }
+}
+</code></pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Testing tip</div>
+        <div class="text-sm text-slate-700">Simulate batch calls in tests and assert the state after each call to ensure no items are missed or double-processed.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

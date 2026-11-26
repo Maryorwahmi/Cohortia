@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .panel{border-color:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Query Plans</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Use explain to guide changes</h3>
+      <pre class="bg-slate-50 rounded-lg p-3 mt-3"><code># Extended plan in PySpark
+df = spark.read.format("delta").load(delta_path)
+filtered = df.filter("event_date = '2023-06-01' AND user_id = 500")
+filtered.explain(True)  # Extended plan with statistics</code></pre>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-sm font-semibold text-slate-700">Look for</div>
+        <ul class="text-xs text-slate-600 mt-2 list-disc ml-4 space-y-1">
+          <li>Exchange lines (shuffles) — expensive network operations.</li>
+          <li>Filter pushdown — filters applied early reduce IO.</li>
+          <li>Scan and DataFilters — show what Spark will read from storage.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example Workflow</div>
+      <ol class="text-sm text-slate-600 list-decimal ml-4 space-y-2 mt-3">
+        <li>Run explain on the original query and note Exchanges and scanned files.</li>
+        <li>Apply a targeted change: broadcast hint, change shuffle partitions, or OPTIMIZE/ZORDER.</li>
+        <li>Run explain again and compare; validate with Spark UI metrics.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Let the plan reveal where to optimize. Confirm changes by re-running explain and checking runtime metrics.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

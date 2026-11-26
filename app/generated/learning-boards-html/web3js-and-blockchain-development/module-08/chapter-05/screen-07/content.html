@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.code-panel{background:#0f1724;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;line-height:1.4}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Batching Calls</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code walkthrough (visual)</div>
+      <div class="mt-3 code-panel overflow-auto">
+<pre style="white-space:pre-wrap;tab-size:2;color:#e6eef8">// Example of Web3.js BatchRequest
+const web3 = new Web3(window.ethereum);
+const batch = new web3.BatchRequest();
+
+batch.add(web3.eth.getBalance.request('0xabc...', 'latest', (err, balance) =&gt; {
+  if (err) console.error(err);
+  else console.log('Balance:', balance);
+}));
+
+batch.add(myContract.methods.getTokenSupply().call.request((err, supply) =&gt; {
+  if (err) console.error(err);
+  else console.log('Token Supply:', supply);
+}));
+
+batch.execute(); // sends both requests in a single HTTP call
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Notice how each request is added to the batch and the batch executes once, reducing multiple HTTP round trips into one. Handle callbacks and update UI after execution completes.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Supporting points</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>- BatchRequest lowers HTTP overhead and reduces visible waiting time for multiple reads.</li>
+        <li>- Keep callbacks tidy: collect results then set state once to avoid multiple renders.</li>
+        <li>- Test with dev tools to confirm reduced number of requests.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Batch reads to lower RPC calls, then update state once with the aggregated response.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

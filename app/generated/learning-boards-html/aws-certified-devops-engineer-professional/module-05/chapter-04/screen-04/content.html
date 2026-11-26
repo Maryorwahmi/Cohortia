@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .panel{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">SNS Architecture</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 panel shadow-sm flex flex-col">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600">Definition</div>
+      <h2 class="text-xl font-bold text-slate-900 mt-2">SNS pub/sub for alerts</h2>
+      <p class="text-sm text-slate-600 mt-3">SNS is the messaging backbone. Topics separate concerns and allow subscribers to opt-in to the messages they need by using attributes and filters.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Example topology</div>
+          <div class="text-xs text-slate-700 mt-2">CloudWatch → SNS Topic (CriticalApplicationAlerts) → PagerDuty HTTPS & Lambda & SQS DLQ</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-sm font-semibold">Why topic separation matters</div>
+          <ul class="mt-2 text-sm text-slate-600 space-y-1">
+            <li>Limits who is notified for each severity.</li>
+            <li>Makes filter policies simpler and audit-friendly.</li>
+            <li>Enables different retention and retry strategies per topic.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 panel shadow-sm flex flex-col">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600">Architecture Diagram (card-first)</div>
+      <div class="flex-1 mt-3 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-sm font-semibold">Publisher</div>
+          <div class="text-xs text-slate-600 mt-1">CloudWatch alarms, application code, CI/CD notifications.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-sm font-semibold">Topic</div>
+          <div class="text-xs text-slate-600 mt-1">CriticalApplicationAlerts with attributes like severity and environment.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-sm font-semibold">Subscribers</div>
+          <div class="text-xs text-slate-600 mt-1">PagerDuty HTTPS (on-call), Lambda (enrichment), SQS DLQ (failed deliveries)</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design topics with intent and attach DLQs. SNS decouples systems but does not guarantee subscriber processing success.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

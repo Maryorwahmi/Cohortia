@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on</span>
+      <span class="text-slate-700">Create a Gateway VPC Endpoint for S3</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Activity: Create a Gateway VPC Endpoint for S3</h3>
+    <p class="text-sm text-slate-600 mt-1">Follow these steps to route S3 traffic privately from an EC2 in a private subnet.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Step-by-step (console or CLI)</div>
+      <ol class="text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Create or choose a VPC with private subnet and route table.</li>
+        <li>Create a Gateway VPC Endpoint for the service com.amazonaws.REGION.s3 and select associated route tables.</li>
+        <li>Confirm route table shows an entry pointing to the endpoint ID for S3.</li>
+        <li>SSH into the EC2 (or use SSM) and run an S3 list to verify access.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification tip</div>
+        <div class="rounded-lg bg-slate-50 p-3 mt-2 text-sm text-slate-700">Confirm that S3 requests still succeed when internet access is disabled for the subnet, showing the endpoint handles traffic privately.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">CLI sample commands</div>
+      <pre class="text-sm text-slate-700 p-3 bg-slate-50 rounded"><code>aws s3api create-vpc-endpoint \
+  --vpc-id vpc-0123456789abcdef0 \
+  --service-name com.amazonaws.us-east-1.s3 \
+  --route-table-ids rtb-0abcde1234567890
+
+# Verify route table contains endpoint
+aws ec2 describe-route-tables --route-table-ids rtb-0abcde1234567890
+
+# From EC2 in private subnet
+aws s3 ls s3://my-private-data-YOURNAME/</code></pre>
+      <div class="mt-3 text-xs text-slate-500">Note: replace IDs and region with your environment values. Ensure the instance role has AmazonS3ReadOnlyAccess for these tests.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

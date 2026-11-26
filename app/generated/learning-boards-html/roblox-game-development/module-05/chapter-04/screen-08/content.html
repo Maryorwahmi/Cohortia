@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Security & APIs</span>
+    </div>
+
+    <div class="flex gap-6 h-[68vh]">
+      <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+        <div class="text-xl font-bold text-slate-900">Security settings</div>
+        <div class="text-sm text-slate-600 mt-1">Which toggles enable platform features and why testing is essential.</div>
+
+        <div class="mt-6 space-y-4 flex-1">
+          <div class="rounded-lg p-4 bg-white card">
+            <div class="text-sm font-bold">API Services</div>
+            <div class="text-sm text-slate-700 mt-2">Enables DataStoreService, remote events, and other server APIs. Disable only if you intentionally avoid these services.</div>
+          </div>
+
+          <div class="rounded-lg p-4 bg-white card">
+            <div class="text-sm font-bold">Allow HTTP Requests</div>
+            <div class="text-sm text-slate-700 mt-2">Allows HttpService to reach external APIs. Only enable when needed and secure endpoints properly.</div>
+          </div>
+
+          <div class="rounded-lg p-4 bg-white card">
+            <div class="text-sm font-bold">Third-party teleports</div>
+            <div class="text-sm text-slate-700 mt-2">Control whether players can be teleported to other experiences. Set according to cross-game design.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+        <div class="text-sm font-bold">Example: DataStore failure</div>
+        <div class="text-xs text-slate-600 mt-1">A save system that appears to work locally but doesn't persist across sessions when API Services are disabled.</div>
+
+        <pre class="code mt-4"><code>-- Pseudocode: Save a player's high score
+local DataStoreService = game:GetService("DataStoreService")
+local highScore = DataStoreService:GetDataStore("HighScores")
+
+local function saveScore(player, score)
+  local key = "score_" .. player.UserId
+  highScore:SetAsync(key, score)
+end
+
+-- If API Services are off, SetAsync will fail silently or error at runtime.
+</code></pre>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Enable necessary APIs before launch and run a test account to verify save and server features actually work in the live environment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

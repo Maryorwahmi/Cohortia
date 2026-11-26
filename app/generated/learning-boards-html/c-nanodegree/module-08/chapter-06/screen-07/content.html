@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 code">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">CMake snippet</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded text-sm"><code>cmake_minimum_required(VERSION 3.15)
+project(MyConanApp CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Include Conan generated files
+if(EXISTS "${CMAKE_BINARY_DIR}/conan_toolchain.cmake")
+  include("${CMAKE_BINARY_DIR}/conan_toolchain.cmake")
+else()
+  message(FATAL_ERROR "Conan toolchain file not found. Please run 'conan install' first.")
+endif()
+
+add_executable(my_app src/main.cpp)
+
+find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
+
+target_link_libraries(my_app PRIVATE fmt::fmt spdlog::spdlog)</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 code flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">main.cpp</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded text-sm"><code>#include &lt;fmt/core.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+  std::string name = "World";
+  int year = 2023;
+  fmt::print("Hello, {} from Conan! It's the year {}.
+", name, year);
+  return 0;
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Build steps: run conan install, pass toolchain to CMake, then build. Inspect generated files if find_package fails.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Code doesn’t change; you configure the build to find and link the library. The generated toolchain is the bridge.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

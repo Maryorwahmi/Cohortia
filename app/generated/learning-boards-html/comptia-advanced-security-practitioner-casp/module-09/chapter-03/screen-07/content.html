@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span><span class="text-slate-700">DAST Lab</span></div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">DAST Walkthrough — OWASP ZAP</div>
+    <div class="text-sm text-slate-600 mt-1">Step-by-step checklist to run an automated scan and interpret results.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-3">
+        <li>Start the target web application locally and note its URL, for example http://localhost:5000.</li>
+        <li>Open OWASP ZAP and choose Automated Scan, enter the target URL and click Attack.</li>
+        <li>Watch the Sites tree populate as ZAP crawls; allow spidering to discover additional paths.</li>
+        <li>Open the Alerts tab and inspect each alert's evidence: sample request and response data.</li>
+        <li>Reproduce high-confidence issues manually to validate exploitability, then record reproduction steps for the developer.</li>
+        <li>After fixes, rerun the scan and verify that alerts no longer appear or that evidence is removed.</li>
+      </ol>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Quick verification example (HTTP)</div>
+      <pre class="mt-2 bg-slate-900 text-white rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">curl -i -X GET "http://localhost:5000/search?q=&lt;script&gt;alert(1)&lt;/script&gt;"</pre>
+      <div class="text-xs text-slate-500 mt-2">Inspect the response for unescaped input as supporting evidence for XSS findings.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Interpretation tips</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-4">
+        <li>Prioritize alerts with high severity and high confidence first.</li>
+        <li>Use request/response evidence to create a minimal repro for developers.</li>
+        <li>Note side effects; if an alert modifies data, run scans in isolated test environments.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Check your understanding</div>
+      <div class="mt-2 text-sm text-slate-600">After an automated scan you find an alert for information disclosure with low confidence. What would you do first? Reproduce the issue manually to confirm before flagging it as a blocker.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Automated DAST gives evidence; verification and reproduction are required to make findings actionable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

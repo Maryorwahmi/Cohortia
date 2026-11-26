@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .code {white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+  </style>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Create and Drop Index commands</h3>
+      <div class="mt-3 text-sm text-slate-700">Example SQL commands you can run in a PostgreSQL session to add and remove indexes. Remember to test in dev first and use EXPLAIN ANALYZE to measure impact.</div>
+      <div class="mt-4 rounded-md bg-slate-50 p-3 border border-slate-100 code text-sm text-slate-800">
+        <pre><code>-- 1. Create a non-unique index on sale_date
+CREATE INDEX idx_sales_sale_date ON sales (sale_date);
+
+-- 2. Create a unique index on product_sku
+CREATE UNIQUE INDEX uix_products_sku ON products (product_sku);
+
+-- 3. Create a composite index on customer_id and order_date
+CREATE INDEX idx_customer_orders_customer_date ON customer_orders (customer_id, order_date DESC);
+
+-- 4. Create a partial index for active users
+CREATE INDEX idx_users_active_email ON users (email) WHERE status = 'active';
+
+-- 5. Drop an index
+DROP INDEX idx_sales_sale_date;</code></pre>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Tip: after creating an index, run EXPLAIN ANALYZE on the slow query to confirm the planner chooses an Index Scan and to compare actual timings.</div>
+    </div>
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Guided example</div>
+      <div class="mt-3 text-sm text-slate-700">Follow the chapter's hands-on scenario: create a sample customer_orders table, insert representative rows, run the slow query, add the composite index on (customer_id, order_date DESC), and re-run EXPLAIN ANALYZE to observe the change from Seq Scan to Index Scan and the removal or reduction of Sort operations.</div>
+      <div class="mt-4 rounded-md p-3 bg-emerald-50 border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Use the SQL examples as building blocks, but always validate with EXPLAIN ANALYZE and test index creation in staging for large tables.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

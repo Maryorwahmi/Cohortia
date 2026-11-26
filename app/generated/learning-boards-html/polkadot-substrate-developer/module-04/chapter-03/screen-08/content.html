@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2;background:#f8fafc;padding:10px;border-radius:8px}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Process Flow</span>
+      <span class="text-slate-700">Off-chain Worker</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">Off-chain Worker basics</div>
+    <div class="text-sm text-slate-600 mt-1">Run non-deterministic or heavy tasks off-runtime and submit results via transactions.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">OCW lifecycle</div>
+      <ol class="text-sm text-slate-700 space-y-2">
+        <li>Node calls offchain_worker(block_number) at block start (std feature).</li>
+        <li>OCW checks timing (e.g., every N blocks) and local conditions.</li>
+        <li>Perform HTTP/local compute; prepare Call and sign it using Signer.</li>
+        <li>Submit signed transaction; on-chain validation applies the change deterministically.</li>
+      </ol>
+
+      <div class="mt-4 text-xs uppercase tracking-wider text-slate-600">Safety note</div>
+      <div class="p-3 mt-2 rounded-lg bg-rose-50 text-rose-700">OCWs are not consensus actors; always validate submitted data on-chain through aggregation, signatures, or on-chain checks.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Code sketch (flow)</div>
+      <div class="mono">// offchain_worker called every block
+if (block_number % 5 == 0) {
+  // send HTTP request, parse JSON
+  // build Call::set_price(parsed_price, block_number)
+  // let signer = Signer::<T, T::AuthorityId>::any_account();
+  // signer.send_signed_transaction(|_| call);
+}
+</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">OCWs let you gather external information and submit deterministic updates via signed transactions — but on-chain verification is essential.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

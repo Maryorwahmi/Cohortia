@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;}</style>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Definition</div>
+      <div class="mt-2 text-lg font-semibold text-slate-800">Input validation</div>
+      <p class="mt-3 text-sm text-slate-600">Systematic verification of every external parameter to ensure type safety, length, format and domain rules. Validation prevents bad state and runtime errors during endorsement.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common patterns</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>Check presence (non-empty) for identifiers and owner fields.</li>
+          <li>Parse and validate numeric ranges for sizes or values.</li>
+          <li>Trim and normalize strings to avoid accidental duplicates.</li>
+          <li>Validate length and permitted characters for IDs.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Validation lives in chaincode: it documents rules, prevents bad endorsements, and reduces wasted execution.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Concrete example</div>
+      <div class="mt-2">
+        <pre class="rounded bg-slate-900 text-white p-3"><code>// Input validation example (Go)
+func validateCreateInput(id string, color string, size int, owner string) error {
+  if id == "" || color == "" || owner == "" || size <= 0 {
+    return fmt.Errorf("asset ID, color, owner, and size must be provided and valid")
+  }
+  return nil
+}</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Misconception check</div>
+        <p class="mt-2">Do not rely on client-side validation or assume only trusted callers will submit correct data. Peers must validate because all transactions get executed and endorsed by peers.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="font-semibold text-slate-800 text-sm">Try this</div>
+          <div class="text-sm text-slate-600 mt-2">Create reusable validation helpers, call them at entry points, and add unit tests that pass invalid inputs to confirm errors are returned.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ALB + ACM Integration</span>
+  </div>
+  <div class="flex gap-6 h-[66vh]">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <h3 class="text-lg font-bold mt-2 text-slate-800">TLS termination with ALB and certificate association</h3>
+      <div class="mt-3 text-sm text-slate-700 space-y-3">
+        <p>Attach an issued ACM certificate to an ALB HTTPS listener to enable TLS for your domain. ALB handles TLS handshakes and can offload CPU from application servers.</p>
+        <p>Remember to configure security groups: ALB must allow inbound on 443 and target instances must accept traffic from the ALB security group.</p>
+      </div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-bold text-slate-700">Example workflow</div>
+          <div class="text-sm text-slate-600">Issue ACM cert → Create ALB → Add HTTPS listener port 443 → Choose certificate from ACM → Configure target group.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">
+          <div class="font-bold">Pitfall</div>
+          <div class="text-sm">Public ACM certificates cannot be exported for use outside integrated services. Use ACM Private CA or an external CA for non-integrated servers.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Diagram (abstract)</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 h-full">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">Client ↔ ALB (ACM cert) — TLS</div>
+        <div class="rounded-lg p-3 bg-white card-border">ALB ↔ Backend — HTTP or TLS depending on re-encryption</div>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Using ACM with ALB simplifies TLS; decide whether backends should receive plaintext or TLS based on trust and compliance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

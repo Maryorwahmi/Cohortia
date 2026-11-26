@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Capturing traffic with tcpdump</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl p-5 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>Process Flow</div>
+      <h3 class='text-xl font-bold text-slate-900'>Safe packet capture</h3>
+      <p class='text-sm text-slate-700 mt-2'>Apply focused filters and interpret TCP flags to find handshake failures, retransmits, and drops.</p>
+
+      <pre class='text-sm text-slate-800 bg-white p-3 rounded mt-4' style='white-space: pre-wrap; tab-size:2;'>
+# Capture traffic to or from a host on port 80 on eth0
+sudo tcpdump -i eth0 host 192.168.1.10 and port 80
+
+# Capture only SYN packets to observe handshake attempts
+sudo tcpdump -i eth0 'tcp[tcpflags] & tcp-syn != 0'
+      </pre>
+
+      <div class='mt-3 rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-semibold text-slate-700'>Concrete example</div>
+        <div class='text-sm text-slate-700 mt-1'>Seeing SYNs without SYN-ACKs suggests that packets reach the server interface but responses are blocked or never leave the server. Cross-check iptables counters to confirm.</div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl p-5 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700 mb-2'>Interpretation cards</div>
+      <div class='grid grid-cols-1 gap-3 flex-1 overflow-auto'>
+        <div class='rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-semibold text-amber-700'>SYN without SYN-ACK</div>
+          <div class='text-sm text-slate-700 mt-1'>Indicates the server did not respond or replies were dropped; check service, firewall, or routing for return path issues.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-semibold text-rose-700'>Retransmissions</div>
+          <div class='text-sm text-slate-700 mt-1'>Multiple retransmits and duplicate ACKs point to packet loss or congestion between endpoints.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-semibold text-emerald-700'>Key Takeaway</div>
+          <div class='text-sm text-slate-800 mt-1'>Combine tcpdump with ss and firewall counters to determine whether packets reach the host and whether replies are sent or dropped.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

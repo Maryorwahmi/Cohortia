@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code {background:#0f1724;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Build Script Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Code example</div>
+      <div class="mt-3 code">
+<pre><code># Example: Simple build script for a Python project
+#!/bin/bash
+echo "--- Running build script ---"
+
+# 1. Install dependencies (if not already in a virtual env)
+# python -m venv venv
+# source venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Run linters/static analysis
+echo "Running flake8..."
+flake8 . || { echo "Flake8 found issues!"; exit 1; }
+
+# 3. Run tests
+echo "Running tests..."
+pytest --cov=my_app tests/ || { echo "Tests failed!"; exit 1; }
+
+# 4. Create distribution package (e.g., wheel, sdist)
+echo "Building package..."
+python setup.py sdist bdist_wheel
+
+echo "Build successful!"
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Install dependencies first so subsequent steps run in a known environment.</li>
+        <li>Run linters to catch style and likely bugs before executing longer tests.</li>
+        <li>Run tests with coverage to produce measurable safety nets for refactoring.</li>
+        <li>Package only after earlier steps succeed to avoid releasing broken artifacts.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border card-border">
+        <div class="text-sm font-bold">Example outcome</div>
+        <div class="text-sm text-slate-700 mt-1">If flake8 fails, the script exits early and the package step never runs, preserving CI time and giving early feedback.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border card-border">
+        <div class="text-sm font-bold">Pro-tip</div>
+        <div class="text-sm text-slate-700 mt-1">Keep the script simple and idempotent. Add explicit exit codes so CI can detect failures cleanly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Scalar subquery example</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl p-5 card">
+      <div class="text-lg font-bold text-slate-800">Pattern</div>
+      <div class="mt-3 text-sm text-slate-600">Compute an aggregate inside a subquery, then compare outer rows to that single value.</div>
+      <div class="mt-4 p-3 bg-white border border-slate-100 rounded-lg">
+        <pre style="white-space: pre-wrap; tab-size: 2; margin:0"><code>SELECT FirstName, LastName
+FROM Customers
+WHERE CustomerID IN (
+  SELECT CustomerID
+  FROM Orders
+  WHERE TotalAmount &gt; (SELECT AVG(TotalAmount) FROM Orders)
+);</code></pre>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">This finds customers with orders larger than the overall average order amount. The inner AVG(...) is a scalar subquery returning one value.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl p-5 card">
+      <div class="text-sm font-semibold text-slate-800">Concrete considerations</div>
+      <div class="mt-3 text-sm text-slate-600">• Ensure the scalar subquery returns exactly one column and one row. • If you need per-customer averages, use GROUP BY or a derived table instead.</div>
+      <div class="mt-4 p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+        <div class="text-sm text-slate-800">Scalar subqueries are not always executed per row in optimized engines; treat them as expressive and rely on explain plans for performance checks.</div>
+      </div>
+      <div class="mt-4 p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Scalar subqueries are ideal for thresholds computed from aggregates and keep the outer query concise and readable.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

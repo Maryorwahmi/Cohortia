@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Optimistic Locking</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <p class="text-sm text-slate-600 mt-2">Optimistic locking allows concurrent changes and detects conflicts at commit using a version or timestamp check.</p>
+
+      <div class="mt-4 text-xs font-bold text-slate-700">Why it helps</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-600">
+        <li>Maximizes concurrency for low-conflict workloads.</li>
+        <li>Shifts conflict resolution into application logic for flexibility.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use optimistic locking when conflicts are rare and you can handle retries or merges in the application.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example SQL</div>
+        <pre class="text-sm bg-slate-50 p-3 rounded mt-2" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+-- Read
+SELECT description, version FROM products WHERE product_id = 123;
+-- Suppose version = 5
+
+-- Update attempt with optimistic lock
+UPDATE products
+SET description = 'New description', version = 6
+WHERE product_id = 123 AND version = 5;
+-- If 1 row updated -> success; if 0 rows -> conflict, retry or resolve
+        </pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Optimistic locking won’t automatically merge changes. Your application must decide how to retry or prompt the user to reconcile updates.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Analogy</div>
+        <div class="text-sm text-slate-600 mt-2">Think of optimistic locking as two people editing a shared note; both can type, but when one saves, the app checks whether the base version changed and asks for reconciliation if needed.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

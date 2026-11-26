@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda Handler</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex">
+    <div class="w-2/3 pr-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Python Lambda example</h3>
+      <p class="text-sm text-slate-700 mt-3">This minimal handler logs the event, extracts instance id, state, and time, and returns a success response. Extend it to restart instances or publish notifications safely.</p>
+
+      <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;" class="mt-4 text-sm text-slate-900 bg-[#f8fafc] p-3 rounded border border-[rgba(226,232,240,0.9)]">
+import json
+import os
+import boto3
+
+def lambda_handler(event, context):
+  print("Received event:", json.dumps(event, indent=2))
+
+  instance_id = event['detail']['instance-id']
+  state = event['detail']['state']
+  time = event['time']
+
+  message = f"EC2 instance {instance_id} changed state to {state} at {time}."
+  print(message)
+
+  # Optional: Publish to SNS topic for notification
+  # sns_topic_arn = os.environ.get('SNS_TOPIC_ARN')
+  # if sns_topic_arn:
+  #     sns_client = boto3.client('sns')
+  #     sns_client.publish(
+  #         TopicArn=sns_topic_arn,
+  #         Message=message,
+  #         Subject=f"EC2 Instance {instance_id} {state}"
+  #     )
+
+  return {
+    'statusCode': 200,
+    'body': json.dumps('Event processed successfully!')
+  }
+      </pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete extension</div>
+          <div class="text-sm text-slate-800 mt-1">Add idempotency checks using a DynamoDB lock or record to avoid repeated restarts on retries.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">Do not assume nested fields always exist. Validate the event shape before accessing nested keys to avoid handler errors.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 pl-4 flex flex-col gap-4">
+      <div class="rounded-lg p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Debugging tip</div>
+        <div class="text-sm text-slate-700 mt-2">Print the entire event to CloudWatch on first runs to confirm the shape, then remove verbose logging after validation.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Start by logging and validating events, then add safe remediation steps and idempotency guards before taking destructive actions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

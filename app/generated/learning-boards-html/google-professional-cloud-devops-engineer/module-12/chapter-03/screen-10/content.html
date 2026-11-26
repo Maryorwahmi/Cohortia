@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">service_b.py</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code excerpt</div>
+      <pre style="white-space:pre-wrap;tab-size:2" class="text-sm bg-slate-900 text-white rounded-lg p-3"># service_b.py (simplified)
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
+resource = Resource.create({"service.name": "service-b"})
+provider = TracerProvider(resource=resource)
+cloud_trace_exporter = CloudTraceSpanExporter(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"))
+provider.add_span_processor(SimpleSpanProcessor(cloud_trace_exporter))
+trace.set_tracer_provider(provider)
+
+app = Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
+
+@ app.route('/validate/<item_id>')
+def validate_item(item_id):
+    with tracer.start_as_current_span("validate_item_logic") as span:
+        span.set_attribute("item.id", item_id)
+        # simulate validation
+</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <p class="text-sm text-slate-700">Service B continues traces by reading propagated headers and creating spans for validation. Attributes on the span allow you to filter traces by item id or validation status in Cloud Trace.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Error case</div>
+          <div class="text-xs text-slate-700 mt-1">If item_id is "invalid", the span sets validation.status to failed, which you will see in the waterfall and span details.</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+          <div class="text-sm font-bold text-emerald-700">Takeaway</div>
+          <div class="text-xs text-slate-700 mt-1">Downstream attributes are critical for diagnosing whether a business-level check failed in validation or earlier.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

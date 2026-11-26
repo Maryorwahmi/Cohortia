@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Coins & Hazards</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 flex-1">
+    <div class="col-span-7 bg-white rounded-2xl border p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Coin collection and hazard collision</h3>
+      <ol class="mt-4 space-y-3 text-sm text-slate-700 list-decimal list-inside">
+        <li>Coin detects player via OnTriggerEnter and CompareTag("Player").</li>
+        <li>Coin calls GameManager.Instance.AddScore(coinValue) and destroys itself.</li>
+        <li>Hazard checks collisions, retrieves HealthSystem from the other object, and calls TakeDamage(damageAmount).</li>
+        <li>HealthSystem processes damage through clamped setter, invokes events, and triggers Die if needed.</li>
+      </ol>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl border p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code snippets</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:12px;">
+// Coin.cs
+void OnTriggerEnter(Collider other)
+{
+  if (other.CompareTag("Player"))
+  {
+    GameManager.Instance.AddScore(coinValue);
+    Destroy(gameObject);
+  }
+}
+
+// Hazard.cs
+void OnCollisionEnter(Collision collision)
+{
+  if (collision.gameObject.CompareTag("Player"))
+  {
+    HealthSystem playerHealth = collision.gameObject.GetComponent<HealthSystem>();
+    if (playerHealth != null) playerHealth.TakeDamage(damageAmount);
+  }
+}
+      </pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Thin interaction scripts call centralized systems so behavior stays consistent and easy to tune.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

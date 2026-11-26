@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#f8fafc}
+    .code-panel{background:#0b1220;color:#e6eef8}
+    pre code{white-space:pre-wrap;tab-size:2}
+  </style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Spawn, capture safely, join</h3>
+      <div class="mt-3 text-sm text-slate-600">We will create a thread that prints captured values and then join it. Observe how captured value differs from the original after modification.</div>
+
+      <div class="mt-4 bg-slate-900 rounded-md p-3 code-panel overflow-auto"><pre><code>#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;string&gt;
+
+int main() {
+  int x = 1;
+  std::string msg = "Hello";
+  std::thread t([x, msg]() {
+    std::cout << "Thread sees: " << x << ", " << msg << std::endl;
+  });
+  x = 42; // original changed after thread created
+  msg = "World";
+  t.join();
+  std::cout << "Original x: " << x << std::endl;
+}
+</code></pre></div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Capturing x and msg by value creates independent copies for the thread.</li>
+        <li>Changes to the originals after thread creation do not affect captured copies.</li>
+        <li>Joining ensures the thread completes before main exits, preventing premature destruction.</li>
+        <li>Do not detach unless you explicitly manage object lifetimes across threads.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">For large read-only containers, prefer passing a shared pointer by value to the lambda to avoid copying while guaranteeing lifetime.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

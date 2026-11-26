@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-700">Non-blocking caches</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">MSHRs: track and merge outstanding misses</div>
+    <div class="text-sm text-slate-600 mt-1">Why multiple misses in flight matter for out-of-order execution.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">MSHR structure</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc list-inside flex-1">
+        <li>Address of missing block and access type (read/write).</li>
+        <li>List of instructions or requests waiting for the block.</li>
+        <li>Status bits: outstanding fetch, merge count, speculative state.</li>
+      </ul>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Example</div>
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] text-sm text-slate-700">If two loads miss to the same line before data returns, the second load is merged into the first MSHR. Only one memory fetch occurs; both requests are satisfied when data returns.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Operational implications</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc list-inside flex-1">
+        <li>Number of MSHRs limits the number of concurrent misses.</li>
+        <li>Miss-under-miss merging saves bandwidth and reduces duplicative work.</li>
+        <li>Too few MSHRs create structural hazards and stall issue of new loads.</li>
+      </ul>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)] text-sm text-rose-700">Assuming unlimited MSHRs always improves performance. If bandwidth or instruction-level parallelism is limited, extra MSHRs yield little benefit.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 flex gap-3">
+    <div class="flex-1">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">MSHRs are the concurrency mechanism for non-blocking caches; they must be sized to match pipeline and bandwidth capabilities.</p>
+      </div>
+    </div>
+    <div class="w-64">
+      <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] text-sm text-slate-700">Check: What happens when the MSHR pool is exhausted? The cache must stall new miss requests until an MSHR frees, creating a structural bottleneck.</div>
+    </div>
+  </div>
+</div>

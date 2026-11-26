@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Manual Failover Steps</div>
+
+      <ol class="mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-3">
+        <li><span class="font-semibold">Choose a standby:</span> verify pg_last_wal_replay_lsn on each standby to find the most current node.</li>
+        <li><span class="font-semibold">Promote the standby:</span> run pg_ctl promote to stop recovery and accept writes.</li>
+        <li><span class="font-semibold">Update connections:</span> change DNS, load balancer, or app config to the new primary's address.</li>
+        <li><span class="font-semibold">Handle other standbys:</span> either rebuild from pg_basebackup or use pg_rewind if safe.</li>
+        <li><span class="font-semibold">Re-integrate old primary:</span> wait to bring it back as a standby after a base backup or rewind.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow a strict sequence: pick the freshest standby, promote, redirect clients, and then reconcile the remaining servers to avoid split-brain.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-md mono text-sm text-slate-800">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0">-- On each standby, check LSNs
+SELECT pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn();
+
+-- On the chosen standby, promote
+sudo pg_ctl -D /var/lib/postgresql/12/main_standby promote
+
+-- After promotion, verify not in recovery
+sudo -u postgres psql -c "SELECT pg_is_in_recovery();"</pre>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Promoting an outdated standby without checking replay_lsn causes data loss.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-1">Automate LSN collection across standbys so you can quickly compare replay positions under pressure.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

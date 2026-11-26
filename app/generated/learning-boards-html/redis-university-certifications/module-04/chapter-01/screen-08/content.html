@@ -1,0 +1,59 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>ioredis Example</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Node.js starter</div>
+      <pre class='mt-3 bg-slate-900 text-slate-100 p-3 rounded-md text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>const Redis = require('ioredis');
+
+const redis = new Redis({
+  host: 'localhost',
+  port: 6379,
+  db: 0
+});
+
+redis.on('connect', () => {
+  console.log('Connected to Redis!');
+});
+
+redis.on('error', (err) => {
+  console.error('Redis connection error:', err);
+});
+
+async function runRedisCommands() {
+  try {
+    await redis.ping();
+    await redis.set('nodekey', 'Hello from Node.js!');
+    const value = await redis.get('nodekey');
+    console.log(`Value for 'nodekey': ${value}`);
+  } finally {
+    redis.quit();
+  }
+}
+
+runRedisCommands();
+</pre>
+      <div class='mt-3 text-xs text-slate-600'>Note: the example listens for events and calls quit in finally to close the client and its pool.</div>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Observability and shutdown</div>
+      <ul class='mt-3 space-y-2 text-sm text-slate-600'>
+        <li>Use connect and error events for logging and monitoring.</li>
+        <li>Call quit or disconnect during process termination to free sockets.</li>
+        <li>ioredis manages pooling by default; tune only when necessary.</li>
+      </ul>
+
+      <div class='mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-100'>
+        <div class='text-xs font-bold text-emerald-700'>Takeaway</div>
+        <div class='text-sm text-slate-800 mt-2'>Observe connection events and always perform a graceful quit on shutdown to avoid leaked sockets.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

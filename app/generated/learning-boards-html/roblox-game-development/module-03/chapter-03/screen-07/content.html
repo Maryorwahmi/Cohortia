@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Damage Zone Example</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800 mb-2">Full script (as shown in chapter)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">-- Script placed inside a Part named "DamageZone"
+local damageZone = script.Parent
+local DAMAGE_AMOUNT = 10
+local COOLDOWN_TIME = 1 -- seconds
+
+local playersInZone = {}
+
+local function onDamageZoneTouched(otherPart)
+    local character = otherPart.Parent
+    if not character then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    local player = game.Players:GetPlayerFromCharacter(character)
+    if not player then return end
+
+    local lastDamageTime = playersInZone[player.UserId] or 0
+    if os.time() - lastDamageTime < COOLDOWN_TIME then
+        return
+    end
+
+    humanoid:TakeDamage(DAMAGE_AMOUNT)
+    playersInZone[player.UserId] = os.time()
+
+    if humanoid.Health <= 0 then
+        playersInZone[player.UserId] = nil
+    end
+end
+
+damageZone.Touched:Connect(onDamageZoneTouched)</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation & checks</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Guard checks prevent non-player triggers and early-exit quickly.</li>
+        <li>Per-player timestamps avoid blocking and correctly scope cooldowns.</li>
+        <li>Cleaning the table on death prevents stale entries.</li>
+      </ul>
+
+      <div class="mt-4 grid grid-cols-1 gap-2">
+        <div class="p-2 rounded-lg bg-amber-50 text-amber-800 text-xs card-border">Common mistake: using task.wait inside the handler which pauses the whole script.</div>
+        <div class="p-2 rounded-lg bg-blue-50 text-blue-700 text-xs card-border">Pro tip: Use UserId as key to handle name changes safely.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

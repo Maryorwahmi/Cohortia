@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 5.5</span><span>›</span><span class="text-slate-700">Apache Log Analysis Script: Execution & Output</span></div><div class="flex flex-col lg:flex-row h-[calc(100%-4rem)] gap-6"><div class="lg:w-3/5 flex flex-col"><div class="bg-slate-800 rounded-xl p-4 flex-grow font-mono text-sm text-slate-200 overflow-auto shadow-lg"><pre style="white-space: pre-wrap; tab-size: 2;"><code><span style="color:#6A9955;"># ... (previous code for imports and patterns) ...</span>
+
+    found_incidents = []
+    <span style="color:#569CD6;">if not</span> os.path.exists(log_file_path):
+        <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Error: Log file not found at {log_file_path}"</span>)
+        <span style="color:#569CD6;">return</span> []
+
+    <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Analyzing log file: {log_file_path}"</span>)
+    <span style="color:#569CD6;">try</span>:
+        <span style="color:#569CD6;">with</span> <span style="color:#9CDCFE;">open</span>(log_file_path, <span style="color:#D69D85;">'r'</span>, errors=<span style="color:#D69D85;">'ignore'</span>) <span style="color:#569CD6;">as</span> f:
+            <span style="color:#569CD6;">for</span> line_num, line <span style="color:#569CD6;">in</span> <span style="color:#9CDCFE;">enumerate</span>(f, <span style="color:#B5CEA8;">1</span>):
+                <span style="color:#569CD6;">for</span> compiled_pattern, original_pattern <span style="color:#569CD6;">in</span> compiled_patterns:
+                    <span style="color:#569CD6;">if</span> compiled_pattern.search(line):
+                        found_incidents.append({
+                            <span style="color:#9CDCFE;">"line_num"</span>: line_num,
+                            <span style="color:#9CDCFE;">"log_entry"</span>: line.strip(),
+                            <span style="color:#9CDCFE;">"matched_pattern"</span>: original_pattern
+                        })
+                        <span style="color:#6A9955;"># Break after first match per line to avoid duplicate reporting</span>
+                        <span style="color:#569CD6;">break</span> 
+        
+        <span style="color:#569CD6;">if</span> found_incidents:
+            <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">"
+--- Suspicious Activities Found ---"</span>)
+            <span style="color:#569CD6;">for</span> incident <span style="color:#569CD6;">in</span> found_incidents:
+                <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Line {incident['line_num']}: {incident['log_entry']}"</span>)
+                <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"  Matched Pattern: '{incident['matched_pattern']}'
+"</span>)
+        <span style="color:#569CD6;">else</span>:
+            <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">"No suspicious activities found."</span>)
+            
+    <span style="color:#569CD6;">except</span> <span style="color:#9CDCFE;">Exception</span> <span style="color:#569CD6;">as</span> e:
+        <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"An error occurred during log analysis: {e}"</span>)
+        
+    <span style="color:#569CD6;">return</span> found_incidents
+
+<span style="color:#6A9955;"># --- Example Usage ---</span>
+dummy_log_content = <span style="color:#D69D85;">"""
+192.168.1.10 - - [26/Oct/2023:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1234
+10.0.0.5 - - [26/Oct/2023:10:00:05 +0000] "GET /vulnerable.php?id=1+union+select+user() HTTP/1.1" 404 56
+172.16.0.10 - - [26/Oct/2023:10:00:10 +0000] "GET /images/logo.png HTTP/1.1" 200 789
+192.168.1.20 - - [26/Oct/2023:10:00:15 +0000] "GET /../../etc/passwd HTTP/1.1" 403 23
+10.0.0.15 - - [26/Oct/2023:10:00:20 +0000] "POST /wp-admin/admin-ajax.php HTTP/1.1" 200 450
+192.168.1.25 - - [26/Oct/2023:10:00:25 +0000] "GET /search?q=normal+query HTTP/1.1" 200 300
+10.0.0.20 - - [26/Oct/2023:10:00:30 +0000] "GET /shell.php?cmd=eval(base64_decode('...')) HTTP/1.1" 200 100
+"""</span>
+
+log_file_name = <span style="color:#D69D85;">"apache_access.log"</span>
+<span style="color:#569CD6;">with</span> <span style="color:#9CDCFE;">open</span>(log_file_name, <span style="color:#D69D85;">"w"</span>) <span style="color:#569CD6;">as</span> f:
+    f.write(dummy_log_content)
+
+<span style="color:#6A9955;"># Run the analysis</span>
+analyze_apache_log(log_file_name)
+
+<span style="color:#6A9955;"># os.remove(log_file_name)</span></code></pre></div></div><div class="lg:w-2/5 flex flex-col gap-4"><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">File Handling & Iteration</h3><p class="text-sm text-slate-700">The script safely opens the log file and iterates through each line, assigning a line number. This ensures every entry is processed and provides context for identified incidents.</p></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Pattern Matching Loop</h3><p class="text-sm text-slate-700">Each log line is checked against all compiled suspicious patterns. The first pattern that matches a line triggers an incident record, preventing redundant reporting for the same log entry.</p></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Incident Reporting</h3><p class="text-sm text-slate-700">When suspicious activity is found, the script compiles a list of incidents, each containing the line number, the full log entry, and the matched pattern. This provides clear, actionable intelligence.</p></div><div class="rounded-xl bg-slate-900 p-4 text-slate-100 font-mono text-xs overflow-auto mt-auto"><div class="text-emerald-400 mb-2">Terminal Output (Simulated)</div><pre style="white-space: pre-wrap;"><code>Analyzing log file: apache_access.log
+
+--- Suspicious Activities Found ---
+Line 2: 10.0.0.5 - - [26/Oct/2023:10:00:05 +0000] "GET /vulnerable.php?id=1+union+select+user() HTTP/1.1" 404 56
+  Matched Pattern: 'union select'
+
+Line 4: 192.168.1.20 - - [26/Oct/2023:10:00:15 +0000] "GET /../../etc/passwd HTTP/1.1" 403 23
+  Matched Pattern: 'etc/passwd'
+
+Line 7: 10.0.0.20 - - [26/Oct/2023:10:00:30 +0000] "GET /shell.php?cmd=eval(base64_decode('...')) HTTP/1.1" 200 100
+  Matched Pattern: 'eval\('
+</code></pre></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

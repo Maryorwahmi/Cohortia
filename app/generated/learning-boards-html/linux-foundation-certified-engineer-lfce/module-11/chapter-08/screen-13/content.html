@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Docker & Kubernetes</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Docker task</div>
+      <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"># Build and run
+docker build -t failing-app .
+docker run --name my-failing-app failing-app
+# Diagnose
+docker ps -a
+docker logs my-failing-app
+docker inspect my-failing-app</pre>
+      <div class="mt-3 text-sm text-slate-600">Fix the Dockerfile and rebuild the image; do not edit the container for persistent fixes.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Kubernetes task</div>
+      <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"># Failing pod manifest snippet
+apiVersion: v1
+kind: Pod
+metadata:
+  name: failing-nginx
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    command: ["/bin/sh", "-c"]
+    args: ["sleep 5; exit 1"]
+
+# Diagnose
+kubectl apply -f failing-pod.yaml
+kubectl get pods
+kubectl describe pod failing-nginx
+kubectl logs failing-nginx</pre>
+      <div class="mt-3 text-sm text-slate-600">Fix by providing a proper long-running command (for nginx, use the standard nginx foreground args) and reapply.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

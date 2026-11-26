@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Web Exploit to Shell</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Pseudocode (visual)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">// Stage 1: Web Attack Attempt
+IF Nginx_Request.URI CONTAINS suspicious_payload
+AND Nginx_Response_Code = 200
+THEN FLAG Source_IP and Request_URI
+
+// Stage 2: Suspicious Process Creation
+IF Syslog.Event_Type = Process_Creation
+AND Process_Name IN (nc, bash, python, perl)
+AND Parent_Process_Name = nginx
+AND Syslog.Source_IP = FLAGGED_WEB_ATTACK_SOURCE.IP
+AND WITHIN 5 minutes
+THEN GENERATE CRITICAL ALERT "Web App Compromise & Shell Spawn"</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Notes & tuning</div>
+      <div class="mt-3 text-sm text-slate-600 space-y-2">
+        <div>Whitelist known scanners and benign cloud IP ranges to reduce false positives.</div>
+        <div>Require both web indicators and host process evidence for critical alerts.</div>
+        <div>Allow for slight clock skew by using flexible windows and normalized timestamps.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+          <p class="text-xs font-medium text-slate-800">Cross-layer correlation between web and host telemetry gives high-confidence detection of exploitation and post-exploitation behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

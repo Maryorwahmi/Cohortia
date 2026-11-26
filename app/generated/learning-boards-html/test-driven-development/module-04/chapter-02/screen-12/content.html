@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Mocking & Stubbing</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl p-4 bg-white shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">When to mock</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>External services or databases that make tests slow or flaky.</li>
+        <li>Services whose failures you want to simulate deterministically.</li>
+        <li>Dependencies that are not under test but whose interactions matter.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">How to mock</div>
+      <div class="mt-3 text-sm text-slate-600">Dependency-inject a repository or client into your service, then in tests provide a fresh unittest.mock.Mock instance. Use return_value to simulate responses and assert_called_once_with to verify expected calls.</div>
+
+      <pre class="mt-3 bg-slate-100 rounded p-3 text-sm text-slate-800 overflow-auto" style="white-space:pre-wrap; tab-size:2"><code>@pytest.fixture
+def mock_product_repository():
+    return Mock()
+
+def test_create_product_success(mock_product_repository):
+    service = ProductService(mock_product_repository)
+    product_id = "P001"
+    service.create_product(product_id, "Laptop", 1200.0)
+    mock_product_repository.add.assert_called_once_with({"id": product_id, "name": "Laptop", "price": 1200.0})</code></pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Design for injection of dependencies so tests can supply mocks and stay fast and focused.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

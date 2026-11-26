@@ -1,0 +1,85 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Flask: authorization & validation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code</div>
+      <pre class="text-xs bg-slate-900 text-white p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# --- Secure manage_post implementation
+@ app.route('/api/v1/posts/&lt;post_id&gt;', methods=['GET', 'PUT', 'DELETE'])
+@ jwt_required
+def manage_post(post_id):
+    post = posts_db.get(post_id)
+    if not post:
+        return jsonify({"message": "Post not found"}), 404
+
+    current_user_id = request.user_id
+
+    if request.method == 'GET':
+        return jsonify(post)
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+        if not data:
+            return jsonify({"message": "Request must be JSON"}), 400
+
+        # Authorization: only the author can update
+        if current_user_id != post.get('author_id'):
+            return jsonify({"message": "Forbidden: not the author"}), 403
+
+        # Input validation: ensure title and content meet basic rules
+        title = data.get('title')
+        content = data.get('content')
+        if not title or not content:
+            return jsonify({"message": "Missing title or content"}), 400
+        if len(title) &lt; 3 or len(title) &gt; 200:
+            return jsonify({"message": "Title length invalid"}), 400
+        if len(content) &lt; 10:
+            return jsonify({"message": "Content too short"}), 400
+
+        post.update({'title': title, 'content': content})
+        return jsonify({"message": "Post updated", "post": post})
+
+    elif request.method == 'DELETE':
+        # Authorization: only the author can delete
+        if current_user_id != post.get('author_id'):
+            return jsonify({"message": "Forbidden: not the author"}), 403
+        del posts_db[post_id]
+        return jsonify({"message": "Post deleted"})
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation</div>
+      <div class="flex-1 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Authorization check</div>
+          <div class="text-xs text-slate-600 mt-1">Compare current user identity to the post author before allowing update or delete operations; return a 403 if they differ.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Input validation</div>
+          <div class="text-xs text-slate-600 mt-1">Verify required fields are present and meet length constraints to prevent malformed data and injection attempts.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Test scenarios</div>
+          <div class="text-xs text-slate-700 mt-1">Try an update with a non-owner token; expect forbidden. Try owner update with missing fields; expect a bad request.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Enforce authorization first, validate inputs second, then mutate state. The order matters for security.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

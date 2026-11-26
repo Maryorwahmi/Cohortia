@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex flex-col gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-xs tiny-label text-blue-700 font-bold mb-2">Process Flow</div>
+      <div class="text-lg font-bold text-slate-900">Guided lab: assemble the simulation</div>
+      <div class="text-sm text-slate-600 mt-1">Step-by-step tasks to get particles pouring and piling inside a tube.</div>
+    </div>
+
+    <div class="flex gap-4 h-full">
+      <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm overflow-auto" style="min-height:0">
+        <div class="text-sm font-semibold text-slate-700 mb-2">SOPs — Geometry</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-600 space-y-2">
+          <li>Create Geometry node named pop_grains_sim. Add Tube: Height 2, Radius 1, End Caps On.</li>
+          <li>Add Reverse SOP after Tube to ensure inward normals for collisions.</li>
+          <li>Create Sphere: Radius 0.2, Polygon primitive; translate Y to 2.5 and add Null named OUT_EMITTER.</li>
+        </ol>
+
+        <div class="text-sm font-semibold text-slate-700 mt-4 mb-2">DOP & POP</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-600 space-y-2">
+          <li>Create DOP Network. Connect Tube to first input, OUT_EMITTER to second input.</li>
+          <li>Inside DOP, add POP Network. Inside POP Network add POP Source (Surface), POP Grains (Radius 0.05), POP Solver.</li>
+          <li>Add Static Object pointing to reversed tube SOP path, Gravity Force, Merge everything into DOP Output.</li>
+          <li>Add DOP Import set to Fetch Geometry from popsolver1 to visualize results.</li>
+        </ol>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Practice checkpoints</div>
+        <div class="grid gap-3">
+          <div class="rounded-lg p-3 bg-emerald-50 text-sm">Checkpoint 1: Particles emit and fall under gravity</div>
+          <div class="rounded-lg p-3 bg-amber-50 text-sm">Checkpoint 2: Particles collide and accumulate inside tube</div>
+          <div class="rounded-lg p-3 bg-blue-50 text-sm">Checkpoint 3: Adjust Birth Rate and Radius to change density and packing</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Assemble geometry, DOP and POP networks carefully. Verify SOP paths, normals and merges before scaling particle numbers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

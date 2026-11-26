@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">READ COMMITTED</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">READ COMMITTED behavior</h3>
+      <p class="text-sm text-slate-600 mt-3">Each statement sees data committed before the statement begins. This avoids dirty reads but allows later statements to observe newly committed changes.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">When to use</div>
+          <p class="text-sm text-slate-600 mt-1">Interactive web requests and operations where seeing the latest committed data per statement is preferred over strict repeatability.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card">
+          <div class="font-semibold text-slate-800">Misconception</div>
+          <p class="text-sm text-slate-600 mt-1">Repeated reads in a transaction are not guaranteed to be the same; each statement may see newly committed changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-lg bg-white p-3 border card flex-1">
+        <div class="text-sm font-semibold text-slate-800">Concrete session example</div>
+        <pre class="text-sm text-slate-700 mt-2 p-3 bg-slate-50 rounded" style="white-space:pre-wrap; tab-size:2;"><code>-- Session 1
+BEGIN;
+SELECT SUM(sale_amount) FROM sales_data WHERE product_name = 'Widget A';
+-- Session 2 updates and commits
+-- Session 1 re-runs:
+SELECT SUM(sale_amount) FROM sales_data WHERE product_name = 'Widget A';
+COMMIT;</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">READ COMMITTED maximizes concurrency by letting each statement see the most recent committed state at its start; it does not provide repeatable reads across statements.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

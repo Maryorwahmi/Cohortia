@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Storage Security Rules</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-full">
+      <div class="card p-5">
+        <div class="text-sm font-semibold text-slate-900">Example rules</div>
+        <pre class="code mt-3 rounded-md p-3 bg-slate-50 text-slate-800">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /profile_pictures/{userId}/{fileName} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /public_images/{fileName} {
+      allow read: true;
+      allow write: if request.auth != null;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+</pre>
+      </div>
+
+      <div class="card p-5">
+        <div class="text-sm font-semibold text-slate-900">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-5 space-y-2">
+          <li>The profile_pictures rule enforces ownership by matching the path userId to request.auth.uid.</li>
+          <li>public_images is readable by anyone but writable only by authenticated users.</li>
+          <li>The catch-all denies access to paths not explicitly matched.</li>
+        </ul>
+
+        <div class="mt-4 text-sm font-semibold text-slate-900">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Publishing permissive rules early can expose user data and allow malicious uploads that increase billing. Always test and then restrict rules before release.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Activity</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Configure cross-account role with MFA</h3>
+    <p class="text-sm text-slate-600 mt-2">Follow these steps in your primary and target accounts to validate MFA-based assume-role.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-slate-50 p-3">
+        <div class="font-semibold text-slate-800">Primary account</div>
+        <ol class="ml-4 list-decimal text-sm text-slate-600 mt-2">
+          <li>Enable MFA on your IAM user.</li>
+          <li>Attach policy allowing sts:AssumeRole on the target role ARN.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border border-slate-100">
+        <div class="font-semibold text-slate-800">Target account</div>
+        <ol class="ml-4 list-decimal text-sm text-slate-600 mt-2">
+          <li>Create CrossAccountIncidentResponder role.</li>
+          <li>Attach trust policy requiring aws:MultiFactorAuthPresent.</li>
+          <li>Attach scoped permissions for diagnostics and SSM automation.</li>
+        </ol>
+      </div>
+
+      <div class="col-span-2 rounded-lg bg-white p-3 border-t border-slate-100">
+        <div class="font-semibold text-slate-800">CLI test</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-white rounded text-xs" style="white-space:pre-wrap;tab-size:2"><code>[profile cross-account-ir]
+role_arn = arn:aws:iam::<TARGET_ACCOUNT_ID>:role/CrossAccountIncidentResponder
+source_profile = default
+mfa_serial = arn:aws:iam::<PRIMARY_ACCOUNT_ID>:mfa/your-mfa-device
+
+# Then run:
+aws ec2 describe-instances --profile cross-account-ir --region <TARGET_ACCOUNT_REGION></code></pre>
+        <div class="text-sm text-slate-600 mt-2">If you skip the MFA code the assume-role call fails; with MFA it succeeds and issues temporary credentials logged in CloudTrail.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

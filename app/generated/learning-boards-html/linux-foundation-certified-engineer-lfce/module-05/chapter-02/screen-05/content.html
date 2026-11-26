@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Bind Postfix to specific interfaces</h3>
+      <p class="text-sm text-slate-600 mt-2">Decide which IPs and protocols should accept SMTP connections and reflect that in main.cf.</p>
+      <div class="mt-4 bg-slate-50 p-3 rounded-md mono text-sm"># examples
+inet_interfaces = all
+inet_interfaces = $myhostname, localhost, 192.168.1.100
+inet_protocols = all
+inet_protocols = ipv4</div>
+      <div class="mt-4">
+        <div class="p-3 rounded-md bg-amber-50">
+          <div class="font-bold text-amber-700">Concrete example</div>
+          <div class="text-sm text-slate-700">For an internal relay set inet_interfaces to localhost and the internal IP so public networks can't connect directly.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-3/5 bg-white card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded-md mt-2"># reload after edit
+sudo systemctl reload postfix
+# confirm listening sockets
+ss -ltnp | grep :25</pre>
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Relying only on a firewall while leaving inet_interfaces = all increases the risk of accidental exposure if firewall rules change. Bind intentionally where possible.</div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Match inet_interfaces and inet_protocols to your topology; explicit bindings reduce accidental exposure and simplify firewall rules.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

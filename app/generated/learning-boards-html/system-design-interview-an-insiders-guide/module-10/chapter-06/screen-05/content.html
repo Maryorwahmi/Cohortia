@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>RESTful APIs for analytics</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 rounded-xl border p-4 bg-white shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Definition</div>
+      <h3 class='text-xl font-bold text-slate-800 mt-2'>REST for predefined metrics</h3>
+      <p class='text-sm text-slate-600 mt-2'>Model metrics as resources and use standard HTTP methods. Best when clients request fixed aggregates frequently.</p>
+
+      <ul class='mt-3 space-y-2 text-sm text-slate-600'>
+        <li>Simple shape: one metric per endpoint makes caching straightforward.</li>
+        <li>Stateless requests mean horizontal API scaling is easy.</li>
+        <li>Include auth tokens and rate limits at the gateway for safety.</li>
+      </ul>
+
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>REST endpoints are ideal for high-frequency, fixed-shape metrics where caching reduces load.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 rounded-xl border p-4 bg-white shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Code Example</div>
+      <pre class='mt-2 bg-slate-900 text-slate-100 rounded-md p-3 text-sm' style='white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>GET /api/v1/metrics/page_views?interval=5m&page=/homepage HTTP/1.1
+Host: analytics.example.com
+Authorization: Bearer &lt;token&gt;
+
+Response 200 OK
+{
+  "metric_name": "page_views",
+  "interval": "5m",
+  "page": "/homepage",
+  "value": 12345,
+  "timestamp": "2023-03-15T10:05:00Z"
+}
+</pre>
+
+      <div class='mt-3 text-sm text-slate-600'>
+        <div class='font-bold text-sm text-slate-700'>Caching note</div>
+        <div class='mt-1 text-sm text-slate-600'>Cache key: metric:page_views:interval:5m:page:/homepage. TTL chosen to be slightly less than aggregation window to balance freshness.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

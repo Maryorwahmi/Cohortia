@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module: Advanced Azure Pipelines</span><span>›</span><span>Chapter: Templates, Environments, and Gates</span><span>›</span><span class="text-slate-700">Pipeline Integration</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="lg:w-1/2 flex flex-col justify-center p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Pipeline Integration</div><h2 class="text-2xl font-bold text-slate-900 mb-3">Integrating Templates into Main Pipelines</h2><p class="text-base text-slate-700 mb-4">Streamlining microservice pipelines by referencing reusable YAML templates.</p><ul class="list-disc list-inside text-sm text-slate-600 space-y-2 mb-6"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>Main `azure-pipelines.yml` files reference templates using the `template` keyword.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>Parameters are passed to templates to customize their behavior for specific microservices.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>This approach significantly reduces boilerplate and ensures standardized processes.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>Updates to core logic only require modifying the template, benefiting all dependent pipelines.</span></li></ul><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Referencing templates in main pipelines centralizes logic, simplifies management, and enforces consistency across a microservice ecosystem.</p></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Pro Tip</div><p class="text-xs font-medium text-slate-800">Store templates in a separate repository or a dedicated folder within the same repo for better organization and access control.</p></div></div><div class="lg:w-1/2 flex flex-col justify-center p-4 bg-slate-800 rounded-xl shadow-sm border border-slate-700"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">microservice-a/azure-pipelines.yml</div><div class="bg-slate-800 text-white rounded-lg p-4 font-mono text-xs overflow-auto" style="tab-size: 2; white-space: pre-wrap;"><pre><code># microservice-a/azure-pipelines.yml
+trigger:
+- main
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: MyProject/PipelineTemplates # Assuming templates are in a separate repo or folder
+
+stages:
+- template: templates/build-dotnet.yml@templates # Use the build template
+  parameters:
+    projectName: 'MicroserviceA'
+    buildConfiguration: 'Release'
+
+- template: templates/deploy-aks.yml@templates # Use the deploy template
+  parameters:
+    imageName: 'microservicea'
+    kubernetesServiceConnection: 'MyAKSConnection'
+    namespace: 'dev'
+    tag: '$(Build.BuildId)'
+</code></pre></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

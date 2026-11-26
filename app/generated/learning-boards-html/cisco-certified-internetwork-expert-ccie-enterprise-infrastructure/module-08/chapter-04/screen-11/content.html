@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Border Router Lab</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-[calc(100%-64px)]">
+    <div class="col-span-8 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm overflow-auto font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>! R1 Configuration (lab example)
+enable
+configure terminal
+
+! Define time-range
+time-range BUSINESS_HOURS
+ periodic weekdays 09:00 to 17:00
+
+! Time-based ACL to block placeholder social media (10.0.0.0/8)
+ip access-list extended BLOCK_SOCIAL
+ deny tcp 192.168.1.0 0.0.0.255 10.0.0.0 0.255.255.255 eq 80 time-range BUSINESS_HOURS
+ deny tcp 192.168.1.0 0.0.0.255 10.0.0.0 0.255.255.255 eq 443 time-range BUSINESS_HOURS
+ permit ip any any
+
+! Reflexive ACLs
+ip access-list extended INSIDE_OUT
+ permit ip 192.168.1.0 0.0.0.255 any reflect WEB_SESSION
+ permit ip any any
+
+ip access-list extended OUTSIDE_IN
+ evaluate WEB_SESSION
+ permit icmp any any echo-reply
+ deny ip any any log
+
+! Interfaces
+interface GigabitEthernet0/0/0
+ description WAN_Interface
+ ip address <public_ip> 255.255.255.252
+ ip access-group OUTSIDE_IN in
+ ip access-group INSIDE_OUT out
+ no shutdown
+
+interface GigabitEthernet0/0/1
+ description LAN_Interface
+ ip address 192.168.1.1 255.255.255.0
+ ip access-group BLOCK_SOCIAL out
+ ip verify unicast reverse-path
+ no shutdown
+
+end
+write memory
+</code></pre>
+    </div>
+
+    <div class="col-span-4 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Test checklist</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+          <li>Confirm time-range with show time-range.</li>
+          <li>Test client access to 10.0.0.1 during business hours (should be blocked).</li>
+          <li>Initiate outbound session and run show ip access-lists OUTSIDE_IN to view WEB_SESSION.</li>
+          <li>Verify uRPF with show ip interface GigabitEthernet0/0/1.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Note</div>
+        <p class="text-xs text-slate-700 mt-1">Replace placeholder addresses with real IPs in production and schedule maintenance windows for testing.</p>
+      </div>
+
+      <div class="mt-2">
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs text-slate-800 mt-1">Follow the checklist and validate each control with show commands and test traffic before trusting policies in production.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

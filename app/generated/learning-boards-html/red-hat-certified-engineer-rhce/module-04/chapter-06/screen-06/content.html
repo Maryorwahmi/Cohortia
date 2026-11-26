@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0b122042;padding:12px;border-radius:10px;color:#07102b}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-hidden">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Client Playbook</div>
+      <h4 class="text-lg font-bold text-slate-800">NFS client playbook</h4>
+      <div class="mt-4 code">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;color:#07102b"><code>---
+- name: Configure NFS Client
+  hosts: nfs_clients
+  become: yes
+  tasks:
+    - name: Ensure nfs-utils package is installed
+      ansible.builtin.yum:
+        name: nfs-utils
+        state: present
+
+    - name: Ensure mount point for NFS share exists
+      ansible.builtin.file:
+        path: /mnt/nfs_data
+        state: directory
+        mode: '0755'
+
+    - name: Mount NFS share from nfs_server.example.com
+      ansible.posix.mount:
+        path: /mnt/nfs_data
+        src: nfs_server.example.com:/srv/nfs_share
+        fstype: nfs
+        opts: defaults,_netdev
+        state: mounted
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Notes and verification</div>
+      <ul class="mt-3 list-inside list-disc text-sm text-slate-600">
+        <li>Use ansible.builtin.yum so the client package installation is idempotent.</li>
+        <li>Create a stable mount point with file to ensure it exists before mounting.</li>
+        <li>Mount with _netdev so persistent mounts wait for networking and don’t fail during boot.</li>
+        <li>Verify with df -h and create a test file on the client; confirm it appears on the server to validate write access.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Use hostnames resolvable by DNS or inventory and avoid ephemeral IPs in the src field for long-term stability.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

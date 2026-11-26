@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Backup & Recovery</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/3 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Essential backups</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>• Databases: mysqldump or pg_dump for Keystone, Nova, Neutron, Cinder, Glance.</li>
+        <li>• Configuration files: /etc/<service>/ directories for each service.</li>
+        <li>• Glance images and Ceph pool metadata: ensure durability or off-site copies.</li>
+      </ul>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Recovery considerations</div>
+      <div class="mt-3 text-sm text-slate-700">A restore must produce a consistent control plane: import databases, restore configuration files, verify Keystone identity data, and re-register services if necessary. Testing recovery procedures regularly reduces surprises during real incidents.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl bg-white p-3 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Concrete Example</div>
+          <div class="text-sm text-slate-800 mt-1">Restore MariaDB dumps, restore /etc/nova, then start nova-api and nova-scheduler in sequence while watching logs for migration errors.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common Mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Backing up data but not configuration files leaves you unable to restore a working environment quickly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

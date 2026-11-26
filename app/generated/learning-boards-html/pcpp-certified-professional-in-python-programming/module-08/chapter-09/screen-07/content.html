@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace;} .card-border{border:1px solid rgba(226,232,240,0.95);} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 8.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Session Login Example</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[62vh]">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Step-by-step</div>
+        <ol class="list-decimal pl-4 text-sm text-slate-700 space-y-2">
+          <li>Instantiate requests.Session and set headers.</li>
+          <li>Fetch login page if CSRF tokens are required.</li>
+          <li>Post credentials with session.post.</li>
+          <li>Use session.get to access protected pages and verify cookies.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Live code (example)</div>
+        <pre class="code rounded-md p-3 bg-slate-50">import requests
+
+s = requests.Session()
+s.headers.update({"User-Agent": "CohortiaScraper/1.0"})
+
+login_url = "https://example.com/login"
+login_payload = {"username":"user","password":"pass"}
+resp = s.post(login_url, data=login_payload)
+resp.raise_for_status()
+print("Login status:", resp.status_code)
+
+dashboard = s.get("https://example.com/dashboard")
+print("Dashboard status:", dashboard.status_code)
+print(s.cookies.get_dict())</pre>
+        <div class="mt-3 text-sm text-slate-700">Use print statements to verify cookies or parse returned HTML for expected content.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

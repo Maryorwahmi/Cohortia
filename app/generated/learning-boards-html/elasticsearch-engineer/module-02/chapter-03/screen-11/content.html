@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Bulk Deletion</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Bulk Deletion with <code>_delete_by_query</code></h2>
+      <p class="text-lg text-slate-700 mb-6">Removing multiple documents based on specific criteria.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Example: Delete all products from the 'Electronics' category that are not available</div>
+        <div class="text-blue-400 mb-2"># IMPORTANT: Always test your query with _search first!</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;"># curl -X GET "localhost:9200/products/_search?pretty" -H 'Content-Type: application/json' -d'
+# {
+#   "query": {
+#     "bool": {
+#       "must": [
+#         { "match": { "category.keyword": "Electronics" } },
+#         { "match": { "available": false } }
+#       ]
+#     }
+#   }
+# }
+# '</code></pre>
+        <div class="text-blue-400 mt-4 mb-2"># Now, execute the _delete_by_query (without safety params for now)</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X POST "localhost:9200/products/_delete_by_query?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "category.keyword": "Electronics" } },
+        { "match": { "available": false } }
+      ]
+    }
+  }
+}
+'</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Query-Based Deletion</div>
+        <p class="text-sm font-medium text-slate-800">Deletes all documents that match the specified query criteria, similar to a `DELETE WHERE` clause.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Use Cases</div>
+        <p class="text-sm font-medium text-slate-800">Ideal for data retention policies (e.g., deleting old logs) or bulk cleanup of specific data subsets.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Asynchronous Operation</div>
+        <p class="text-sm font-medium text-slate-800">Returns a `task_id` for monitoring, allowing the operation to run in the background without blocking.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">`_delete_by_query` is powerful for mass deletions but requires careful query construction and safety measures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

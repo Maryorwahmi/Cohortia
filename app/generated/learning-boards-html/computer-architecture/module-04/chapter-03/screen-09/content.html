@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">WAW & WAR</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Comparison: WAW vs WAR</div>
+      <div class="mt-3 grid gap-3">
+        <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">
+          <div class="font-semibold text-slate-800">WAW — write ordering</div>
+          <div class="text-sm text-slate-600 mt-1">Later writes complete earlier, potentially overwriting the intended final value.</div>
+        </div>
+        <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">
+          <div class="font-semibold text-slate-800">WAR — read-before-write</div>
+          <div class="text-sm text-slate-600 mt-1">Later writes occur before earlier reads complete, causing the reader to see a wrong value unless ordering is preserved.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Renaming concept</div>
+        <div class="text-sm text-slate-600 mt-2">On issue, assign a fresh physical register to each destination. Map architected names to physical names so reads point to the correct producer and writes do not collide.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Illustration</div>
+      <pre class="mt-2 bg-slate-100 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;"># Without renaming
+I: MUL R1, ...   # long latency
+J: ADD R1, ...   # short latency, finishes first -> WAW risk
+
+# With renaming
+I: MUL Rx, ...   # R1 maps to Rx
+J: ADD Ry, ...   # R1 maps to Ry; final mapping assigned at commit</pre>
+      <div class="text-sm text-slate-600 mt-2">Renaming decouples logical registers from physical storage so writes are isolated until retirement consolidates the mapping.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

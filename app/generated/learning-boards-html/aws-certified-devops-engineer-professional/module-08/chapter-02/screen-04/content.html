@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Principle of Least Privilege</span>
+    </div>
+  </div>
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="col-span-1 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition and Why It Matters</div>
+      <p class="text-sm text-slate-600 mt-2">Least privilege reduces the blast radius of compromised credentials. It forces you to think about concrete tasks and resources instead of broad roles.</p>
+      <div class="mt-4 space-y-2">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete Example</div>
+          <div class="text-sm text-slate-700 mt-1">An EC2 role with s3:GetObject, s3:PutObject, s3:DeleteObject on arn:aws:s3:::my-app-data-bucket-12345/* only.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Granting s3:* or ec2:* during development to "make tests simpler" and never tightening those policies later.</div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Pro Tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use condition keys and resource ARNs to bind permissions to VPC endpoints, tags, or specific keys when possible.</div>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design policies by task and resource, test with minimal permissions, and only add what is necessary.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Design Pattern — Narrow Policy Example</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace; white-space: pre-wrap; tab-size: 2;">
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::my-app-data-bucket-12345",
+        "arn:aws:s3:::my-app-data-bucket-12345/*"
+      ]
+    }
+  ]
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">Use this template as a starting point, replacing the bucket name with the exact ARN your service needs. Test the role, capture missing permission errors, and adjust only those actions.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

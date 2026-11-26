@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">Chaining</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Concept</div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Compose decorators carefully</h3>
+      <p class="text-sm text-slate-700">When multiple decorators are present, the decorator nearest the function definition is executed first during application, and calls flow through nested wrappers at run time. Order matters for side effects, returned values, and exception handling.</p>
+
+      <div class="mt-4 p-3 rounded bg-slate-50 border">
+        <pre class="code">@debug_log  # outer
+@timer      # inner
+def calculate(a, b):
+  print("Calculating")
+  return a + b
+
+# Equivalent: calculate = debug_log(timer(calculate))
+</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-bold text-emerald-700">Example</div>
+          <div class="text-xs text-slate-700 mt-1">If debug_log prints entry/exit, those messages will surround the timer's prints when called.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Design tip</div>
+          <div class="text-xs text-slate-700 mt-1">Decide which decorator should observe raw input and which should observe processed output and order them accordingly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Quick test</div>
+      <div class="rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-sm font-semibold text-slate-800">Run small examples</div>
+        <div class="text-xs text-slate-600 mt-2">Print messages inside each decorator to observe the exact execution order and verify the combined behavior matches your expectation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

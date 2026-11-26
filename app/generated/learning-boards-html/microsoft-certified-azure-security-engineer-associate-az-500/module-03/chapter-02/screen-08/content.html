@@ -1,0 +1,92 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring UDRs</span>
+  </div>
+
+  <div class="flex flex-col flex-grow">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Network Configuration</span>
+    </div>
+    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Configuring Routing with User Defined Routes (UDRs)</h2>
+    <p class="text-base text-slate-600 mb-6">Directing traffic through Azure Firewall for inspection</p>
+
+    <div class="flex flex-grow gap-6">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-5 flex-grow">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3">UDR Configuration Steps</h3>
+          <ol class="list-decimal list-inside text-sm text-slate-700 space-y-2">
+            <li>Create a Spoke VNet and a Workload Subnet.</li>
+            <li>Establish VNet peering between Hub and Spoke VNets.</li>
+            <li>Create a Route Table in the Spoke VNet.</li>
+            <li>Add a default route (0.0.0.0/0) to the Route Table.</li>
+            <li>Set the next hop for the default route to the Azure Firewall's private IP.</li>
+            <li>Associate the Route Table with the Workload Subnet.</li>
+          </ol>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Incorrectly configured UDRs can lead to traffic bypassing the firewall, compromising security, or causing connectivity issues.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">UDRs are essential to force all relevant traffic through Azure Firewall, ensuring comprehensive security inspection.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-slate-800 rounded-xl shadow-lg p-6 font-mono text-white text-sm flex flex-col">
+        <div class="text-amber-400 mb-4"># Azure CLI Commands: Spoke VNet & UDR</div>
+        <pre class="whitespace-pre-wrap mb-4"><code style="tab-size: 2;"><span class="text-emerald-400"># 4. Create Spoke VNet and Subnet</span>
+az network vnet create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">SpokeVNet</span> \
+  --address-prefix <span class="text-cyan-400">10.1.0.0/16</span> \
+  --location <span class="text-cyan-400">eastus</span>
+
+az network vnet subnet create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --vnet-name <span class="text-cyan-400">SpokeVNet</span> \
+  --name <span class="text-cyan-400">WorkloadSubnet</span> \
+  --address-prefix <span class="text-cyan-400">10.1.1.0/24</span>
+
+<span class="text-emerald-400"># 5. Peer Hub and Spoke VNets</span>
+az network vnet peering create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">HubToSpoke</span> \
+  --vnet-name <span class="text-cyan-400">HubVNet</span> \
+  --remote-vnet <span class="text-cyan-400">SpokeVNet</span> \
+  --allow-vnet-access
+
+az network vnet peering create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">SpokeToHub</span> \
+  --vnet-name <span class="text-cyan-400">SpokeVNet</span> \
+  --remote-vnet <span class="text-cyan-400">HubVNet</span> \
+  --allow-vnet-access
+
+<span class="text-emerald-400"># 6. Configure UDR in Spoke VNet</span>
+az network route-table create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">SpokeRT</span>
+
+az network route-table route create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --route-table-name <span class="text-cyan-400">SpokeRT</span> \
+  --name <span class="text-cyan-400">DefaultRouteToFirewall</span> \
+  --address-prefix <span class="text-cyan-400">0.0.0.0/0</span> \
+  --next-hop-type <span class="text-cyan-400">VirtualAppliance</span> \
+  --next-hop-ip-address <span class="text-violet-400">$FW_PRIVATE_IP</span>
+
+az network vnet subnet update \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --vnet-name <span class="text-cyan-400">SpokeVNet</span> \
+  --name <span class="text-cyan-400">WorkloadSubnet</span> \
+  --route-table <span class="text-cyan-400">SpokeRT</span></code></pre>
+        <div class="text-slate-400 text-xs mt-auto">These commands set up the spoke VNet, peering, and route traffic through the firewall.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

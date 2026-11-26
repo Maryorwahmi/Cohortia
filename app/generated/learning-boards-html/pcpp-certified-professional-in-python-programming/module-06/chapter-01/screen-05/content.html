@@ -1,0 +1,59 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Definition</span>
+    <span>›</span>
+    <span class='text-slate-700'>Parentheses validation</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 bg-white rounded-2xl card-border p-5 shadow-sm flex flex-col'>
+      <div class='text-lg font-bold text-slate-800 mb-2'>How the algorithm works</div>
+      <ol class='list-decimal pl-5 text-sm text-slate-600 space-y-2'>
+        <li>Iterate characters in the expression.</li>
+        <li>Push any opening symbol onto the stack.</li>
+        <li>On a closing symbol, check stack non-empty then pop and compare types.</li>
+        <li>At the end, ensure the stack is empty to confirm valid nesting.</li>
+      </ol>
+
+      <div class='mt-4 rounded-lg bg-rose-50 p-3'>
+        <div class='text-sm font-semibold text-rose-600'>Common mistake</div>
+        <div class='text-sm text-slate-700 mt-2'>Popping without checking leads to IndexError. Also, failing to match types allows incorrect nesting like an opening square bracket closed by a parenthesis.</div>
+      </div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Stacks capture nested state; always guard pops and match pairs to ensure correctness.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 bg-white rounded-2xl card-border p-5 shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800 mb-2'>Code walkthrough</div>
+      <div class='bg-slate-900 text-white rounded-lg overflow-hidden font-mono text-sm p-3' style='white-space:pre-wrap; tab-size:2;'>
+<pre><code>def is_valid(expr: str) -> bool:
+  stack = []
+  pairs = {'(': ')', '[': ']', '{': '}'}
+
+  for ch in expr:
+    if ch in pairs:            # opening
+      stack.append(ch)
+    elif ch in pairs.values(): # closing
+      if not stack:
+        return False           # nothing to match
+      last_open = stack.pop()
+      if pairs[last_open] != ch:
+        return False
+  return not stack              # valid if stack empty
+
+# Example: is_valid('([{}])') -> True
+</code></pre>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-600'>
+        <div class='font-semibold text-slate-800 mb-2'>Example walkthrough</div>
+        <div>Input '([{}])': push '(' then '[' then '{', then pop and match for each closing character. Final stack is empty and function returns true.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

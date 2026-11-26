@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm overflow-auto">
+      <div class="text-sm text-slate-700">Step 1: Configure DPD in the IKEv2 profile</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] mt-3" style="white-space:pre-wrap;tab-size:2"><code>crypto ikev2 profile COHORTIA_IKEV2_PROFILE
+ dpd 10 3 periodic
+</code></pre>
+
+      <div class="text-sm text-slate-700 mt-4">Step 2: Configure PFS in the IPsec profile</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] mt-3" style="white-space:pre-wrap;tab-size:2"><code>crypto ipsec profile COHORTIA_IPSEC_PROFILE
+ set pfs group 14
+</code></pre>
+
+      <div class="text-sm text-slate-700 mt-4">Step 3: Initiate traffic and verify</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] mt-3" style="white-space:pre-wrap;tab-size:2"><code>show crypto ikev2 sa detail
+show crypto ipsec sa detail
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-sm text-slate-700">Interpretation tips:</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Confirm DPD probe timestamps and absence of probe responses to detect a teardown.</li>
+        <li>Confirm Phase 2 shows a PFS DH group exchange during rekey.</li>
+        <li>If Phase 2 fails, check that both peers use the same set pfs group value.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Quick test</div>
+        <p class="text-sm text-slate-700 mt-2">After configuring, power‑cycle the remote peer or temporarily remove its route to observe DPD teardown and confirm alternate routing or redundancy takes over.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the configure→verify→test cycle. Verify DPD probes and PFS DH exchanges during rekeys to ensure both liveness detection and key separation are working.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

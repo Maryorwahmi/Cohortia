@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Control hazards and pipeline cost</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Definition</div>
+      <div class="text-sm text-slate-600 mt-1">Control hazard = uncertainty about the next instruction due to a branch.</div>
+      <div class="mt-4 text-sm text-slate-700 space-y-3">
+        <p>When a branch's outcome is unknown, the fetch unit continues. A later misprediction forces a pipeline flush and refetch, wasting cycles equal to unresolved stages.</p>
+        <p>Deeper pipelines increase the misprediction cost in cycles. Out-of-order execution reduces some stalls but cannot recover work already thrown away.</p>
+        <p>Example: a 20-stage pipeline misprediction ≈ 20 cycles lost in the simple cost model.</p>
+      </div>
+
+      <div class="mt-auto grid grid-cols-2 gap-3">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Flushing a deep pipeline is expensive; reduce mispredicts or reduce depth to save cycles.</div>
+        </div>
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Common Mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Assuming out-of-order execution completely removes branch penalties—flushes still cost cycles.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <div class="text-xs text-slate-500 mt-1">A mispredicted forward branch in a search routine</div>
+      <div class="mt-3 rounded-lg bg-white p-3 card-border flex-1">
+        <div class="text-sm text-slate-700">Consider a search that tests many values; each comparison is followed by a branch. If branch outcomes vary with input data, many mispredictions occur and each mispredict in a deep pipeline forces refetching tens of instructions. The net effect is a large increase in CPI and observable slowdown.</div>
+      </div>
+    </div>
+  </div>
+</div>

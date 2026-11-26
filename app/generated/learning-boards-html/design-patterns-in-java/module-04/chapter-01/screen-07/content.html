@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9);background:white}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">RectangleAdapter</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 card rounded-2xl p-5">
+      <div class="text-sm font-semibold text-slate-800">Adapter code (object adapter)</div>
+      <pre class="mono text-sm p-3 mt-3 rounded bg-slate-50 border" style="white-space:pre-wrap; tab-size:2;">// Adapter: Implements the Target interface and contains an instance of the Adaptee
+public class RectangleAdapter implements Shape {
+  private LegacyRectangle legacyRectangle;
+  private int x1, y1, x2, y2; // Store coordinates for the legacy rectangle
+
+  public RectangleAdapter(LegacyRectangle legacyRectangle, int x1, int y1, int x2, int y2) {
+    this.legacyRectangle = legacyRectangle;
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+  }
+
+  @Override
+  public void draw(Graphics g) {
+    // Translate the new interface's call to the old interface's call
+    int width = x2 - x1;
+    int height = y2 - y1;
+    // Normalize to prevent negative dimensions
+    if (width < 0) { width = -width; }
+    if (height < 0) { height = -height; }
+    legacyRectangle.draw(x1, y1, width, height);
+    System.out.println("Adapter: Translated draw call for new Graphics context.");
+  }
+}
+</pre>
+      <div class="mt-3 text-sm text-slate-600">This implementation uses composition, computes dimensions, and forwards the call. In production add explicit validation and tests for coordinate ordering and edge cases.</div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl p-5 card">
+      <div class="text-sm font-semibold text-slate-800">Example notes</div>
+      <div class="text-sm text-slate-600 mt-3">The Graphics parameter is unused here for simplicity. In real GUI code you may apply Graphics for styling while still delegating geometry to the adaptee.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-600">Failing to normalize coordinates leads to negative width or height and unexpected behavior in the adaptee.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Compose the adaptee, implement the target, convert parameters carefully, and add tests for translation boundaries.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

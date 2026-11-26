@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">GitHub Actions</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-lg font-bold text-slate-900">Starter Workflow</div>
+        <div class="mt-3 mono text-sm bg-slate-50 p-3 rounded-lg overflow-auto" style="height:320px;">
+name: BDD CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Run Maven BDD Tests
+      run: mvn clean install -DskipTests=false
+
+    - name: Upload Cucumber Reports (Optional)
+      uses: actions/upload-artifact@v3
+      if: always() # Upload even if tests fail
+      with:
+        name: cucumber-reports
+        path: target/cucumber-reports
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Concrete Tip</div>
+        <div class="mt-2 text-sm text-slate-600">Use if: always() on the upload step so artifacts are preserved for failed builds and can be inspected by the team.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Common Mistake</div>
+        <div class="mt-2 text-sm text-slate-600">Running an incomplete lifecycle phase that doesn't generate reports. Confirm whether you should run mvn test or mvn verify depending on where reporting is bound.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-600">Publish report artifacts in every run so failures can be diagnosed without rerunning the pipeline immediately.</div>
+      </div>
+    </div>
+  </div>
+</div>

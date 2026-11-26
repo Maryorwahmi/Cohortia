@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.state{padding:10px;border-radius:10px}.codebox{background:#0f172a;color:#f8fafc;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">MSI: States & Transitions</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">States</div>
+        <div class="mt-2 grid grid-cols-1 gap-2 text-sm text-slate-700">
+          <div class="rounded-lg p-2 bg-rose-50">Modified (M) — only this cache has the updated copy; memory is stale.</div>
+          <div class="rounded-lg p-2 bg-emerald-50">Shared (S) — clean copy; may be present in multiple caches.</div>
+          <div class="rounded-lg p-2 bg-slate-50 border">Invalid (I) — no valid copy.</div>
+        </div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Key transitions</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>PrRd on I → BusRd → become S (or E in MESI).</li>
+          <li>PrWr on S → BusRdX/BusUpgr → become M after invalidations.</li>
+          <li>BusRd seen by M → supply data, M → S.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-3/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Annotated transition table</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 text-sm text-slate-700">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold">Event: PrRd</div>
+          <div class="mt-2">If I: BusRd issued. If another cache is M, that cache supplies data and moves to S. Requester → S.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold">Event: PrWr</div>
+          <div class="mt-2">If S: issue BusRdX to invalidate others, then move to M. If I: fetch then invalidate, then M.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold">Event: BusRd</div>
+          <div class="mt-2">If you are M: supply data and downgrade to S. If S: remain S. If I: ignore.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold">Event: BusRdX</div>
+          <div class="mt-2">If you are M or S: invalidate (→ I). If M: write back first.</div>
+        </div>
+      </div>
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border border-emerald-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-1">MSI enforces a single writer (M) and allows multiple readers (S); bus events implement the necessary communication.</p>
+      </div>
+    </div>
+  </div>
+</div>

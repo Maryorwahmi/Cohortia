@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Screen Map</span>
+    <span>›</span>
+    <span class="text-slate-700">Process</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 card p-4 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Specs</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">256 × 512 pixels</h3>
+      <p class="mt-2 text-sm text-slate-700">Total pixels: 131,072. Memory words: 8,192. Relationship: 1 word controls 16 pixels, so each row uses 32 words.</p>
+
+      <div class="mt-4 text-sm">
+        <div class="font-semibold text-slate-800">Address range</div>
+        <div class="text-slate-700">16384 — 24575 (inclusive) — exactly 8,192 words reserved for the screen.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step: compute pixel word and bit</div>
+      <div class="mt-3 grid grid-cols-1 gap-2 text-sm text-slate-700">
+        <div class="p-3 rounded border border-slate-100 bg-slate-50">
+          <div class="font-semibold">Step 1 — Word address</div>
+          <div class="mt-1">wordIndex = row * 32 + (column / 16)</div>
+        </div>
+        <div class="p-3 rounded border border-slate-100 bg-slate-50">
+          <div class="font-semibold">Step 2 — Bit position</div>
+          <div class="mt-1">bit = column % 16</div>
+        </div>
+        <div class="p-3 rounded border border-slate-100 bg-slate-50">
+          <div class="font-semibold">Final address</div>
+          <div class="mt-1">address = 16384 + wordIndex</div>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg border border-slate-100">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-sm text-slate-700 mt-1">Row 0, Col 17 → wordIndex = 0*32 + 1 = 1 → address = 16385. Bit = 1. Writing bit 1 to that word sets the pixel at column 17.</div>
+      </div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <div class="text-xs font-medium text-slate-800">Using column/16 without integer division or using 16-bit index offsets incorrectly will place pixels in the wrong word.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

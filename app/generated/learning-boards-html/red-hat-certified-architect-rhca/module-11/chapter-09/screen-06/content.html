@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">TBF rate limit</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow">
+      <div class="text-lg font-bold text-slate-800">How TBF works</div>
+      <div class="mt-3 text-sm text-slate-600">Tokens are added at the configured rate. Packets consume tokens. If the bucket lacks tokens, packets are delayed until tokens accumulate.</div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">When to use</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>To cap outbound bandwidth for a single class or application.</li>
+          <li>When you do not need hierarchical sharing across multiple services.</li>
+          <li>To prevent an interface from exceeding an ISP limit.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow">
+      <div class="text-sm font-semibold text-slate-800">Example command</div>
+      <pre class="mt-3"><code style="white-space:pre-wrap;tab-size:2">sudo tc qdisc add dev eth0 root tbf rate 1mbit burst 10kb latency 70ms</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This sets eth0 to 1 megabit sustained, a 10 kilobyte burst allowance, and a queuing latency so packets are not held indefinitely before being dropped.</div>
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">TBF is simple and effective for single-stream rate limits; adjust burst and latency to control short spikes and buffer time.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

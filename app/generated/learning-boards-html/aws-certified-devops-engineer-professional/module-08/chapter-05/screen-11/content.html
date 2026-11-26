@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .panel{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: SGs & S3 Endpoint</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl panel bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Create Security Groups</div>
+      <div class="mt-2 text-sm text-slate-600">Define WebSG, AppSG, DBSG and attach to the respective instances. Reference security groups instead of IPs for inter-tier traffic to keep rules dynamic and resilient.</div>
+
+      <div class="mt-3 text-xs font-bold uppercase tracking-wider text-slate-500">Verification commands</div>
+      <pre class="mt-2 rounded-lg bg-slate-50 p-3"><code># From Web Instance (should fail to reach DB)
+nc -vz &lt;DB_PRIVATE_IP&gt; 3306
+
+# From App Instance (should succeed to reach DB)
+nc -vz &lt;DB_PRIVATE_IP&gt; 3306
+
+# From App Instance (verify private S3 access)
+aws s3 ls s3://your-private-s3-bucket-name/
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl panel bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Create Gateway Endpoint</div>
+      <div class="mt-2 text-sm text-slate-600">Create an S3 gateway endpoint and ensure the route table for private subnets points to it. Update the S3 bucket policy to allow access only from your VPC endpoint or VPC ID.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Testing connectivity from the correct instance types verifies the intended isolation and private service access controls.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2</span>
+    <span>›</span>
+    <span class="text-slate-700">Binary I/O Example</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="bg-white border rounded-2xl p-5 shadow-sm">
+      <div class="text-sm font-bold text-slate-900">Write integers to a binary file</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+  int numbers[] = {10,20,30,40,50};
+  int count = sizeof(numbers) / sizeof(numbers[0]);
+  FILE *binFile = fopen("numbers.bin", "wb");
+  if (binFile == NULL) { perror("Error opening binary file for writing"); return 1; }
+  size_t written = fwrite(numbers, sizeof(int), count, binFile);
+  if (written != count) { perror("Partial write"); }
+  fclose(binFile);
+  return 0;
+}
+      </pre>
+    </div>
+
+    <div class="bg-white border rounded-2xl p-5 shadow-sm mt-3">
+      <div class="text-sm font-bold text-slate-900">Read the integers back</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+  FILE *binFile = fopen("numbers.bin", "rb");
+  if (binFile == NULL) { perror("Error opening binary file for reading"); return 1; }
+  int readNumbers[5];
+  size_t itemsRead = fread(readNumbers, sizeof(int), count, binFile);
+  if (itemsRead == count) { /* success: inspect values */ }
+  else { printf("Read only %zu items
+", itemsRead); }
+  fclose(binFile);
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

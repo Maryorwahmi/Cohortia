@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">@ Syntax Mapping</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Claim</div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Decorator application is assignment</h3>
+      <p class="text-sm text-slate-700">The @ syntax is shorthand for calling the decorator with the function and rebinding the name to the returned callable. This happens when the function is defined.</p>
+
+      <div class="mt-4">
+        <pre class="code p-3 rounded bg-slate-100 border"># Syntactic sugar
+@my_decorator
+def greet():
+  print("Hello")
+
+# is equivalent to
+
+def greet():
+  print("Hello")
+
+greet = my_decorator(greet)
+</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">Example</div>
+          <div class="text-xs text-slate-700 mt-1">Stacked decorators apply from bottom to top. The decorator next to def runs first and its result is passed to the upper decorator.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Gotcha</div>
+          <div class="text-xs text-slate-700 mt-1">Decorators execute at definition time, so avoid side effects if you only want runtime behavior.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Visual</div>
+      <div class="rounded-lg p-3 bg-white border border-slate-100 h-full">
+        <div class="text-sm font-semibold text-slate-800">Stack example</div>
+        <pre class="code mt-3">@debug_log  # applied second
+@timer      # applied first
+def calculate(a, b):
+  return a + b
+
+# Equivalent: calculate = debug_log(timer(calculate))
+</pre>
+        <div class="text-xs text-slate-600 mt-3">Notice how the inner decorator wraps the function first, then the outer decorator wraps the result.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-900 mt-1">Deriving Program Accounts (PDAs) and supplying accounts</h3>
+    <p class="text-sm text-slate-600 mt-1">Compute or fetch the exact public keys required by instructions and verify their permissions.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">Example PDA derivation</div>
+      <pre style="white-space:pre-wrap;tab-size:2;margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;">const [counterPubkey] = PublicKey.findProgramAddressSync(
+  [Buffer.from('counter'), wallet.publicKey.toBuffer()],
+  programID
+);
+</pre>
+      <div class="text-sm text-slate-600 mt-3">This deterministic address is computed with the same program ID and seeds as the program expects.</div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-sm font-bold text-slate-800">Supplying accounts</div>
+        <div class="text-sm text-slate-600 mt-2">Use the derived keys in the accounts object when calling methods, for example accounts: { counterAccount: counterPubkey, user: wallet.publicKey }.</div>
+      </div>
+
+      <div class="card p-3 bg-amber-50" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Debug tip</div>
+        <div class="text-sm text-slate-800 mt-1">Log derived PDAs and compare to addresses your program expects; a mismatch is a fast indicator of incorrect seeds or Program ID.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Passing an account that is not writable when the program expects it to be writable causes an immediate runtime rejection before your program logic runs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Haptics Implementation</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Helper pattern</div>
+      <pre class="mt-3 p-3 bg-slate-950 text-white rounded-md"><code>private void TriggerHaptic(XRBaseController controller, float intensity, float duration)
+{
+  if (controller != null && controller.inputDevice.isValid)
+  {
+    controller.inputDevice.SendHapticImpulse(0, intensity, duration);
+  }
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Use this helper in selectEntered and selectExited handlers to centralize haptic calls and to protect against invalid device references.</div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Usage examples</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">On grab</div>
+          <div class="text-sm text-slate-700 mt-1">TriggerHaptic(controller, 0.3f, 0.1f) for a subtle confirmation when the object is selected.</div>
+        </div>
+
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">On release</div>
+          <div class="text-sm text-slate-700 mt-1">TriggerHaptic(controller, 0.5f, 0.15f) to emphasize the throw or drop event.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">On fire</div>
+          <div class="text-sm text-slate-700 mt-1">Trigger a short, strong pulse such as 0.8 intensity and 0.1s duration to match a projectile firing event.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-xs text-slate-500">Test values iteratively in Play Mode; start lower and increase intensity only if the tactile distinction is not clear.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

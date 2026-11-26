@@ -1,0 +1,43 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>UserList Test</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Component behavior</div>
+      <div class='mt-2 text-sm text-slate-700'>UserList fetches users on mount, shows an ActivityIndicator while loading, displays the list on success, and an error message on failure.</div>
+      <pre class='mt-3 p-3 rounded-md bg-slate-50 text-sm' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// src/components/UserList.tsx
+import React, { useEffect, useState } from 'react';
+import { Text, View, FlatList, ActivityIndicator } from 'react-native';
+import { fetchUsers } from '../services/api';
+
+const UserList: React.FC = () =&gt; {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() =&gt; { /* fetchUsers and set state */ }, []);
+  return loading ? &lt;ActivityIndicator testID='loading-indicator' /&gt; : error ? &lt;Text testID='error-message'&gt;{error}&lt;/Text&gt; : &lt;FlatList data={users} renderItem={({item})=&gt;&lt;Text testID={`user-name-${item.id}`}&gt;{item.name}&lt;/Text&gt; /&gt; /&gt;;
+};
+</pre>
+    </div>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col'>
+      <div class='text-sm font-semibold'>Test patterns</div>
+      <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm overflow-auto' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>jest.mock('../../services/api', () =&gt; ({ fetchUsers: jest.fn() }));
+
+it('renders users after successful fetch', async () =&gt; {
+  (apiService.fetchUsers as jest.Mock).mockResolvedValueOnce(mockUsers);
+  render(&lt;UserList /&gt;);
+  await waitFor(() =&gt; expect(screen.getByText('Leanne Graham')).toBeOnTheScreen());
+});
+</pre>
+      <div class='mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Mocking API services and using waitFor covers loading, success, and error scenarios without network calls.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

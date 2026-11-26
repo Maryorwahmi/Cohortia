@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hilt Hands-on</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full overflow-auto">
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">1) Add Hilt dependencies</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>// project-level build.gradle
+buildscript {
+  dependencies {
+    classpath 'com.google.dagger:hilt-android-gradle-plugin:2.51.1'
+  }
+}
+
+// app/build.gradle plugins
+plugins {
+  id 'kotlin-kapt'
+  id 'com.google.dagger.hilt.android'
+}
+
+// app dependencies
+implementation 'com.google.dagger:hilt-android:2.51.1'
+kapt 'com.google.dagger:hilt-android-compiler:2.51.1'
+</code></pre>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">2) Application class</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>@HiltAndroidApp
+class TaskApplication : Application() {}
+
+// AndroidManifest.xml
+<application
+  android:name=".TaskApplication"
+  ...>
+</application>
+</code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">3) Provide dependencies</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+  @Singleton @Provides
+  fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase = AppDatabase.getDatabase(context)
+
+  @Singleton @Provides
+  fun provideTaskDao(db: AppDatabase): TaskDao = db.taskDao()
+
+  @Singleton @Provides
+  fun provideTaskRepository(dao: TaskDao): TaskRepository = TaskRepository(dao)
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">4) Inject ViewModel & Activity</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>@HiltViewModel
+class TaskViewModel @Inject constructor(
+  private val repository: TaskRepository
+): ViewModel() { ... }
+
+@AndroidEntryPoint
+class TaskListActivity : AppCompatActivity() {
+  private val taskViewModel: TaskViewModel by viewModels()
+}
+</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Follow the steps: add dependencies, annotate the Application, provide modules, and inject the ViewModel and Activity to simplify DI and testing.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

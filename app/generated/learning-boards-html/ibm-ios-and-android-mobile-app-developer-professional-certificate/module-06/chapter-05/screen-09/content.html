@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card {border-radius: 12px; border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Debugging Fundamentals</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <!-- Left column: explanation -->
+    <div class="w-2/5 h-full pr-3 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 mb-4 card shadow-sm h-fit">
+        <div class="flex items-center gap-3 mb-2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div>
+            <div class="text-sm font-bold text-slate-800">Why live debugging matters</div>
+            <div class="text-sm text-slate-600">Observe runtime state and control flow to confirm hypotheses and locate root causes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 mb-4 card shadow-sm h-fit">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Checklist</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5">
+          <li>Reproduce the bug reliably or create a minimal test case.</li>
+          <li>Set conditional breakpoints to target the failing path.</li>
+          <li>Inspect variables, step into functions, and evaluate expressions.</li>
+          <li>Record a short failing unit test once the issue is isolated.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Live debugging reveals program flow and state in ways logs cannot; pair it with small tests to prevent regressions.</p>
+      </div>
+    </div>
+
+    <!-- Right column: code walkthrough + example -->
+    <div class="w-3/5 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-5 mb-4 card shadow-sm flex-1 overflow-hidden">
+        <div class="text-sm font-bold text-slate-800 mb-2">Step-through example</div>
+        <div class="text-sm text-slate-600 mb-3">A minimal ViewModel load function that you can step into from your IDE. Use a breakpoint on the network call to watch state transitions.</div>
+        <div class="rounded-lg bg-slate-50 p-3 code" style="font-size:13px;">
+<pre><code>class MyViewModel : ViewModel() {
+  private val _items = MutableLiveData<List<String>>()
+  val items: LiveData<List<String>> get() = _items
+
+  fun loadItems() {
+    viewModelScope.launch {
+      // breakpoint: inspect 'result'
+      val result = repository.fetchItems() // simulate network or DB
+      _items.value = result
+    }
+  }
+}
+</code></pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+            <div class="text-xs text-slate-700">Relying only on logs and guessing control flow leads to long fix cycles. Use stepping to verify assumptions.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pro Tip</div>
+            <div class="text-xs text-slate-700">Add a small unit test after fixing the bug to lock in the expected behavior and speed future refactors.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Try this</div>
+        <div class="text-sm text-slate-600">Open your IDE, reproduce a bug, set a conditional breakpoint, and step through the failing method. When you understand the cause, add a focused unit test that reproduces the bug and then asserts the correct outcome.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

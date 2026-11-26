@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Understanding systemd service states</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 h-full rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Definition</div>
+      <div class='text-xs text-slate-500 mt-1'>What the common systemd states represent and their diagnostic implication</div>
+      <ul class='mt-4 text-sm text-slate-600 space-y-3'>
+        <li><strong>Active (running):</strong> service process running; verify functionality and logs for recent errors.</li>
+        <li><strong>Inactive (dead):</strong> not running; attempt start and gather startup logs if it fails.</li>
+        <li><strong>Failed:</strong> recorded error; inspect journalctl -u &lt;service&gt; -xe for explanatory messages.</li>
+      </ul>
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Capture the status and the associated journal entries before changing configuration or restarting the service.</p>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 h-full rounded-2xl bg-white border p-4 shadow-sm flex flex-col' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Concrete example: httpd</div>
+      <pre class='mt-3 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+# Inspect service status
+systemctl status httpd
+
+# If failed, get detailed journal output
+journalctl -u httpd -xe
+</pre>
+      <div class='mt-3 text-sm text-slate-600'>Common mistake: Restarting repeatedly without reading the journal can obscure the original error. Instead, copy the journal excerpt and attach it to your incident notes.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

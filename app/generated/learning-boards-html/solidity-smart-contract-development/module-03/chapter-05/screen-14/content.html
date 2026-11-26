@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">UserRegistry Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="font-semibold text-slate-800">Starter code (excerpt)</div>
+      <pre class="bg-slate-50 p-3 rounded mt-3"><code>// struct with packing-friendly order
+struct UserProfile {
+  string name;
+  uint32 registrationTimestamp; // small
+  bool isActive;                // small
+  address referrer;             // full slot
+  uint128 reputationScore;      // small
+}
+
+mapping(address =&gt; UserProfile) public profiles;
+mapping(address =&gt; bool) public isRegistered;
+address[] public registeredUsers;
+uint256 public totalUsers;
+
+// registerUser uses calldata for _name to avoid copying
+function registerUser(string calldata _name, address _referrer) public {
+  require(!isRegistered[msg.sender], "User already registered");
+  require(bytes(_name).length &gt; 0, "Name cannot be empty");
+  if (_referrer != address(0)) { require(isRegistered[_referrer], "Referrer not registered"); }
+  profiles[msg.sender] = UserProfile({ name: _name, registrationTimestamp: uint32(block.timestamp), isActive: true, referrer: _referrer, reputationScore: 0 });
+  isRegistered[msg.sender] = true;
+  registeredUsers.push(msg.sender);
+  totalUsers++;
+  emit UserRegistered(msg.sender, _name, _referrer);
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note how calldata and the isRegistered mapping reduce unnecessary copying and iteration. When updating reputation, modify only the reputationScore field and emit an event.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="font-semibold text-slate-800">Lab tasks</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Deploy the starter contract and measure deployment gas.</li>
+        <li>Reorder struct fields poorly and redeploy to compare gas; observe packing effects.</li>
+        <li>Simulate many registrations and measure gas for registerUser vs an alternative that copies name to memory.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Measure real gas impact: small layout changes can have measurable effects on deployment and per-call costs. Always test with realistic data sizes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

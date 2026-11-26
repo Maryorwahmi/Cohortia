@@ -1,0 +1,36 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#f8fafc;'>
+  <div class='h-full grid grid-cols-2 gap-6'>
+    <div class='p-4 card'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Step-by-step</div>
+      <div class='text-lg font-bold text-slate-900 mb-2'>Commands to set up SERVER_ACCESS_CONTROL</div>
+      <pre class='bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto' style='font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;'>set firewall family inet filter SERVER_ACCESS_CONTROL term ALLOW_SSH_HTTPS from destination-address 192.168.50.10/32
+set firewall family inet filter SERVER_ACCESS_CONTROL term ALLOW_SSH_HTTPS from protocol tcp
+set firewall family inet filter SERVER_ACCESS_CONTROL term ALLOW_SSH_HTTPS from destination-port [ 22 443 ]
+set firewall family inet filter SERVER_ACCESS_CONTROL term ALLOW_SSH_HTTPS then accept
+
+set firewall family inet filter SERVER_ACCESS_CONTROL term BLOCK_OTHER_TCP from destination-address 192.168.50.10/32
+set firewall family inet filter SERVER_ACCESS_CONTROL term BLOCK_OTHER_TCP from protocol tcp
+set firewall family inet filter SERVER_ACCESS_CONTROL term BLOCK_OTHER_TCP then {
+    log;
+    discard;
+}
+
+set firewall family inet filter SERVER_ACCESS_CONTROL term ALLOW_ALL_OTHERS then accept
+set interfaces ge-0/0/1 unit 0 family inet filter input SERVER_ACCESS_CONTROL
+commit and-quit
+</pre>
+    </div>
+    <div class='p-4 card'>
+      <div class='text-sm text-slate-700 mb-2'>Verification checklist:</div>
+      <ul class='text-sm text-slate-700 space-y-2'>
+        <li>From a client, SSH and HTTPS to 192.168.50.10 should succeed.</li>
+        <li>Attempt Telnet or HTTP to the same host; these should fail and appear in logs from BLOCK_OTHER_TCP.</li>
+        <li>Use 'show firewall filter SERVER_ACCESS_CONTROL' to view filter terms and counters if you added counts.</li>
+      </ul>
+      <div class='mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Common mistake</div>
+        <div class='text-sm text-slate-800'>Omitting ALLOW_ALL_OTHERS leads to implicit discard of non-TCP or other legitimate traffic. Include it unless you intentionally want to drop everything else.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

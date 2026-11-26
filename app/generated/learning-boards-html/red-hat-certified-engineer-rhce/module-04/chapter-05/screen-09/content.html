@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Reducing LVs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Safe reduction steps</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Create backup or snapshot of the LV.</li>
+        <li>Shrink the filesystem to target size (for ext4 use resize2fs).</li>
+        <li>Confirm filesystem fits within new LV size.</li>
+        <li>Run community.general.lvol with size_reduction: yes to reduce the LV.</li>
+        <li>Mount and verify data integrity with fsck and application checks.</li>
+      </ol>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">Reducing an LV without shrinking the filesystem first will likely cause irreversible data loss.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example annotation</div>
+      <div class="mt-3 text-sm text-slate-700">Assume ext4 filesystem mounted at /data. To reduce from 50G to 30G: unmount if required, run resize2fs /dev/vg_name/lv_name 30G, verify, then reduce with lvol and size_reduction set to yes. Always test on non-production systems first.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Check list</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-5 space-y-1">
+          <li>Have a current backup or snapshot.</li>
+          <li>Confirm target size < current filesystem size after shrink.</li>
+          <li>Plan maintenance window and notify stakeholders.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

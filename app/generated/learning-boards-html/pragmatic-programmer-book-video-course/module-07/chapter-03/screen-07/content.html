@@ -1,0 +1,62 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.3</span>
+      <span>›</span>
+      <span class='text-slate-700'>CI/CD Example</span>
+    </div>
+  </div>
+
+  <div class='rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col'>
+    <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Code Walkthrough</div>
+    <h3 class='text-xl font-bold text-slate-800 mt-2'>Basic GitHub Actions Workflow</h3>
+    <p class='text-sm text-slate-600 mt-2'>Use this minimal workflow as a POC to validate build reproducibility and test feedback.</p>
+
+    <div class='mt-4 flex-1 overflow-hidden'>
+      <div class='rounded-lg bg-slate-900 text-slate-100 p-4 font-mono text-sm h-full' style='white-space: pre-wrap; tab-size: 2;'>
+        <pre><code>name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest
+</code></pre>
+      </div>
+    </div>
+
+    <div class='mt-4 grid grid-cols-3 gap-3'>
+      <div class='rounded-lg p-3 bg-white card-border'>
+        <div class='text-sm font-semibold text-slate-800'>POC Goal</div>
+        <div class='text-xs text-slate-600 mt-1'>Confirm reproducible builds and faster test feedback.</div>
+      </div>
+      <div class='rounded-lg p-3 bg-white card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Watch For</div>
+        <div class='text-xs text-slate-600 mt-1'>Secrets, caching, environment parity, and ownership of pipeline code.</div>
+      </div>
+      <div class='rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+        <div class='text-xs text-slate-800 mt-1'>A minimal pipeline surfaces integration costs without heavy upfront investment.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">Guided lab: reproduce the Attribute Wrangle</div>
+    <div class="text-sm text-slate-600 mt-2">Follow these steps and validate in the Geometry Spreadsheet.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl bg-slate-50 border p-4">
+        <div class="font-bold">Step 1 — Geometry setup</div>
+        <div class="text-sm text-slate-600 mt-2">Create Grid SOP and two Attribute Create SOPs: prim_id_float (Primitive, Float, $PR) and global_scale_int (Detail, Integer, 2).</div>
+      </div>
+      <div class="rounded-xl bg-slate-50 border p-4">
+        <div class="font-bold">Step 2 — Wrangle code</div>
+        <div class="text-sm text-slate-600 mt-2">Add Attribute Wrangle running over Points and paste the provided code to read prim and detail values, cast, and modify @P and @Cd.</div>
+      </div>
+
+      <div class="col-span-2 bg-slate-900 text-white rounded p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>// Run Over: Points
+float prim_float_val = prim(0, "prim_id_float", @primnum);
+i@prim_id_int = (int)prim_float_val;
+int detail_scale = detail(0, "global_scale_int");
+@P.y += (float)i@prim_id_int * detail_scale * 0.1;
+@Cd = prim_float_val / 10.0;
+</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-slate-50 border p-4">
+        <div class="font-bold">Step 3 — Inspect</div>
+        <div class="text-sm text-slate-600 mt-2">Open Geometry Spreadsheet and check Point, Primitive, and Detail tabs for the new attributes and their types.</div>
+      </div>
+      <div class="rounded-xl bg-slate-50 border p-4">
+        <div class="font-bold">Validation tip</div>
+        <div class="text-sm text-slate-600 mt-2">If values look wrong, verify input index for prim/detail and attribute names for typos.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">A small reproducible lab plus spreadsheet checks is the fastest way to verify type conversions and cross-class attribute access.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

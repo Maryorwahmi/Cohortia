@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Autovacuum tuning</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Key parameters</div>
+        <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+          <li>autovacuum_vacuum_scale_factor &amp; autovacuum_vacuum_threshold — when vacuums trigger.</li>
+          <li>autovacuum_analyze_scale_factor &amp; autovacuum_analyze_threshold — when to analyze.</li>
+          <li>autovacuum_vacuum_cost_delay &amp; autovacuum_vacuum_cost_limit — throttle autovacuum I/O.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Per-table tuning</div>
+        <pre class="rounded-md bg-slate-100 p-3"><code>ALTER TABLE my_busy_table
+  SET (
+    autovacuum_vacuum_scale_factor = 0.001,
+    autovacuum_vacuum_threshold = 1000
+  );</code></pre>
+        <p class="text-sm text-slate-700 mt-2">Use table-level settings to ensure very active tables are vacuumed more aggressively than defaults.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">If autovacuum_vacuum_scale_factor = 0.2 on a table with 10 million rows, vacuum triggers after 2 million updates; for a busy table you may want 0.001 so vacuum runs after 10,000 updates instead.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Misconception check</div>
+        <p class="text-sm text-slate-700 mt-2">Disabling autovacuum to avoid resource usage is dangerous. Tune thresholds and costs to balance I/O with bloat prevention instead of turning it off.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.box{border-radius:12px;padding:14px;border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">RIB to FIB Flow</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 h-full flex flex-col justify-center">
+      <div class="box mb-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Step 1</div>
+        <div class="text-sm font-bold text-slate-800">Routing protocols populate the RIB</div>
+        <div class="text-sm text-slate-600 mt-2">Protocols like OSPF and BGP run on the RE and supply candidate routes to the RIB for selection.</div>
+      </div>
+
+      <div class="box mb-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Step 2</div>
+        <div class="text-sm font-bold text-slate-800">RE selects best routes and builds FIB</div>
+        <div class="text-sm text-slate-600 mt-2">The RE chooses best paths from the RIB and converts them to forwarding entries suitable for hardware.</div>
+      </div>
+
+      <div class="box">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Step 3</div>
+        <div class="text-sm font-bold text-slate-800">FIB pushed to PFE for installation</div>
+        <div class="text-sm text-slate-600 mt-2">The PFE installs forwarding entries so packets are forwarded at line rate without per-packet control-plane interaction.</div>
+      </div>
+    </div>
+
+    <div class="w-3/5 h-full flex flex-col justify-between">
+      <div class="rounded-2xl bg-white p-5 border card-border shadow-sm h-3/5">
+        <div class="text-sm font-bold text-slate-800 mb-2">Diagram (conceptual)</div>
+        <div class="text-sm text-slate-600">Routing protocols → RIB (RE) → Best path selection → FIB → PFE hardware forwarding. The flow guarantees that forwarding continues even if the RE is busy recalculating routes.</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Concrete scenario</div>
+          <div class="text-sm text-slate-700">When BGP converges on new prefixes, the RE updates the FIB and the PFE forwards traffic according to the new FIB entries.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Check your understanding</div>
+          <div class="text-sm text-slate-700">If routes update but traffic is unaffected, which component handled the packet movement? (Answer: the PFE uses the last installed FIB.)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

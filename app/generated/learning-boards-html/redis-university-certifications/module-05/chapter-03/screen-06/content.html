@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-2xl font-bold text-slate-800">Hash slots and key mapping</div>
+    <div class="text-sm text-slate-600 mt-1">Deterministic formula that routes keys to nodes.</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">The mapping rule</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm text-slate-700">CRC16(key) % 16384</pre>
+      <div class="text-sm text-slate-600 mt-3">This computation yields a number between 0 and 16383. Clients and nodes use that slot number to determine ownership. The deterministic nature means the same key always hashes to the same slot until slot ownership changes in the cluster.</div>
+      <div class="mt-4 text-sm text-slate-600">Misconception: hashing instantly balances load for any key naming. In practice, choose key names with sufficient entropy across the full string to avoid hotspots.</div>
+    </div>
+    <div class="flex-1 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">What clients do</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>• Compute slot from the key using the CRC16 formula.</li>
+        <li>• Send the command directly to the node that owns that slot.</li>
+        <li>• If they receive MOVED, update topology and retry on the correct node.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">The CRC16 modulo 16384 mapping makes slot assignment deterministic, enabling direct routing and predictable partitioning of keys across the cluster.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

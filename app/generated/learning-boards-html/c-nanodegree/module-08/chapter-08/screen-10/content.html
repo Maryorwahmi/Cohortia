@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.8</span>
+      <span>›</span>
+      <span class="text-slate-700">Unit Testing</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Add googletest as submodule</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <p>Run these commands locally then push the updated .gitmodules to the repo so CI can fetch the test harness.</p>
+        <pre class="font-mono text-sm p-2 bg-slate-50 rounded" style="white-space: pre-wrap; tab-size: 2">git submodule add https://github.com/google/googletest.git test/googletest
+git submodule update --init --recursive
+</pre>
+        <p>Update CMake:</p>
+        <pre class="font-mono text-sm p-2 bg-slate-50 rounded" style="white-space: pre-wrap; tab-size: 2"># in CMakeLists.txt
+add_subdirectory(test/googletest)
+# link your test executable with GTest::gtest_main or similar
+</pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border flex flex-col" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">CI checkout with submodules</div>
+      <p class="text-sm text-slate-700">Ensure your CI checkout step initializes submodules so the runner gets the googletest sources.</p>
+      <div class="rounded-lg bg-blue-50 p-3 mt-3">
+        <pre class="font-mono text-sm" style="white-space: pre-wrap; tab-size: 2">- uses: actions/checkout@v3
+  with:
+    submodules: true</pre>
+      </div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs text-slate-800">Prefer submodules for test libs if you want exact reproducibility; otherwise use a package manager integrated into CI.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example test file (test/test_math.cpp)</div>
+      <pre class="font-mono text-sm" style="white-space: pre-wrap; tab-size: 2">#include "gtest/gtest.h"
+// Forward declaration of add
+int add(int a, int b);
+
+TEST(MathFunctions, AddPositiveNumbers) {
+  EXPECT_EQ(5, add(2, 3));
+}
+
+TEST(MathFunctions, AddNegativeNumbers) {
+  EXPECT_EQ(-5, add(-2, -3));
+}
+
+TEST(MathFunctions, AddZero) {
+  EXPECT_EQ(7, add(7, 0));
+}</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

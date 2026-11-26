@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Practical Skills</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-700">Command practice</div>
+      <div class="text-xs text-slate-600 mt-2">Embed: a single insertOne and findOne returns all data. Reference: insert child first, store its _id in the parent, then lookup with a second query or aggregation.</div>
+      <div class="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+        <div class="text-xs font-bold text-slate-600">Embedding pattern</div>
+        <pre class="mt-2 p-2 rounded text-sm bg-white border border-slate-100" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace;"><code>db.users.insertOne({
+  _id: ObjectId("60c72b2f9c1d440001a8b4c1"),
+  username: "johndoe",
+  profile: { firstName: "John", lastName: "Doe" }
+});
+
+db.users.findOne({ username: "johndoe" });</code></pre>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-700">Application considerations</div>
+      <div class="text-xs text-slate-600 mt-2">Referencing requires application logic for cascade deletes and updates. Monitor for dangling references and large parent documents that may exceed practical size limits.</div>
+      <div class="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+        <div class="text-xs font-bold text-slate-600">Referencing pattern</div>
+        <pre class="mt-2 p-2 rounded text-sm bg-white border border-slate-100" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace;"><code>// insert child first
+db.detailedSpecifications.insertOne({ _id: ObjectId("60c72b2f9c1d440001a8b4c2"), processor: "Intel i7-12700K" });
+
+// then parent references it
+db.products.insertOne({ name: "High-End Gaming PC", specificationId: ObjectId("60c72b2f9c1d440001a8b4c2") });
+
+// application retrieves both
+const p = db.products.findOne({ name: "High-End Gaming PC" });
+if (p) db.detailedSpecifications.findOne({ _id: p.specificationId });</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

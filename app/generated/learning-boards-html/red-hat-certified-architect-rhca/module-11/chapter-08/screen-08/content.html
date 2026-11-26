@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Mounting NFS Clients</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="mt-3 bg-slate-800 text-white rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap;tab-size:2">sudo dnf install nfs-utils krb5-workstation -y
+sudo mkdir -p /mnt/nfs_data
+# Obtain Kerberos ticket
+kinit clientuser@REALM.COM
+# Mount with privacy
+sudo mount -t nfs4 -o sec=krb5p server.example.com:/data /mnt/nfs_data
+# Persistent fstab entry
+server.example.com:/data /mnt/nfs_data nfs4 sec=krb5p,_netdev 0 0</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Expecting mounts to succeed without a Kerberos ticket. If kinit isn't run, sec=krb5p mounts will fail with permission denied.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Autofs note</div>
+      <p class="text-sm text-slate-700 mt-2">Autofs mounts on demand and unmounts after inactivity. This is efficient for large numbers of shares or intermittent access when you don't want failed mounts at boot.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-semibold text-emerald-700">Check</div>
+          <p class="text-sm text-slate-700 mt-1">Use mount or df -h to confirm the mount, and nfsstat -c to view client RPC stats and errors.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-sm font-semibold text-amber-700">Pro tip</div>
+          <p class="text-sm text-slate-700 mt-1">Include _netdev in fstab entries so the system delays mounting until network targets are available.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

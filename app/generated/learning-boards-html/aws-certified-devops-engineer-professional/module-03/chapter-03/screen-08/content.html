@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Resource Handler</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">What the handler must do</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Inspect event['RequestType'] for Create, Update, Delete.</li>
+        <li>Perform the desired action using AWS SDK calls.</li>
+        <li>Send success or failure back to CloudFormation and include any response data.</li>
+        <li>Implement idempotent operations and retries where appropriate.</li>
+      </ul>
+    </div>
+
+    <div class="card p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Handler example (Python snippet)</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-2" style="white-space:pre-wrap; tab-size:2">import json
+import boto3
+import cfnresponse
+
+def handler(event, context):
+    print(json.dumps(event))
+    response_data = {}
+    try:
+        if event['RequestType'] == 'Create':
+            # perform creation logic, e.g., tag account
+            response_data['Message'] = 'Created'
+        elif event['RequestType'] == 'Update':
+            # perform update logic
+            response_data['Message'] = 'Updated'
+        elif event['RequestType'] == 'Delete':
+            # perform delete logic
+            response_data['Message'] = 'Deleted'
+        cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data)
+    except Exception as e:
+        print(f'Error: {e}')
+        cfnresponse.send(event, context, cfnresponse.FAILED, response_data, reason=str(e))</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

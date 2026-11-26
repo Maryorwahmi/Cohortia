@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Android: ToastModule.java</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-4 overflow-auto">
+      <div class="text-lg font-bold text-slate-900">ToastModule.java</div>
+      <div class="text-sm text-slate-600 mb-3">A minimal module that exposes a show method and constants to JavaScript.</div>
+
+      <pre class="bg-slate-50 p-3 rounded-md border">
+// android/app/src/main/java/com/yourprojectname/ToastModule.java
+package com.yourprojectname; // Make sure this matches your package name
+
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import java.util.Map;
+import java.util.HashMap;
+
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import android.util.Log; // For logging
+
+public class ToastModule extends ReactContextBaseJavaModule {
+    private static ReactApplicationContext reactContext;
+
+    private static final String DURATION_SHORT_KEY = "SHORT";
+    private static final String DURATION_LONG_KEY = "LONG";
+
+    ToastModule(ReactApplicationContext context) {
+        super(context);
+        reactContext = context;
+    }
+
+    @NonNull
+    @Override
+    public String getName() {
+        return "ToastExample"; // This is how you'll refer to the module in JS
+    }
+
+    @Override
+    public Map<String, Object> getConstants() {
+        final Map<String, Object> constants = new HashMap<>();
+        constants.put(DURATION_SHORT_KEY, Toast.LENGTH_SHORT);
+        constants.put(DURATION_LONG_KEY, Toast.LENGTH_LONG);
+        return constants;
+    }
+
+    @ReactMethod
+    public void show(String message, int duration) {
+        Log.d("ToastModule", "Showing toast: " + message + " with duration: " + duration);
+        Toast.makeText(getReactApplicationContext(), message, duration).show();
+    }
+}
+      </pre>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>• getName tells React Native the module name that JS will use via NativeModules.ToastExample.</li>
+        <li>• getConstants exposes static values to JavaScript for convenience.</li>
+        <li>• Methods marked with @ReactMethod become callable from JavaScript and should be asynchronous in effect.</li>
+        <li>• Use logging to verify the module is registered and being called.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Concrete scenario</div>
+        <div class="bg-amber-50 rounded-xl p-3 text-sm text-slate-800">Use this module when you need a quick platform Toast for debug messages or transient user feedback that is best displayed in native form.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Key takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Define a clear module name, expose only necessary methods, and return results asynchronously or via callbacks to keep the bridge predictable.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

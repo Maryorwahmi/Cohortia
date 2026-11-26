@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { border: 1px solid rgba(226,232,240,0.9); background: #ffffff; border-radius: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+  </style>
+  <div class="flex flex-col h-full">
+    <div class="mb-3">
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+        <span>›</span>
+        <span>Chapter 8.8</span>
+        <span>›</span>
+        <span class="text-slate-700">Replication Strategies</span>
+      </div>
+    </div>
+
+    <div class="flex gap-4 flex-1 min-h-0">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="card p-4 flex flex-col h-full">
+          <div class="flex items-center gap-3 mb-2">
+            <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
+            <div>
+              <div class="text-sm font-bold text-slate-700">Physical (Streaming)</div>
+              <div class="text-xs text-slate-500">Byte-for-byte standby via WAL streaming</div>
+            </div>
+          </div>
+          <div class="text-sm text-slate-700 mb-3">Use when you need very low RPO and fast promotion. Requires base backup, compatible versions, and WAL shipping.</div>
+          <div class="grid grid-cols-2 gap-2 mt-auto text-xs">
+            <div class="rounded-md bg-blue-50 p-2 text-blue-700">Low RPO</div>
+            <div class="rounded-md bg-emerald-50 p-2 text-emerald-700">Fast failover</div>
+          </div>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h4l3 9 4-18 3 9h4"/></svg>
+            <div>
+              <div class="text-sm font-bold text-slate-700">Logical Replication</div>
+              <div class="text-xs text-slate-500">Row-level logical changes across databases</div>
+            </div>
+          </div>
+          <div class="text-sm text-slate-700 mb-3">Best for selective table replication, heterogeneous versions, or replicating to analytics systems. Requires publications and subscriptions.</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="rounded-md bg-violet-50 p-2 text-violet-700">Flexible topology</div>
+            <div class="rounded-md bg-slate-50 p-2 text-slate-600">Potentially higher lag</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="card p-4 h-full flex flex-col">
+          <div class="text-sm font-bold text-slate-700 mb-2">Decision checklist</div>
+          <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5 mb-4">
+            <li>RTO and RPO targets — how quickly and how much data loss is acceptable?</li>
+            <li>Cross-version requirements — do you need replication across major versions?</li>
+            <li>Operational complexity — automation, monitoring, and failover testing required?</li>
+          </ul>
+
+          <div class="mt-auto grid grid-cols-1 gap-3">
+            <div class="rounded-lg border p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+              <div class="text-sm text-slate-700">E-commerce site: use physical streaming for low RPO on the primary and logical replication to push subset tables to a reporting cluster for analytics.</div>
+            </div>
+
+            <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+              <p class="text-xs font-medium text-slate-800">Choose replication by matching its guarantees to your RTO/RPO and operational constraints.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common Mistake</div>
+          <div class="text-sm text-slate-700">Assuming logical replication alone is sufficient for PITR or low-RPO failover. It is not a substitute for base backups plus WAL archiving when you need point-in-time recovery.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Constructor pattern and an Enemy example</div>
+    <div class="text-sm text-slate-600 mt-1">ModuleScript layout that you can reuse for many entities.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Enemy.lua (ModuleScript)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+local Enemy = {} -- This table represents our 'class'
+Enemy.__index = Enemy
+
+function Enemy.new(name, health, damage)
+  local self = setmetatable({}, Enemy)
+  self.Name = name or "Goblin"
+  self.Health = health or 100
+  self.MaxHealth = self.Health
+  self.Damage = damage or 10
+  self.IsAlive = true
+  print(self.Name .. " has spawned with " .. self.Health .. " health.")
+  return self
+end
+
+function Enemy:TakeDamage(amount)
+  if not self.IsAlive then return end
+  self.Health = self.Health - amount
+  print(self.Name .. " took " .. amount .. " damage. Health: " .. self.Health .. "/" .. self.MaxHealth)
+  if self.Health <= 0 then
+    self:Die()
+  end
+end
+
+function Enemy:Die()
+  if not self.IsAlive then return end
+  self.IsAlive = false
+  self.Health = 0
+  print(self.Name .. " has been defeated!")
+end
+
+function Enemy:Heal(amount)
+  if not self.IsAlive then return end
+  self.Health = math.min(self.MaxHealth, self.Health + amount)
+  print(self.Name .. " healed " .. amount .. ". Health: " .. self.Health .. "/" .. self.MaxHealth)
+end
+
+return Enemy
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & Walkthrough</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Enemy.__index = Enemy connects missing key lookups to the class table.</li>
+        <li>Enemy.new creates an instance, sets its metatable, initializes fields, and prints spawn info.</li>
+        <li>Methods use colon syntax so self refers to the instance automatically.</li>
+        <li>Heal uses math.min to cap health at MaxHealth, preventing overflow.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Creating two enemies from this module gives two tables with separate Health values but a shared TakeDamage method, so adjusting TakeDamage updates behavior across all enemies.</div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the constructor pattern: setmetatable, initialize fields, return the instance so methods are usable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

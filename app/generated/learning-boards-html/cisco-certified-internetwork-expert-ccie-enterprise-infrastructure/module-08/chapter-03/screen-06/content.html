@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Class-maps & ACLs</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">How to</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Create ACLs for control-plane traffic</h3>
+      <p class="text-sm text-slate-600 mt-3">Target management and routing flows with precise ACL entries. Consider source restrictions for SSH to limit admin subnets.</p>
+
+      <div class="mt-4">
+        <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>ip access-list extended COPP_SSH
+ permit tcp any any eq 22
+ip access-list extended COPP_OSPF
+ permit ospf any any</code></pre>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-semibold text-slate-800">Class-maps</div>
+          <div class="text-sm text-slate-600 mt-2">Reference ACLs inside class-maps so the policy-map can apply policing per named class.</div>
+        </div>
+
+        <pre class="bg-slate-50 p-3 rounded-md text-sm mt-2"><code>class-map match-any CM_SSH
+ match access-group name COPP_SSH
+class-map match-any CM_OSPF
+ match access-group name COPP_OSPF
+class-map CM_DEFAULT_CP
+ match default-class</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-6 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Practical notes</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+        <li>Use descriptive names to make audits easier.</li>
+        <li>Prefer match access-group name so you can reuse ACLs across policies.</li>
+        <li>Keep a default-class to ensure unknown traffic is controlled.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="font-semibold text-amber-700">Misconfiguration risk</div>
+        <div class="text-sm text-slate-700 mt-2">A broad ACL that permits any source for SSH increases attack surface. Scope ACLs to admin IP ranges when possible.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 card-border">
+        <div class="font-semibold text-emerald-700">Quick example</div>
+        <div class="text-sm text-slate-700 mt-2">If admins use an out-of-band network, restrict COPP_SSH to that source subnet to reduce risk from the data plane.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

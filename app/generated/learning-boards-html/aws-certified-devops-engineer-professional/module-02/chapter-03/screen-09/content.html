@@ -1,0 +1,53 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <div class="mb-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+  <div class="text-xl font-bold text-slate-800 mb-2">AppSpec Structure & Hooks</div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-full overflow-hidden">
+      <div class="text-sm font-semibold text-slate-700">Example AppSpec (EC2/on-premises)</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/html/my-app
+hooks:
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: scripts/start_application.sh
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: scripts/stop_application.sh
+      timeout: 60
+      runas: root
+    - location: scripts/cleanup.sh
+      timeout: 60
+      runas: root
+  ValidateService:
+    - location: scripts/validate_service.sh
+      timeout: 180
+      runas: root
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Hook guidance</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2 flex-1">
+        <li>Make hooks idempotent and tolerant to partial state.</li>
+        <li>Set realistic timeouts to avoid stalled deployments.</li>
+        <li>Run ValidateService as a strong end-to-end health check, not a superficial check.</li>
+        <li>Ensure scripts have executable permissions and correct paths.</li>
+      </ul>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">AppSpec defines the deployment contract. Treat it as code: test, lint, and validate hooks before production use.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

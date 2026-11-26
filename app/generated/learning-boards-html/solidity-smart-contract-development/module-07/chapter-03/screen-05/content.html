@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:white;} </style>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Process</div>
+      <div class='text-2xl font-bold text-slate-800 mt-2'>Get ContractFactory</div>
+      <div class='text-sm text-slate-600 mt-3'>The factory contains compiled bytecode and the ABI and provides the deploy method to create a contract instance.</div>
+
+      <div class='mt-4'>
+        <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Code pattern</div>
+        <div class='rounded-xl border border-var(--slate-border) p-3'>
+          <pre><code>const { ethers } = require('hardhat');
+
+async function main() {
+  const Counter = await ethers.getContractFactory('Counter');
+  // Counter is a factory, not an instance
+  const counter = await Counter.deploy();
+  await counter.deployed();
+  console.log('Counter deployed to:', counter.address);
+}
+
+main().catch((e) => console.error(e));</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Key points</div>
+      <ul class='mt-3 list-disc list-inside text-sm text-slate-600'>
+        <li>Factory binds ABI and bytecode for deployment.</li>
+        <li>Call factory.deploy(...args) to start deployment.</li>
+        <li>Factory can deploy multiple instances; the returned Contract is a specific instance.</li>
+        <li>Verify the contract name matches the compiled artifact to avoid runtime errors.</li>
+      </ul>
+
+      <div class='mt-4 rounded-lg bg-amber-50 p-3'>
+        <div class='text-sm font-bold text-amber-700'>Pro tip</div>
+        <div class='text-sm text-slate-700 mt-1'>If getContractFactory throws, run a fresh compile and confirm the artifact name exactly matches the contract name used.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>ContractFactory is the deploy-time blueprint; preserve the distinction between factory and instance to avoid confusion.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

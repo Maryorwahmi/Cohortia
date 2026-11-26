@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <div class="text-2xl font-bold text-slate-900">Real-time Delivery for Chat</div>
+    <div class="text-sm text-slate-600 mt-1">Persistent connections, routing, brokers, and storage in a reliable pipeline.</div>
+    <div class="mt-6 grid grid-cols-12 gap-4 h-[70%]">
+      <div class="col-span-7 bg-white rounded-2xl p-4 border" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Components</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Connection Gateways: accept WebSocket or similar persistent connections and handle TLS termination.</li>
+          <li>Routing Layer: map user IDs to the server or shard holding their active connection.</li>
+          <li>Message Broker: durable queue for delivery, retries, and fanout to multiple recipients.</li>
+          <li>Durable Storage: persistent history for recovery and search.</li>
+        </ul>
+        <div class="mt-4 text-sm font-semibold text-slate-800">Delivery Semantics</div>
+        <div class="mt-2 text-sm text-slate-600">Prefer at-least-once with idempotent message processing or deduplication. Exactly-once is expensive and often unnecessary for conversational systems.</div>
+      </div>
+      <div class="col-span-5 bg-white rounded-2xl p-4 border flex flex-col" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Concrete Walkthrough</div>
+        <div class="mt-3 text-sm text-slate-600">Sender publishes to broker → broker persists and attempts delivery → routing layer finds recipient's gateway → gateway pushes to the recipient socket and confirms delivery back to broker → durable storage records final state.</div>
+        <div class="mt-4">
+          <div class="rounded-lg bg-amber-50 p-3">
+            <div class="text-xs font-semibold text-amber-700">Common Mistake</div>
+            <div class="text-sm text-slate-700 mt-1">Relying solely on in-memory routing loses messages on server failure. Always persist critical state in a durable store or replicated broker.</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">A robust pipeline uses gateways, routing, durable brokers, and storage. Design for idempotence and retries.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

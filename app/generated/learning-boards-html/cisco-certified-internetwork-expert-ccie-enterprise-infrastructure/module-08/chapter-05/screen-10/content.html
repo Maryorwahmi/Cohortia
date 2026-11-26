@@ -1,0 +1,73 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Hands-on Lab</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800'>Lab configuration (SW1)</div>
+      <pre class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 font-mono text-sm' style='white-space: pre-wrap; tab-size: 2;'>&excl; SW1 Configuration
+enable
+configure terminal
+
+! Define VLAN 10
+vlan 10
+ name DEPARTMENT_VLAN
+exit
+
+! Step 1: Enable DHCP Snooping globally and for VLAN 10
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+! Step 2 &amp; 3: Configure Gi1/0/24 as trusted for DHCP Snooping and DAI
+interface GigabitEthernet1/0/24
+ description Uplink to Core (DHCP Server)
+ switchport mode trunk ! Assuming it's a trunk to carry multiple VLANs
+ ip dhcp snooping trust
+ ip arp inspection trust
+ no shutdown
+
+! Step 4: Configure Gi1/0/1 as access port in VLAN 10
+interface GigabitEthernet1/0/1
+ description End-user Workstation Port
+ switchport mode access
+ switchport access vlan 10
+ no shutdown
+
+! Step 5: Enable IP Source Guard (IP-MAC mode) on Gi1/0/1
+ ip verify source port-security
+
+! Step 6: Enable Port Security on Gi1/0/1
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+
+end
+write memory
+</pre>
+    </div>
+
+    <div class='rounded-2xl bg-white border p-4 shadow-sm flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Verification commands</div>
+      <div class='mt-3 text-sm text-slate-700'>After connecting a client and obtaining DHCP, run these commands to confirm behavior:</div>
+      <ul class='mt-3 list-disc pl-5 text-sm text-slate-700'>
+        <li>show ip dhcp snooping binding</li>
+        <li>show ip arp inspection vlan 10</li>
+        <li>show ip verify source interface GigabitEthernet1/0/1</li>
+        <li>show port-security interface GigabitEthernet1/0/1</li>
+      </ul>
+
+      <div class='mt-4 text-xs text-slate-600'>Try connecting a third device to Gi1/0/1; with maximum 2 and violation restrict, traffic from the third device will be dropped and counters incremented.</div>
+    </div>
+
+    <div class='col-span-2 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+      <p class='text-xs font-medium text-slate-800'>Run verification commands after configuration. If static hosts exist, add static bindings before enabling enforcement to prevent unintended service disruption.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

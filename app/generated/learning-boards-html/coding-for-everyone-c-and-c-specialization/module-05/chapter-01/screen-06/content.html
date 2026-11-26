@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Constructor Order</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Code Example</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-size:13px;"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Animal {
+public:
+    std::string name;
+    Animal(const std::string& n) : name(n) {
+        std::cout << "Animal constructor called for " << name << std::endl;
+    }
+    ~Animal() { std::cout << "Animal destructor called for " << name << std::endl; }
+};
+
+class Dog : public Animal {
+public:
+    std::string breed;
+    Dog(const std::string& n, const std::string& b) : Animal(n), breed(b) {
+        std::cout << "Dog constructor called for " << name << " (" << breed << ")" << std::endl;
+    }
+    ~Dog() { std::cout << "Dog destructor called for " << name << std::endl; }
+};
+
+int main() {
+    Dog myDog("Buddy", "Golden Retriever");
+    return 0;
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Explanation & Trace</div>
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc ml-4">
+          <li>When myDog is created, Animal constructor runs first to initialize base fields.</li>
+          <li>Dog constructor runs next to initialize breed and derived behavior.</li>
+          <li>When myDog goes out of scope, Dog destructor runs first, then Animal destructor.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always ensure base initialization is performed, especially when base constructors require arguments. Trace printed messages to confirm the order.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

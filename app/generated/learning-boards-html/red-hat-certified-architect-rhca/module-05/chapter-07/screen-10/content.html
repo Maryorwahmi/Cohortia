@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Comparison</span>
+    <span>›</span>
+    <span class="text-slate-700">Neutron Agent Checks</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Verify agents</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm font-mono overflow-auto" style="white-space:pre-wrap;tab-size:2">
+# List network agents
+openstack network agent list
+
+# On a compute node, tail neutron agent logs
+sudo journalctl -u neutron-openvswitch-agent.service -f
+
+# Check network interfaces
+ip a
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">Look for agent state, recent restarts, or interface errors. DHCP and metadata agents are essential for instance networking.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Concrete Example</div>
+        <p class="text-sm text-slate-700 mt-2">If DHCP agent is down, instances may receive no IP lease. Fix agent crashes or networking configuration on the host to restore instance provisioning.</p>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common Mistake</div>
+        <p class="text-sm text-slate-800 mt-1">Assuming compute is at fault without checking Neutron agents and host interfaces leads to unnecessary host reboots or misapplied fixes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

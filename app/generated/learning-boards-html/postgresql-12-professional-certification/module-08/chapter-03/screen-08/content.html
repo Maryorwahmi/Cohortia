@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Correlating OS &amp; pg_stat_activity</span>
+  </div>
+  <div class='flex gap-4 h-[calc(100%-40px)]'>
+    <div class='w-1/2 rounded-2xl bg-white border p-4' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-xs font-bold uppercase text-slate-500 mb-2'>Architecture</div>
+      <p class='text-sm text-slate-700 mb-3'>Align timestamps from OS tools with PostgreSQL session data to identify the responsible work.</p>
+      <pre style='white-space:pre-wrap;tab-size:2;background:#ffffff;padding:8px;border-radius:8px;border:1px solid rgba(226,232,240,0.9);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace'><code>-- Find active queries
+SELECT pid, datname, usename, state, query_start, query
+FROM pg_stat_activity
+WHERE state = 'active'
+ORDER BY query_start;
+
+-- Filter by recent window if needed using query_start timestamp</code></pre>
+    </div>
+    <div class='w-1/2 rounded-2xl bg-white border p-4 flex flex-col justify-between' style='border-color:rgba(226,232,240,0.9)'>
+      <div>
+        <div class='text-sm font-semibold text-slate-800 mb-2'>Steps to correlate</div>
+        <ol class='list-decimal pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Capture OS metrics with timestamps (htop/iostat/vmstat) during the issue.</li>
+          <li>Query pg_stat_activity for the same time window to list active sessions.</li>
+          <li>Inspect the SQL for heavy reads/writes or idle-in-transaction sessions.</li>
+          <li>Confirm with pg_locks or pg_stat_statements if needed.</li>
+        </ol>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Check Your Understanding</div>
+          <p class='text-xs font-medium text-slate-800'>If an iostat spike aligns with many active inserts, is the storage likely at fault or the queries? Use both traces to decide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-xl bg-white p-4 border card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Control Flags</div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <div class="text-sm font-semibold text-slate-800 mb-2">Flags and meaning</div>
+        <ul class="text-sm text-slate-600 list-disc list-inside space-y-2">
+          <li><span class="font-medium">required</span> — must succeed; continue processing.</li>
+          <li><span class="font-medium">requisite</span> — must succeed; fail immediately on error.</li>
+          <li><span class="font-medium">sufficient</span> — success may short-circuit if no required has failed.</li>
+          <li><span class="font-medium">optional</span> — does not determine success by itself.</li>
+          <li><span class="font-medium">include / substack</span> — include other stacks or treat as substack.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-700 mb-2">Illustrative snippet</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;">auth required    pam_faillock.so preauth audit deny=3 unlock_time=600
+auth sufficient  pam_unix.so try_first_pass
+auth [default=die] pam_faillock.so authfail audit deny=3 unlock_time=600</pre>
+        <div class="text-xs text-slate-500 mt-2">Here faillock records preauth, unix provides the password check, and faillock enforces the lock state after auth.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <div class="text-sm text-slate-600">Using requisite for a flaky network module will cause immediate denials when the network fails.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Checklist</div>
+        <div class="text-sm text-slate-600">Review flags, test in a separate session, and prefer sufficient/optional for services that may be intermittently unavailable.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Control flags are the essential operators that combine module results into a single decision; set them intentionally.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold">Starter SQL (setup)</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code>CREATE TABLE sales (
+  sale_id SERIAL PRIMARY KEY,
+  product_id INT NOT NULL,
+  sale_date DATE NOT NULL,
+  amount NUMERIC(10,2) NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'completed'
+);
+
+-- Populate with representative rows (example from chapter)
+-- then run: ANALYZE sales;</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold">Index commands to run</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code>CREATE INDEX idx_sales_completed_date ON sales (sale_date) WHERE status = 'completed';
+CREATE INDEX idx_sales_lower_status ON sales (lower(status));
+ANALYZE sales;</code></pre>
+    </div>
+
+    <div class="col-span-2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold">Verification steps</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Run EXPLAIN ANALYZE for query filtering status and date; record plan and time.</li>
+        <li>Create the partial and expression indexes, then run ANALYZE.</li>
+        <li>Re-run EXPLAIN ANALYZE and compare: index scans should appear for matching predicates and times should decrease.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Hands-on verification with EXPLAIN ANALYZE is essential: create, analyze, and confirm the planner choices.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

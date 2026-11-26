@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace} .card{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="rounded-xl bg-white p-4 card shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-800 mt-2">GitHub Actions: Python CI</div>
+    <div class="text-sm text-slate-600 mt-3">Save this file as .github/workflows/ci.yml. It runs on push and pull_request for main and develop branches.</div>
+
+    <pre class="mt-4 p-3 rounded bg-slate-50 text-sm overflow-auto"><code># .github/workflows/ci.yml
+name: Python CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+    - name: Run tests with pytest
+      run: pytest
+</code></pre>
+
+    <div class="mt-3 text-sm text-slate-600">This minimal workflow demonstrates the key stages: checkout, environment setup, install, and test. Use CI logs to pinpoint failing steps and treat CI failures as blockers for merges.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

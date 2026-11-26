@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm panel h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Join patterns</div>
+      <div class="text-sm text-slate-600 mt-3">How to join and considerations for accurate and performant joins.</div>
+      <div class="mt-4">
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="text-sm font-bold text-slate-800">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Inner join city_df with departments_df on the name column to produce enriched employee records for downstream reporting.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border mt-3">
+          <div class="text-sm font-bold text-slate-800">Performance note</div>
+          <div class="text-sm text-slate-700 mt-1">If one side is small, broadcast it to avoid a full shuffle. If both are large, ensure appropriate partitioning or bucketing strategies later in optimization chapters.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-6 shadow-sm panel h-full">
+      <div class="text-sm font-bold text-slate-900">Code snippet</div>
+      <pre class="bg-slate-950 text-white p-3 rounded-lg mt-3" style="white-space:pre-wrap;tab-size:2;"><code># Inner join on name
+joined_df = city_df.join(departments_df, on="name", how="inner")
+joined_df.show()
+
+# Broadcast small table
+from pyspark.sql.functions import broadcast
+joined_broadcast = big_df.join(broadcast(small_df), on="id", how="left")</code></pre>
+      <div class="mt-3 text-sm text-slate-700">After joining, inspect row counts and sample rows to confirm expected cardinality and detect accidental cartesian growth.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

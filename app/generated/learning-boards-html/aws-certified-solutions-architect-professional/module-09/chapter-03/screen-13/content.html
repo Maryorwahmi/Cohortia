@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Choosing Services & Avoiding Pitfalls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Quick decision table</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Need durable queue?</div>
+            <div class="text-sm text-slate-700 mt-1">Choose SQS.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Need fan-out?</div>
+            <div class="text-sm text-slate-700 mt-1">Choose SNS (subscribe SQS for durability).</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Need ordered, high-throughput streams?</div>
+            <div class="text-sm text-slate-700 mt-1">Choose Kinesis Data Streams.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-sm font-semibold text-slate-800">Need app-level event routing?</div>
+            <div class="text-sm text-slate-700 mt-1">Choose EventBridge.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common pitfalls</div>
+        <ul class="text-xs text-slate-800 list-disc pl-4">
+          <li>Not handling duplicates from at-least-once delivery.</li>
+          <li>Missing DLQs for poison messages.</li>
+          <li>Under-provisioning Kinesis shards leading to consumer lag.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example guidance</div>
+        <p class="text-sm text-slate-700">Define each message type's correctness criteria: is ordering required? must processing be durable? do multiple consumers need the same data? Then choose the service that directly implements those guarantees rather than trying to force a different service to behave like it.</p>
+
+        <div class="mt-4 p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-700">Checklist</div>
+          <ul class="text-sm text-slate-700 mt-2 pl-4 list-disc">
+            <li>Identify ordering and idempotency requirements.</li>
+            <li>Plan DLQs, visibility timeouts, and long polling for SQS paths.</li>
+            <li>Size Kinesis shards to expected producer throughput.</li>
+            <li>Use EventBridge rules for cross-application routing and schema management.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Match service semantics to message correctness; configure operational controls to avoid common failures.</p>
+      </div>
+    </div>
+  </div>
+</div>

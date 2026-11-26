@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">service_a.py</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code excerpt</div>
+      <pre style="white-space:pre-wrap;tab-size:2" class="text-sm bg-slate-900 text-white rounded-lg p-3"># app.py (simplified)
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
+resource = Resource.create({"service.name": "service-a"})
+provider = TracerProvider(resource=resource)
+cloud_trace_exporter = CloudTraceSpanExporter(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"))
+provider.add_span_processor(SimpleSpanProcessor(cloud_trace_exporter))
+trace.set_tracer_provider(provider)
+
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+
+tracer = trace.get_tracer(__name__)
+
+# process_item creates a manual span, sets attributes, and calls Service B
+</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <p class="text-sm text-slate-700">This code configures the tracer provider and exporter, instruments Flask and requests, and uses a tracer to create application spans with attributes. Requests instrumentation ensures trace headers are forwarded to Service B.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Concrete example</div>
+          <div class="text-xs text-slate-700 mt-1">When process_item starts, span attribute item.id is set, and events like item_processed_event are added to the span for richer context.</div>
+        </div>
+
+        <div class="p-3 bg-white rounded-lg border card-border">
+          <div class="text-sm font-bold">Common mistake</div>
+          <div class="text-xs text-slate-700 mt-1">Not instrumenting the HTTP client or forgetting project credentials prevents spans from joining in Cloud Trace.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

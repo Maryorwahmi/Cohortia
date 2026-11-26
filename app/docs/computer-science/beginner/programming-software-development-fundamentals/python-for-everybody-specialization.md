@@ -1,6 +1,6 @@
 ---
 title: Python for Everybody Specialization
-course_id: python-for-Everybody-specialization
+course_id: python-for-everybody-specialization
 provider: Cohortia
 original_reference: U Michigan / Coursera
 platform: Cohortia

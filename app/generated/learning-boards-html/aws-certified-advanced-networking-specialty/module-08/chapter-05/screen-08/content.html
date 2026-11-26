@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre.code {background:#0f172a;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;line-height:1.4;white-space:pre-wrap;tab-size:2}
+  </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <div class="text-lg font-semibold text-slate-900">Auto Scaling Policy Example</div>
+      <div class="text-sm text-slate-600 mt-1">A target-tracking policy using ASGAverageNetworkOut.</div>
+
+      <div class="mt-4">
+        <pre class="code">{
+  "PolicyName": "ScaleOutOnNetworkOut",
+  "ScalingTargetId": "arn:aws:autoscaling:region:account:autoScalingGroup:my-asg",
+  "TargetTrackingConfiguration": {
+    "PredefinedMetricSpecification": {
+      "PredefinedMetricType": "ASGAverageNetworkOut"
+    },
+    "TargetValue": 80.0,
+    "DisableScaleIn": false
+  }
+}</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Notes: TargetValue can be percent-like or an absolute byte value depending on metric. Monitor NetworkOut in CloudWatch and choose a target that avoids consistently hitting 100% of expected capacity.</div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete use</div>
+        <div class="text-sm text-slate-700 mt-2">Set a policy so the ASG launches new instances before network bandwidth reaches critical levels.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(239,102,117,0.08)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Scaling only on CPU while NetworkOut is saturated leads to continuing network bottlenecks despite more CPU availability.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(16,185,129,0.08)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Check your math</div>
+        <div class="text-sm text-slate-700 mt-2">Choose a target based on instance network capability and expected per-instance throughput so scaling triggers at the right moment.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

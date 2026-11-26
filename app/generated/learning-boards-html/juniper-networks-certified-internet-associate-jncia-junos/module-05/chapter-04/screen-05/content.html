@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">Stateless vs Stateful</div>
+      <div class="text-sm text-slate-600 mt-3">Understand how the absence of connection tracking changes rule design and testing.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Stateless (Junos filters)</div>
+          <div class="text-sm text-slate-600 mt-2">Each packet evaluated alone. You must explicitly permit return traffic for bidirectional flows.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Stateful (advanced firewalls)</div>
+          <div class="text-sm text-slate-600 mt-2">Tracks connection state and can allow reply packets automatically once a session is established.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">If you need automatic return-traffic handling, a stateless filter alone will not suffice; design explicit reciprocal rules or use stateful services.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <div class="text-sm text-slate-600 mt-2">You allow inbound HTTP to port 80. If the client is outside, the server's responses are outbound packets that must also be permitted by your filters. In stateless mode, missing those outbound rules causes one-way communication.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+        <div class="text-sm text-slate-600 mt-2">Do not assume an 'accept' for one direction implies a full connection. Think in terms of packet flows, not sessions.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Practical tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use 'count' on prospective rules to observe matching before changing final actions.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Verification</div>
+          <div class="text-sm text-slate-700 mt-1">Test with a controlled client and examine counters or logs to confirm bidirectional traffic works.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

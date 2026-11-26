@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Frontend Section</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[75%]">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Frontends are listeners</div>
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc ml-4 space-y-2">
+          <li>Bind to IP and port, e.g. bind *:80 or bind *:443 ssl crt /path/to/cert.pem.</li>
+          <li>Can redirect, apply ACLs, and select a default_backend.</li>
+          <li>Support differing behaviors per listener; not limited to a single backend.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-sm">
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">Practical check: curl the HAProxy IP and ensure the response originates from a backend index page you created.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm mono">
+      <div class="text-sm font-bold text-slate-800">Example frontend</div>
+      <div class="mt-3 text-xs text-slate-600">Simple listener that forwards to a backend and optionally handles TLS.</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] text-sm">
+<pre><code>frontend http_front
+    bind *:80
+    # redirect scheme https code 301 if !{ ssl_fc }
+    default_backend web_servers
+
+frontend https_front
+    bind *:443 ssl crt /etc/haproxy/certs/mycert.pem
+    default_backend web_servers</code></pre>
+      </div>
+
+      <div class="mt-3 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Frontends are your control plane for client reachability. Verify bind addresses, ports, and TLS files before assuming traffic flows.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

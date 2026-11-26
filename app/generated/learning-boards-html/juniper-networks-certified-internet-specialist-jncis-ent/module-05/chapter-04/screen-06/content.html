@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring Virtual Links</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card-border h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+        <h3 class="text-xl font-bold text-slate-800 mt-2">Junos configuration example</h3>
+        <p class="text-sm text-slate-600 mt-3">Add matching virtual-link stanzas on both ABRs. Use the other ABR's router ID as neighbor-id and specify the transit-area.</p>
+
+        <div class="mt-4">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-800">ABR2 configuration (example)</div>
+            <pre class="mt-2 bg-slate-900 text-white p-3 rounded font-mono text-sm" style="white-space:pre-wrap; tab-size:2;"><code># Configuration on ABR2 (router-id 2.2.2.2)
+set protocols ospf area 0.0.0.0 virtual-link neighbor-id 1.1.1.1 transit-area 0.0.0.1
+</code></pre>
+          </div>
+
+          <div class="rounded-lg bg-slate-50 p-3 mt-3">
+            <div class="text-sm font-semibold text-slate-800">ABR1 configuration (example)</div>
+            <pre class="mt-2 bg-slate-900 text-white p-3 rounded font-mono text-sm" style="white-space:pre-wrap; tab-size:2;"><code># Configuration on ABR1 (router-id 1.1.1.1)
+set protocols ospf area 0.0.0.0 virtual-link neighbor-id 2.2.2.2 transit-area 0.0.0.1
+</code></pre>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl bg-amber-50 p-3 border card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro-tip</div>
+            <p class="text-sm text-slate-800 mt-1">Document router IDs and keep commits coordinated. If the transit area flaps, the virtual link will reflect that instability.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-4 card-border h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg bg-white p-3 border card-border">
+            <div class="text-sm font-semibold text-slate-800">Check virtual link state</div>
+            <p class="text-sm text-slate-600 mt-1">Run show ospf virtual-link and confirm State: Up. Look for matching neighbor-id and transit-area values.</p>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border card-border">
+            <div class="text-sm font-semibold text-slate-800">Neighbor adjacency</div>
+            <p class="text-sm text-slate-600 mt-1">Use show ospf neighbor to ensure neighbors reach Full state across the transit area.</p>
+          </div>
+
+          <div class="rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+            <p class="text-sm text-slate-800 mt-1">Virtual links are configured in area 0 stanzas on both ABRs and identified by neighbor router IDs and transit area ID.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

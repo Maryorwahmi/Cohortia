@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Generate Pre-signed URL</span>
+  </div>
+  <div class="rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Server-side example</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Python (boto3) pre-signed URL</h3>
+    <div class="mt-4 bg-slate-900 rounded-lg overflow-hidden text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+      <pre class="p-4 text-xs text-white" style="white-space: pre-wrap; tab-size: 2">import boto3
+s3_client = boto3.client('s3', region_name='us-east-1')
+object_name = f"user_uploads/{user_id}/{uuid.uuid4()}.jpg"
+response = s3_client.generate_presigned_url('put_object',
+                                            Params={'Bucket': 'my-media-bucket',
+                                                    'Key': object_name,
+                                                    'ContentType': 'image/jpeg'},
+                                            ExpiresIn=3600)
+# Client receives this URL and uploads directly</pre>
+    </div>
+    <div class="mt-4 text-sm text-slate-700">
+      <div class="font-semibold">Notes</div>
+      <ul class="list-disc list-inside mt-2">
+        <li>Choose a clear object naming convention so processed assets can be matched back.</li>
+        <li>Set ContentType to help the storage service validate content at upload.</li>
+        <li>Use multipart upload for large files and short-lived credentials for stronger control.</li>
+      </ul>
+    </div>
+    <div class="mt-auto pt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">The server issues the pre-signed URL after authentication; the client then uploads directly to object storage, reducing backend bandwidth and CPU use.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

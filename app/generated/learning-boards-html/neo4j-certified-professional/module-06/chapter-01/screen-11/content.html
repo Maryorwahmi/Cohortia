@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Starter edits (fill these functions)</div>
+      <div class="font-mono text-sm bg-slate-100 p-3 rounded">
+        <pre style="white-space:pre-wrap; tab-size:2;">def add_follow_relationship(tx, follower_name, followed_name):
+  # MATCH two users and CREATE a FOLLOWS relationship; use parameters!
+  query = (
+    "MATCH (a:User {name: $follower}), (b:User {name: $followed})"
+    " CREATE (a)-[:FOLLOWS]->(b)"
+    " RETURN a.name AS follower_name, b.name AS followed_name"
+  )
+  result = tx.run(query, follower=follower_name, followed=followed_name)
+  return result.single()
+
+
+def get_followers(tx, user_name):
+  # MATCH incoming FOLLOWS and RETURN follower names as a list
+  query = (
+    "MATCH (f:User)-[:FOLLOWS]->(u:User {name: $name})"
+    " RETURN f.name AS follower_name"
+  )
+  result = tx.run(query, name=user_name)
+  return list(result)
+</pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Guidance & checks</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Use parameters follower and followed in the tx.run call to bind values safely.</li>
+        <li>Consider MERGE instead of CREATE if you need idempotent relationships.</li>
+        <li>Return only follower_name to keep result size small.</li>
+        <li>Call session.write_transaction to make relationship creation atomic.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Test scenario</div>
+        <div class="text-sm text-slate-800">Create Alice and Bob, add a follows relationship from Alice to Bob, then call get_followers for Bob and print the follower names.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

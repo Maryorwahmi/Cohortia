@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0f172a;color:#e6eef6;border-radius:.75rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;line-height:1.35;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.6</span>
+    <span>›</span>
+    <span class="text-slate-700">kdump & vmcore</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-sm font-semibold text-slate-700">How kdump Works</div>
+        <div class="text-sm text-slate-600 mt-2">kdump reserves memory for a capture kernel. On panic, the system boots into the capture kernel and writes a vmcore file containing the memory image. That vmcore is the primary artifact for kernel debugging.</div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checks</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+            <li>sudo systemctl status kdump</li>
+            <li>Verify crashkernel parameter in GRUB</li>
+            <li>Confirm dump target exists and is writable</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm card-border">
+        <div class="text-sm font-semibold text-slate-700">Safe Test (VM only)</div>
+        <pre class="code"># Only in VM lab
+echo c | sudo tee /proc/sysrq-trigger
+# system will reboot; after reboot check /var/crash/ for vmcore</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-sm font-semibold text-slate-700">vmcore Analysis</div>
+        <div class="text-sm text-slate-600 mt-2">Analyzing vmcore typically requires the crash utility and kernel symbols. While analysis is specialized, simply capturing a reliable vmcore file is essential; it allows support engineers to pinpoint kernel stack traces, module involvement, and memory state at failure.</div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-sm text-rose-700 mt-1">Assuming a crash dump will be present after random reboots — verify kdump was enabled and that the dump target has space and correct permissions.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-1">Configure and test kdump in a VM so kernel panics reliably produce vmcore artifacts for analysis.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

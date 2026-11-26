@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Stack-Based Execution</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Stack semantics</div>
+      <div class="text-xs text-slate-500 mt-1">Push and pop are the primary operations</div>
+      <div class="mt-3 text-sm text-slate-700">Every arithmetic operation takes its operands from the stack’s top. The stack grows and shrinks dynamically, and the compiler emits push and pop sequences rather than assigning values to fixed registers. This simplifies code generation but moves the responsibility of efficient register use to the translator.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete trace</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2;">push constant 3   // [3]
+push constant 5   // [3, 5]
+add               // pop 5, pop 3, push 8 -> [8]</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Misconception check: The extra push/pop does not doom performance. The translator can detect patterns and use registers to avoid redundant moves. Still, the VM keeps the compiler’s job straightforward.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example: Expression lowering</div>
+      <div class="text-xs text-slate-500 mt-1">How a+b*c becomes pushes</div>
+      <div class="mt-3 text-sm text-slate-700">A compiler can lower a+b*c into pushes and arithmetic that respect operator precedence: push a; push b; push c; mul; add. The stack enforces the evaluation order implicitly without register naming.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Stack operations make code generation uniform and predictable, pushing register decisions to the translator.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

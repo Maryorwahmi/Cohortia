@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border-color: rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Manual new/delete</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-grow">
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card">
+        <div class="text-sm font-bold uppercase text-slate-500">Comparison</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">Raw pointers vs RAII-managed</div>
+        <div class="mt-3 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-white border">Raw pointer: allocation uses new; programmer must delete on every exit path. Risk: leaks and double deletes.</div>
+          <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">RAII-managed: constructor acquires, destructor releases automatically, safe across exceptions and returns.</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 shadow-sm card">
+        <div class="text-sm font-bold text-slate-700">Concrete scenario</div>
+        <div class="text-xs text-slate-600 mt-2">A function allocates a buffer, then encounters an error and returns early. If delete was not called, memory leaks. If another code path also deletes the same pointer, double free occurs.</div>
+        <pre class="mt-3 rounded-lg bg-slate-50 p-3 text-[13px] font-mono text-slate-800">// risky pattern
+int* buf = new int[100];
+if (error) return; // leaked if delete not called</pre>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card">
+        <div class="text-sm font-bold text-slate-700">Misconception</div>
+        <div class="text-xs text-slate-600 mt-2">Some think manual control is always faster. In practice, the small wrapper of a smart pointer has negligible overhead while preventing class of bugs that cost much more time to debug.</div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this thought</div>
+          <p class="text-xs font-medium text-slate-800">Find a function in your code that performs dynamic allocation and imagine who must call delete on every path. If it's more than one place, it's a bug waiting to happen.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Implicit ownership leads to bugs. Make ownership explicit and predictable to avoid runtime surprises.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

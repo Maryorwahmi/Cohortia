@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl p-6 bg-white border shadow-sm h-full flex flex-col" style="border-color: rgba(226,232,240,0.9);">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <h3 class="text-2xl font-bold text-slate-800 mt-2">PaymentMethod Example</h3>
+    <p class="text-sm text-slate-600 mt-1">Read the implementation and observe how virtuals and destructors behave at runtime.</p>
+    <div class="mt-4 grid grid-cols-1 gap-4 flex-1 min-h-0">
+      <div class="p-3 rounded-lg bg-white border" style="border-color: rgba(226,232,240,0.9); overflow:auto;">
+        <pre class="text-sm bg-slate-900 text-white p-3 rounded" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+class PaymentMethod {
+protected:
+  double amount;
+public:
+  PaymentMethod(double amt) : amount(amt) {
+    std::cout &lt;&lt; "PaymentMethod constructor called for amount: " &lt;&lt; amount &lt;&lt; std::endl;
+  }
+  virtual bool processPayment() = 0;
+  virtual void displayPaymentDetails() const = 0;
+  virtual ~PaymentMethod() {
+    std::cout &lt;&lt; "PaymentMethod destructor called." &lt;&lt; std::endl;
+  }
+};
+
+// ... CreditCard and PayPal derive and override methods ...
+        </pre>
+        <div class="text-xs text-slate-500 mt-2">This truncated block shows the abstract base and the virtual destructor. The full example includes derived classes implementing the required methods.</div>
+      </div>
+      <div class="p-4 rounded-xl bg-white border" style="border-color: rgba(226,232,240,0.9);">
+        <div class="font-semibold text-slate-800">Runtime behavior checklist</div>
+        <ul class="list-disc pl-4 mt-2 text-sm text-slate-600">
+          <li>Derived displayPaymentDetails runs when called through PaymentMethod*.</li>
+          <li>processPayment returns true for both CreditCard and PayPal implementations.</li>
+          <li>Deleting via base pointer triggers derived destructor then base destructor.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-xl bg-amber-50 text-amber-700">Check your change: modify a derived signature slightly; the compiler will catch it if you used override. If not, you may silently get static binding.</div>
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Run the example and examine constructor, method, and destructor output to confirm correct polymorphic behavior and cleanup.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

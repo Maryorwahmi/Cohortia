@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Design</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Minimal Lab Plan</div>
+      <div class="text-sm text-slate-600 mt-2">Steps to create a reproducible test environment for practice.</div>
+
+      <div class="mt-4">
+        <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+          <li>Provision two VMs with RHEL 8 or 9: one control node and one managed node.</li>
+          <li>Install Ansible on the control node and create a project directory for playbooks.</li>
+          <li>Create a non-root user on both machines and grant sudo on the managed node.</li>
+          <li>Exchange SSH keys to enable passwordless authentication from the control node.</li>
+          <li>Verify connectivity and run a simple ping or a module check.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Command Callouts</div>
+      <div class="text-xs text-slate-600 mt-2">Sample commands and verification patterns for lab setup.</div>
+
+      <div class="mt-3">
+        <pre class="rounded-lg bg-slate-900 text-slate-50 p-3"><code># On control node: generate key and copy to managed node
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+ssh-copy-id user@managed-node
+
+# Verify passwordless SSH
+ssh user@managed-node 'echo OK'
+
+# Run a simple Ansible ping from control node
+ansible all -i inventory.ini -m ansible.builtin.ping -u user --become
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Watchouts</div>
+        <ul class="list-disc pl-5 mt-2 space-y-2">
+          <li>Check .ssh directory and authorized_keys permissions; too-permissive or too-restrictive permissions can prevent key auth.</li>
+          <li>Ensure the sudoers entry allows the non-root user to run required tasks with become.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

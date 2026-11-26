@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Recovery & Resilience</div>
+    <div class="text-2xl font-bold text-slate-800">Header Backups and Simulating Key Loss</div>
+    <div class="text-sm text-slate-600 mt-1">Practical steps and drills to confirm you can recover encrypted data when something goes wrong.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Backup the header</div>
+      <pre class="mt-3 rounded bg-slate-900 text-slate-100 p-3 text-sm"><code># Backup LUKS header
+sudo cryptsetup luksHeaderBackup /dev/sdb1 --header-backup-file /root/luks-header-backup.img
+
+# Restore header (lab only)
+sudo cryptsetup luksHeaderRestore /dev/sdb1 --header-backup-file /root/luks-header-backup.img
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Store header backups separately and protect them like other sensitive key material.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Simulate and verify</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Add a key file and verify unlocking works.</li>
+        <li>Remove the key file to simulate loss and ensure the passphrase still unlocks the volume.</li>
+        <li>Practice restore from header backup in a sandbox and verify all key slots post-restore.</li>
+      </ul>
+
+      <div class="mt-4 font-bold text-slate-800">Operational warning</div>
+      <div class="mt-2 text-sm text-rose-600">Never restore a header backup onto a different volume unless you are certain the target is the original device. A wrong restore can corrupt data irreversibly.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Make header backups part of your encryption workflow and practice loss-and-recovery drills to verify your procedures.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

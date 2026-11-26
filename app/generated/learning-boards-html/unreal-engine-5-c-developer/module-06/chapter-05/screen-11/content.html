@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Implementing IInteractable</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-xl bg-white card p-4 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Actor implementation</div>
+      <pre class="mt-3">// AMyDoor.h
+class AMyDoor : public AActor, public IInteractable
+{
+  GENERATED_BODY()
+public:
+  virtual void Interact_Implementation(AActor* Caller) override;
+};
+
+// AMyDoor.cpp
+void AMyDoor::Interact_Implementation(AActor* Caller)
+{
+  UE_LOG(LogTemp, Warning, TEXT("Door interacted by %s"), *Caller->GetName());
+  // Door open logic here
+}</pre>
+    </div>
+
+    <div class="col-span-5 rounded-xl bg-white card p-4 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Caller pattern</div>
+      <pre class="mt-3">// From player code after trace
+if (HitActor && HitActor->Implements<UInteractable>())
+{
+  IInteractable::Execute_Interact(HitActor, ThisPlayer);
+}</pre>
+
+      <div class="mt-4 text-sm text-slate-700">Notes: include the interface header where you call Implements&lt;&gt; and implement the _Implementation function so Blueprints can override behavior if needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

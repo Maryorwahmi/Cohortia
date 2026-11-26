@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Kernel boot parameters</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-3">
+      <div class="text-xl font-bold text-slate-800">Modify early boot behavior via GRUB</div>
+      <div class="text-sm text-slate-600">Kernel arguments provided by the bootloader affect system initialization and must be handled cautiously.</div>
+
+      <div class="rounded-2xl bg-white p-3 card-border shadow-sm mono text-sm" style="white-space:pre-wrap;tab-size:2;"># Edit /etc/default/grub and then regenerate the grub config
+# BIOS systems
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# UEFI systems
+sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg
+
+# Example uses: rd.break for emergency shell, mem=XG to limit memory for testing</div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">Incorrect GRUB configuration can prevent boot. Always copy existing grub config before editing and test in a VM snapshot.</p>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Concrete troubleshooting scenario</div>
+        <div class="text-xs text-slate-600 mt-2">If you need an early emergency shell to repair filesystems, add rd.break to kernel options, regenerate grub, and boot into the emergency environment to make repairs.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Treat GRUB changes like firmware edits: test, backup, and keep a rescue plan in case boot is impaired.</p>
+      </div>
+    </div>
+  </div>
+</div>

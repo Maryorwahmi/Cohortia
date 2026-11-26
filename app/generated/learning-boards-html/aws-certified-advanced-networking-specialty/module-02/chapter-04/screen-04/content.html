@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What routing means</span>
+  </div>
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <div class="mt-3 text-sm text-slate-600">Routing determines the next hop for traffic leaving a subnet so packets reach remote CIDRs across the VPN.</div>
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-xs font-bold text-blue-700">Claim</div>
+          <div class="text-sm text-slate-800 mt-1">Both sides must have explicit routes for the other side’s CIDR blocks.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50 border border-violet-100">
+          <div class="text-xs font-bold text-violet-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">VPC 172.31.0.0/16 needs a route to 10.0.0.0/16 with target vgw-0abcdef1234567890 to reach on-premises hosts.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-rose-50 border border-[rgba(239,102,117,0.08)]">
+          <div class="text-xs font-bold text-rose-700">Misconception</div>
+          <div class="text-sm text-slate-800 mt-1">An UP VPN tunnel does not imply routing is correct; missing route table entries can still block traffic.</div>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always confirm route entries on AWS and on-premises devices so the VGW has a clear next hop for remote CIDRs.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-7 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Annotated Example</div>
+      <div class="mt-4 flex-1 bg-slate-50 rounded-lg p-4">
+        <div class="text-sm font-mono text-slate-700">Subnet CIDR: 172.31.0.0/16
+VPC ID: vpc-0123456789abcdef0
+On-prem CIDR: 10.0.0.0/16
+VGW: vgw-0abcdef1234567890
+
+If instance 172.31.10.5 → destination 10.0.2.20
+Route: 10.0.0.0/16 → target vgw-0abcdef1234567890
+</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-600">Question: If a ping from EC2 to on-prem fails, do you check the AWS route table or the on-prem route first? Try both: a missing route on either side can create one-way or no connectivity.</div>
+    </div>
+  </div>
+</div>

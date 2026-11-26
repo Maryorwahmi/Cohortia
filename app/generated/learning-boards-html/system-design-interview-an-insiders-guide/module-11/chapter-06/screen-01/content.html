@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 16px; }
+    .topic { background: linear-gradient(90deg,#f8fafc,#ffffff); }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Feed Retrieval & Ranking</span>
+    </div>
+    <div class="flex gap-6 h-[72%]">
+      <div class="flex-1 card p-6 flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-bold text-slate-600 uppercase tracking-wider">Interactive 16:9 Masterclass</div>
+          <h1 class="text-3xl font-bold text-slate-900 mt-3">Feed Retrieval & Ranking</h1>
+          <p class="text-sm text-slate-600 mt-2">Design read paths that return personalized content with minimal latency using cache layers and initial ranking.</p>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+            <div class="flex items-center gap-2 text-blue-700 font-semibold">Feed Cache
+            </div>
+            <p class="text-xs text-slate-700 mt-1">Sorted sets of post IDs, trimmed and TTL'd for freshness.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-violet-50 border border-violet-100">
+            <div class="flex items-center gap-2 text-violet-700 font-semibold">Post Cache
+            </div>
+            <p class="text-xs text-slate-700 mt-1">Full post objects keyed by post_id to avoid DB hits.</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-[420px] p-5 card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture snapshot</div>
+        <div class="mt-3 space-y-3">
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg>
+            <div class="text-sm text-slate-800">API Gateway routes to Feed Service which checks feed cache, post cache, then DB if needed.</div>
+          </div>
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <div class="text-sm text-slate-800">Two-level caching reduces database load and keeps tail latency low.</div>
+          </div>
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/></svg>
+            <div class="text-sm text-slate-800">Short TTLs or explicit invalidation prevent long-lived stale feeds.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 card p-4 topic">
+      <div class="text-sm font-bold text-slate-700 mb-2">Explore Key Topics</div>
+      <div class="flex gap-3">
+        <div class="p-3 rounded-lg bg-white border border-slate-100 flex-1">
+          <div class="text-xs uppercase tracking-wider text-slate-600">Feed Cache</div>
+          <div class="text-sm text-slate-800 mt-1">Redis sorted set storing post IDs ordered by timestamp for quick slicing.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-slate-100 flex-1">
+          <div class="text-xs uppercase tracking-wider text-slate-600">Post Cache</div>
+          <div class="text-sm text-slate-800 mt-1">Store full post objects to avoid hitting Cassandra for every item in a feed.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-slate-100 flex-1">
+          <div class="text-xs uppercase tracking-wider text-slate-600">Ranking</div>
+          <div class="text-sm text-slate-800 mt-1">Start with recency, optionally add a simple engagement score to boost active items.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

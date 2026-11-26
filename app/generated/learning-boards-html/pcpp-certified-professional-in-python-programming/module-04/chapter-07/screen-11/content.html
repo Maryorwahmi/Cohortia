@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Best Practice</span>
+      <span class="text-slate-600">Resource Management</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">Resource management and graceful shutdown</h3>
+    <p class="text-sm text-slate-600 mt-1">Context managers and explicit exception handling keep your concurrent code reliable.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Use context manager</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    futures = [executor.submit(work, arg) for arg in items]
+# executor.shutdown() called automatically here</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This ensures threads or processes are asked to finish and are cleaned up, even when exceptions occur inside the block.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Exception handling pattern</div>
+      <ol class="list-decimal ml-5 mt-2 text-sm text-slate-600">
+        <li>Map futures to inputs when using submit.</li>
+        <li>Iterate as futures complete and call future.result() inside try/except.</li>
+        <li>Log exceptions and decide whether to retry or abort.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Use small, self-contained tasks to reduce shared-state complexity and simplify recovery after failures.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

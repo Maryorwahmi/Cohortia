@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-xl font-bold text-slate-900 mt-1">Enforce KMS encryption on uploads</div>
+    <div class="text-sm text-slate-600 mt-1">A policy evaluates headers and key IDs to accept or deny uploads.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Steps</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal ml-5 space-y-2">
+        <li>Create a customer-managed KMS key and note its ARN.</li>
+        <li>Enable bucket default encryption to use the KMS key.</li>
+        <li>Attach a bucket policy that denies uploads when the encryption header is missing or not aws:kms or when the KMS key ID is different.</li>
+        <li>Test uploads via AWS CLI and review Access Denied results for non-compliant uploads.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Misconception check: default encryption without a deny policy can still allow non-compliant uploads if misconfigured or for certain APIs; enforce both.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Verification example</div>
+      <div class="mt-2 text-sm text-slate-700">Try three uploads and observe results in S3 and CloudTrail:</div>
+      <pre class="mt-3 text-xs bg-slate-50 p-2 rounded text-slate-800" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># Upload with KMS encryption: should succeed
+aws s3 cp sensitive.txt s3://my-secure-data-bucket-xyz/encrypted-data.txt --sse aws:kms --sse-kms-key-id YOUR_KMS_KEY_ARN
+
+# Upload without encryption: should fail with Access Denied
+aws s3 cp sensitive.txt s3://my-secure-data-bucket-xyz/unencrypted-data.txt
+
+# Upload with SSE-S3: should fail if policy requires KMS
+aws s3 cp sensitive.txt s3://my-secure-data-bucket-xyz/sse-s3-data.txt --sse AES256</pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Combine bucket defaults, explicit deny policies, and CloudTrail monitoring to enforce and verify encryption consistently.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

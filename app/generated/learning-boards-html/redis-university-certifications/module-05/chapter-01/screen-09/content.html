@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;} .term{background:#f8fafc;border-radius:8px;padding:6px 8px;color:#1e293b;font-weight:700;font-size:12px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[62%]">
+      <div class="card p-5">
+        <div class="font-bold text-slate-900">Master config (redis-master.conf)</div>
+        <pre class="mt-3">port 6379
+daemonize yes
+pidfile /var/run/redis_6379.pid
+logfile "/var/log/redis_6379.log"
+dbfilename dump-6379.rdb
+dir ./data/6379</pre>
+      </div>
+      <div class="card p-5">
+        <div class="font-bold text-slate-900">Replica config (redis-replica1.conf)</div>
+        <pre class="mt-3">port 6380
+daemonize yes
+pidfile /var/run/redis_6380.pid
+logfile "/var/log/redis_6380.log"
+dbfilename dump-6380.rdb
+dir ./data/6380
+replicaof 127.0.0.1 6379</pre>
+      </div>
+    </div>
+    <div class="mt-4 card p-4">
+      <div class="font-bold text-slate-900">Verification commands</div>
+      <pre class="mt-2"># On master
+redis-cli -p 6379
+INFO replication
+
+# On replica
+redis-cli -p 6380
+INFO replication</pre>
+      <div class="mt-3 text-sm text-slate-700">Look for role, connected_slaves on the master and master_host, master_link_status on the replica.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

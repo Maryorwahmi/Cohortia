@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">functools.wraps</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Why it matters</div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Keep the original function identity</h3>
+      <p class="text-sm text-slate-700">wraps copies key attributes from the original function to the wrapper so introspection and debugging show the original name and documentation.</p>
+
+      <div class="mt-4 p-3 rounded bg-slate-50 border">
+        <pre class="code text-sm">from functools import wraps
+
+def timer(func):
+  @wraps(func)
+  def wrapper(*args, **kwargs):
+    # timing logic
+    return func(*args, **kwargs)
+  return wrapper
+
+@timer
+def task():
+  """A short task"""
+  pass
+
+print(task.__name__)  # task, not wrapper
+print(task.__doc__)   # 'A short task'
+</pre>
+      </div>
+    </div>
+
+    <div class="col-span-6 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Quick check</div>
+      <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-sm font-bold text-emerald-700">When to use</div>
+        <div class="text-xs text-slate-700 mt-1">Always add wraps when your decorator replaces a function used by tests, tools, or documentation generators.</div>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-sm font-bold text-amber-700">Misconception</div>
+        <div class="text-xs text-slate-700 mt-1">wraps does not change behavior or fix argument forwarding. It only copies metadata for clarity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

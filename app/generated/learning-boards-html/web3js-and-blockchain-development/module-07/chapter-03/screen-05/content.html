@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Add & retrieve files</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-64px)]">
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm overflow-hidden" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">Client code pattern</div>
+      <div class="mt-3 text-sm text-slate-600">Install ipfs-http-client and create a client connected to your node or a hosted service.</div>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+import { create } from 'ipfs-http-client';
+
+// For Infura example
+const projectId = 'YOUR_INFURA_IPFS_PROJECT_ID';
+const projectSecret = 'YOUR_INFURA_IPFS_PROJECT_SECRET';
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+const ipfs = create({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  headers: { authorization: auth }
+});
+
+async function addFile(file) {
+  const result = await ipfs.add(file);
+  return result.path; // CID
+}
+
+async function retrieve(cid) {
+  const chunks = [];
+  for await (const chunk of ipfs.cat(cid)) chunks.push(chunk);
+  return Buffer.concat(chunks).toString('utf8');
+}
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Store the returned CID.path in your app or contract. When retrieving binary data like images, assemble the chunks into a blob instead of converting to utf-8 text.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Bullet summary</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>ipfs.add(file) → result.path is the CID.</li>
+        <li>ipfs.cat(cid) yields async iterable chunks to assemble.</li>
+        <li>Gateways provide HTTP access when you cannot run an IPFS client in the browser.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Example scenario</div>
+        <div class="text-sm text-slate-800 mt-1">Upload a JSON metadata file for an NFT, capture its CID, and store ipfs://CID in the contract so marketplaces and wallets can fetch and verify it.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use ipfs-http-client for programmatic upload and ipfs.cat for retrieval; gateways are the browser fallback.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

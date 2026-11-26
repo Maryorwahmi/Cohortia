@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 8.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Routine Maintenance</span>
+    </div>
+    <div class="flex gap-6 h-full">
+      <div class="w-6/12 rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-700">Definition</div>
+        <h2 class="text-2xl font-bold text-slate-900 mt-2">Routine maintenance explained</h2>
+        <p class="text-sm text-slate-600 mt-3">Scheduled tasks that remove stale data, rotate logs, prune unused content and apply updates so Satellite stays healthy and performant.</p>
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg bg-amber-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Why it matters</div>
+            <p class="text-sm text-slate-800 mt-2">Prevents disk exhaustion, reduces query load, and lowers incident risk.</p>
+          </div>
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+            <p class="text-sm text-slate-700 mt-2">Deleting files under /var/lib/pulp manually instead of using supported cleanup commands can corrupt metadata.</p>
+          </div>
+          <div class="rounded-lg bg-emerald-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+            <p class="text-sm text-slate-800 mt-2">Automate supported cleanup tools and monitor space and DB trends.</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-6/12 rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+        <pre class="code bg-slate-50 p-3 rounded"># Sample scheduled commands (cron or systemd timer)
+sudo foreman-rake katello:delete_old_content_views
+sudo foreman-rake katello:clean_orphaned_content
+sudo foreman-rake db:sessions:clear
+# Verify disk and DB after run
+sudo du -sh /var/lib/pulp
+sudo -u postgres psql -c "SELECT pg_size_pretty(pg_database_size('foreman'))"
+</pre>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check</div>
+            <p class="text-sm text-slate-700 mt-2">Confirm no content-view versions assigned to hosts before deleting.</p>
+          </div>
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+            <p class="text-sm text-slate-700 mt-2">Assuming manual file deletion is faster; it risks leaving orphaned metadata.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Model Relationships</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-sm font-semibold text-slate-800">Order model (code)</div>
+        <pre class="mt-3 text-sm bg-slate-50 p-3 rounded-md overflow-x-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"><code>class Order(Base):
+    __tablename__ = 'orders'
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    order_date = Column(String, nullable=False)
+
+    product = relationship("Product", back_populates="orders")
+
+    def __repr__(self):
+        return f"&lt;Order(id={self.id}, product_id={self.product_id}, quantity={self.quantity}, date='{self.order_date}')&gt;"
+
+# On Product model:
+# orders = relationship("Order", back_populates="product")
+</code></pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Usage</div>
+        <div class="mt-2 text-sm text-slate-700">After creating and committing an order, you can access order.product.name or product.orders to inspect related data. Update stock on the product instance and commit to persist both the order and stock change as part of the session's transaction.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border p-3" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Performance note</div>
+        <div class="mt-2 text-sm text-slate-700">Be aware of lazy loading and the n+1 query problem when iterating related collections; use explicit joined loading for bulk fetches when needed.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Relationships provide convenient object navigation and reflect foreign key constraints; use them thoughtfully to avoid extra queries.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

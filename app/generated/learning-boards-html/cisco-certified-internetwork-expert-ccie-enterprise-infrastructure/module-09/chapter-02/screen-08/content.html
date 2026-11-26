@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace;font-size:13px;padding:12px;border-radius:8px;background:#0f172a;color:#e6eef8}.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Configure SNMPv3 on IOS XE</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Configuration pattern</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>snmp-server view to set accessible OIDs.</li>
+        <li>snmp-server group to set v3, security level, and map to the view.</li>
+        <li>snmp-server user to create a username with auth and priv credentials.</li>
+        <li>snmp-server host to send traps using the v3 user and priv level.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Configuration example</div>
+      <pre><code>! SNMPv3 Configuration Example
+! Define an SNMP view (e.g., "myview" to include all MIBs)
+snmp-server view myview internet included
+! Define an SNMP group "mygroup" with authPriv security level, using myview
+snmp-server group mygroup v3 auth priv read myview write myview notify myview
+! Create an SNMPv3 user "snmpuser" in "mygroup" with authentication and privacy
+! Authentication: SHA with "AuthPass123"
+! Privacy: AES128 with "PrivPass456"
+snmp-server user snmpuser mygroup v3 auth sha AuthPass123 priv aes128 PrivPass456
+! Define a host to send traps to (NMS at 192.168.1.10, using SNMPv3 user "snmpuser")
+snmp-server host 192.168.1.10 traps version 3 priv snmpuser
+! Enable specific traps
+snmp-server enable traps snmp linkup linkdown</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Replace example passwords and the NMS IP with your own values. Keep credentials confidential and rotate them on a schedule that meets policy.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">Decorator with arguments</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Pattern</div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Factory → decorator → wrapper</h3>
+      <p class="text-sm text-slate-700">Use an outer factory to capture configuration, return a decorator that will be applied to the function, and implement a wrapper that performs the configured behavior and returns the function result.</p>
+
+      <div class="mt-4 p-3 rounded bg-slate-50 border">
+        <pre class="code">def repeat(num_times):
+  def decorator_repeat(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+      for _ in range(num_times):
+        result = func(*args, **kwargs)
+      return result
+    return wrapper
+  return decorator_repeat
+
+@repeat(num_times=3)
+def greet(name):
+  print(f"Hello, {name}!")
+</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-bold text-emerald-700">Concrete example</div>
+          <div class="text-xs text-slate-700 mt-1">Calling greet("Alice") will print the greeting three times because num_times is captured by the outer factory.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Common pitfall</div>
+          <div class="text-xs text-slate-700 mt-1">Do not confuse decorator arguments with the decorated function's arguments. The factory runs when the function is defined.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Check</div>
+      <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+        <div class="text-sm font-bold text-blue-700">Test idea</div>
+        <div class="text-xs text-slate-700 mt-1">Decorate a function, call it, and confirm the number of prints and returned value behavior are as expected.</div>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-sm font-semibold text-slate-800">Why closures matter</div>
+        <div class="text-xs text-slate-600 mt-1">The outer function closes over the configuration so the inner wrapper can use it at call time without additional parameters.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

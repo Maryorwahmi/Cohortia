@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Parameterized EC2</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Starter template (refactor target)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">AWSTemplateFormatVersion: '2010-09-09'
+Description: A parameterized CloudFormation template to launch an EC2 instance.
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+    Description: Choose an EC2 instance type.
+  KeyNameParameter:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access.
+  AMIIdParameter:
+    Type: AWS::EC2::Image::Id
+    Description: The ID of the AMI for the EC2 instance.
+    Default: ami-0abcdef1234567890</pre>
+
+      <div class="mt-3 text-sm text-slate-700">Replace the placeholder AMI default with a region-specific AMI before deploying. Use Ref to plug these values into resource properties.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Outputs & CLI steps</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">Outputs:
+  InstanceId:
+    Description: The ID of the EC2 instance.
+    Value: !Ref MyWebServer
+  PublicIp:
+    Description: The Public IP address of the EC2 instance.
+    Value: !GetAtt MyWebServer.PublicIp</pre>
+
+      <div class="mt-3 text-sm text-slate-700">Deploy with the CLI by providing KeyName and optional overrides for InstanceType. After CREATE_COMPLETE, call describe-stacks and query Outputs to retrieve InstanceId and PublicIp programmatically for automation or verification.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold">Example CLI call</div>
+          <pre class="mt-2 p-2 bg-slate-50 rounded text-sm">aws cloudformation create-stack --stack-name MyParamEC2 \
+  --template-body file://parameterized-ec2-stack.yaml \
+  --parameters ParameterKey=KeyNameParameter,ParameterValue=your-key-name \
+               ParameterKey=InstanceTypeParameter,ParameterValue=t2.small</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800">
+          <div class="text-sm font-semibold">Pro tip</div>
+          <div class="text-xs text-slate-700 mt-1">Define clear Output names and stable Export names when other stacks depend on them to avoid brittle imports.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

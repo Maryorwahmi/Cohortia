@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900">Metric triage for explain()</div>
+      <div class="text-sm text-slate-600 mt-1">Use a short compare-and-validate process when tuning indexes.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold text-slate-800">Step 1 — Baseline</div>
+          <div class="text-sm text-slate-600 mt-1">Run explain("executionStats") and record keys/documents examined and nReturned.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold text-slate-800">Step 2 — Index</div>
+          <div class="text-sm text-slate-600 mt-1">Create a candidate index designed for the filter and projection, following ESR ordering.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold text-slate-800">Step 3 — Verify</div>
+          <div class="text-sm text-slate-600 mt-1">Re-run explain and compare metrics. Look for IXSCAN and lower totalDocsExamined relative to nReturned.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Example insight</div>
+        <div class="text-sm text-slate-600 mt-2">If totalDocsExamined is 1000 and nReturned is 2, many documents are being read to find matches—add a selective index to narrow the scan earlier.</div>
+
+        <div class="mt-3 text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Adding indexes for every field you think might help. Excess indexes slow writes and increase memory; optimize the hot paths first.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-white border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Use examined-to-returned ratios and winningPlan stages as the primary signals for index effectiveness; execution time is secondary but still useful.</p>
+      </div>
+    </div>
+  </div>
+</div>

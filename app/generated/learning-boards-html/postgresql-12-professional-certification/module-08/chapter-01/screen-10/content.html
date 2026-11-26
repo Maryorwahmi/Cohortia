@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Log Files</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">pg_log, rotation, and retention</div>
+      <div class="text-sm text-slate-600 mt-2">Use rotation settings to control file sizes and prevent a single huge log file.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">Rotation parameters</div>
+          <div class="text-xs text-slate-600 mt-1">log_rotation_age = 1d, log_rotation_size = 256MB, log_truncate_on_rotation (controls truncation when using fixed filenames).</div>
+        </div>
+
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="font-semibold">Operational tips</div>
+          <div class="text-xs text-slate-600 mt-1">Monitor free disk space, archive rotated files externally, and ensure file permissions are correct for write and archival processes.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Rotation plus monitoring is essential to prevent logs from filling disk and to keep archives usable for analysis.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Timestamped filenames
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_rotation_age = 1d
+log_rotation_size = 256MB
+
+# Or use truncation with a fixed name if required
+# log_truncate_on_rotation = on
+# log_filename = 'postgresql.log'
+      </pre>
+
+      <div class="mt-4 text-xs text-slate-600">Be mindful that using time-based filename escapes disables truncation behavior. Choose the naming and rotation strategy that fits your archival and monitoring tools.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

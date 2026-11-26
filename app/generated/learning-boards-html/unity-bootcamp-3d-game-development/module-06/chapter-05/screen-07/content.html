@@ -1,0 +1,89 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">GameAnalyticsManager</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-4 card-b shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Activity steps</div>
+      <ol class="mt-2 text-sm text-slate-600 list-decimal ml-4 space-y-2">
+        <li>Open Window → General → Services and enable Analytics for your project.</li>
+        <li>Create a GameObject named <span class="font-mono">_GameManagers</span> and attach the manager script.</li>
+        <li>Implement methods like CollectiblePickedUp and PowerUpUsed and call them from gameplay scripts.</li>
+        <li>Run the Editor, trigger the actions, and confirm Debug.Log outputs before checking the online dashboard.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Note: Keep your event set small and purposeful to focus on design questions.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Instrument a few events first, confirm they fire in the Editor, then expand your plan once you see useful signals.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-4 card-b shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter Script (GameAnalyticsManager.cs)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-50 rounded-lg" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size: 13px;">
+// GameAnalyticsManager.cs
+using UnityEngine;
+using UnityEngine.Analytics; // Essential for Analytics functions
+using System.Collections.Generic; // For Dictionary
+
+public class GameAnalyticsManager : MonoBehaviour
+{
+    public static GameAnalyticsManager Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Persist across scenes if needed
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void Start()
+    {
+        // Send a basic GameStart event
+        AnalyticsEvent.GameStart();
+        Debug.Log("Analytics: GameStart event sent.");
+    }
+
+    // Example: Track when a specific collectible item is picked up
+    public void CollectiblePickedUp(string itemName, int playerLevel)
+    {
+        AnalyticsEvent.Custom("CollectiblePickup", new Dictionary<string, object>
+        {
+            { "item_name", itemName },
+            { "player_level", playerLevel }
+        });
+        Debug.Log($"Analytics: Custom event 'CollectiblePickup' sent for {itemName} at level {playerLevel}.");
+    }
+
+    // Example: Track when a player uses a power-up
+    public void PowerUpUsed(string powerUpType, int remainingUses)
+    {
+        AnalyticsEvent.Custom("PowerUpUse", new Dictionary<string, object>
+        {
+            { "power_up_type", powerUpType },
+            { "remaining_uses", remainingUses }
+        });
+        Debug.Log($"Analytics: Custom event 'PowerUpUse' sent for {powerUpType}.");
+    }
+}
+      </pre>
+
+      <div class="mt-3 text-xs text-slate-600">Example usage: call GameAnalyticsManager.Instance.CollectiblePickedUp("GoldOrb", 3) from your collectible script when picked up.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

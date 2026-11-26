@@ -1,0 +1,96 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9);} .card{background:#ffffff;border:1px solid var(--slate-100);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Junos Security Policies and Zones</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 h-full flex flex-col justify-between">
+      <div>
+        <div class="text-3xl font-bold leading-tight text-slate-800">Junos Security Policies and Zones</div>
+        <div class="mt-2 text-sm text-slate-600">Segment network interfaces into zones and write ordered policies that explicitly permit required traffic while enforcing default deny between zones.</div>
+
+        <div class="mt-6 grid grid-cols-2 gap-4">
+          <div class="card rounded-xl p-4 shadow-sm">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-600">In this lesson</div>
+            <div class="mt-2 text-sm text-slate-800">Understand zones, configure them, build from-zone to-zone policies, and verify with basic SRX commands.</div>
+          </div>
+          <div class="card rounded-xl p-4 shadow-sm">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Why it matters</div>
+            <div class="mt-2 text-sm text-slate-800">A correct zone-policy design prevents lateral movement and ensures only intended services are exposed to each network segment.</div>
+          </div>
+
+          <div class="card rounded-xl p-4 shadow-sm col-span-2">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Quick example</div>
+            <div class="mt-2 text-sm text-slate-700">Allow internal users to the internet but only HTTP/HTTPS from the internet to a DMZ webserver. Default deny blocks everything else unless a policy permits it.</div>
+            <pre class="code mt-3 p-3 rounded bg-slate-50 text-sm">set security zones security-zone trust
+set security zones security-zone untrust
+set security zones security-zone dmz
+
+set security policies from-zone trust to-zone untrust policy trust-to-untrust then permit
+set security policies from-zone untrust to-zone dmz policy untrust-to-dmz-web then permit
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Explore Key Topics</div>
+        <div class="mt-3 flex gap-3">
+          <div class="flex-1 card rounded-xl p-3">
+            <div class="text-sm font-semibold text-slate-800">Zones & Trust</div>
+            <div class="text-xs text-slate-600 mt-1">Group interfaces by trust level so you can apply different policies to each segment.</div>
+          </div>
+          <div class="flex-1 card rounded-xl p-3">
+            <div class="text-sm font-semibold text-slate-800">Policy Rules</div>
+            <div class="text-xs text-slate-600 mt-1">From-zone, to-zone, match conditions, then action. Order matters.</div>
+          </div>
+          <div class="flex-1 card rounded-xl p-3">
+            <div class="text-sm font-semibold text-slate-800">Verify & Troubleshoot</div>
+            <div class="text-xs text-slate-600 mt-1">Use show commands and flow session inspection to see which policy handled traffic.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 h-full flex flex-col gap-4">
+      <div class="card rounded-2xl p-4 h-2/3 flex flex-col justify-around shadow-sm">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Visual Concept</div>
+        <div class="mt-3 grid gap-3">
+          <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="7" rx="1"/><rect x="14" y="13" width="7" height="7" rx="1"/></svg>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Zones: trust, untrust, dmz</div>
+              <div class="text-xs text-slate-600">Each zone contains one or more interfaces and a security posture.</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Policies: ordered rules</div>
+              <div class="text-xs text-slate-600">First matching policy within a from-zone to-zone pair is applied.</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Default deny</div>
+              <div class="text-xs text-slate-600">Traffic not explicitly permitted by a policy is denied between zones.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card rounded-xl p-3 h-1/3 shadow-sm">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Scenario</div>
+        <div class="mt-2 text-sm text-slate-800">Allow internal users to access the internet while only permitting HTTP/HTTPS from the internet to a DMZ webserver. This keeps internal hosts shielded from general external access.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

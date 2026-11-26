@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Branch Onboarding</span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-900 mb-3">Activity: Identify automation candidates</div>
+
+    <div class="flex gap-4 h-full">
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Tasks</div>
+          <ul class="text-xs text-slate-600 mt-2 list-disc pl-4">
+            <li>VLAN 100 creation on Core-SW1 and Core-SW2</li>
+            <li>Assign Gi1/0/1-5 to VLAN 100 on Branch-ACC-SW1</li>
+            <li>Configure subinterface Gi0/0/1.100 with IP and DHCP on Branch-RTR1</li>
+            <li>Verify connectivity to 10.10.10.10</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Automation suggestions</div>
+          <div class="text-xs text-slate-600 mt-2">Use Ansible playbooks for VLAN and interface templates; Python or Netmiko for ad-hoc verification and parsing; parameterize VLAN ID, interface ranges, and IP addresses.</div>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] overflow-auto">
+          <div class="text-sm font-semibold text-slate-800">CLI examples</div>
+          <pre style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;" class="mt-2 text-xs text-slate-700">configure terminal
+vlan 100
+name Branch_Users
+end
+write memory
+
+configure terminal
+interface range GigabitEthernet1/0/1 - 5
+switchport mode access
+switchport access vlan 100
+no shutdown
+end
+write memory
+
+configure terminal
+interface GigabitEthernet0/0/1.100
+encapsulation dot1Q 100
+ip address 192.168.100.1 255.255.255.0
+no shutdown
+ip dhcp pool BRANCH_USERS_POOL
+network 192.168.100.0 255.255.255.0
+default-router 192.168.100.1
+end
+write memory
+
+ping 10.10.10.10
+show ip interface brief
+show vlan brief</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Parameterize and template repetitive blocks, keep automation code in Git, secure credentials, and test changes in a lab before production.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

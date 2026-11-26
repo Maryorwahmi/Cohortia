@@ -1,0 +1,103 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> :root{--amber:#f5a623;--slate-100:rgba(226,232,240,0.9)} </style>
+  <div class='flex flex-col gap-4 h-full'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100'>Module 8</span>
+      <span>›</span>
+      <span>Incident Lifecycle</span>
+    </div>
+
+    <div class='flex gap-4 flex-1 min-h-0'>
+      <div class='w-1/2 rounded-2xl bg-white p-5 border flex flex-col' style='border-color:var(--slate-100)'>
+        <div class='text-lg font-bold text-slate-800'>Seven steps</div>
+        <div class='text-sm text-slate-600 mt-2'>A consistent process reduces confusion and speeds recovery.</div>
+
+        <div class='mt-4 grid grid-cols-1 gap-3'>
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>1</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Detection</div>
+              <div class='text-xs text-slate-600'>Monitoring alerts, health checks, or user reports.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>2</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Triage/Assessment</div>
+              <div class='text-xs text-slate-600'>Assess severity, impacted services, and whether to page on-call.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>3</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Diagnosis</div>
+              <div class='text-xs text-slate-600'>Use logs, pg_stat_activity, EXPLAIN ANALYZE, and system tools to find root cause.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>4</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Mitigation</div>
+              <div class='text-xs text-slate-600'>Short-term actions: restart, kill query, or failover to standby.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>5</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Resolution</div>
+              <div class='text-xs text-slate-600'>Implement permanent fixes: config changes, patches, or restores.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>6</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Recovery</div>
+              <div class='text-xs text-slate-600'>Verify data integrity and application connectivity before closing the incident.</div>
+            </div>
+          </div>
+
+          <div class='flex items-start gap-3'>
+            <div class='px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold'>7</div>
+            <div>
+              <div class='text-sm font-semibold text-slate-800'>Post-mortem</div>
+              <div class='text-xs text-slate-600'>Create a blameless report with timeline, root cause, impact, and action items.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class='w-1/2 rounded-2xl bg-white p-5 border flex flex-col' style='border-color:var(--slate-100)'>
+        <div class='text-sm font-semibold text-slate-800'>Diagnostic toolbox</div>
+        <div class='text-xs text-slate-600 mt-2'>Commands and views you will rely on during diagnosis.</div>
+
+        <pre style='white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#f8fafc;padding:8px;border-radius:8px;margin-top:8px;'>
+# Check service
+sudo systemctl status postgresql@12-main
+# Tail logs
+sudo tail -n 200 /var/log/postgresql/postgresql-12-main.log
+# Activity
+psql -U postgres -c "SELECT pid, state, query FROM pg_stat_activity WHERE state <> 'idle';"
+# Replication
+psql -U postgres -c "SELECT pid, state, sent_lsn, write_lag FROM pg_stat_replication;"
+</pre>
+
+        <div class='mt-4'>
+          <div class='text-sm font-semibold text-slate-800'>Example misconception</div>
+          <div class='text-xs text-slate-600 mt-1'>Assuming replication lag always indicates network problems. Often the primary is overloaded or a long-running transaction prevents WAL shipping.</div>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+            <p class='text-xs font-medium text-slate-800'>Follow a lifecycle: detect, triage, diagnose, mitigate, recover, and learn. Every incident must end with a post-mortem and assigned actions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

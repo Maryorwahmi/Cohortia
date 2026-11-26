@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Example contract</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Key Solidity snippet</div>
+      <pre class="mt-3 text-sm bg-white p-3 rounded font-mono" style="white-space:pre-wrap; tab-size:2;">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract FunctionVisibilityAndModifiers {
+  address public owner;
+  uint private _internalCounter;
+  uint internal _sharedData;
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Only owner can call this function.");
+    _;
+  }
+
+  constructor() {
+    owner = msg.sender;
+    _internalCounter = 0;
+    _sharedData = 100;
+  }
+
+  function incrementCounterPublic() public onlyOwner {
+    _internalCounter++;
+  }
+
+  function _decrementCounterPrivate() private {
+    _internalCounter--;
+  }
+
+  function _getInternalCounter() internal view returns (uint) {
+    return _internalCounter;
+  }
+
+  function getOwner() external view returns (address) {
+    return owner;
+  }
+
+  function getCurrentCounter() public view returns (uint) {
+    return _internalCounter;
+  }
+
+  function calculateSum(uint a, uint b) public pure returns (uint) {
+    return a + b;
+  }
+
+  function deposit() public payable {
+    emit DepositReceived(msg.sender, msg.value, address(this).balance);
+  }
+
+  function withdrawAll() public onlyOwner {
+    require(address(this).balance > 0, "No Ether to withdraw.");
+    (bool success, ) = owner.call{value: address(this).balance}("");
+    require(success, "Withdrawal failed.");
+  }
+
+  event DepositReceived(address indexed sender, uint amount, uint contractBalance);
+}</pre>
+    </div>
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What to inspect</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4">
+        <li>Which variables are private vs internal, and why?</li>
+        <li>Where is payable used and what does msg.value represent?</li>
+        <li>How does onlyOwner prevent unauthorized withdraws?</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Read the contract to see how modifiers and visibility combine to enforce rules and make behavior explicit.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

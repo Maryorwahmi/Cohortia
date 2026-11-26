@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Transaction Semantics</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border p-4 bg-white">
+      <div class="text-sm font-semibold text-slate-800">Concepts</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>flush: send SQL to DB, keep transaction open.</li>
+        <li>commit: flush then finalize transaction.</li>
+        <li>rollback: discard pending changes in current session.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 text-amber-700">
+        <div class="text-xs font-bold uppercase">Practical rule</div>
+        <div class="text-sm mt-1">Group related operations and commit once. Use rollback to recover from exceptions and avoid leaving partial state.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example sequence</div>
+      <pre class="mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>with Session() as session:
+  session.add_many_objects(...)
+  session.flush()  # IDs assigned, but transaction still open
+  # validate data
+  session.commit() # finalizes changes
+
+# On error
+with Session() as session:
+  try:
+    do_changes()
+    session.commit()
+  except Exception:
+    session.rollback()</code></pre>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">Understand flush vs commit. Use rollback on exceptions, and group operations into coherent transactional units for correctness and performance.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

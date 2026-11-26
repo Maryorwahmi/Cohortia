@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;border-radius:8px;padding:12px;background:#f8fafc}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span><span>Chapter 6.6</span><span>›</span><span class="text-slate-700">Oplog window</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full"> 
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border"> 
+      <div class="text-lg font-bold text-slate-800">Example output</div>
+      <pre><code>rs.printReplicationInfo();
+// configured oplog size:   990MB
+// log length start to end: 1100secs (0.31hrs)
+// oplog first event time:  Mon Jan 1 2024 10:00:00 GMT+0000 (UTC)
+// oplog last event time:   Mon Jan 1 2024 10:18:20 GMT+0000 (UTC)</code></pre>
+      <div class="text-sm text-slate-600 mt-2">This output gives you a quick measurement of how far back the oplog goes. Use that against expected maintenance time.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col"> 
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Practical guidance</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600"> 
+        <li>If your application expects secondaries to be unavailable for 30 minutes, ensure the oplog window comfortably exceeds that time.</li>
+        <li>A shrinking oplog window during peaks usually signals high write volume; consider increasing oplog size.</li>
+        <li>Remember that oplog size is a capped collection behavior — older entries are evicted as new writes arrive.</li>
+      </ul>
+
+      <div class="mt-4 bg-amber-50 p-3 rounded-lg border-l-4 border-l-amber-500"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-sm text-slate-800">Measure the oplog window before planned maintenance and after peak traffic to set realistic oplog sizing and maintenance windows.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

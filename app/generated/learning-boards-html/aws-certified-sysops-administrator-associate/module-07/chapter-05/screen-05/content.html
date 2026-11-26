@@ -1,0 +1,64 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Definition</div>
+      <h3 class='text-2xl font-extrabold text-slate-900'>How Route 53 Health Checks Work</h3>
+      <p class='mt-3 text-sm text-slate-700'>Health checks periodically probe endpoints. Their pass/fail state is used by routing policies to include or exclude endpoints from DNS answers.</p>
+      <div class='mt-4 grid gap-3'>
+        <div class='p-3 rounded-lg bg-white card-border shadow-sm'>
+          <div class='text-sm font-semibold text-slate-800'>Probe types</div>
+          <div class='text-sm text-slate-600 mt-1'>HTTP, HTTPS, TCP. Prefer an application-specific path that confirms functional behavior.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 border'>
+          <div class='text-sm font-semibold text-slate-800'>Intervals & thresholds</div>
+          <div class='text-sm text-slate-600 mt-1'>Fast intervals detect outages faster but increase checks. Use realistic failure counts that reflect your RTO.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-rose-50 border'>
+          <div class='text-sm font-semibold text-rose-700'>Pitfall</div>
+          <div class='text-sm text-slate-700 mt-1'>Checking only TCP or the server port can falsely indicate healthy when the app is degraded.</div>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col'>
+      <div class='rounded-xl bg-white card-border shadow-sm p-4 flex-1'>
+        <div class='text-sm font-bold text-slate-800'>Process flow</div>
+        <div class='mt-3 grid grid-rows-4 gap-3 h-full'>
+          <div class='flex items-start gap-3 p-3 rounded-lg bg-slate-50 border'>
+            <div class='text-blue-700 font-bold text-sm'>1</div>
+            <div>
+              <div class='text-sm font-semibold'>Probe endpoint</div>
+              <div class='text-sm text-slate-600'>Route 53 sends HTTP/HTTPS/TCP checks at the chosen interval.</div>
+            </div>
+          </div>
+          <div class='flex items-start gap-3 p-3 rounded-lg bg-white border'>
+            <div class='text-blue-700 font-bold text-sm'>2</div>
+            <div>
+              <div class='text-sm font-semibold'>Evaluate responses</div>
+              <div class='text-sm text-slate-600'>Count consecutive failures or successes to change health state.</div>
+            </div>
+          </div>
+          <div class='flex items-start gap-3 p-3 rounded-lg bg-white border'>
+            <div class='text-blue-700 font-bold text-sm'>3</div>
+            <div>
+              <div class='text-sm font-semibold'>Update routing state</div>
+              <div class='text-sm text-slate-600'>Route 53 marks endpoints healthy/unhealthy and affects which records are returned.</div>
+            </div>
+          </div>
+          <div class='flex items-start gap-3 p-3 rounded-lg bg-white border'>
+            <div class='text-blue-700 font-bold text-sm'>4</div>
+            <div>
+              <div class='text-sm font-semibold'>Clients continue per TTL</div>
+              <div class='text-sm text-slate-600'>Clients will only see the new answer once their cached TTL expires or they requery.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Design health checks to validate real application behavior; health status drives DNS answers, but TTL controls client visibility.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

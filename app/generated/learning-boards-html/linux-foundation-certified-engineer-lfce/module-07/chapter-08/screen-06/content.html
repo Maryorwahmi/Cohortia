@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; background:#0f172a10;padding:12px;border-radius:8px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition & Example</div>
+      <div class="text-xl font-bold text-slate-900 mb-2">Rule file content</div>
+      <div class="text-sm text-slate-700 mb-3">Save this into /etc/audit/rules.d/auth_critical.rules and then load with auditctl.</div>
+      <pre class="code"># Monitor changes to critical authentication files
+-w /etc/passwd -p wa -k auth_config_changes
+-w /etc/shadow -p wa -k auth_config_changes
+-w /etc/group -p wa -k auth_config_changes
+-w /etc/gshadow -p wa -k auth_config_changes
+-w /etc/sudoers -p wa -k auth_config_changes
+-w /etc/pam.d/ -p wa -k pam_config_changes</pre>
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Tag file watches with descriptive keys to make later searching with ausearch easy and reliable.</p>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">What each part means</div>
+      <ul class="list-disc ml-5 text-sm text-slate-700 space-y-2">
+        <li><strong>-w path:</strong> watch the given file or directory</li>
+        <li><strong>-p wa:</strong> watch for writes and attribute changes</li>
+        <li><strong>-k key:</strong> a searchable tag applied to generated events</li>
+      </ul>
+      <div class="mt-4 text-sm text-slate-700">Testing tip: modify a watched file without saving and then run an ausearch by the key to see the attempt. Interpreting the event will show the process and whether the operation succeeded or failed.</div>
+      <div class="mt-auto text-xs text-rose-600">Misconception: File watches alone always detect misuse. They show an attempt but should be combined with exec or syscall monitoring for full context.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

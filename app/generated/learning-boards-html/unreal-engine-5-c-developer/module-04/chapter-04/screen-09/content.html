@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card-border p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Handler Example</div>
+      <div class="text-sm text-slate-600 mt-2">Minimal safe implementations to print debug messages and perform simple actions.</div>
+
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+void AMyProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && (OtherActor != this) && OtherComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapped with: %s"), *OtherActor->GetName());
+        // Example: Destroy();
+    }
+}
+
+void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    if (OtherActor && (OtherActor != this) && OtherComp)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Projectile Hit: %s at %s"), *OtherActor->GetName(), *Hit.Location.ToString());
+        // Example: Apply damage, spawn explosion, Destroy();
+    }
+}
+      </pre>
+
+      <div class="mt-3">
+        <div class="text-sm font-bold text-slate-800">Pro Tip</div>
+        <div class="text-sm text-slate-600 mt-1">Use log messages during development to confirm which event fired and what OtherActor actually is before adding game effects.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border p-4">
+      <div class="text-sm font-bold text-slate-800">Concrete Example</div>
+      <div class="text-sm text-slate-600 mt-2">Spawn the projectile in the editor, let it pass through a trigger volume and then hit a wall. Observe distinct log entries for overlap and hit to validate your configuration.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Handlers should validate inputs, log for debugging, and perform narrowly scoped actions or forward work to safe systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

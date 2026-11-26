@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .cohortia-code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Inefficient Word Counter</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-900">Starter code pattern</div>
+    <div class="text-sm text-slate-600 mt-2">Accumulating all words then counting and sorting.</div>
+
+    <pre class="cohortia-code rounded-md bg-slate-50 p-3 mt-3 card border text-sm">def count_words_inefficient(filepath):
+    all_words = []
+    with open(filepath, 'r') as f:
+        for line in f:
+            words_in_line = re.findall(r'\b\w+\b', line.lower())
+            all_words.extend(words_in_line)
+
+    word_counts = {}
+    for word in all_words:
+        word_counts[word] = word_counts.get(word, 0) + 1
+
+    sorted_counts = sorted(word_counts.items(), key=lambda item: item[1], reverse=True)
+    return sorted_counts[:10]
+</pre>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg bg-rose-50 p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Problem</div>
+        <div class="text-xs text-slate-700 mt-1">Creates large intermediate list and manually counts then sorts everything.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Impact</div>
+        <div class="text-xs text-slate-700 mt-1">High memory usage and unnecessary work for huge files.</div>
+      </div>
+
+      <div class="rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">What to do</div>
+        <div class="text-xs text-slate-700 mt-1">Stream words and use collections.Counter.most_common to avoid full sorts and reduce memory.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

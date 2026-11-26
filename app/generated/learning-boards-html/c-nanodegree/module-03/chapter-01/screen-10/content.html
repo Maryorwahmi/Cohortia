@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory Leak — How & Why</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-sm font-bold text-slate-900">Example from the chapter</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;"><code>void processData() {
+    int* data = new int[100];
+    // ... use data ...
+    // Missing delete[] data;
+}
+
+int main() {
+    for (int i = 0; i < 1000; ++i) {
+        processData();
+    }
+}
+</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Here, each call allocates but never deallocates; after many iterations the program will leak a significant amount of memory.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Mitigations</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Always pair new with delete and new[] with delete[].</li>
+        <li>Prefer containers like vectors that manage heap memory automatically.</li>
+        <li>Use tools and tests that detect leaks during development.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common misconception</div>
+        <p class="text-xs font-medium text-slate-800">Assuming the OS will prevent leaks during long runs is risky; persistent services must manage memory carefully.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

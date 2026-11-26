@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.95)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Synchronous</div>
+      <div class="text-sm text-slate-600 mb-3">Writes wait for confirmation from both primary and secondary.</div>
+      <ul class="list-disc pl-4 text-sm text-slate-600 mb-3">
+        <li>RPO: 0 (no data loss)</li>
+        <li>Write latency: higher, increases with distance</li>
+        <li>Use case: tight consistency within close proximity</li>
+      </ul>
+      <div class="rounded-lg bg-rose-50 p-3">
+        <div class="text-sm font-semibold text-rose-700">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Blocking writes if the secondary is unreachable—plan availability strategies.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Asynchronous</div>
+      <div class="text-sm text-slate-600 mb-3">Primary acknowledges write immediately; replication happens later.</div>
+      <ul class="list-disc pl-4 text-sm text-slate-600 mb-3">
+        <li>RPO: greater than zero, depends on replication lag</li>
+        <li>Write latency: low on primary, suitable for cross-region</li>
+        <li>Use case: global content, backups, and large distance DR</li>
+      </ul>
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-amber-700">Monitoring</div>
+        <div class="text-sm text-slate-700 mt-1">Track ReplicaLag metrics and set alarms to understand your effective RPO.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl p-3 bg-white card-border shadow-sm">
+    <div class="text-sm font-semibold text-slate-800">Concrete Scenario</div>
+    <div class="text-sm text-slate-600 mt-2">If you operate a global social feed, asynchronous replication keeps writes fast for users worldwide. Expect short windows of divergence and design operations and UX to tolerate that. If instead you operate a settlement system, synchronous replication within a single region or AZ may be required.</div>
+  </div>
+</div>

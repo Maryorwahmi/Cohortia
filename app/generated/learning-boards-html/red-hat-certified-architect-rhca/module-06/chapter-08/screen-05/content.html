@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">CRUSH Map Manipulation</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-xl font-bold text-slate-900">CRUSH: control data placement</div>
+      <div class="text-sm text-slate-600 mt-1">Decompile, edit, recompile, and set the CRUSH map with careful verification.</div>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-bold text-slate-900">Safe process</div>
+          <ol class="mt-2 list-decimal list-inside text-sm text-slate-700">
+            <li>Export the current CRUSH map and back it up.</li>
+            <li>Decompile to text, make minimal edits to buckets or rules.</li>
+            <li>Recompile, validate, and apply during maintenance window.</li>
+          </ol>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Why it matters</div>
+          <div class="text-sm text-slate-700 mt-2">CRUSH changes determine where data lives. Well-designed failure domains reduce correlated risk and speed recovery.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900">Command sequence (example)</div>
+        <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Get the CRUSH map
+sudo cephadm shell -- ceph osd getcrushmap -o /tmp/crushmap.bin
+
+# Decompile it to text
+sudo crushtool -d /tmp/crushmap.bin -o /tmp/crushmap.txt
+
+# (Edit /tmp/crushmap.txt to add new buckets or rules)
+
+# Compile and set the new CRUSH map
+sudo crushtool -c /tmp/crushmap.txt -o /tmp/crushmap.new.bin
+sudo cephadm shell -- ceph osd setcrushmap -i /tmp/crushmap.new.bin
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">After applying the map, watch ceph -s and ceph osd tree to confirm objects are moving as intended and that no unexpected OSDs are targeted by the new rules.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

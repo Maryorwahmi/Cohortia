@@ -1,0 +1,41 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">lsof</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Using lsof to find open files and sockets</h3>
+    <p class="text-sm text-slate-600 mt-2">lsof reveals which processes hold files or network ports so you can resolve conflicts or leaks.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common lsof commands</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># show processes using port 80
+sudo lsof -i :80
+
+# list files held by a PID
+sudo lsof -p 12345
+
+# find deleted files still held open
+sudo lsof | grep deleted</code></pre>
+      <div class="mt-2 text-sm text-slate-600">Use lsof to detect leftovers like deleted files still consuming disk because a process holds the descriptor open, or to detect binding conflicts before changing service ports.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example output</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>COMMAND   PID   USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+nginx    2345  www-data  6u  IPv4  12345      0t0  TCP *:http (LISTEN)
+python   3456  www-data  3u  REG   8,1  12345   567 /opt/my_app/log.txt</code></pre>
+      <div class="mt-2 text-sm text-slate-600">This shows nginx listening on port 80 and a Python process holding a log file. Use the PID to correlate with systemctl or ps to decide how to proceed.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-xs text-slate-700 mt-1">Combine lsof with grep and ps to script checks that detect port conflicts during deployments.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

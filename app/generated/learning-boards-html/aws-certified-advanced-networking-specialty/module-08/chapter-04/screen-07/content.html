@@ -1,0 +1,95 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudFront Static Content</span>
+  </div>
+
+  <div class="flex flex-grow">
+    <div class="w-1/2 pr-8 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">Content Delivery Network</div>
+      <h2 class="text-3xl font-bold text-slate-900 mb-2">CloudFront for Static Content</h2>
+      <p class="text-lg text-slate-700 mb-6">Caching at the Edge for low-latency delivery</p>
+
+      <div class="space-y-4 mb-6">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <h3 class="text-base font-semibold text-slate-900 mb-1">What is Static Content?</h3>
+          <p class="text-sm text-slate-700">Files that do not change frequently, such as images, videos, CSS, and JavaScript files. These are ideal for caching.</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <h3 class="text-base font-semibold text-slate-900 mb-1">How Edge Caching Works</h3>
+          <p class="text-sm text-slate-700">CloudFront stores copies of static content at its global Edge Locations. When a user requests content, it's served from the nearest cache.</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <h3 class="text-base font-semibold text-slate-900 mb-1">Benefits</h3>
+          <p class="text-sm text-slate-700">Drastically reduced latency, faster load times for end-users, improved user experience, and reduced load on your origin servers.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">CloudFront's strength in static content delivery comes from its global network of Edge Locations, ensuring content is always close to your users.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex items-center justify-center bg-slate-50 rounded-xl p-6 shadow-inner border border-slate-200">
+      <div class="relative w-full h-full flex items-center justify-center">
+        <svg class="w-full h-full" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- User 1 -->
+          <circle cx="100" cy="100" r="20" fill="#2563eb"/>
+          <text x="100" y="140" font-family="Inter" font-size="14" fill="#2563eb" text-anchor="middle">User A</text>
+
+          <!-- User 2 -->
+          <circle cx="500" cy="100" r="20" fill="#2563eb"/>
+          <text x="500" y="140" font-family="Inter" font-size="14" fill="#2563eb" text-anchor="middle">User B</text>
+
+          <!-- Edge Location 1 -->
+          <rect x="180" y="180" width="80" height="60" rx="8" fill="#7b42e8"/>
+          <text x="220" y="215" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Edge 1</text>
+          <text x="220" y="245" font-family="Inter" font-size="12" fill="#7b42e8" text-anchor="middle">Cache</text>
+
+          <!-- Edge Location 2 -->
+          <rect x="340" y="180" width="80" height="60" rx="8" fill="#7b42e8"/>
+          <text x="380" y="215" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Edge 2</text>
+          <text x="380" y="245" font-family="Inter" font-size="12" fill="#7b42e8" text-anchor="middle">Cache</text>
+
+          <!-- Origin Server (S3) -->
+          <rect x="260" y="300" width="80" height="60" rx="8" fill="#f5a623"/>
+          <text x="300" y="335" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Origin</text>
+          <text x="300" y="365" font-family="Inter" font-size="12" fill="#f5a623" text-anchor="middle">(S3 Bucket)</text>
+
+          <!-- Arrows: User A to Edge 1 -->
+          <path d="M100 120 L200 180" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowheadBlue)"/>
+          <text x="150" y="160" font-family="Inter" font-size="10" fill="#2563eb" text-anchor="middle">Request</text>
+          <path d="M200 240 L100 120" stroke="#10b981" stroke-width="2" marker-end="url(#arrowheadEmerald)"/>
+          <text x="150" y="200" font-family="Inter" font-size="10" fill="#10b981" text-anchor="middle">Cached Response</text>
+
+          <!-- Arrows: User B to Edge 2 -->
+          <path d="M500 120 L400 180" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowheadBlue)"/>
+          <text x="450" y="160" font-family="Inter" font-size="10" fill="#2563eb" text-anchor="middle">Request</text>
+          <path d="M400 240 L500 120" stroke="#10b981" stroke-width="2" marker-end="url(#arrowheadEmerald)"/>
+          <text x="450" y="200" font-family="Inter" font-size="10" fill="#10b981" text-anchor="middle">Cached Response</text>
+
+          <!-- Arrows: Edge 1 to Origin (Cache Miss) -->
+          <path d="M220 240 L300 300" stroke="#f5a623" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrowheadAmber)"/>
+          <text x="260" y="270" font-family="Inter" font-size="10" fill="#f5a623" text-anchor="middle">Origin Fetch (Miss)</text>
+          <path d="M300 300 L220 240" stroke="#f5a623" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrowheadAmber)"/>
+
+          <defs>
+            <marker id="arrowheadBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb" />
+            </marker>
+            <marker id="arrowheadEmerald" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+            </marker>
+            <marker id="arrowheadAmber" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#f5a623" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulating Upsert in SQLite</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Loop-based upsert (demo)</div>
+    <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"><code>with engine.connect() as connection:
+  for index, row in df_new_batch.iterrows():
+    check_sql = text(f"SELECT COUNT(*) FROM dim_products WHERE product_key = '{row['product_key']}'")
+    exists = connection.execute(check_sql).scalar() > 0
+
+    if exists:
+      update_sql = text(f"UPDATE dim_products SET product_name = '{row['product_name']}', category = '{row['category']}', price = {row['price']} WHERE product_key = '{row['product_key']}'")
+      connection.execute(update_sql)
+    else:
+      insert_sql = text(f"INSERT INTO dim_products (product_key, product_name, category, price) VALUES ('{row['product_key']}', '{row['product_name']}', '{row['category']}', {row['price']})")
+      connection.execute(insert_sql)
+  connection.commit()</code></pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-md p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use parameter binding instead of f-strings for production to avoid injection and quoting issues.</div>
+      </div>
+      <div class="rounded-md p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Not using a transaction can leave partial updates on failure—batch commits are safer.</div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl p-3 border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Practice</div>
+        <p class="text-sm text-slate-800">Run the provided loop on the example df_new_batch and inspect dim_products for the updated and inserted rows, then experiment with a transaction wrapper.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

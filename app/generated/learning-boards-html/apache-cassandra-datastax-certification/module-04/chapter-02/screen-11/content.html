@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-xl p-4 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Social feed: user_posts</div>
+      <div class="text-sm text-slate-600 mt-2">Create the keyspace, table, insert sample rows, and query by user to confirm order.</div>
+
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+-- 1. Create keyspace
+CREATE KEYSPACE IF NOT EXISTS social_app
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+USE social_app;
+
+-- 2. Create table
+CREATE TABLE IF NOT EXISTS user_posts (
+  user_id uuid,
+  post_id timeuuid,
+  post_content text,
+  created_at timestamp,
+  PRIMARY KEY ((user_id), post_id)
+) WITH CLUSTERING ORDER BY (post_id DESC);
+
+-- 3. Insert and query
+INSERT INTO user_posts (user_id, post_id, post_content, created_at)
+VALUES (a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11, now(), 'Learning Cassandra is fun!', '2023-10-26 10:30:00+0000');
+
+SELECT post_id, post_content, created_at
+FROM user_posts
+WHERE user_id = a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+LIMIT 10;
+      </pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold">Validation</div>
+          <div class="text-sm text-slate-700 mt-1">Query by user_id and limit to confirm newest-first ordering and expected performance.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Don't rely on ALLOW FILTERING for production queries; it signals a bad key design for the access pattern.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-xl p-4 card-border">
+      <div class="text-sm font-bold">Analogy</div>
+      <div class="text-sm text-slate-600 mt-2">Think of user_id as the shelf and post_id as the book's timestamped position. If you want newest-first, order by the time field descending.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Practically test your table by inserting representative data and running the queries you care about to confirm performance and ordering.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

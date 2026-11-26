@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <div class="text-xl font-bold text-slate-900 mt-1">Encrypt S3 with KMS — Lab checklist</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Steps</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal ml-5 space-y-2">
+        <li>Create a customer-managed KMS key and copy its ARN.</li>
+        <li>Create an S3 bucket and set default encryption to the KMS key.</li>
+        <li>Attach a bucket policy that denies uploads missing the KMS encryption header or wrong key ID.</li>
+        <li>Test uploads using the AWS CLI and inspect CloudTrail for denied calls and KMS usage.</li>
+      </ol>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Policy template</div>
+        <pre class="mt-2 text-xs bg-white p-2 rounded text-slate-800" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">{
+    "Version": "2012-10-17",
+    "Id": "DenyUnEncryptedUploads",
+    "Statement": [
+        {
+            "Sid": "DenyUnEncryptedPutObject",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::my-secure-data-bucket-xyz/*",
+            "Condition": { "Null": { "s3:x-amz-server-side-encryption": "true" } }
+        },
+        {
+            "Sid": "DenyIncorrectEncryptionHeader",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::my-secure-data-bucket-xyz/*",
+            "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+        },
+        {
+            "Sid": "DenyIncorrectKMSKey",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::my-secure-data-bucket-xyz/*",
+            "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption-aws-kms-key-id": "YOUR_KMS_KEY_ARN" } }
+        }
+    ]
+}</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Testing</div>
+      <div class="text-xs text-slate-600 mt-2">Use three uploads to verify behavior. Confirm CloudTrail shows denied PutObject calls and KMS decrypt/Encrypt calls for successful uploads.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A deny policy plus default encryption provides strong prevention; confirm results with CloudTrail and S3 logs.</p>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-500">Tip: replace placeholders for your bucket and KMS ARN. After testing, reflect on team-level key ownership and whether shared keys or per-team keys are the right approach.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

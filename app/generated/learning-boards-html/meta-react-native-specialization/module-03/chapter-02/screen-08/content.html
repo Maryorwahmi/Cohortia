@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Provider in App</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Wrap the app with ThemeContext.Provider</h3>
+    <p class="text-sm text-slate-600 mt-2">Manage state at the Provider owner and pass a value object to descendants.</p>
+    <div class="mt-4 grid grid-cols-2 gap-4 h-[68%]">
+      <div class="bg-white card-border rounded-xl p-4 shadow-sm overflow-auto">
+        <div class="text-sm font-bold text-slate-800">App.js (example)</div>
+        <pre class="mt-3 p-3 rounded bg-slate-50 text-sm" style="white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+import React, { useState, useMemo } from 'react';
+import ThemeContext from './ThemeContext';
+
+const App = () =&gt; {
+  const [theme, setTheme] = useState('light');
+  const toggleTheme = () =&gt; setTheme(prev =&gt; (prev === 'light' ? 'dark' : 'light'));
+
+  const value = useMemo(() =&gt; ({ theme, toggleTheme }), [theme]);
+
+  return (
+    &lt;ThemeContext.Provider value={value}&gt;
+      &lt;MainNavigation /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+};
+        </pre>
+      </div>
+      <div class="bg-white card-border rounded-xl p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Provider placement & performance</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Place Provider where the shared scope should begin: too low and some components miss it.</li>
+          <li>Memoize the value object to avoid passing a new reference on every render.</li>
+          <li>Only include what consumers need: avoid passing large data structures unnecessarily.</li>
+        </ul>
+        <div class="mt-4 rounded-xl p-3 border-l-4 border-l-amber-500 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <div class="text-sm text-slate-700">If only a small part of your app needs frequent updates, consider scoping a separate Provider for that subtree to limit re-renders.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

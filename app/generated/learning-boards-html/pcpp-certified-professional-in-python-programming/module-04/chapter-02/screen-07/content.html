@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Race condition & fix</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Unsafe version (excerpt)</div>
+      <pre class="bg-slate-900 p-3 rounded text-sm text-slate-100" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+shared_counter = 0
+
+def increment_counter():
+    global shared_counter
+    for _ in range(100_000):
+        # Without lock, this is a race condition
+        shared_counter += 1
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">Run this with multiple threads and the final value will often be less than the expected total.</div>
+    </div>
+
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Fixed with Lock</div>
+      <pre class="bg-slate-900 p-3 rounded text-sm text-slate-100" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+shared_counter = 0
+lock = threading.Lock()
+
+def increment_counter():
+    global shared_counter
+    for _ in range(100_000):
+        with lock:
+            shared_counter += 1
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">The with lock ensures each increment completes before another thread can enter the same critical section.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-xl border p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Check your understanding</div>
+      <div class="text-sm text-slate-800 mt-2">Run both versions multiple times. Does the unsafe version ever match the expected total? Why or why not?</div>
+    </div>
+    <div class="rounded-xl border p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Analogy</div>
+      <div class="text-sm text-slate-800 mt-2">Think of a ticket counter where two clerks can both read and update the same remaining-tickets number without coordination: mistakes happen.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

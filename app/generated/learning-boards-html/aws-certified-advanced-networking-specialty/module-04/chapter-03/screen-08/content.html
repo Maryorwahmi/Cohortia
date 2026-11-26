@@ -1,0 +1,58 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white text-slate-800">  
+  <style>    
+    .panel { border-radius:14px; border:1px solid rgba(226,232,240,0.9); padding:14px; background:#fff; }  
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>    
+    <span>›</span>    
+    <span>Chapter 4.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">BGP & TGW</span>  
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">    
+    <div class="panel">      
+      <div class="text-xl font-bold mb-2">BGP role in TGW</div>
+      <div class="text-sm text-slate-600 mb-4">BGP exchanges dynamic routes between TGW and on-premises via VPN or Direct Connect attachments.</div>
+
+      <div class="grid gap-3">        
+          <div class="p-3 rounded-lg border border-slate-100 bg-slate-50">            
+              <div class="text-sm font-semibold">Concrete example</div>            
+              <div class="text-xs text-slate-700 mt-1">Your on-prem router advertises 192.168.200.0/24 to the TGW over BGP. If propagation is enabled into TGW-RT-Hybrid, that prefix will appear pointing at the VPN attachment.</div>          
+          </div>
+
+          <div class="p-3 rounded-lg border border-slate-100 bg-violet-50">            
+              <div class="text-sm font-semibold">Misconception</div>            
+              <div class="text-xs text-slate-700 mt-1">BGP learned routes are not global across all TGW route tables unless propagated into them; propagation targets control visibility.</div>          
+          </div>
+
+          <div class="p-3 rounded-lg border border-slate-100 bg-amber-50">            
+              <div class="text-sm font-semibold">Operational check</div>            
+              <div class="text-xs text-slate-700 mt-1">Verify BGP adjacency state and that the Amazon Side ASN does not conflict with your on-prem ASN to prevent session failures.</div>          
+          </div>
+      </div>
+
+      <div class="mt-4">        
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          
+          <p class="text-xs font-medium text-slate-800">Use BGP for dynamic hybrid routing, but control propagation and check ASN settings to keep route visibility intentional and safe.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">      
+      <div class="text-sm font-semibold mb-2">Quick troubleshooting steps</div>
+      <ol class="text-sm text-slate-700 list-decimal pl-5 space-y-2">        
+        <li>Confirm BGP session state is established on both sides.</li>        
+        <li>Inspect advertised prefixes from on-prem to ensure expected subnets are present.</li>        
+        <li>Check TGW Propagations to see where those prefixes were placed.</li>      
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg border border-slate-100 bg-slate-50">        
+        <div class="text-sm font-semibold">Scenario</div>        
+        <div class="text-xs text-slate-700 mt-1">If on-premises reports it cannot reach a VPC subnet, verify TGW advertised that VPC CIDR to the on-prem router and that the on-prem router accepted the prefix in its BGP table.</div>
+      </div>
+    </div>
+  </div>
+</div>

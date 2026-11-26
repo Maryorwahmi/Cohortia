@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Pipeline</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-900">Hands-on pipeline YAML walkthrough</div>
+    <div class="text-sm text-slate-600 mt-1">Follow these YAML steps in order and validate each Task with a TaskRun when possible.</div>
+
+    <div class="mt-4 split flex-grow">
+      <div class="rounded-lg p-3 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800">s2i-app-build Task (excerpt)</div>
+        <pre><code>apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: s2i-app-build
+spec:
+  params:
+    - name: SOURCE_PATH
+    - name: APP_NAME
+    - name: BUILDER_IMAGE
+  workspaces:
+    - name: source
+  steps:
+    - name: create-buildconfig
+      image: registry.redhat.io/openshift4/ose-cli:latest
+      script: |
+        #!/usr/bin/env bash
+        set -eu
+        if ! oc get buildconfig $(params.APP_NAME) &amp;> /dev/null; then
+          oc new-build --strategy=source --binary=true --name=$(params.APP_NAME) --image-stream=$(params.BUILDER_IMAGE)
+        fi</code></pre>
+      </div>
+
+      <div class="rounded-lg p-3 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800">deploy-app Task (excerpt)</div>
+        <pre><code>apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-app
+spec:
+  params:
+    - name: APP_NAME
+    - name: IMAGE_STREAM_TAG
+    - name: PORT
+  steps:
+    - name: deploy
+      image: registry.redhat.io/openshift4/ose-cli:latest
+      script: |
+        #!/usr/bin/env bash
+        set -eu
+        if ! oc get deployment $(params.APP_NAME) &amp;> /dev/null; then
+          oc new-app $(params.IMAGE_STREAM_TAG) --name=$(params.APP_NAME) --port=$(params.PORT)
+          oc expose service $(params.APP_NAME)
+        else
+          oc set image deployment/$(params.APP_NAME) $(params.APP_NAME)=$(params.IMAGE_STREAM_TAG) --dry-run=client -o yaml | oc apply -f -
+        fi</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Execution checklist</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Ensure openshift-pipelines operator is installed and necessary Tasks are available.</li>
+        <li>Create project, bind ServiceAccount roles, apply Tasks and Pipeline YAML.</li>
+        <li>Create PipelineRun and monitor with tkn or oc. Verify ImageStream and route after completion.</li>
+      </ul>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-slate-800">Pro tip: validate each Task via a TaskRun before composing the full Pipeline so you localize issues quickly.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

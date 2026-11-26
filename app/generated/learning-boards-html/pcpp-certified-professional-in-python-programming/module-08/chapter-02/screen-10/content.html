@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Selectors Server Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Selectors example</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+import selectors
+import socket
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+sel = selectors.DefaultSelector()
+
+# Prepare listening socket
+lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+lsock.bind((HOST, PORT))
+lsock.listen()
+lsock.setblocking(False)
+sel.register(lsock, selectors.EVENT_READ, data=None)
+
+# Event loop
+while True:
+    events = sel.select(timeout=None)
+    for key, mask in events:
+        if key.data is None:
+            # Accept new connection
+            conn, addr = key.fileobj.accept()
+            conn.setblocking(False)
+            data = {'addr': addr, 'inb': b'', 'outb': b''}
+            sel.register(conn, selectors.EVENT_READ | selectors.EVENT_WRITE, data=data)
+        else:
+            # Service existing connection
+            service_connection(key, mask)
+      </pre>
+    </div>
+
+    <div class="flex-1 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-semibold text-slate-700">Important details</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Register client sockets with a data structure holding buffers and address.</li>
+          <li>Use selectors.EVENT_READ | selectors.EVENT_WRITE to know both readiness types.</li>
+          <li>On recv returning empty bytes, unregister and close the socket to free resources.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Selectors centralize readiness checks; combine them with non-blocking sockets and per-connection buffers for scalable servers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

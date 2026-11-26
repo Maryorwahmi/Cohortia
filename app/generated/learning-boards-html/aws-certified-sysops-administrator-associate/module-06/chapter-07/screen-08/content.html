@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <style>.code{background:#0f1724;color:#d1fae5;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;border:1px solid rgba(226,232,240,0.08)}</style>  <div>    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>      <span>›</span>      <span>Chapter 6.7</span>      <span>›</span>      <span class="text-slate-700">S3 Remediation Lambda</span>    </div>    <h3 class="text-2xl font-bold text-slate-900 mt-4">Lambda Code Walkthrough</h3>    <p class="text-sm text-slate-600 mt-2">This function reads the Config invoking event, blocks public access, and logs outcomes. Keep the role permissions minimal.</p>    <div class="mt-4 panel p-4 bg-white rounded-xl border card-border">      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Function (Python)</div>      <pre class="code">import boto3
+import json
+
+s3 = boto3.client('s3')
+
+def lambda_handler(event, context):
+  print("Received event: " + json.dumps(event, indent=2))
+
+  # Extract bucket name from the Config event
+  invoking_event = json.loads(event['invokingEvent'])
+  configuration_item = invoking_event['configurationItem']
+  bucket_name = configuration_item['resourceName']
+
+  try:
+    # Block all public access for the bucket
+    s3.put_public_access_block(
+      Bucket=bucket_name,
+      PublicAccessBlockConfiguration={
+        'BlockPublicAcls': True,
+        'IgnorePublicAcls': True,
+        'BlockPublicPolicy': True,
+        'RestrictPublicBuckets': True
+      }
+    )
+    print(f"Successfully blocked public access for bucket: {bucket_name}")
+    return {
+      'statusCode': 200,
+      'body': json.dumps('Remediation successful!')
+    }
+  except Exception as e:
+    print(f"Error blocking public access for bucket {bucket_name}: {e}")
+    raise e</pre>    </div>    <div class="mt-4 grid grid-cols-3 gap-3">      <div class="rounded-xl p-3 bg-slate-50">Execution role: s3:PutPublicAccessBlock only</div>      <div class="rounded-xl p-3 bg-slate-50">Test in staging first and review CloudWatch logs</div>      <div class="rounded-xl p-3 bg-slate-50">Attach to Config rule via AWS-RunLambdaFunction</div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

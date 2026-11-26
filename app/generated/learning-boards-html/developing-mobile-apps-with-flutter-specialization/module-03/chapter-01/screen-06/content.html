@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Process Flow</span>
+      <span class="text-slate-700">LayoutBuilder</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 card p-4">
+      <div class="text-lg font-bold text-slate-800">How to decide inside LayoutBuilder</div>
+      <div class="mt-2 text-sm text-slate-600">Check constraints.maxWidth and choose structure: stack vertically on narrow widths, arrange horizontally on wider widths.</div>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded-md" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+LayoutBuilder(
+  builder: (context, constraints) {
+    if (constraints.maxWidth &lt; 600) {
+      return Column(children: [Image(), TextBlock()]);
+    } else {
+      return Row(children: [Image(), Expanded(child: TextBlock())]);
+    }
+  },
+)
+        </pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <ul class="space-y-2">
+          <li>Use LayoutBuilder for components that may be nested or resized by parents.</li>
+          <li>Extract non-adaptive children out of the builder to reduce rebuild cost.</li>
+          <li>Prefer constraints checks for layout-switching, not global width values inside nested widgets.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <div class="mt-2 text-sm text-slate-700">A ProductCard uses LayoutBuilder to choose Column when its parent cell is narrow, and Row with Expanded text when wide.</div>
+      </div>
+
+      <div class="card p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="mt-2 text-sm text-slate-700">Test by wrapping the component in different SizedBox widths to simulate parent constraint changes during development.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use LayoutBuilder to make components that responsibly adapt to the space they receive, keeping layout logic local.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

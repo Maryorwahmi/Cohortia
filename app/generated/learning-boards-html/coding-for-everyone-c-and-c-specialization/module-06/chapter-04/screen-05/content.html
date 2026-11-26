@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.4</span>
+      <span>›</span>
+      <span class="text-slate-700">RAII Explained</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card shadow-sm flex gap-6 h-[68vh]">
+      <div class="w-1/2 min-h-0 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-800 mt-2">Resource Acquisition Is Initialization</h3>
+        <p class="text-sm text-slate-600 mt-3">RAII binds resource lifetime to object lifetime so objects clean up in their destructors automatically.</p>
+
+        <ul class="mt-4 list-disc ml-5 text-sm text-slate-600">
+          <li>Constructor acquires the resource.</li>
+          <li>Destructor releases it no matter how scope ends.</li>
+          <li>Works for memory, files, locks, and other handles.</li>
+        </ul>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Prefer RAII wrappers for resources so cleanup does not depend on manual calls spread across code paths.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 min-h-0 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Practical example</div>
+        <div class="mt-2 rounded-lg bg-slate-50 border border-slate-100 p-3 flex-1 overflow-auto">
+          <pre><code>#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;stdexcept&gt;
+
+void createAndProcessFile(const std::string& filename) {
+  std::ofstream outFile(filename); // File opened in constructor (resource acquired)
+  if (!outFile.is_open()) {
+    throw std::runtime_error("Failed to open file");
+  }
+  outFile &lt;&lt; "First line" &lt;&lt; std::endl;
+  // If an exception is thrown here, outFile's destructor still runs and closes the file.
+}
+</code></pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-white border border-slate-100">
+            <div class="font-semibold text-slate-800">Concrete scenario</div>
+            <div class="text-sm text-slate-600 mt-1">A file write fails after allocation. RAII ensures the file handle is closed even when the write throws.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border border-slate-100">
+            <div class="font-semibold text-slate-800">Misconception</div>
+            <div class="text-sm text-slate-600 mt-1">RAII does not prevent logic bugs; it guarantees deterministic cleanup for resources it manages.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

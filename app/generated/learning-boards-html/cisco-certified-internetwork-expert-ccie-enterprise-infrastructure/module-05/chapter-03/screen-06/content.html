@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="safe-area h-full flex flex-col">
+    <div class="mb-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800">Configuring Static NAT on a Cisco Router</h3>
+      <p class="text-sm text-slate-600 mt-1">Follow the sequence: interfaces → flags → static mapping → verify.</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-700 mb-2">Interface configuration</div>
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>R1(config)# interface GigabitEthernet0/0
+R1(config-if)# ip address 203.0.113.1 255.255.255.248
+R1(config-if)# ip nat outside
+R1(config-if)# no shutdown
+R1(config-if)# exit
+
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# ip nat inside
+R1(config-if)# no shutdown</code></pre>
+        <div class="mt-3 text-sm text-slate-600">Marking interfaces correctly ensures the router knows which side is private and which is public for translation decisions.</div>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm flex flex-col">
+        <div class="text-sm font-bold text-slate-700 mb-2">Static mapping</div>
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>R1(config)# ip nat inside source static 192.168.1.100 203.0.113.2</code></pre>
+        <div class="mt-3 text-sm text-slate-600">This command binds the internal server to the specified public IP. External clients use 203.0.113.2 to reach the internal server.</div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Static NAT provides predictable inbound reachability but consumes a public IP per service.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">Verification commands</div>
+      <div class="text-sm text-slate-600">Use show ip nat translations to see the static mapping and show ip nat statistics for counters. If access fails, confirm the server has the correct default gateway pointing at the NAT router and that ACLs or firewall rules aren’t blocking traffic.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

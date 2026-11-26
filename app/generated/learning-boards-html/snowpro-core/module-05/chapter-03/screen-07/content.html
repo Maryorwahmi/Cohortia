@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Failover Groups</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-40px)]">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Concept</div>
+      <div class="mt-3 text-sm text-slate-600">Failover groups let you group databases and shares so they can be failed over together, ensuring an application's components move in lockstep during a role change.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Creation example</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>-- In the primary account, as ACCOUNTADMIN
+CREATE FAILOVER GROUP my_failover_group
+  OBJECT_TYPES = DATABASES, SHARES
+  ALLOWED_DATABASES = my_app_db, my_config_db
+  ALLOWED_ACCOUNTS = &lt;target_account_name_1&gt;, &lt;target_account_name_2&gt;;</code></pre>
+
+      <div class="mt-3 text-xs text-slate-500">This declares the set of objects and which accounts may act as targets for failover.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Why group objects?</div>
+        <div class="text-sm text-slate-700">Applications often depend on multiple databases or shares. Failing over only one database could leave dependent services inconsistent. A failover group preserves integrity by switching all members simultaneously.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Misconception</div>
+        <div class="text-sm text-slate-700">Failover groups do not replicate data. Data copying remains the job of database replication; failover groups manage which copy is primary.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use failover groups to coordinate role switching for related objects so an application can move to a new account without partial failures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

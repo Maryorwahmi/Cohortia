@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .arrow{width:12px;height:12px}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Order placed → Queue → Consumers</h3>
+        <ol class="mt-3 space-y-2 text-sm text-slate-700">
+          <li><strong>1.</strong> Producer publishes OrderPlaced event into the queue.</li>
+          <li><strong>2.</strong> Message persists and waits in the queue until a consumer is available.</li>
+          <li><strong>3.</strong> Consumers (inventory, payment, shipping, notification) retrieve and process messages independently.</li>
+          <li><strong>4.</strong> Consumers acknowledge on success; failures may be retried or moved to a DLQ.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm mt-4">
+        <div class="font-semibold text-slate-800">Concrete scenario</div>
+        <div class="text-sm text-slate-600 mt-2">During a flash sale the payment service slows. Messages backlog in the queue instead of causing user-visible failures. You can add consumers to increase throughput until the backlog clears.</div>
+        <div class="mt-3 text-xs text-slate-500">Misconception: Queues remove the need to think about failures — false. You still must handle retries and poison messages.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use queues to isolate latency and failures, but combine with retries, backoff, and DLQs to maintain robustness.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Visual steps</div>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="rounded bg-blue-50 p-3 text-blue-700 font-bold">Producer</div>
+          <svg class="arrow text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M13 5l7 7-7 7"></path></svg>
+          <div class="rounded bg-white p-3 card-border flex-1 text-slate-700">Queue (persisted)</div>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 card-border">Inventory Consumer</div>
+          <div class="rounded-lg bg-white p-3 card-border">Billing Consumer</div>
+          <div class="rounded-lg bg-white p-3 card-border">Shipping Consumer</div>
+          <div class="rounded-lg bg-white p-3 card-border">Email Consumer</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Try this</div>
+        <div class="mt-2 text-sm text-slate-600">When asked in an interview, justify asynchronous choice by listing which steps need synchronous confirmation (for example, payment authorization) and which can be async (email notifications).</div>
+      </div>
+    </div>
+  </div>
+</div>

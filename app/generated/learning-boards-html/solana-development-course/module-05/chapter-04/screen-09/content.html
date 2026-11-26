@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Architecture</span>
+      <span class="text-slate-600">›</span>
+      <span class="text-slate-700">Vault Accounts</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-3">PDA-owned token vaults</div>
+    <div class="text-sm text-slate-600 mt-2">Securely hold tokens under program control using PDAs as authorities.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Vault design steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Derive a vault PDA using stable seeds, e.g., b"escrow", user_a, user_b.</li>
+        <li>Create an SPL Token account and make the PDA the authority for that token account.</li>
+        <li>Store the bump in escrow state for later invoke_signed calls.</li>
+        <li>Authorize transfers by calling the token program via invoke_signed with signer_seeds.</li>
+      </ol>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Pitfall</div>
+      <div class="mt-2 text-sm text-rose-700">Creating the token account with the wrong authority or owner prevents the program from controlling funds.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Escrow example seed shape</div>
+      <pre class="mt-3 p-3 bg-gray-50 rounded-lg text-xs card-border"><code>// escrow vault PDA
+let (vault_pda, bump) = Pubkey::find_program_address(&[b"escrow", user_a.key.as_ref(), user_b.key.as_ref()], program_id);
+// create token account with authority = vault_pda
+// later, transfer using invoke_signed with &[&[b"escrow", user_a.key.as_ref(), user_b.key.as_ref(), &[bump]]]
+</code></pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Make the vault authority the PDA and preserve bump seeds. Always assert authority and ownership before moving funds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

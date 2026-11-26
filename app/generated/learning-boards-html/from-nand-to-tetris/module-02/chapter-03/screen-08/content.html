@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>  
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>    
+    <span>›</span>    
+    <span>Chapter 2.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">Register</span>  
+  </div>  
+  <div class="flex gap-4 h-full">    
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">      
+      <div class="text-sm font-semibold text-slate-700 mb-2">Composition pattern</div>      
+      <p class="text-sm text-slate-600">Create N parallel Bit chips, wire each Bit's input to the corresponding bit of the N‑bit input vector, and share a single load signal so the whole word loads together on the clock edge.</p>      
+      <div class="mt-4 grid gap-3">        
+        <div class="rounded-xl bg-emerald-50 p-3">          
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete HDL sketch</div>          
+          <div class="text-sm text-slate-700 mt-1">Register uses 16 Bit parts: Bit(in=in[0], load=load, out=out[0]) ... Bit(in=in[15], load=load, out=out[15]).</div>        
+        </div>        
+        <div class="rounded-xl bg-rose-50 p-3">          
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>          
+          <div class="text-sm text-slate-700 mt-1">Do not assume asynchronous wiring will preserve atomic updates; if bits use the same clock they behave as a single word at the logical level.</div>        
+        </div>      
+      </div>    
+    </div>    
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">      
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example (structure)</div>      
+      <pre class="mono p-3 rounded bg-slate-50 text-sm card-border"><code>&lt;!-- Register HDL sketch --&gt;
+CHIP Register {
+    IN in[16], load;
+    OUT out[16];
+
+    PARTS:
+    Bit(in=in[0], load=load, out=out[0]);
+    Bit(in=in[1], load=load, out=out[1]);
+    ...
+    Bit(in=in[15], load=load, out=out[15]);
+}
+</code></pre>      
+      <div class="mt-3">        
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          
+          <p class="text-xs font-medium text-slate-800">Build wide registers by parallelizing Bit primitives and sharing control signals so word updates are consistent and atomic.</p>        
+        </div>      
+    </div>  
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

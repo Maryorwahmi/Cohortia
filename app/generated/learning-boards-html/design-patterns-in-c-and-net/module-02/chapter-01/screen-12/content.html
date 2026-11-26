@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Assessment Scenario</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2">Scenario</div>
+      <div class="text-sm text-slate-700">A cache service needs to be accessed by many parts of a web app. Multiple instances would waste memory and risk inconsistent reads. Ensuring a single instance centralizes data and simplifies invalidation logic.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2">Core snippet</div>
+        <pre class="text-sm whitespace-pre-wrap font-mono p-3 bg-slate-50 border rounded-lg" style="tab-size:2">public sealed class CacheService
+{
+  private static readonly Lazy&lt;CacheService&gt; _lazy = new Lazy&lt;CacheService&gt;(() =&gt; new CacheService());
+  private CacheService() { /* initialize cache */ }
+  public static CacheService Instance =&gt; _lazy.Value;
+}</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2">Evaluation checklist</div>
+      <ul class="text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Does uniqueness reduce inconsistency and memory use? If yes, Singleton is suitable.</li>
+        <li>Will you need to mock or replace the service in tests? Prefer DI-registration of a single instance.</li>
+        <li>Does the service require disposal? Plan lifecycle management if it holds unmanaged resources.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Singleton fits caching services when one shared instance simplifies consistency and reduces memory usage; combine with DI for better testability when possible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

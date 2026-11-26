@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Network Security</span>
+    <span>›</span>
+    <span>Chapter Network Troubleshooting</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Starter code (do not run blindly)</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <pre class="text-sm text-slate-700"># On Server A (web)
+echo "--- Troubleshooting Network Connectivity to Server B ---"
+ping -c 4 &lt;Server_B_IP&gt;
+mtr -c 10 &lt;Server_B_IP&gt;
+ss -tunlp
+sudo tcpdump -i eth0 host &lt;Server_B_IP&gt; and port 5432
+
+# On Server B (db)
+ss -tunlp | grep 5432
+sudo tcpdump -i eth0 port 5432</pre>
+        <div class="mt-4 rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Verification</div>
+          <div class="text-sm text-slate-600 mt-2">After firewall changes, run these commands to verify rules and direct entries: sudo firewall-cmd --list-all --zone=public and sudo firewall-cmd --direct --get-all-rules</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Work in parallel terminals, collect evidence at both ends, and present the aligned data set (mtr + tcpdump + ss + firewall-cmd) to support your diagnosis.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example lab checklist</div>
+      <div class="mt-3 flex-1">
+        <ul class="list-decimal pl-5 text-sm text-slate-600">
+          <li>Ping to check basic reachability.</li>
+          <li>mtr for hop-level loss or latency.</li>
+          <li>ss to confirm listening sockets.</li>
+          <li>tcpdump on both hosts to trace SYN/SYN-ACK/RESET patterns.</li>
+          <li>Inspect ip route and ip addr to ensure correct addressing and gateway.</li>
+          <li>Check firewalld zones, rich rules, and direct rules and verify persistence.</li>
+        </ul>
+
+        <div class="mt-4 rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Reflection</div>
+          <div class="text-sm text-slate-600 mt-2">When the evidence points to a firewall drop, demonstrate it with tcpdump showing packets arriving at the host and firewall-cmd output showing a rule that would drop or reject them.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

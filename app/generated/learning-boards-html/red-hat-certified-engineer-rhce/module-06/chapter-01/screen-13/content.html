@@ -1,0 +1,61 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: QA team</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-lg font-bold text-slate-800">Starter playbook</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 card-border">
+        <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">---
+- name: Manage QA team users and groups
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure 'qa_team' group exists
+      ansible.builtin.group:
+        name: qa_team
+        gid: 2005
+        state: present
+
+    - name: Create 'qa_lead' user and add to 'qa_team'
+      ansible.builtin.user:
+        name: qa_lead
+        uid: 1005
+        shell: /bin/bash
+        groups: qa_team
+        append: yes
+        state: present
+
+    - name: Create 'qa_engineer' user and add to 'qa_team'
+      ansible.builtin.user:
+        name: qa_engineer
+        uid: 1006
+        shell: /bin/bash
+        groups: qa_team
+        append: yes
+        state: present</pre>
+      </div>
+    </div>
+
+    <div>
+      <div class="text-lg font-bold text-slate-800">Verification steps</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 card-border">
+        <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">$ ansible-playbook -i inventory.ini manage_qa_users.yml
+$ id qa_lead
+$ id qa_engineer
+$ getent group qa_team</pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Remember</div>
+        <p class="text-xs font-medium text-slate-800">Run first in staging, review changed counts, then promote the playbook to production once verified.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

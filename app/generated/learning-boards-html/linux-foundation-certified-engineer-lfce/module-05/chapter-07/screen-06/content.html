@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Virtual Mailbox Domains</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex-1 flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Postfix architecture</div>
+      <h3 class="text-2xl font-bold mt-2 text-slate-900">Map virtual addresses to mailbox directories</h3>
+      <p class="mt-3 text-sm text-slate-700">Define virtual mail domains and map each email to a mailbox path under virtual_mailbox_base.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">main.cf snippet</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2">virtual_mailbox_domains = your_virtual_domain.com another_virtual_domain.org
+virtual_mailbox_base = /var/vmail
+virtual_mailbox_maps = hash:/etc/postfix/vmailboxes
+virtual_minimum_uid = 5000
+virtual_transport = lmtp:unix:private/dovecot-lmpa</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Example vmailboxes</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/postfix/vmailboxes
+user1@your_virtual_domain.com your_virtual_domain.com/user1/
+user2@your_virtual_domain.com your_virtual_domain.com/user2/</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common pitfall</div>
+          <p class="mt-2 text-sm text-slate-700">If mailbox paths in vmailboxes do not match the on-disk layout under virtual_mailbox_base, delivery fails silently or messages bounce.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep mailbox mappings consistent and use a dedicated vmail user with matching UID/GID for secure delivery.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-80 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">LMTP transport</div>
+        <p class="mt-2 text-sm text-slate-700">LMTP via a Dovecot socket delivers mail efficiently to virtual mailboxes. Ensure the socket path matches Postfix's virtual_transport.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Security note</div>
+        <p class="mt-2 text-sm text-slate-700">Run mail storage under vmail:vmail with a low privileged UID and protect the mailbox directory permissions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

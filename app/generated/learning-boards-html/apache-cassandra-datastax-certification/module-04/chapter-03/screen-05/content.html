@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Denormalization</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Denormalization explained</h3>
+      <p class="text-sm text-slate-700 mt-2">Store fields in multiple tables so each query can be answered from one table without joins. This is a deliberate trade-off for read performance.</p>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Trade-offs</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Pro: predictable, low-latency reads.</li>
+          <li>Con: increased storage and update complexity.</li>
+          <li>Mitigation: batches, application updates, or reconciliation jobs.</li>
+        </ul>
+      </div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Concrete CQL example</div>
+        <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>CREATE TABLE products_by_id (
+  product_id uuid,
+  category_id uuid,
+  product_name text,
+  price decimal,
+  description text,
+  PRIMARY KEY (product_id)
+);</code></pre>
+        <div class="text-xs text-slate-500 mt-2">This duplicates product_name and price into a table keyed by product_id for direct lookups.</div>
+      </div>
+    </div>
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Example card</div>
+      <div class="mt-2 text-sm text-slate-700">products_by_category stores product details to answer the “all products in a category” query quickly, even though those fields also exist in products_by_id and products_by_brand.</div>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Denormalization is careless duplication. In Cassandra it is a deliberate design choice to optimize reads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

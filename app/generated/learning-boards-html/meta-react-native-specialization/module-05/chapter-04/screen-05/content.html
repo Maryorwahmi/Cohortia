@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Animated API basics — Fade and Slide</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-2">Code</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3 flex-1 overflow-hidden">
+        <pre class="text-sm"><code>import React, { useRef } from 'react';
+import { Animated, Text, View, Button } from 'react-native';
+
+export default function AnimationComponent() {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const fadeIn = () =&gt; {
+    Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
+  };
+
+  const slideRight = () =&gt; {
+    Animated.timing(slideAnim, { toValue: 100, duration: 800, useNativeDriver: true }).start();
+  };
+
+  const combined = () =&gt; {
+    Animated.sequence([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 150, duration: 1000, useNativeDriver: true }),
+      ]),
+      Animated.delay(500),
+      Animated.spring(slideAnim, { toValue: 0, friction: 5, tension: 40, useNativeDriver: true }),
+    ]).start();
+  };
+
+  return null; // UI omitted for brevity in this panel
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li><strong>Animated.Value</strong> holds a number you map into styles like opacity or transform translate.</li>
+        <li><strong>Animated.timing</strong> interpolates over duration; <strong>Animated.spring</strong> simulates physics for bouncy motion.</li>
+        <li><strong>Sequence and Parallel</strong> let you compose animations to run in order or at the same time.</li>
+        <li><strong>useNativeDriver</strong> improves smoothness but supports only certain properties.</li>
+      </ul>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">Fade a banner in with timing and slide it back with spring to create a soft, physical return effect.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-500">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Common mistake</div>
+          <div class="text-xs text-slate-700 mt-1">Trying to animate width or backgroundColor with useNativeDriver set to true will either fail or fall back to the JS thread; prefer transforms and opacity for native offloading.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500 mt-2">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800 mt-1">Bind Animated.Value to properties and drive them with timing or spring. Test on device with different loads to confirm smooth behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,88 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>
+    pre {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+  </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Signature Demo</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700'>Code (conceptual, not secure)</div>
+      <pre class='mt-3 p-3 rounded-lg bg-slate-900 text-white overflow-auto' style='max-height:62%;'>
+import hashlib
+
+# --- Simplified Key Generation (Conceptual, NOT for real security!) ---
+private_key_alice = "super_secret_key_alice_123"
+public_key_alice = hashlib.sha256(private_key_alice.encode()).hexdigest() # A hash of private key as public key (simplified)
+
+private_key_bob = "top_secret_key_bob_456"
+public_key_bob = hashlib.sha256(private_key_bob.encode()).hexdigest()
+
+print(f"Alice's Public Key (simplified): {public_key_alice}")
+print(f"Bob's Public Key (simplified): {public_key_bob}
+")
+
+# --- Function to "Sign" a Message ---
+def sign_message(message, private_key):
+  data_to_hash = message + private_key
+  signature = hashlib.sha256(data_to_hash.encode()).hexdigest()
+  return signature
+
+# --- Function to "Verify" a Message and Signature ---
+def verify_signature(message, signature, public_key):
+  expected_signature = sign_message(message, private_key_alice) # Assuming Alice is the sender
+  return signature == expected_signature
+
+# --- Alice sends a message ---
+message_alice = "I authorize a transfer of 5 BTC to Bob."
+alice_signature = sign_message(message_alice, private_key_alice)
+print(f"Alice's Message: '{message_alice}'")
+print(f"Alice's Signature: {alice_signature}
+")
+
+# --- Bob (or anyone) verifies Alice's message ---
+print("--- Bob attempts to verify Alice's message ---")
+is_valid = (alice_signature == sign_message(message_alice, private_key_alice))
+print(f"Is Alice's signature valid? {is_valid}
+")
+
+# --- Scenario: Tampering with the message ---
+tampered_message = "I authorize a transfer of 500 BTC to Bob."
+is_tampered_valid = (alice_signature == sign_message(tampered_message, private_key_alice))
+print(f"Tampered Message: '{tampered_message}'")
+print(f"Does original signature match tampered message's signature? {is_tampered_valid}
+")
+
+# --- Scenario: Impersonation (Bob trying to sign as Alice) ---
+message_from_bob_as_alice = "I authorize a transfer of 10 BTC to Charlie."
+bob_signs_as_alice = sign_message(message_from_bob_as_alice, private_key_bob)
+is_impersonation_valid = (bob_signs_as_alice == sign_message(message_from_bob_as_alice, private_key_alice))
+print(f"Does Bob's signature verify against Alice's expected signature? {is_impersonation_valid}")
+</pre>
+    </div>
+
+    <div class='w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700'>Explanation & steps</div>
+      <ol class='list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2'>
+        <li>Run the script and observe Alice's public key hash and her generated signature.</li>
+        <li>Verify the signature succeeds for the original message and fails when the message is altered.</li>
+        <li>Observe that Bob's signature does not match Alice's expected signature, showing impersonation fails.</li>
+      </ol>
+
+      <div class='mt-4 rounded-lg p-3 bg-white border border-slate-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-1'>Reflection</div>
+        <div class='text-sm text-slate-700 mt-1'>Changing the private key changes the derived public key and invalidates previous signatures, demonstrating the tight coupling between secret and proof.</div>
+      </div>
+
+      <div class='mt-4 rounded-lg bg-amber-50 p-3 border border-amber-100'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>This demo illustrates authenticity and integrity, though it simplifies real public-key verification for pedagogy.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

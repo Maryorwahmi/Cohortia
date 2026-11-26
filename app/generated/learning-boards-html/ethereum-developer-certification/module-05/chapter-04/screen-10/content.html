@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">setStoredNumber Example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-6 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold">Complete example</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2">async function setStoredNumber(newNumber) {
+  if (!simpleStorageContract || !currentAccount) {
+    transactionStatus.textContent = 'Error: Contract not loaded or account not connected.';
+    return;
+  }
+
+  if (newNumber === '' || isNaN(newNumber) || parseInt(newNumber) < 0) {
+    alert('Please enter a valid positive number.');
+    return;
+  }
+
+  transactionStatus.textContent = 'Estimating gas...';
+  try {
+    const estimate = await simpleStorageContract.methods.setNumber(newNumber).estimateGas({ from: currentAccount });
+    const gasLimit = Math.floor(estimate * 1.2);
+
+    transactionStatus.textContent = 'Sending transaction... Please confirm in MetaMask.';
+    const receipt = await simpleStorageContract.methods.setNumber(newNumber).send({ from: currentAccount, gas: gasLimit });
+
+    transactionStatus.textContent = `Transaction successful! Hash: ${receipt.transactionHash.substring(0,10)}...`;
+    await getContractData();
+    newNumberInput.value = '';
+  } catch (error) {
+    if (error.code === 4001) {
+      transactionStatus.textContent = 'Transaction rejected by user.';
+    } else if (error.message && error.message.includes('insufficient funds')) {
+      transactionStatus.textContent = 'Insufficient funds for transaction. Please top up your account.';
+    } else {
+      transactionStatus.textContent = `Transaction failed: ${error.message}`;
+    }
+    console.error('Error sending transaction:', error);
+  }
+}</pre>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-6 card-border shadow-sm">
+      <div class="text-sm font-bold">Explanation and checks</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Input validation prevents trivial reverts and bad UX.</li>
+        <li>Estimating gas before opening MetaMask avoids surprise failures.</li>
+        <li>Adding a buffer prevents marginal out-of-gas errors on complex state changes.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-2">Follow validate → estimate → send → await receipt → refresh pattern and provide clear status messages for users.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

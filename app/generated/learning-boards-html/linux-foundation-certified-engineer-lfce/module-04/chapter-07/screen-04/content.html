@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Firewalld Fundamentals</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-800">Define precise service exposure</div>
+      <div class="text-sm text-slate-600 mt-3">Follow these steps to allow only necessary sources to reach services.</div>
+
+      <ol class="mt-4 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Identify service ports (http, https, mysql/mariadb) and trusted client IPs.</li>
+        <li>Add services for public web traffic and rich rules for source-restricted DB access.</li>
+        <li>Reload firewalld to apply permanent changes and then list-all to verify.</li>
+        <li>Confirm SSH remains allowed before switching to DROP policies.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 mono text-sm">
+        <pre>sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.1.10" port port="3306" protocol="tcp" accept'
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-all</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & Example</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li><strong>Zones</strong> group interfaces and sources by trust; choose the correct zone for public vs internal traffic.</li>
+        <li><strong>Services</strong> map to ports; they do not constrain source IPs by default.</li>
+        <li><strong>Rich rules</strong> give you source+port control, ideal for database access from a single application server.</li>
+        <li><strong>Misconception:</strong> Opening a service is not the same as allowing only certain clients.</li>
+      </ul>
+
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer narrow rich rules for databases and verify rules to avoid accidental exposure or lockout.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

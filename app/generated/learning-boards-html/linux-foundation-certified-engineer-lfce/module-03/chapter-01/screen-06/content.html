@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Zone declarations</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 rounded-2xl bg-white card p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Forward zone example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+zone "example.com" IN {
+    type master;
+    file "db.example.com";
+    allow-update { none; };
+    allow-transfer { 192.168.10.200; };
+};
+      </pre>
+      <div class="text-sm text-slate-600 mt-3">Ensure the filename and path match directory in options. Allow-transfer must list trusted slave IPs.</div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white card p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Reverse zone example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+zone "10.168.192.in-addr.arpa" IN {
+    type master;
+    file "db.192.168.10";
+    allow-update { none; };
+    allow-transfer { 192.168.10.200; };
+};
+      </pre>
+
+      <div class="mt-3 grid grid-cols-1 gap-2">
+        <div class="p-3 rounded-lg bg-emerald-50 border card">
+          <div class="text-sm font-semibold text-slate-800">Validation</div>
+          <div class="text-sm text-slate-700 mt-2">Run named-checkzone example.com /var/named/db.example.com to confirm SOA and record syntax before reloading.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border card">
+          <div class="text-sm font-semibold text-slate-800">Common pitfall</div>
+          <div class="text-sm text-slate-700 mt-2">Typos in the reverse zone name (in-addr.arpa ordering) or wrong file paths prevent zone loading at startup.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

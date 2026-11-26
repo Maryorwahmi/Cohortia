@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.col{padding:14px;border-radius:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Write-Through vs Write-Back</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Write-Through</div>
+      <p class="text-sm text-slate-600 mt-2">Writes go to cache and the primary database synchronously. Reads are simple because the cache reflects the database after the write completes.</p>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Pros: strong read consistency, simpler read logic.</li>
+        <li>Cons: higher write latency, cache stores all writes even if seldom read.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-slate-50 p-3">
+        <div class="text-sm font-semibold text-slate-700">When to use</div>
+        <p class="text-sm text-slate-600 mt-1">When read-after-write consistency matters and you can accept slower writes.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Write-Back (Write-Behind)</div>
+      <p class="text-sm text-slate-600 mt-2">The cache acknowledges the write immediately and persists asynchronously to the database later. This reduces application-visible latency but requires mechanisms to guarantee persistence and recovery.</p>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Pros: low write latency for the application.</li>
+        <li>Cons: risk of data loss if the cache fails before flush, more complex error handling.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-slate-50 p-3">
+        <div class="text-sm font-semibold text-slate-700">When to use</div>
+        <p class="text-sm text-slate-600 mt-1">Only when you have robust persistence guarantees and can tolerate eventual consistency.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Keep in mind</div>
+      <p class="text-sm text-slate-800">For beginners, Cache-Aside is the safest starting point. Choose Write-Through only when database consistency must immediately follow cache writes. Reserve Write-Back for systems with careful durability design.</p>
+    </div>
+  </div>
+</div>

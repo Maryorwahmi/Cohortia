@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Contract walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Contract highlights</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc list-inside">
+        <li>State variables like counters and dynamic arrays live in storage.</li>
+        <li>Immutable set in constructor reduces future read cost.</li>
+        <li>Constant values are embedded in bytecode and avoid storage slots.</li>
+        <li>Mapping of structs with storage reference for in-place updates.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-semibold text-slate-700">Snippet: immutable and constant</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+address public immutable deployer; // set in constructor
+uint public constant MAX_LIMIT = 1000; // compile-time constant
+        </pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Snippet: calldata vs memory</div>
+      <pre class="mt-2 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+function processArrayInMemory(uint[] memory _inputArray) public pure returns (uint sum) { ... }
+function processExternalArray(uint[] calldata _data) external pure returns (uint product) { ... }
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">Notice how calldata avoids the implicit copy used by public functions. Use calldata for large external arrays to save gas.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

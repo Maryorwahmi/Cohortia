@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">WAW and Qi overwrites</h3>
+      <p class="text-sm text-slate-700 mt-3">When a new instruction claims a destination, Qi is overwritten to the new tag. The older producer still broadcasts, but the register only updates if Qi matches that older tag.</p>
+      <div class="mt-4 rounded-md bg-slate-50 p-3">
+        <div class="text-sm font-bold text-slate-800">Implication</div>
+        <div class="text-sm text-slate-700 mt-2">This prevents younger instructions from observing older writes as the register's future value, implementing write-order semantics via renaming.</div>
+      </div>
+    </div>
+    <div class="rounded-xl bg-white p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+      <div class="mt-2 rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-bold text-slate-800">Scenario</div>
+        <div class="text-sm text-slate-700 mt-2">If RS_old will write R1 but before it does a newer RS_new issues to R1, Qi[R1] points to RS_new. When RS_old later broadcasts, Qi[R1] != RS_old so the register won't accept that older value.</div>
+      </div>
+    </div>
+  </div>
+</div>

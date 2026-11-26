@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">EBS Diagnostics</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Key metrics</div>
+      <div class="text-sm text-slate-600 mt-2">Understand the signals that point to storage limits.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-grow">
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">avgqu-sz</div>
+          <div class="text-xs text-slate-600 mt-1">Average queue depth. Persistent growth means the backend cannot keep up with requests.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">await / svctm</div>
+          <div class="text-xs text-slate-600 mt-1">Average service time per I/O. Rising values indicate increasing latency on the storage path.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">Throughput vs latency</div>
+          <div class="text-xs text-slate-600 mt-1">High throughput with high latency still harms user experience; prioritize reducing latency for interactive workloads.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Correlate fio-generated load with iostat to identify whether to increase IOPS, move to io2 Block Express, or upgrade instance EBS bandwidth.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-700">Concrete example</div>
+        <div class="text-xs text-slate-600 mt-2">Running fio with a high random write mix produced avgqu-sz values near 20 and await above acceptable thresholds. Moving to gp3 with higher provisioned IOPS reduced queue depth and restored service times to acceptable levels.</div>
+
+        <div class="mt-4 text-sm font-bold text-slate-800">Misconception</div>
+        <div class="text-xs text-slate-600 mt-1">Seeing high absolute throughput doesn't guarantee low latency. Interactive applications often require low service time more than raw MB/s.</div>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+        <div class="text-xs text-slate-600 mt-1">If iostat shows high avgqu-sz and rising await, what is the immediate implication? (Answer: the storage path is saturated and latency will impact the application.)</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">PostFetcher and SwiftUI</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">PostFetcher (excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 rounded-md p-3 text-sm"><code>struct Post: Codable, Identifiable {
+  let userId: Int
+  let id: Int
+  let title: String
+  let body: String
+}
+
+class PostFetcher: ObservableObject {
+  @Published var posts: [Post] = []
+  @Published var errorMessage: String?
+
+  private let apiURL = URL(string: "https://jsonplaceholder.typicode.com/posts")!
+
+  func fetchPosts() {
+    errorMessage = nil
+    URLSession.shared.dataTask(with: apiURL) { data, response, error in
+      if let error = error {
+        DispatchQueue.main.async { self.errorMessage = "Network error: \(error.localizedDescription)" }
+        return
+      }
+
+      guard let httpResponse = response as? HTTPURLResponse,
+            (200...299).contains(httpResponse.statusCode) else {
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+        DispatchQueue.main.async { self.errorMessage = "Server error: HTTP Status Code \(statusCode)" }
+        return
+      }
+
+      guard let data = data else {
+        DispatchQueue.main.async { self.errorMessage = "No data received from server." }
+        return
+      }
+
+      do {
+        let decodedPosts = try JSONDecoder().decode([Post].self, from: data)
+        DispatchQueue.main.async { self.posts = decodedPosts }
+      } catch {
+        DispatchQueue.main.async { self.errorMessage = "Decoding error: \(error.localizedDescription)" }
+      }
+    }.resume()
+  }
+}</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">ContentView (excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 rounded-md p-3 text-sm"><code>struct ContentView: View {
+  @StateObject private var postFetcher = PostFetcher()
+
+  var body: some View {
+    NavigationView {
+      VStack {
+        if let errorMessage = postFetcher.errorMessage {
+          Text(errorMessage).foregroundColor(.red).padding()
+        }
+
+        List(postFetcher.posts) { post in
+          VStack(alignment: .leading) {
+            Text(post.title).font(.headline)
+            Text(post.body).font(.subheadline).foregroundColor(.gray)
+          }
+        }
+        .navigationTitle("Posts")
+        .onAppear { postFetcher.fetchPosts() }
+      }
+    }
+  }
+}</code></pre>
+
+      <div class="mt-3 text-xs text-slate-600">This example shows the full flow: fetch, decode, and update UI safely. Use the errorMessage to present user-facing feedback for issues like network failure or decoding problems.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

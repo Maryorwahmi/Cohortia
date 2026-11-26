@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="rounded-2xl p-6 bg-white card-border shadow-sm h-full grid grid-cols-12 gap-4">
+    <div class="col-span-7">
+      <div class="text-lg font-bold text-slate-900">Design a choreography Saga for enrollment</div>
+      <div class="text-sm text-slate-600 mt-1">List transactions, events, and compensations</div>
+      <div class="mt-4 text-sm text-slate-700 space-y-3">
+        <div>
+          <div class="font-bold">Steps to define</div>
+          <ol class="mt-2 list-decimal pl-5 space-y-2">
+            <li>UserService: mark user ENROLLING → publish UserEnrolledPendingPayment.</li>
+            <li>PaymentService: process payment → publish PaymentProcessed or PaymentFailed.</li>
+            <li>CourseService: on PaymentProcessed add user to roster → publish CourseEnrollmentConfirmed or CourseEnrollmentFailed.</li>
+          </ol>
+        </div>
+        <div>
+          <div class="font-bold">Compensations</div>
+          <ul class="mt-2 pl-4 space-y-2">
+            <li>If PaymentFailed: UserService marks ENROLLMENT_FAILED and publishes UserEnrollmentCancelled.</li>
+            <li>If CourseEnrollmentFailed after payment: PaymentService refunds and publishes PaymentRefunded; UserService cancels.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-5">
+      <div class="rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-sm font-bold text-slate-800">Idempotency rules</div>
+        <div class="text-xs text-slate-700 mt-2">Use transaction IDs, idempotent write semantics, and state checks to ensure repeated messages do not create duplicate enrollments or charges.</div>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Quick checklist</div>
+        <ul class="text-xs text-slate-800 pl-4 list-disc space-y-1">
+          <li>Define events and correlation IDs.</li>
+          <li>Write explicit compensations for each step.</li>
+          <li>Make handlers idempotent and test failure scenarios.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

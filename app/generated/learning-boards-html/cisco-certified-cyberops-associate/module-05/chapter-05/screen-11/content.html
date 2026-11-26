@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 5.5</span><span>›</span><span class="text-slate-700">Apache Log Analysis Script: Setup & Patterns</span></div><div class="flex flex-col lg:flex-row h-[calc(100%-4rem)] gap-6"><div class="lg:w-3/5 flex flex-col"><div class="bg-slate-800 rounded-xl p-4 flex-grow font-mono text-sm text-slate-200 overflow-auto shadow-lg"><pre style="white-space: pre-wrap; tab-size: 2;"><code><span style="color:#6A9955;"># Import the regular expression module</span>
+<span style="color:#569CD6;">import</span> re
+<span style="color:#569CD6;">import</span> os
+
+def analyze_apache_log(log_file_path):
+    <span style="color:#6A9955;">"""
+    Analyzes an Apache access log file for suspicious patterns.
+    """</span>
+    suspicious_patterns = [
+        <span style="color:#D69D85;">r"union select"</span>,      <span style="color:#6A9955;"># Common SQL Injection payload</span>
+        <span style="color:#D69D85;">r"etc/passwd"</span>,        <span style="color:#6A9955;"># Path Traversal attempt</span>
+        <span style="color:#D69D85;">r"eval\("</span>,            <span style="color:#6A9955;"># PHP Code Execution attempt</span>
+        <span style="color:#D69D85;">r"wp-admin"</span>,          <span style="color:#6A9955;"># Common WordPress admin panel access</span>
+        <span style="color:#D69D85;">r"(\.\./){2,}"</span>,       <span style="color:#6A9955;"># Multiple directory traversals</span>
+        <span style="color:#D69D85;">r"select.+from"</span>,      <span style="color:#6A9955;"># Generic SQL query</span>
+        <span style="color:#D69D85;">r"xss"</span>,               <span style="color:#6A9955;"># Cross-Site Scripting attempt</span>
+    ]
+    
+    <span style="color:#6A9955;"># Compile regex patterns for efficiency</span>
+    compiled_patterns = [(re.compile(pattern, re.IGNORECASE), pattern) <span style="color:#569CD6;">for</span> pattern <span style="color:#569CD6;">in</span> suspicious_patterns]
+    
+    found_incidents = []
+    <span style="color:#569CD6;">if not</span> os.path.exists(log_file_path):
+        <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Error: Log file not found at {log_file_path}"</span>)
+        <span style="color:#569CD6;">return</span> []
+
+    <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Analyzing log file: {log_file_path}"</span>)
+    <span style="color:#569CD6;">try</span>:
+        <span style="color:#569CD6;">with</span> <span style="color:#9CDCFE;">open</span>(log_file_path, <span style="color:#D69D85;">'r'</span>, errors=<span style="color:#D69D85;">'ignore'</span>) <span style="color:#569CD6;">as</span> f:
+            <span style="color:#569CD6;">for</span> line_num, line <span style="color:#569CD6;">in</span> <span style="color:#9CDCFE;">enumerate</span>(f, <span style="color:#B5CEA8;">1</span>):
+                <span style="color:#569CD6;">for</span> compiled_pattern, original_pattern <span style="color:#569CD6;">in</span> compiled_patterns:
+                    <span style="color:#569CD6;">if</span> compiled_pattern.search(line):
+                        found_incidents.append({
+                            <span style="color:#9CDCFE;">"line_num"</span>: line_num,
+                            <span style="color:#9CDCFE;">"log_entry"</span>: line.strip(),
+                            <span style="color:#9CDCFE;">"matched_pattern"</span>: original_pattern
+                        })
+                        <span style="color:#569CD6;">break</span> 
+        
+        <span style="color:#569CD6;">if</span> found_incidents:
+            <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">"
+--- Suspicious Activities Found ---"</span>)
+            <span style="color:#569CD6;">for</span> incident <span style="color:#569CD6;">in</span> found_incidents:
+                <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"Line {incident['line_num']}: {incident['log_entry']}"</span>)
+                <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"  Matched Pattern: '{incident['matched_pattern']}'
+"</span>)
+        <span style="color:#569CD6;">else</span>:
+            <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">"No suspicious activities found."</span>)
+            
+    <span style="color:#569CD6;">except</span> <span style="color:#9CDCFE;">Exception</span> <span style="color:#569CD6;">as</span> e:
+        <span style="color:#9CDCFE;">print</span>(<span style="color:#D69D85;">f"An error occurred during log analysis: {e}"</span>)
+        
+    <span style="color:#569CD6;">return</span> found_incidents</code></pre></div></div><div class="lg:w-2/5 flex flex-col gap-4"><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">The `re` Module</h3><p class="text-sm text-slate-700">Python's built-in module for regular expression operations. It provides functions for pattern matching, searching, and manipulation of strings, crucial for parsing complex text like log files.</p></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Suspicious Patterns List</h3><p class="text-sm text-slate-700">A collection of regular expressions, each designed to detect a specific type of malicious activity or anomaly within log entries. Examples include SQL injection, path traversal, and code execution attempts.</p></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Compiling for Efficiency</h3><p class="text-sm text-slate-700">Regular expressions are compiled into pattern objects using <code>re.compile()</code>. This pre-processing step significantly improves performance, especially when the same patterns are used repeatedly against many lines of data, as in log analysis.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Defining and compiling regular expressions is the foundation for efficiently identifying known malicious patterns within large log datasets, a critical step in automated incident detection.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

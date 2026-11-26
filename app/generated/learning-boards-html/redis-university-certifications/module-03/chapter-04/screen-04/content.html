@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">Persistence Modes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <h3 class="text-xl font-bold text-slate-800">Definition & trade-offs</h3>
+      <p class="text-sm text-slate-600 mt-3">RDB: periodic snapshot file. AOF: append-only log of writes. Choose based on recovery point objectives and startup time.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">
+          <div class="font-bold">RDB — snapshot</div>
+          <div class="text-xs text-slate-700 mt-1">Compact file, faster load, coarser recovery window.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">
+          <div class="font-bold">AOF — command log</div>
+          <div class="text-xs text-slate-700 mt-1">Fine-grained recovery, larger files, replay time on startup.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">Shopping cart scenario: RDB snapshots every minute may lose recent adds; enabling AOF reduces potential loss to seconds at the cost of larger disk and longer restarts.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Check your understanding</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>When does RDB give the fastest restart? When loading a single snapshot at server start.</li>
+          <li>Why might AOF slow restart? Because Redis replays many commands to rebuild dataset.</li>
+          <li>Misconception: enabling both guarantees zero data loss — not by itself; you still need appropriate fsync and backup scheduling.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick RDB for compact snapshots and AOF for fine-grained recovery; combine them for balanced safety and performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

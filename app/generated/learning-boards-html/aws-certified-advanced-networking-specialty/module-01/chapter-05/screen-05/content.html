@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .code {background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Stateless Rules</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Process</div>
+      <h3 class="text-lg font-bold text-slate-800">Stateless rules evaluate packets first</h3>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>• Stateless rules inspect single packets in priority order and take immediate action.</li>
+        <li>• Use them to quickly drop malformed traffic, port scans, or unwanted protocols.</li>
+        <li>• They cannot be overridden by stateful rule groups; order matters.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete rule example</div>
+        <div class="mt-2 code" role="region" aria-label="example rule">
+Rule group: block-icmp-stateless
+Type: Stateless
+Default action: Pass
+Rules:
+  - Priority: 100
+    Action: Drop
+    Protocol: ICMP
+    Source/Destination: 0.0.0.0/0
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example & Verification</div>
+      <div class="text-sm text-slate-700">After deploying the stateless rule and associating the firewall policy with endpoints, update the application subnet route for 0.0.0.0/0 to point at the firewall endpoint ENI. Launch an instance in the app subnet. Verify that ping to public IP fails but HTTP succeeds if allowed by rules and security groups.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-1">Block broad protocols only after confirming no legitimate systems rely on them; add targeted allow rules for monitoring hosts where necessary.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">A stateless Drop for a port used by applications will prevent stateful rules from ever evaluating that traffic.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use stateless rules for fast packet drops, but plan exceptions carefully; stateless drops run before stateful inspection.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

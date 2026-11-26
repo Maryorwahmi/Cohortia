@@ -1,0 +1,89 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;tab-size:2;white-space:pre-wrap;} </style>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex flex-col">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hands‑On Activity</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Deploy the Foundational VPC and ALB</div>
+      <div class="text-sm text-slate-600 mt-1">Use the CloudFormation starter template and verify deployment</div>
+    </div>
+
+    <div class="mt-5 flex gap-5 h-full">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="rounded-xl bg-white p-4 card-border flex-1">
+          <div class="text-sm font-semibold text-slate-800">Instructions</div>
+          <ol class="text-sm text-slate-700 mt-2 list-decimal pl-5 space-y-2">
+            <li>Save the YAML to multi‑tier‑foundation.yaml.</li>
+            <li>Create a CloudFormation stack and upload this file.</li>
+            <li>Wait for CREATE_COMPLETE and inspect Outputs for ALB DNS name.</li>
+            <li>Open the ALB DNS in a browser and confirm the fixed response.</li>
+          </ol>
+        </div>
+
+        <div class="rounded-xl bg-amber-50 p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Verification</div>
+          <div class="text-xs text-slate-800 mt-1">Check that VPC and subnets span two Availability Zones and that the ALB appears under EC2 → Load Balancers.</div>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="rounded-xl bg-white p-4 card-border flex-1">
+          <div class="text-sm font-semibold text-slate-800">Starter CloudFormation snippet</div>
+          <pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for a foundational 3-tier architecture VPC and ALB'
+
+Parameters:
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+  PublicSubnetACidr:
+    Type: String
+    Default: 10.0.1.0/24
+  PublicSubnetBCidr:
+    Type: String
+    Default: 10.0.2.0/24
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: text/plain
+            MessageBody: "Hello from ALB! Application tier not yet configured."
+            StatusCode: "200"
+
+Outputs:
+  ApplicationLoadBalancerDNSName:
+    Description: The DNS name of the Application Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName</code></pre>
+        </div>
+
+        <div class="rounded-xl bg-rose-50 p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-xs text-slate-800 mt-1">Not validating parameter defaults for CIDR ranges can result in conflicts with existing VPCs; verify addressing before deployment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

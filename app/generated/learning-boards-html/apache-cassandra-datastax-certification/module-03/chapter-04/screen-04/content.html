@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">SELECT basics</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">SELECT basics</h3>
+      <p class="text-sm text-slate-600 mt-2">CQL SELECT retrieves rows from tables. But without partition targeting, it becomes a costly cluster-wide operation.</p>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded">
+        <div class="text-xs font-medium text-slate-700">Example query</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded" style="white-space:pre-wrap;tab-size:2"><code>SELECT * FROM user_profiles.users;
+
+-- Preferred: select columns and partition key
+SELECT username, email FROM user_profiles.users
+WHERE user_id = 92a7f0e0-5a3b-4c8d-8e1f-2b6c7d8e9f0a;</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using SELECT * for convenience leads to unpredictable load and long-running reads. It is not a safe production pattern.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick columns and supply the partition key. That is the fastest, most stable approach.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation & impact</div>
+      <ul class="mt-3 list-disc pl-4 text-sm text-slate-600 space-y-2">
+        <li>SELECT * forces the coordinator to fetch data from many nodes, increasing latency and resource use.</li>
+        <li>Selecting specific columns reduces I/O and network payload sizes between replicas and coordinator.</li>
+        <li>Targeting the full partition key allows Cassandra to route the read to the correct replicas efficiently.</li>
+        <li>When in doubt, model a table specifically for the read pattern rather than scanning with SELECT *.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded border border-[rgba(226,232,240,0.9)] bg-white">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practice prompt</div>
+        <p class="text-sm text-slate-700 mt-2">Review an application endpoint that needs multiple fields across many rows. Could you return a smaller column set or create a narrow table keyed by that access pattern?</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

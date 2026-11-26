@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What is the ROB?</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-[calc(100%-56px)]">
+    <div class="col-span-7 bg-white rounded-2xl p-6 border" style="border-color:rgba(226,232,240,0.9);">
+      <h3 class="text-xl font-bold text-slate-800 mb-2">ROB structure and purpose</h3>
+      <p class="text-sm text-slate-600">The ROB records instruction metadata and results until the instruction reaches the head and commits. It prevents younger instructions from making architectural state visible prematurely.</p>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Fields</div>
+          <ul class="text-sm text-slate-700 list-disc list-inside">
+            <li>Instruction type</li>
+            <li>Destination register</li>
+            <li>Value and ready bit</li>
+            <li>Exception & speculation bits</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-lg bg-white border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pointers</div>
+          <div class="text-sm text-slate-700">Head points to the next commit candidate. Tail allocates new entries at dispatch. The circular design reuses slots after commit.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Roles</div>
+          <div class="text-sm text-slate-700">Buffers results, records speculation, and sequences commits to ensure precise exceptions and recoverability.</div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <p class="text-sm font-medium text-slate-800">The ROB is the single structure responsible for delaying architectural updates until it is safe to apply them in program order.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Quick diagram</div>
+        <div class="text-sm text-slate-700">[Head] • I1(ready) • I2(spec) • I3(ready) • I4 • [Tail]</div>
+        <div class="text-xs text-slate-500 mt-3">Entries contain both data and control flags so commit can decide whether to write results or to flush on mispredict.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 border flex items-start gap-3" style="border-color:rgba(226,232,240,0.9);">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Analogy</div>
+          <div class="text-sm text-slate-700">Think of the ROB as a waiting room where tasks finish work out of order but only pass through the exit in the correct sequence.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

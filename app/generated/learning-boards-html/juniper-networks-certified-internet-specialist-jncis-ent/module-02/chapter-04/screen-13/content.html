@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Starter commands (annotated)</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code># Enter config mode
+edit
+
+# 1. Ensure RSTP is enabled (often default)
+set protocols rstp
+
+# 2. Make SW1 the Root Bridge
+set protocols rstp bridge-priority 4k
+
+# 3. Configure access port ge-0/0/0 for VLAN 10 (VLAN_USERS)
+set interfaces ge-0/0/0 unit 0 family ethernet-switching interface-mode access
+set interfaces ge-0/0/0 unit 0 family ethernet-switching vlan members VLAN_USERS
+
+# 4. Enable BPDU Guard on the access port
+set protocols rstp interface ge-0/0/0 bpdu-block-on-edge
+
+# Apply changes
+commit
+
+# Verify
+show spanning-tree bridge
+show spanning-tree interface ge-0/0/0</code></pre>
+      <div class="mt-3 text-sm text-slate-700">After verifying SW1 is Root, test BPDU Guard by injecting a BPDU on the access port; observe the port state and practice recovery steps if it becomes disabled.</div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Checklist</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700">
+        <li>Commit each change and confirm with show commands.</li>
+        <li>Verify Root election on at least two switches.</li>
+        <li>Test BPDU Guard and document recovery steps.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">QUERY_HISTORY: inspect past queries</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-cols-2 gap-4">
+    <div class="p-3 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example query</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>SELECT
+  query_id,
+  query_text,
+  user_name,
+  role_name,
+  start_time,
+  end_time,
+  execution_status
+FROM
+  SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+WHERE
+  user_name = 'JOHN_DOE'
+  AND start_time &gt;= DATEADD(hour, -24, CURRENT_TIMESTAMP())
+ORDER BY
+  start_time DESC;
+</code></pre>
+
+      <div class="mt-3 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">Investigation tips</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+          <li>Filter by user or role to focus scope.</li>
+          <li>Use ORDER BY start_time DESC to build a timeline.</li>
+          <li>Check execution_status for failures or cancellations.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="p-3 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Interpretation</div>
+      <div class="rounded-xl bg-emerald-50 p-3 card-border mt-2">
+        <div class="text-sm font-semibold text-emerald-700">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-1">If a query by JOHN_DOE shows long duration and high credits, correlate the query_id with WAREHOUSE_METERING_HISTORY to find the cost impact.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-rose-50 p-3 card-border">
+        <div class="text-sm font-semibold text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Using INFORMATION_SCHEMA here can miss older, account-wide entries. Use ACCOUNT_USAGE for full history.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">QUERY_HISTORY is the forensic starting point; always include timestamps and status to build a clear incident timeline.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe testing</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Safe rollout steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Open a persistent console session with tmux or screen.</li>
+        <li>Schedule a rollback: echo "nft flush ruleset" | at now + 5 minutes.</li>
+        <li>Apply your nft changes and test connectivity quickly.</li>
+        <li>Cancel the rollback when verified and persist the ruleset to /etc/nftables.conf.</li>
+      </ol>
+
+      <div class="mt-4 text-xs font-bold text-slate-500">Example rollback command</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;">
+echo "nft flush ruleset" | at now + 5 minutes
+      </pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common pitfall</div>
+        <p class="text-xs font-medium text-slate-800">Persisting a broken ruleset immediately can prevent remote recovery. Verify first, then save.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Verification checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Can you SSH in from an external IP?</li>
+        <li>Are HTTP and HTTPS reachable from a browser or curl test?</li>
+        <li>Can a machine in the trusted subnet reach management ports?</li>
+        <li>Does port forwarding reach the internal service?</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-700">If a test fails, rely on the rollback or the console to restore access, then iterate on the ruleset. Only persist when tests pass.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

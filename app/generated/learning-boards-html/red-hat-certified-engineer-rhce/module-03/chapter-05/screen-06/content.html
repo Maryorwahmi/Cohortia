@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">SSH key deployment</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl border p-4 bg-white" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">Example task</div>
+      <pre class="mt-3 rounded text-sm bg-slate-900 text-white p-3"><code>- name: Add SSH public key for ansible_admin
+  ansible.builtin.authorized_key:
+    user: ansible_admin
+    state: present
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQ... ansible_admin@control"</code></pre>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700">Concrete check: After running, confirm the key is present with cat /home/ansible_admin/.ssh/authorized_keys and then attempt ssh authentication from the key owner host.</div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">Common mistake: multi-line or wrapped keys. Keep the public key as a single line and verify no extra whitespace.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl border p-4 bg-white flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Permissions to check</div>
+      <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+        <li>~/.ssh directory should be 700</li>
+        <li>~/.ssh/authorized_keys should be 600 or 644 depending on policy</li>
+        <li>Owner must be the user, not root</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">authorized_key provides idempotent, auditable SSH key management. Always verify key format and permissions after deployment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Declare and Emit Custom Signals</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Player.gd — signal example</div>
+      <pre class="mono bg-slate-100 rounded-md p-3 mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;">extends CharacterBody2D
+
+signal player_health_changed(new_health: int, max_health: int)
+signal player_died(cause: String)
+
+var health = 100
+
+func take_damage(amount: int):
+  health -= amount
+  if health <= 0:
+    emit_signal("player_died", "fell into a pit")
+    queue_free()
+  else:
+    emit_signal("player_health_changed", health, 100)</pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-slate-50 p-3">
+        <div class="text-sm font-semibold">Design notes</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+          <li>Declare signals at the top of the script for visibility.</li>
+          <li>Keep argument lists minimal and typed when helpful.</li>
+          <li>Emit only when state has changed meaningfully.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Avoid this</div>
+        <div class="text-sm text-slate-700 mt-2">Emitting many signals per frame for the same state change can create noisy logic; consolidate emissions when possible.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Try this</div>
+        <div class="text-sm text-slate-800 mt-2">Emit a health-changed signal only when health actually differs from the last emitted value.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

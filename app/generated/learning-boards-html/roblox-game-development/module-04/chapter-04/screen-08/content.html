@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Lab</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Moving Platform Implementation</h3>
+    <p class="text-sm text-slate-600 mt-1">Two tweens alternate to shuttle an anchored platform between two waypoints.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter Script (ServerScriptService/PlatformMover)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+local TweenService = game:GetService("TweenService")
+local MovingPlatform = workspace:WaitForChild("MovingPlatform")
+local Waypoint1 = workspace:WaitForChild("Waypoint1")
+local Waypoint2 = workspace:WaitForChild("Waypoint2")
+
+MovingPlatform.Anchored = true
+MovingPlatform.CanCollide = true
+
+Waypoint1.Transparency = 1
+Waypoint1.CanCollide = false
+Waypoint2.Transparency = 1
+Waypoint2.CanCollide = false
+
+local tweenInfo = TweenInfo.new(
+    3,
+    Enum.EasingStyle.Sine,
+    Enum.EasingDirection.InOut,
+    0,
+    false,
+    0
+)
+
+local tweenToWaypoint2 = TweenService:Create(MovingPlatform, tweenInfo, {CFrame = Waypoint2.CFrame})
+local tweenToWaypoint1 = TweenService:Create(MovingPlatform, tweenInfo, {CFrame = Waypoint1.CFrame})
+
+local function startTween(tween)
+    tween:Play()
+    tween.Completed:Wait()
+end
+
+while true do
+    startTween(tweenToWaypoint2)
+    startTween(tweenToWaypoint1)
+    task.wait(0.1)
+end
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Two explicit tweens prevent drift and make the loop precise.</li>
+        <li>Make Waypoints invisible and non-collidable to avoid interference with players.</li>
+        <li>Run on the server so the platform's motion is authoritative across clients.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Try this</div>
+        <div class="mt-2 text-sm text-slate-700 bg-amber-50 rounded-lg p-3">Adjust tween duration and easing to change the platform's feel. Test with players standing on the platform to ensure collision and anchoring are correct.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

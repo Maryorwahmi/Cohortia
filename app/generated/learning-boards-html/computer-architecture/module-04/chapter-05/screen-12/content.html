@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Scheduling practice</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Sequence A</div>
+      <pre class="mt-2 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+LW R1, 0(R2)
+ADD R3, R1, R4
+SUB R5, R6, R7
+AND R8, R9, R10
+      </pre>
+      <div class="mt-2 text-sm text-slate-700">Scheduler can move SUB or AND between LW and ADD to eliminate the stall.</div>
+    </div>
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Sequence B</div>
+      <pre class="mt-2 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+LW R1, 0(R2)
+ADD R3, R1, R4
+SUB R5, R1, R6
+      </pre>
+      <div class="mt-2 text-sm text-slate-700">SUB depends on R1 as well, so it cannot be moved to fill the delay slot. Stall is unavoidable without unrolling.</div>
+    </div>
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Sequence C (loop)</div>
+      <pre class="mt-2 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+LW R1, 0(R2)
+ADD R3, R1, R4
+LW R5, 0(R6)
+ADD R7, R5, R8
+      </pre>
+      <div class="mt-2 text-sm text-slate-700">Scheduling may rearrange between independent loads, but if dependencies form chains, unrolling can create room for scheduling; otherwise stalls remain.</div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl p-3 bg-emerald-50 text-emerald-800 card-border shadow-sm">
+    <div class="text-[10px] font-bold uppercase tracking-wider">Activity</div>
+    <div class="text-sm mt-1">Write a pass that finds load-use pairs, searches forward for independent instructions, and moves one into the delay slot; if none found, insert a NOP or leave the stall.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

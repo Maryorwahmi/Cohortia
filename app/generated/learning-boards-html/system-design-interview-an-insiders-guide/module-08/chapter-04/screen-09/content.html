@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.code {background:#0f1724;color:#e6eef8;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;padding:12px;border-radius:8px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Flask Instrumentation</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code highlights</div>
+      <pre class="code mt-3"><code>&lt;# Example excerpts from the starter Flask service - escaped for HTML &gt;
+from prometheus_client import Counter, Gauge
+REGISTRATION_SUCCESS_COUNT = Counter('registration_success_total','Total successful user registrations')
+REGISTRATION_FAILURE_COUNT = Counter('registration_failure_total','Total failed user registrations')
+REQUEST_LATENCY_SECONDS = Gauge('request_latency_seconds','Latency of requests',['endpoint'])
+
+# structured logging
+logger.error(json.dumps({
+  "event": "registration_attempt",
+  "status": "failed",
+  "reason": "missing_credentials",
+  "username": username,
+  "ip_address": request.remote_addr
+}))
+
+# conceptual tracing outline
+# with tracer.start_as_current_span("register_user_request") as span:
+#   span.set_attribute("http.method", request.method)
+#   with tracer.start_as_current_span("validate_credentials"):
+#       ...
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Code shows counters, a gauge with an endpoint label, and structured JSON logging. Tracing is conceptually outlined — use a tracer provider to start spans and add attributes for HTTP method and username without logging secrets.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600 mt-3">
+        <li>Add counters for success and failure and a gauge for latency with endpoint label.</li>
+        <li>Emit structured JSON logs for each outcome and include a persistent correlation id header.</li>
+        <li>Wrap request handling in a root span and create child spans for validation and DB calls.</li>
+        <li>Set sampling policy so traces are useful but do not overwhelm storage.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">Remember to avoid logging sensitive data such as raw passwords. Use attributes on spans and fields in logs for useful non-sensitive metadata instead.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Instrument for detection, context, and causality: metrics, logs, and spans working together gives fast and precise diagnosis.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Listening for Signals — GameManager Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">GameManager.gd — Starter</div>
+      <pre class="mono bg-slate-100 rounded-md p-3 mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;">extends Node2D
+
+@onready var player_node = $"Player"
+
+func _ready():
+  if player_node:
+    player_node.player_health_changed.connect(_on_player_health_changed)
+    player_node.player_died.connect(_on_player_died)
+
+func _on_player_health_changed(new_health: int, max_health: int):
+  print("GameManager: Player health updated to", new_health, "/", max_health)
+
+func _on_player_died():
+  print("GameManager: Player has died! Game Over.")</pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-slate-50 p-3">
+        <div class="text-sm font-semibold">Explanation</div>
+        <p class="text-sm text-slate-600 mt-2">GameManager caches the player and connects to its signals in _ready. Handlers respond to updates without changing Player internals.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Edge case</div>
+        <div class="text-sm text-slate-700 mt-2">If multiple players exist, connect each player's signals to separate handlers or pass the emitting node as an argument to differentiate them.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Practical tip</div>
+        <div class="text-sm text-slate-800 mt-2">Use a single manager to subscribe to many emitters for centralized game-level logic like score, lives, or level flow.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

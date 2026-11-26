@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Scan and index node behaviors</h3>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Seq Scan</div>
+          <div class="text-sm text-slate-600 mt-1">Reads the whole table. Red flag on large tables for selective predicates.</div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Index Scan</div>
+          <div class="text-sm text-slate-700 mt-1">Uses an index to find rows; efficient for selective queries.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-bold text-violet-700">Index Only Scan</div>
+          <div class="text-sm text-slate-700 mt-1">Serves the query entirely from the index if all needed columns are present in the index.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-bold text-amber-700">Bitmap Heap Scan</div>
+          <div class="text-sm text-slate-700 mt-1">Bitmap Index Scan collects TIDs then the heap fetches rows; good for moderate result sizes.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example & fix</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm text-slate-800 mt-3" style="white-space:pre-wrap; tab-size:2;">-- When LIKE starts with % it cannot use B-tree
+EXPLAIN SELECT * FROM customers WHERE email LIKE '%.com';
+
+-- Fix with trigram index
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_customers_email_trgm ON customers USING GIN (email gin_trgm_ops);
+ANALYZE customers;</pre>
+      <p class="text-sm text-slate-600 mt-3">After creating the trigram index and updating statistics, EXPLAIN ANALYZE should show an index-based plan instead of a Seq Scan for substring searches.</p>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Match index type to predicate patterns: B-tree for equality/range, trigram for substring searches.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

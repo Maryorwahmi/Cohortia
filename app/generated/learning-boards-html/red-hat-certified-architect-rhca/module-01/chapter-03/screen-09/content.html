@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Storage Network</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">iSCSI vs NFS</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-800">iSCSI — block protocol</div>
+      <div class="text-sm text-slate-600 mt-2">Client sees remote storage as a block device. Initiator/target model requires discovery and login.</div>
+
+      <div class="mt-4 text-sm text-slate-700 leading-relaxed">
+        <ul class="list-disc list-inside">
+          <li>Key checks: iscsid service, iscsiadm discovery and login, firewall and routing.</li>
+          <li>Performance: watch multipathing and SCSI reservations for contention.</li>
+          <li>Example command: sudo iscsiadm -m discovery -t sendtargets -p &lt;target_IP&gt;</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-800">NFS — file protocol</div>
+      <div class="text-sm text-slate-600 mt-2">Client mounts server exports. Mount options significantly influence behavior and performance.</div>
+
+      <div class="mt-4 text-sm text-slate-700 leading-relaxed">
+        <ul class="list-disc list-inside">
+          <li>Key checks: nfs-client.target, showmount -e server_IP, mount options such as rw, sync, hard.</li>
+          <li>Performance: network latency and server load often dominate.</li>
+          <li>Example command: sudo showmount -e &lt;NFS_server_IP&gt;</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="rounded-lg p-3 bg-white border card-border">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Common mistake</div>
+      <div class="text-sm text-slate-800 mt-1">Treating NFS like a block device or expecting iSCSI to handle file-level locks the same way as NFS causes confusion. Use the right tool for the workload.</div>
+    </div>
+
+    <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+      <div class="text-xs uppercase tracking-wider font-bold text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">Verify services, network, and permissions on both client and server. Use protocol-specific tools for diagnostics.</div>
+    </div>
+  </div>
+</div>

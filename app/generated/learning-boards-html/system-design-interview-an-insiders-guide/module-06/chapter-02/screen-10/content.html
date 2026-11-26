@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Retry → Backoff → DLQ</h3>
+        <ol class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>Consumer attempts processing; on transient failure, retry with exponential backoff and jitter.</li>
+          <li>Maintain a retry count; if it exceeds a threshold, route the message to a DLQ with failure metadata.</li>
+          <li>Alert operators and provide tools to inspect and reprocess or fix the message.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="font-semibold text-slate-800">Practical rules</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>Use capped retries and exponential backoff with jitter.</li>
+          <li>Attach failure reason, stack traces, and last attempt timestamp to DLQ entries.</li>
+          <li>Implement monitoring and alerts on DLQ growth.</li>
+        </ul>
+        <div class="mt-3 text-xs text-slate-500">Misconception: DLQs are optional — not true for robust operations; they are vital for production observability.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Plan for retries, cap them, and send failing messages to DLQs with context and alerts to prevent backlogs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Example DLQ entry</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">{
+  "message_id": "uuid-123",
+  "failed_at": "2023-10-01T12:03:00Z",
+  "attempts": 5,
+  "error": "Payment gateway timeout",
+  "payload": { ... }
+}</pre>
+        <div class="mt-3 text-sm text-slate-600">Include attempts and error details so engineers can reproduce and decide whether to reprocess or discard.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Operational question</div>
+        <div class="mt-2 text-sm text-slate-600">How will you alert on sudden DLQ growth? Tie DLQ metrics to pager rules and provide dashboards for investigation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

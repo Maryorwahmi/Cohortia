@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Commands</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">LSN checks on a standby</div>
+      <div class="mt-4 bg-slate-50 p-3 rounded-md mono text-sm text-slate-800">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0">-- On each standby, run
+sudo -u postgres psql -c "SELECT pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn();"
+
+-- On the old primary (if available), inspect replication
+sudo -u postgres psql -c "SELECT client_addr, state, sync_state, sent_lsn, write_lsn, flush_lsn, replay_lsn FROM pg_stat_replication;"</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Interpretation</div>
+          <div class="text-sm text-slate-600 mt-1">Pick the standby with the highest replay_lsn. If two are equal, prefer the one with the fastest connectivity and lowest lag.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation and example</div>
+      <div class="text-sm text-slate-600 mt-3">If standby A shows a replay_lsn that matches the last sent_lsn recorded on the primary, it has applied all sent WAL. Standby B may have received more WAL but not applied it yet; promoting B risks losing un-applied transactions. When in doubt, wait if possible, or promote the more current node and accept the operational tradeoffs.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception check</div>
+          <div class="text-xs text-slate-800">Received WAL equals safe to promote. Not always — check replay_lsn to be sure the data is applied.</div>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs text-slate-800">Always compare replay_lsn across standbys; this gives you the most reliable signal of applied data.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Sudoers structure</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 flex-grow">
+    <div class="col-span-7 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full">
+      <h3 class="text-xl font-bold text-slate-900">Key fields</h3>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li><strong>User / Group</strong>: principal allowed to run commands. Groups use a % prefix.</li>
+        <li><strong>Host</strong>: ALL or specific hostnames limit where the rule applies.</li>
+        <li><strong>Runas</strong>: the account the command runs as, in parentheses.</li>
+        <li><strong>Command</strong>: full path to the command and allowed arguments; avoid wildcards.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="font-semibold text-slate-800">Examples</div>
+        <pre class="mt-2 bg-slate-900 text-white p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular,Menlo,monospace;">
+# Allow 'john' to restart httpd on any host
+john ALL=(root) /usr/bin/systemctl restart httpd.service
+
+# Allow 'opsgroup' two commands without password
+%opsgroup ALL=(root) NOPASSWD: /usr/bin/systemctl restart httpd.service, /usr/bin/systemctl status httpd.service
+        </pre>
+      </div>
+    </div>
+    <div class="col-span-5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full flex flex-col">
+      <div class="font-semibold text-slate-800">Guidance and checks</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Always specify full command paths to avoid PATH-based surprises.</li>
+        <li>Avoid broad ALL or wildcards in command lists; be specific about allowed arguments.</li>
+        <li>Remember rule order: earlier deny or restrictive rules take precedence.</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using wildcards or ALL for commands is a frequent cause of over-privilege. Be explicit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

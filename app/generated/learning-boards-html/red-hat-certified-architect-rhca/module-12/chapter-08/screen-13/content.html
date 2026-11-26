@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module X</span><span>›</span><span>Chapter Y</span><span>›</span><span class="text-slate-700">Deploying Nginx with ODF</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="lg:w-1/2 flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Hands-on Practice</div><h2 class="text-3xl font-bold text-slate-900 mb-3">Deploying Nginx with ODF Persistent Storage</h2><p class="text-lg text-slate-600 mb-6">Verifying Data Persistence Across Pod Restarts</p><div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-4"><p class="text-sm text-slate-700">We'll deploy an Nginx server, mount our PVC, write data, and then verify that the data persists even after the Nginx pod is restarted.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Persistent Volumes ensure that application data remains intact and available, even if the pods accessing them are restarted, rescheduled, or deleted.</p></div><div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Pro Tip</div><p class="text-xs text-slate-700">Always test data persistence in your development and staging environments to confirm your storage configuration behaves as expected under various conditions.</p></div></div><div class="lg:w-1/2 flex flex-col justify-center bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-700 font-mono text-sm text-slate-200"><div class="mb-4"><span class="text-emerald-400"># 1. Deploy Nginx with the PVC (nginx-deployment.yaml)</span><pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-with-pvc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-pvc
+  template:
+    metadata:
+      labels:
+        app: nginx-pvc
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html-volume
+        persistentVolumeClaim:
+          claimName: my-nginx-pvc</code></pre><pre class="mt-2"><code class="language-bash">oc apply -f nginx-deployment.yaml</code></pre><pre class="mt-2 p-2 bg-slate-800 rounded-md overflow-x-auto"><code class="language-text">deployment.apps/nginx-with-pvc created</code></pre></div><div class="mb-4"><span class="text-emerald-400"># 2. Verify PVC status and Nginx pod</span><pre><code class="language-bash">oc get pvc my-nginx-pvc
+oc get pod -l app=nginx-pvc</code></pre><pre class="mt-2 p-2 bg-slate-800 rounded-md overflow-x-auto"><code class="language-text">NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                AGE
+my-nginx-pvc   Bound    pvc-a1b2c3d4-e5f6-7890-1234-567890abcdef   1Gi        RWO            ocs-storagecluster-ceph-rbd   1m
+
+NAME                             READY   STATUS    RESTARTS   AGE
+nginx-with-pvc-abcdefg-hijkl     1/1     Running   0          1m</code></pre></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900">Route 53 Health Checks & Failover</div>
+      <div class="text-sm text-slate-600 mt-2">Probe endpoints and configure failover record sets to redirect traffic automatically.</div>
+
+      <div class="mt-4 rounded-xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-sm font-semibold text-slate-800">CLI example</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-800">aws route53 create-health-check --caller-reference "$(date +%s)" --health-check-config '{"IPAddress": "192.0.2.44", "Port": 80, "Type": "HTTP", "ResourcePath": "/health", "RequestInterval": 30, "FailureThreshold": 3}'
+
+# change-resource-record-sets example: create primary and secondary failover records
+aws route53 change-resource-record-sets --hosted-zone-id Z1D633XXXXXXX --change-batch '{"Comment":"Failover for web app","Changes":[...]}'}'</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Design considerations</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Health checks must exercise real application paths that indicate readiness.</li>
+          <li>Plan DNS TTLs to balance propagation speed with resolver load and caching behavior.</li>
+          <li>Combine Route 53 failover with ALB health checks for layered detection and recovery.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pitfall</div>
+          <div class="text-sm text-rose-700 bg-rose-50 p-2 rounded">Relying solely on low-level IP checks can misidentify an app as healthy when the application is failing to serve requests.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <p class="text-sm text-slate-800">Route 53 provides DNS failover when health checks are meaningful and TTLs are planned for expected propagation behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

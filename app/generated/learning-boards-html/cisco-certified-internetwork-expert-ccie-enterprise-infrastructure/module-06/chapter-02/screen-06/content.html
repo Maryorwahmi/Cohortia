@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Keyring & Profile</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Keyring: peer authentication storage</div>
+      <div class="text-sm text-slate-600 mt-2">Store a pre-shared key per peer address so authentication is deterministic during IKEv2 negotiation.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Why explicit peer addresses matter</div>
+          <div class="text-sm text-slate-600 mt-2">The router selects the key that matches the peer's address. Use exact addresses to avoid ambiguous matches and failed auth.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">IKEv2 profile role</div>
+          <div class="text-sm text-slate-600 mt-2">The profile links policy and keyring, and sets local/remote identity for the IKE exchange so the correct proposal is used.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete configuration snippet</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size:2; font-family:Menlo,Monaco,monospace; font-size:13px;">
+crypto ikev2 keyring MY_IKEV2_KEYRING
+ peer BRANCH_ROUTER_PEER
+  address 203.0.113.2
+  pre-shared-key CohortiaVPN!23
+
+crypto ikev2 profile MY_IKEV2_PROFILE
+ match identity remote address 203.0.113.2 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local MY_IKEV2_KEYRING
+      </pre>
+
+      <div class="mt-4 bg-rose-50 rounded-lg p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconfiguration</div>
+        <div class="text-sm text-slate-700 mt-2">Using a different pre-shared key on the remote peer will prevent Phase 1 authentication and stop the tunnel from forming.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

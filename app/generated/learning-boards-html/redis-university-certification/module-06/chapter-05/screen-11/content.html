@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:12px; }
+    pre.codepanel { background:#0b1220; color:#dbeafe; padding:12px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; white-space:pre-wrap; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Rename Commands</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-2xl font-extrabold text-slate-800">Rename or Disable Dangerous Commands</h3>
+        <p class="text-sm text-slate-600 mt-1">Reduce risk by removing or renaming commands that can destroy data or reveal internals.</p>
+      </div>
+      <div class="text-xs uppercase font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded">Hardening</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">How it works</div>
+        <p class="text-sm text-slate-700">In redis.conf you can use rename-command to either disable a command or map it to a secret name. Disabled commands are unreachable by normal clients. Commands renamed to secret values are still callable if the caller knows the new name.</p>
+        <ul class="mt-3 text-sm text-slate-600 space-y-1">
+          <li>Use empty string to disable: rename-command FLUSHALL ""</li>
+          <li>Or map to a secret: rename-command KEYS mysecretkeyscommand</li>
+          <li>Keep a secure record of any renamed commands for operations teams.</li>
+        </ul>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+        <pre class="codepanel"># redis.conf
+rename-command FLUSHALL ""
+rename-command KEYS mysecretkeyscommand</pre>
+      </div>
+
+      <div class="card p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Misconception</div>
+        <p class="text-sm text-slate-700">Renaming commands is not security by itself. Treat it as mitigation layered with auth, network controls, and monitoring.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Operational Advice</div>
+        <p class="text-sm text-slate-700">Coordinate configuration changes with deployment automation. If automation expects certain commands, update scripts and runbooks to avoid surprises during maintenance. Test renames in staging and verify logs for denied or unknown-command errors.</p>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <div class="p-2 bg-emerald-50 rounded"><div class="text-xs font-bold text-emerald-700 uppercase">Benefit</div><div class="text-sm text-slate-700 mt-1">Reduces accidental destructive operations.</div></div>
+          <div class="p-2 bg-rose-50 rounded"><div class="text-xs font-bold text-rose-700 uppercase">Caution</div><div class="text-sm text-slate-700 mt-1">Keep track of renamed commands securely.</div></div>
+        </div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Check Your Understanding</div>
+        <p class="text-sm text-slate-700">If FLUSHALL is disabled, scripts that rely on it will fail. Ensure maintenance workflows use supported and safe alternatives.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

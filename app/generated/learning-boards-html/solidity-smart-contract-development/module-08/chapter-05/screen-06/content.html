@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class="flex gap-6 h-[70vh]">
+    <div class="w-1/2 card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <h3 class="text-xl font-semibold text-slate-800">Front-end handler structure</h3>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600">
+        <li>Input validation and signer check.</li>
+        <li>Send transaction and capture tx.hash immediately.</li>
+        <li>Await tx.wait() for TransactionReceipt and check receipt.status.</li>
+        <li>Update UI and refetch contract state on success.</li>
+        <li>Parse errors and ensure isMining is reset in finally.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Takeaway</div>
+        <p class="text-sm text-slate-800">A clear lifecycle in code leads to unambiguous UX during async writes.</p>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <div class="mono p-3 bg-slate-50 rounded">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0">const handleSetGreeting = async () =&gt; {
+  if (!greeterContract || !signer) { setError('Wallet not connected'); return; }
+  if (!newGreeting.trim()) { setError('Greeting cannot be empty'); return; }
+  try {
+    setIsMining(true);
+    setTransactionStatus('Sending transaction...');
+    const tx = await greeterContract.setGreeting(newGreeting);
+    setTransactionStatus(`Transaction sent: ${tx.hash}. Waiting for confirmation...`);
+    const receipt = await tx.wait();
+    if (receipt.status === 1) { setTransactionStatus('Transaction confirmed successfully!'); await fetchContractData(greeterContract); }
+    else { setTransactionStatus('Transaction failed!'); setError('Transaction failed on chain.'); }
+  } catch (err) { /* parse error codes and messages */ }
+  finally { setIsMining(false); }
+};</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Note: do not forget to clear the input and refresh state after a confirmed transaction so the user sees the updated greeting.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

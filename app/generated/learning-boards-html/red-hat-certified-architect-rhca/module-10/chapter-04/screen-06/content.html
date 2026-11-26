@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Pipeline</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Pipeline structure</div>
+      <div class="text-sm text-slate-600 mt-2">Parameters, Workspaces and task list form the Pipeline API surface.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example snippet</div>
+      <div class="rounded-lg p-3 bg-slate-50 text-sm text-slate-700 overflow-auto">
+        <pre><code>apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: app-build-deploy-pipeline
+spec:
+  params:
+    - name: git-url
+      type: string
+    - name: git-revision
+      type: string
+      default: main
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.git-url)
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: build-image
+      runAfter: ["fetch-repository"]
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: shared-workspace</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Notes and guidance</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Use Workspaces for files and artifact passing, not Results.</li>
+        <li>Results are for short values like digests or test counts.</li>
+        <li>Explicit runAfter or task dependencies improve readability for complex Pipelines.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <div class="rounded-xl bg-emerald-50 p-3 text-sm text-slate-800">Design Pipelines that clearly express data flow: which workspace holds sources, which Results matter, and how Tasks depend on each other.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

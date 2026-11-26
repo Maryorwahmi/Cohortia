@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">lvextend</span>
+    </div>
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-[60vh]">
+      <div class="text-lg font-bold text-slate-900">Grow a Logical Volume</div>
+      <div class="text-sm text-slate-600 mt-2">Add space to an LV, then expand the filesystem to use it.</div>
+      <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+        <div>
+          <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Commands</div>
+            <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">sudo vgs
+# add 1GB to lv_web
+sudo lvextend -L +1G /dev/vg_data/lv_web
+sudo lvs</pre>
+          </div>
+          <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] mt-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Filesystem resize</div>
+            <pre class="mt-2 text-sm bg-slate-900 text-green-200 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;"># XFS (mounted)
+sudo xfs_growfs /var/www/html
+# ext4 (can be online or offline)
+sudo resize2fs /dev/vg_data/lv_web
+sudo df -h /var/www/html</pre>
+          </div>
+        </div>
+        <div class="flex flex-col gap-3">
+          <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example</div>
+            <div class="text-sm text-slate-800 mt-1">In the lab add 1GB to lv_web and run resize2fs; df -h should then show the larger filesystem size.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+            <div class="text-sm text-slate-800 mt-1">Forgetting the filesystem step leaves applications unaware of the new blocks even though the LV grew.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Check</div>
+            <div class="text-sm text-slate-800 mt-1">If lvextend fails, add a PV to the VG with pvcreate and vgextend, then retry lvextend.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

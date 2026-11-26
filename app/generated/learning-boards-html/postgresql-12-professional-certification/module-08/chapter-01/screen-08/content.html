@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Connections</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">log_connections & log_disconnections</div>
+      <div class="text-sm text-slate-600 mt-2">Record session start and end events to trace who connected and when.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">Why enable it</div>
+          <div class="text-xs text-slate-600 mt-1">Helps determine whether connection attempts reached PostgreSQL and provides timestamps and client info for each session.</div>
+        </div>
+
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="font-semibold">When to use</div>
+          <div class="text-xs text-slate-600 mt-1">Enable for short diagnostic windows or lower-traffic systems; watch volume in busy environments.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Connection logs are useful evidence that a client reached the server, but must be balanced with overall log volume.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example entries</div>
+      <div class="mt-3 text-xs text-slate-600">With a proper log_line_prefix, you will see lines like a timestamp, PID, user@db, then "connection authorized" or "disconnection". Use these to map sessions to application logs.</div>
+
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Enable connection logging
+log_connections = on
+log_disconnections = on
+
+# Watch the logs for lines showing connection authorized and disconnection
+      </pre>
+
+      <div class="mt-4 text-xs text-slate-600">
+        <div class="font-semibold">Interpretation tip</div>
+        <div class="mt-1">If connection attempts are absent, the issue may be network or firewall related. If attempts exist but authentication fails, examine pg_hba.conf rules and client credentials.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

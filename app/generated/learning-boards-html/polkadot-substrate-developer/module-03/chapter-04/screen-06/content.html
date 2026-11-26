@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.codepanel{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;border:1px solid rgba(226,232,240,0.06)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Send Extrinsic</span>
+    </div>
+    <div class="flex gap-4 h-[72%]">
+      <div class="w-1/2 card p-4">
+        <div class="text-lg font-bold text-slate-900">Steps to submit a transaction</div>
+        <ol class="mt-3 text-sm text-slate-700 list-decimal pl-5 space-y-2">
+          <li>Create provider and await ApiPromise.create so metadata is available.</li>
+          <li>Load signer keypair using Keyring and the correct curve (sr25519 for Substrate).</li>
+          <li>Build extrinsic with api.tx.balances.transfer(recipient, amount).</li>
+          <li>Call transfer.signAndSend(signer) and monitor status for inclusion/finalization.</li>
+        </ol>
+        <div class="mt-4 p-3 rounded-lg bg-slate-50 text-sm">Misconception: signing is optional — it is required for any extrinsic that modifies state and must use the corresponding private key.</div>
+      </div>
+      <div class="w-1/2 card p-4">
+        <div class="text-sm font-bold text-slate-800">Code example: transfer</div>
+        <div class="mt-2 codepanel mono" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
+
+async function main() {
+  const provider = new WsProvider('ws://127.0.0.1:9944');
+  const api = await ApiPromise.create({ provider });
+  const keyring = new Keyring({ type: 'sr25519' });
+
+  const alice = keyring.addFromUri('//Alice');
+  const bob = '5FHneW46xGXap2Few4HEUSRtfAwPCMzrMyGZvou3S85fWkEZ';
+
+  const transfer = api.tx.balances.transfer(bob, 10);
+  const hash = await transfer.signAndSend(alice);
+  console.log('Transfer sent with hash', hash.toHex());
+
+  await api.disconnect();
+}
+
+main().catch(console.error);
+        </div>
+        <div class="mt-3 text-xs text-slate-600">This example uses development keys; do not expose real private keys in production code.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

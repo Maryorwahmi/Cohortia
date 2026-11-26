@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulate and observe a WriteTimeout</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Lab steps</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Simulate a timeout</h3>
+      <p class="text-sm text-slate-600 mt-3">Run a single-node Cassandra container, create a keyspace with RF=3, and attempt a QUORUM write to trigger a WriteTimeoutException.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Commands</div>
+          <pre class="text-sm text-slate-800 rounded-md"><code>docker run --name cassandra-logs -p 9042:9042 -d cassandra:latest
+
+# watch logs
+docker exec -it cassandra-logs bash
+tail -f /var/log/cassandra/system.log
+
+# in a second terminal
+docker exec -it cassandra-logs cqlsh
+CREATE KEYSPACE myapp_timeout WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
+USE myapp_timeout;
+CREATE TABLE events (
+  event_id UUID PRIMARY KEY,
+  event_type TEXT,
+  event_data TEXT,
+  event_time TIMESTAMP
+);
+INSERT INTO events (event_id, event_type, event_data, event_time) VALUES (uuid(), 'login', 'user_123 logged in', toTimestamp(now())) WITH CONSISTENCY QUORUM;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">What to observe</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 mt-2">
+          <li>system.log entries mentioning WriteTimeoutException or 'Timeout while waiting for replica'.</li>
+          <li>nodetool tpstats showing pending MutationStage tasks.</li>
+          <li>gc.log for any long Full GC events during the write attempt.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Safety note</div>
+        <p class="text-sm text-slate-700 mt-2">This simulation uses a single node to force a timeout. Do not enable debug logging in production without an offload plan and rotation configured.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Practice capturing logs and timing; seeing the exact log lines helps you recognize them during incidents.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

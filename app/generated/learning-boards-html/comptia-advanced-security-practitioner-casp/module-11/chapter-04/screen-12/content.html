@@ -1,0 +1,14 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Consolas,monospace;background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px} .card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;}</style>  <div>    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>      <span>›</span>      <span>Chapter 11.4</span>      <span>›</span>      <span class="text-slate-700">Secrets Management</span>    </div>  </div>  <div class="flex gap-4 h-full">    <div class="w-1/2 card p-4">      <div class="text-sm font-bold text-slate-700">Python example (runtime retrieval)</div>      <pre>import boto3
+import os
+import json
+
+def get_secret(secret_name, region_name="us-east-1"):
+  client = boto3.client('secretsmanager', region_name=region_name)
+  resp = client.get_secret_value(SecretId=secret_name)
+  return resp.get('SecretString')
+
+def lambda_handler(event, context):
+  secret_name = os.environ['EXTERNAL_API_KEY_SECRET_NAME']
+  api_key = get_secret(secret_name)
+  # Use api_key transiently
+  return {'statusCode': 200, 'body': json.dumps('OK')}</pre>    </div>    <div class="w-1/2 card p-4">      <div class="text-sm font-bold text-slate-700">Operational checklist</div>      <ul class="mt-3 text-sm text-slate-700 space-y-2">        <li>Store secret name in env var; do not store the secret itself.</li>        <li>Grant the function identity secretsmanager:GetSecretValue only for the required secret ARN.</li>        <li>Audit GetSecretValue calls and rotate secrets periodically.</li>        <li>Scan dependencies and keep them minimal to reduce supply-chain risk.</li>      </ul>      <div class="mt-4">        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          <p class="text-xs font-medium text-slate-800">Use managed secret stores and managed identities to retrieve secrets at runtime. Avoid environment-level secrets that are visible in portal UIs or logs.</p>        </div>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Design Activity</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800">Design a DR Strategy for a Multi-Tier App</h3>
+    <p class="text-sm text-slate-600 mt-1">Use the template below to document tiered choices for the given RTO/RPO requirements.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800 mb-2">Scenario</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <div>Three-tier app in us-east-1.</div>
+        <div>Tier 1 (Database): RPO 5 minutes, RTO 30 minutes.</div>
+        <div>Tier 2 (Web/App): RPO 1 hour, RTO 2 hours.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800 mb-2">Template (fill in)</div>
+        <pre style="white-space:pre-wrap;tab-size:2;background:#0f172a;color:#e6eef8;padding:10px;border-radius:8px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; line-height:1.3;">
+**DR Strategy Design for Multi-Tier Application**
+
+**Application Tier: Database (Tier 1)**
+* **RPO:** 5 minutes
+* **RTO:** 30 minutes
+* **Chosen DR Strategy:** Warm Standby
+* **AWS Services &amp; Implementation:**
+  1. RDS cross-region replica - continuous replication and fast promotion.
+  2. Smaller DB instance in us-west-2 kept active + automated promotion scripts.
+  3. Infrastructure-as-code templates for VPC and security groups to speed provisioning.
+
+**Application Tier: Web/Application Servers (Tier 2)**
+* **RPO:** 1 hour
+* **RTO:** 2 hours
+* **Chosen DR Strategy:** Pilot Light (or Backup &amp; Restore with automation)
+* **AWS Services &amp; Implementation:**
+  1. AMIs in us-west-2 and S3 for static assets - quick instance launches.
+  2. Pre-built autoscaling templates and CloudFormation templates for faster scaling.
+  3. Periodic snapshots and an RDS read replica if needed for session data.
+        </pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800 mb-2">Assessment &amp; Validation</div>
+      <div class="text-sm text-slate-700 space-y-3">
+        <div>
+          <div class="font-semibold">Test plan</div>
+          <div>Dry run of promotion, scale-up rehearsals, measure time to reach healthy state, and verify data consistency.</div>
+        </div>
+        <div>
+          <div class="font-semibold">Common error</div>
+          <div>Choosing costly active-active for tiers that do not need it rather than mixing strategies by criticality.</div>
+        </div>
+        <div>
+          <div class="font-semibold">Takeaway</div>
+          <div>Match each tier to the minimum strategy that meets its RTO/RPO and test the plan end-to-end.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

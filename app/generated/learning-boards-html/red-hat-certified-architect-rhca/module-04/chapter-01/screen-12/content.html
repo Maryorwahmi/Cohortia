@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: httpd logs</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 card h-full shadow-sm flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <h3 class="text-xl font-bold mt-2">Allow httpd to write to /opt/myapp/logs</h3>
+    <div class="mt-4 grid grid-cols-3 gap-3 flex-1 min-h-0">
+      <div class="rounded-xl bg-slate-50 p-3 card">
+        <div class="text-sm font-semibold">Step 1 — Reproduce</div>
+        <div class="text-xs text-slate-600 mt-2">Create the path and trigger a write to generate AVCs.</div>
+        <pre class="mono text-xs mt-2">sudo mkdir -p /opt/myapp/logs
+sudo touch /opt/myapp/logs/access.log
+sudo -u apache touch /opt/myapp/logs/test_write.log</pre>
+      </div>
+      <div class="rounded-xl bg-white p-3 card">
+        <div class="text-sm font-semibold">Step 2 — Collect</div>
+        <div class="text-xs text-slate-600 mt-2">Use ausearch to extract relevant AVC entries.</div>
+        <pre class="mono text-xs mt-2">ausearch -c httpd -m AVC -ts today</pre>
+      </div>
+      <div class="rounded-xl bg-slate-50 p-3 card">
+        <div class="text-sm font-semibold">Step 3 — Generate</div>
+        <div class="text-xs text-slate-600 mt-2">Create a draft policy with audit2allow and review it carefully.</div>
+        <pre class="mono text-xs mt-2">audit2allow -a /var/log/audit/audit.log -M myapp_httpd_log</pre>
+      </div>
+      <div class="rounded-xl bg-white p-3 card">
+        <div class="text-sm font-semibold">Step 4 — Compile & Install</div>
+        <div class="text-xs text-slate-600 mt-2">Build the package and install it into the running policy.</div>
+        <pre class="mono text-xs mt-2">checkmodule -M -m -o myapp_httpd.mod myapp_httpd.te
+semodule_package -o myapp_httpd.pp -m myapp_httpd.mod
+semodule -i myapp_httpd.pp</pre>
+      </div>
+      <div class="rounded-xl bg-slate-50 p-3 card">
+        <div class="text-sm font-semibold">Step 5 — Verify</div>
+        <div class="text-xs text-slate-600 mt-2">Re-run the write attempt and validate no AVCs remain, then setenforce 1 to re-enable enforcing behavior.</div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card">
+        <div class="text-sm font-semibold">Optional — Relabel</div>
+        <div class="text-xs text-slate-600 mt-2">If relabeling is preferred, declare a mapping and apply it.</div>
+        <pre class="mono text-xs mt-2">semanage fcontext -a -t httpd_log_t "/opt/myapp/logs(/.*)?"
+restorecon -Rv /opt/myapp/logs</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

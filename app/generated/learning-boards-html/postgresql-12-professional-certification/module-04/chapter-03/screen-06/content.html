@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Atomicity & WAL</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white border p-5 shadow-sm" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Write-Ahead Log ensures atomic commits</h3>
+      <p class="text-sm text-slate-600 mt-3">WAL writes intent before data files change so recovery can replay or roll back work after a crash.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color: rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-800">How it works</div>
+          <ol class="mt-2 text-sm text-slate-600 pl-4 list-decimal space-y-1">
+            <li>Transaction writes WAL records describing changes.</li>
+            <li>On COMMIT, WAL records are flushed to disk and acknowledged.</li>
+            <li>Data files are updated; after crash recovery, WAL is replayed to finish or undo operations.</li>
+          </ol>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color: rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">A committed order is guaranteed to exist after a crash because WAL records will be replayed during recovery to restore that committed state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Quick notes</div>
+      <div class="mt-3 text-sm text-slate-700">Durability depends on WAL flush semantics. Until WAL is synced, a crash may lose recent commits; after WAL is persisted, commits survive recovery.</div>
+
+      <pre class="mt-4 p-3 bg-slate-900 text-slate-100 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+-- Conceptual log record example (not actual WAL format)
+WAL: INSERT orders id=101 customer_id=1 total_amount=1620.00
+WAL: UPDATE products id=1 stock_quantity=9
+COMMIT
+        </pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">WAL records intent before data changes so PostgreSQL can guarantee atomic commits and durability during recovery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

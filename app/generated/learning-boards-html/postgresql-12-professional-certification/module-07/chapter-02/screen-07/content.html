@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cmd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space: pre-wrap; }</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>pg_basebackup</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='card p-4'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Prepare standby directory</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># On standby
+sudo systemctl stop postgresql
+sudo rm -rf /var/lib/postgresql/12/main/*
+sudo mkdir -p /var/lib/postgresql/12/main
+sudo chown -R postgres:postgres /var/lib/postgresql/12/main
+sudo chmod 700 /var/lib/postgresql/12/main</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Ensure the postgres OS user owns and can write to the data directory before running pg_basebackup.</div>
+    </div>
+
+    <div class='card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Run pg_basebackup</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># From the standby as postgres
+pg_basebackup -h &lt;primary_ip&gt; -D /var/lib/postgresql/12/main -U replicator_user -P -v -R -W
+# Enter the replication user's password when prompted</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>The -R option adds standby.signal and primary_conninfo so the standby will know how to contact the primary on startup.</div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>pg_basebackup -R simplifies standby initialization by creating the necessary recovery files automatically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

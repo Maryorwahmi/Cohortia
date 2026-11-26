@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, monospace;background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;} .card{background:white;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda Remediation Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card rounded-2xl p-4">
+      <div class="text-sm font-bold">Simplified Lambda example (excerpt)</div>
+      <pre><code>import json
+import boto3
+
+s3 = boto3.client('s3')
+securityhub = boto3.client('securityhub')
+
+def lambda_handler(event, context):
+  for finding in event['detail']['findings']:
+    finding_id = finding['Id']
+    product_arn = finding['ProductArn']
+    for resource in finding['Resources']:
+      if resource['Type'] == 'AwsS3Bucket':
+        bucket_name = resource['Details']['AwsS3Bucket']['BucketName']
+        s3.put_public_access_block(
+          Bucket=bucket_name,
+          PublicAccessBlockConfiguration={
+            'BlockPublicAcls': True,
+            'IgnorePublicAcls': True,
+            'BlockPublicPolicy': True,
+            'RestrictPublicBuckets': True
+          }
+        )
+        securityhub.batch_update_findings(
+          FindingIdentifiers=[{'Id': finding_id,'ProductArn': product_arn}],
+          Workflow={'Status': 'RESOLVED'}
+        )
+</code></pre>
+      <div class="text-sm text-slate-600 mt-2">This function applies a public access block and marks the finding resolved. Ensure your role only has the minimal permissions it needs.</div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="card rounded-2xl p-4 h-full">
+        <div class="text-sm font-semibold">Operational checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>Give Lambda least privilege (s3:PutBucketPublicAccessBlock, securityhub:BatchUpdateFindings).</li>
+          <li>Log every remediation attempt and exception.</li>
+          <li>Test in non-production and validate Security Hub finding updates.</li>
+        </ul>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Avoid broad IAM roles for remediation functions. Over-privileged automations create risk if compromised.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Remediation functions must be treated as first-class code: least privilege, test coverage, logging, and human review for high-impact actions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

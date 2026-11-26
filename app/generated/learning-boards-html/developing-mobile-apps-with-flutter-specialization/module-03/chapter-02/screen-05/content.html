@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Navigator.push and Navigator.pop</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Code walkthrough</div>
+      <div class="mt-3 text-sm text-slate-700">This example awaits a pushed route and handles a non-null result. It mirrors the starter code in the chapter and highlights proper awaiting and result handling.</div>
+
+      <pre class="code mt-4"><code>// Navigating to a new screen and expecting a result
+Future&lt;void&gt; _navigateToSecondScreen(BuildContext context) async {
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) =&gt; SecondScreen()),
+  );
+
+  if (result != null) {
+    print('Result from SecondScreen: ' + result.toString());
+    // Display result or update UI
+  }
+}
+
+// In SecondScreen, to pop and return data
+Navigator.pop(context, 'Data from SecondScreen');</code></pre>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border border-amber-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Always await the push when you need a return value. If you forget, result will be lost or null.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Example scenario</div>
+      <div class="text-sm text-slate-700 mt-3">Imagine an app where Home opens a color picker screen. The user selects a color, pops with that color, and Home updates the theme. The awaited result drives the UI response directly.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="rounded-lg bg-rose-50 p-3 border border-rose-100 text-sm text-slate-800">Not using await or miscasting the returned type. Also, navigating after an async operation without checking mounted can throw.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Use Navigator.push with await to get returned data. Pop with a result to send data back to the caller.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="rounded-2xl bg-white p-6 h-full border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="mt-2 flex items-center justify-between">
+      <div>
+        <div class="text-2xl font-bold text-slate-800">perf for profiling and call graphs</div>
+        <div class="text-sm text-slate-600">Record call graphs, view hotspots, and profile across kernel and user space.</div>
+      </div>
+      <div class="text-xs text-slate-500">perf record → perf report</div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="font-semibold text-slate-800">Quick reference</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>perf stat &lt;command&gt; — summary counters for a run.</li>
+          <li>sudo perf record -g &lt;command&gt; — record samples plus call graphs.</li>
+          <li>perf report — analyze perf.data and inspect call stacks and percentages.</li>
+          <li>perf top — live, top-like view of hottest symbols.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="font-semibold text-slate-800">Misconception</div>
+          <div class="text-sm text-rose-600 mt-1">Believing perf replaces functional debugging. perf shows where time is spent, not why logic is incorrect.</div>
+        </div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] min-h-0">
+        <div class="font-semibold text-slate-800">Example terminal steps</div>
+        <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded-md text-sm"># Record a program with call graphs
+sudo perf record -g ./my_app
+
+# After run completes
+perf report
+
+# System-wide recording for 30s
+sudo perf record -a -g sleep 30
+perf report</pre>
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use call-graph sampling to prioritize optimization on functions that consume the most CPU, not guesses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

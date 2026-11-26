@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b1220;color:#e6eef8;padding:1rem;border-radius:12px} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Nginx</span>
+    </div>
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-[70%]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter Playbook</div>
+      <pre class="code mt-3"><code>---
+- name: Setup Nginx web server
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Install Nginx package
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx service is running and enabled
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Copy custom index.html
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: /usr/share/nginx/html/index.html
+        owner: nginx
+        group: nginx
+        mode: '0644'
+</code></pre>
+      <div class="mt-3 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 card">
+          <div class="text-sm font-semibold text-blue-700">Files directory</div>
+          <div class="text-xs text-slate-600 mt-1">Place index.html under files/ next to this playbook. Contents can be &lt;h1&gt;Hello from Ansible Nginx!&lt;/h1&gt;.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 card">
+          <div class="text-sm font-semibold text-emerald-700">Run and verify</div>
+          <div class="text-xs text-slate-600 mt-1">Run ansible-playbook and confirm changed vs ok, then check the server in a browser.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 card">
+          <div class="text-sm font-semibold text-amber-700">Extend</div>
+          <div class="text-xs text-slate-600 mt-1">Later swap copy for template to render host-specific content with Jinja2.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

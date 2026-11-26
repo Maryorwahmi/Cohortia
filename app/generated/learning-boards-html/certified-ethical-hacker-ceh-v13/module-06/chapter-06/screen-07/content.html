@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Open Storage Buckets</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Problem</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Public buckets expose sensitive data</h3>
+      <p class="text-sm text-slate-600 mt-2">Buckets with public read or list permissions can leak backups, configs, and keys. Discovery is straightforward; responsible handling is not optional.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Detection checklist</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Check bucket ACL and policy for public principals.</li>
+          <li>Look for IsPublic: true indicators in policy status.</li>
+          <li>Record types of files visible without downloading content.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Command example</div>
+      <pre class="mt-2 p-3 rounded bg-slate-900 text-slate-50 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>aws s3api get-bucket-acl --bucket my-sensitive-data-bucket
+aws s3api get-bucket-policy-status --bucket my-sensitive-data-bucket</code></pre>
+      <div class="mt-3 text-xs text-slate-600">If ACL shows READ for AllUsers or policy status IsPublic true, treat as critical and report with remediation.</div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Assessor caution</div>
+        <div class="text-sm text-slate-700 mt-2">Do not download or alter data. Observing directory listings is sufficient for proof of exposure; follow disclosure policies and preserve evidence.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Public buckets are discoverable and serious. Document exposure without interacting and recommend restricting access to authorized identities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

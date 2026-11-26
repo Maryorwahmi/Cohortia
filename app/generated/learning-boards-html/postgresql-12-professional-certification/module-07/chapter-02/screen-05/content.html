@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>pg_hba.conf for replication</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='card p-4'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Example pg_hba.conf entry</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># On the primary server's pg_hba.conf
+host    replication     replicator_user     10.0.0.5/32     md5</pre>
+      <div class='mt-3 text-sm text-slate-700'>Reload the config after editing:</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># on primary
+SELECT pg_reload_conf();
+# or
+pg_ctl reload</pre>
+
+      <div class='mt-4 text-sm text-slate-700'>Tip: For testing, you can allow a broader CIDR, but use specific addresses in production to limit exposure.</div>
+    </div>
+
+    <div class='card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Why this matters</div>
+      <ul class='text-sm text-slate-700 space-y-2'>
+        <li>If the pg_hba.conf entry is missing, the standby cannot authenticate and will fail with connection or authentication errors.</li>
+        <li>Replication uses the pseudo-database name replication, so a typical user rule does not substitute for a replication rule.</li>
+        <li>After adding the rule, test a connection using the replication role credentials to confirm access before taking a base backup.</li>
+      </ul>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Common Mistake</div>
+          <p class='text-xs font-medium text-slate-800'>Forgetting to reload pg_hba.conf or using a wrong CIDR will block standby authentication even if the replicator_user exists.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

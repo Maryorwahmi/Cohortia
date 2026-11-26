@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">tcpdump & Wireshark</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm safe-card">
+      <div class="text-sm font-semibold text-slate-800">Capture example</div>
+      <pre class="bg-slate-100 p-3 rounded-md mt-2 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# tcpdump -i GigabitEthernet0/1 host 172.16.1.100 and port 80 -c 5
+listening on GigabitEthernet0/1, link-type EN10MB
+10:30:01.123456 IP 192.168.10.5.54321 > 172.16.1.100.80: Flags [S]
+10:30:01.123500 IP 172.16.1.100.80 > 192.168.10.5.54321: Flags [S.]
+10:30:01.123600 IP 192.168.10.5.54321 > 172.16.1.100.80: Flags [.]
+</pre>
+      <div class="text-sm text-slate-700 mt-3">This capture shows the TCP handshake and subsequent pushed data frames, confirming that HTTP traffic reached the server interface.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm safe-card">
+      <div class="text-sm font-semibold text-slate-800">Wireshark filters</div>
+      <div class="mt-2 text-sm text-slate-700">Apply display filters like `ip.addr == 172.16.1.100 and tcp.port == 80` or `http.request` to isolate the conversation of interest.</div>
+
+      <div class="mt-3 p-3 rounded-lg border bg-emerald-50 text-sm">
+        <div class="font-semibold text-emerald-700">Analysis checklist</div>
+        <ul class="text-xs text-slate-700 mt-1 space-y-1">
+          <li>Confirm three-way handshake (SYN, SYN-ACK, ACK).</li>
+          <li>Look for retransmissions and out-of-order packets.</li>
+          <li>Inspect TCP flags, sequence numbers, and payload lengths.</li>
+          <li>Correlate timestamps with debug and syslog events.</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 p-3 rounded-lg border bg-rose-50 text-sm">
+        <div class="font-semibold text-rose-700">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Capturing without filters produces huge pcaps that slow analysis and often mask the problem signal.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

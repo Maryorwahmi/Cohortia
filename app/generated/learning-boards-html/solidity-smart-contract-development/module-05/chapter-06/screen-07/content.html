@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Waffle Matchers</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 h-full card-border shadow-sm grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-lg font-bold text-slate-900">Common matchers</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li><span class="font-medium">to.equal</span> — Assert a returned value or a view reading equals the expected number or string.</li>
+        <li><span class="font-medium">to.be.revertedWith</span> — Assert a transaction reverts with the specific error message.</li>
+        <li><span class="font-medium">to.changeEtherBalance</span> — Assert that an account's Ether balance changed by an expected amount after a transaction.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Tip</div>
+        <p class="text-sm text-slate-800 mt-1">Assert both the event and the state change when testing economic functions to avoid false confidence.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="text-sm font-semibold text-slate-800">Concrete snippets</div>
+      <div class="rounded-xl bg-white p-3 mt-3 card-border">
+        <pre class="text-xs font-mono whitespace-pre-wrap">// Example assertions
+expect(await counter.getCount()).to.equal(1);
+await expect(counter.decrement()).to.be.revertedWith("Count cannot go below zero");
+expect(await myToken.totalSupply()).to.equal(initialSupply);
+await expect(() =&gt; depositBox.connect(addr1).deposit({ value: ethers.utils.parseEther("1") })).to.changeEtherBalance(addr1, ethers.utils.parseEther("-1"));
+</pre>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misuse</div>
+        <p class="text-sm text-slate-800 mt-1">Using to.equal on transactions that don't immediately return values can be misleading; read contract state after awaiting the transaction.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

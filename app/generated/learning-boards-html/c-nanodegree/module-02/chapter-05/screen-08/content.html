@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Rule of Three</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border card shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">MyString — deep copy pattern</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Copy Constructor
+MyString(const MyString&amp; other) {
+  length = other.length;
+  data = new char[length + 1];
+  std::strcpy(data, other.data);
+}
+
+// Copy Assignment
+MyString&amp; operator=(const MyString&amp; other) {
+  if (this == &other) return *this;
+  delete[] data;
+  length = other.length;
+  data = new char[length + 1];
+  std::strcpy(data, other.data);
+  return *this;
+}
+
+// Destructor
+~MyString() { delete[] data; }
+</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why deep copy matters</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 mt-2">
+        <li>Avoids two objects owning the same raw memory.</li>
+        <li>Prevents double-free and dangling-pointer errors.</li>
+        <li>Makes destruction predictable and safe for each object.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded-lg bg-white border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">Creating a copy of MyString allocates separate storage so both objects remain valid after destruction of either one.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-white border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">Relying on compiler-generated copy semantics when you own raw pointers leads to shallow copies and bugs.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm font-medium text-slate-800 mt-1">Implement all three special members when your class directly manages raw resources.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

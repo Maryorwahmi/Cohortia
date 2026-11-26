@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Cross-Stack References</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Process</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Export and import workflow</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Export values from the source stack using Outputs and a unique Export Name.</li>
+        <li>Create or update the consuming stack using Fn::ImportValue with the exported name.</li>
+        <li>Confirm the exporting stack exists and exports are available before creating importers.</li>
+        <li>When removing an exported value, delete importing stacks first.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Misconception check: ImportValue is not a parameter — it directly resolves the exported name at stack operation time.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-800">Correct exporting example (YAML)</div>
+        <pre class="mono text-sm bg-slate-50 p-3 mt-2 overflow-auto" style="white-space:pre-wrap; tab-size:2">Outputs:
+  VPCId:
+    Description: The ID of the VPC.
+    Value: !Ref MyVPC
+    Export:
+      Name: MyWebApp-VPCId
+  PublicSubnetId:
+    Description: The ID of the Public Subnet.
+    Value: !Ref MyPublicSubnet
+    Export:
+      Name: MyWebApp-PublicSubnetId</pre>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-800">Correct importing example</div>
+        <pre class="mono text-sm bg-slate-50 p-3 mt-2 overflow-auto" style="white-space:pre-wrap; tab-size:2">Resources:
+  MyWebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      VpcId: !ImportValue MyWebApp-VPCId
+      SubnetId: !ImportValue MyWebApp-PublicSubnetId
+      # ... other properties ...</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

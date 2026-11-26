@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Query-First Modeling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-5 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Workflow</div>
+      <div class="text-sm text-slate-600 mt-2">A repeatable process to convert queries into tables.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">1. List read queries</div>
+          <div class="text-sm text-slate-700 mt-1">Identify the fields you will filter and sort by for each query.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50 border border-violet-100">
+          <div class="text-sm font-bold" style="color:#6b21a8">2. Design a table per query</div>
+          <div class="text-sm text-slate-700 mt-1">Choose partition and clustering keys that satisfy the query without filtering.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-bold text-emerald-700">3. Accept denormalization</div>
+          <div class="text-sm text-slate-700 mt-1">Create separate tables for other access patterns rather than forcing joins.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design tables around queries. This deliberate denormalization keeps reads efficient across the cluster.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-5">
+      <div class="text-sm font-bold text-slate-700">Example: Blog app</div>
+      <div class="mt-3 text-sm text-slate-700">Two separate tables satisfy two queries: posts_by_user for "all posts by user ordered by timestamp" and posts_by_tag for "all posts with a tag ordered by timestamp." Each table uses a partition key suited to its query.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example tables</div>
+        <div class="text-sm mt-2">
+          <pre style="white-space:pre-wrap;tab-size:2;margin:0"><code>CREATE TABLE posts_by_user (
+  user_id UUID,
+  post_timestamp TIMESTAMP,
+  post_id UUID,
+  title TEXT,
+  PRIMARY KEY (user_id, post_timestamp)
+);
+
+CREATE TABLE posts_by_tag (
+  tag TEXT,
+  post_timestamp TIMESTAMP,
+  post_id UUID,
+  title TEXT,
+  PRIMARY KEY (tag, post_timestamp)
+);</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

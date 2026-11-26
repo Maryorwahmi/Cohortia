@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)} pre.command{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Terminal Demo</span>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card shadow-sm h-[65%] overflow-hidden">
+      <div class="text-sm text-slate-700">Follow these terminal steps in sequence. Replace placeholders with your AMP workspace values and ensure the EC2 instance role includes AmazonPrometheusRemoteWriteAccess.</div>
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Create AMP workspace (CLI)</div>
+          <pre class="command"># Create an AMP workspace via AWS CLI
+aws amp create-workspace --alias my-devops-workspace</pre>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Install Node Exporter (EC2)</div>
+          <pre class="command">wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
+tar xvfz node_exporter-1.7.0.linux-amd64.tar.gz
+cd node_exporter-1.7.0.linux-amd64
+./node_exporter &amp; # Run in background</pre>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Install Prometheus</div>
+          <pre class="command">wget https://github.com/prometheus/prometheus/releases/download/v2.49.1/prometheus-2.49.1.linux-amd64.tar.gz
+tar xvfz prometheus-2.49.1.linux-amd64.tar.gz
+cd prometheus-2.49.1.linux-amd64</pre>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">prometheus.yml (snippet)</div>
+          <pre class="command"># Replace YOUR_AMP_WORKSPACE_ENDPOINT with your AMP remote write URL
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+
+remote_write:
+  - url: YOUR_AMP_WORKSPACE_ENDPOINT
+    sigv4:
+      region: &lt;YOUR_REGION&gt;</pre>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl bg-white p-3 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Validation steps</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li>curl http://localhost:9100/metrics to confirm Node Exporter is up.</li>
+        <li>Open Prometheus targets to confirm successful scrapes.</li>
+        <li>In AMG Explore, run node_cpu_seconds_total to ensure AMP receives samples.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

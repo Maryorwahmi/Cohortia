@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.code{font-family:ui-monospace,monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.1</span>
+      <span>›</span>
+      <span class="text-slate-700">EC2 Template Walkthrough</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-[68vh]">
+      <div class="rounded-2xl bg-white p-5 card-border">
+        <div class="text-sm font-bold text-slate-800">YAML template example</div>
+        <div class="mt-3 text-sm text-slate-700">Save this file as my-ec2-stack.yaml and replace the placeholder ImageId and KeyName with values valid for your region and account.</div>
+        <div class="mt-4 code">
+          <pre class="code-mono text-sm"><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: A simple CloudFormation template to launch an EC2 instance.
+
+Resources:
+  MyWebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0abcdef1234567890 # Replace with a valid Amazon Linux 2 AMI ID for your region
+      InstanceType: t2.micro
+      KeyName: my-ssh-key # Replace with an existing EC2 Key Pair name
+      Tags:
+        - Key: Name
+          Value: MyCloudFormationInstance
+        - Key: Environment
+          Value: Development</code></pre>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Walkthrough notes</div>
+        <ul class="list-disc list-inside mt-3 text-sm text-slate-700">
+          <li>AWSTemplateFormatVersion and Description are metadata but helpful for clarity.</li>
+          <li>Resources is mandatory; each resource needs a logical ID and Type.</li>
+          <li>Properties configure the resource; missing required properties cause failures.</li>
+          <li>Replace ImageId and KeyName before deploying; these are common sources of errors.</li>
+        </ul>
+
+        <div class="mt-4 rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-1">Parameterize ImageId and KeyName to reuse the template across regions and accounts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

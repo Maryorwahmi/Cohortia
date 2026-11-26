@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;font-size:13px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Build a Multi‑Vendor Lab (Walkthrough)</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Step‑by‑step</div>
+      <ol class="text-sm text-slate-700 space-y-3">
+        <li>Create a new lab project in your platform of choice.</li>
+        <li>Add two Cisco IOS XE routers, one Catalyst/vIOS‑L2 switch, and one Linux host VM.</li>
+        <li>Connect R1–R2 (Gigabit), R1–SW1 trunk, and SW1–Linux host access port.</li>
+        <li>Start devices and assign IPs; configure OSPF Area 0 on R1, R2, and the SVI if available.</li>
+        <li>Configure Linux IP and default gateway; verify pings to R2 loopback and snapshot the lab.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm text-slate-800">Why snapshot now: after verified connectivity you can test destructive changes and revert without rebuilding.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Example configs</div>
+      <pre><code># R1/R2 basic interface config
+interface GigabitEthernet0/0
+ ip address 10.0.0.1 255.255.255.0
+ no shutdown
+
+# SW1 SVI and port config
+interface Vlan10
+ ip address 10.0.0.254 255.255.255.0
+ no shutdown
+!
+interface GigabitEthernet0/1
+ switchport mode trunk
+!
+interface GigabitEthernet0/2
+ switchport mode access
+ switchport access vlan 20
+
+# Linux host example (Ubuntu)
+sudo ip address add 10.0.0.10/24 dev eth0
+sudo ip route add default via 10.0.0.254</code></pre>
+
+      <div class="mt-3 text-xs text-slate-600">Adapt these snippets to the specific images and CLI variations your emulator provides.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

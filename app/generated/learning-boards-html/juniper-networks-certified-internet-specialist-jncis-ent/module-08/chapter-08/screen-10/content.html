@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter: Troubleshooting</span>
+      <span>›</span>
+      <span class="text-slate-700">STP Troubleshooting</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800">Diagnosing STP: blocked ports and unexpected topology</div>
+    <div class="text-sm text-slate-600 mt-1">Inspect root bridge, port roles, and BPDU-related features to find blocked or looped paths.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-700 mb-2">Key checks</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-2 mb-3">
+        <li>Confirm root bridge: <span class="font-mono">show spanning-tree bridge</span>.</li>
+        <li>Check per-port roles and state: <span class="font-mono">show spanning-tree interface</span>.</li>
+        <li>Look for BPDU Guard/Filter on inter-switch links that may block BPDUs.</li>
+        <li>Verify edge port configuration only on access ports: <span class="font-mono">set protocols stp interface &lt;if&gt; edge</span>.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="font-semibold text-slate-700 mb-1">Example fixes</div>
+        <pre class="code"># Set expected root priority (lower value preferred)
+set protocols stp bridge-priority 28672
+# Configure an access port as edge only when connecting a host
+set protocols stp interface ge-0/0/5 edge
+# Remove BPDU filter from inter-switch link
+delete protocols stp interface ge-0/0/1 bpdu-filter</pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-700 mb-2">Common symptom and resolution</div>
+      <p class="text-sm text-slate-600 mb-3">Symptom: A legitimate uplink is blocked after an upgrade. Resolution: confirm wrong root election or accidental edge/BPDU filter on that link then correct priority or remove edge setting.</p>
+
+      <div class="font-semibold text-slate-700 mb-1">Misconception</div>
+      <p class="text-sm text-rose-700">Don't enable edge on inter-switch links to speed convergence — that can create loops when links flapping occur.</p>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">Plan your root switch explicitly and record priorities so maintenance doesn't inadvertently change election results.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Auth & RBAC</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-2/3">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Definition</div>
+            <h3 class="text-2xl font-bold text-slate-800 mt-2">Authenticate, then Authorize</h3>
+            <p class="text-sm text-slate-600 mt-2">Authentication ensures the identity; authorization enforces permitted actions via roles and permissions.</p>
+          </div>
+          <div class="text-slate-400">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3z"/><path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/></svg>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="text-sm text-slate-700">Edit cassandra.yaml to enable password authentication and the Cassandra authorizer, then restart nodes during a maintenance window. Example settings are shown for reference; your environment may require LDAP or Kerberos integrations.</div>
+          <pre class="mt-3 bg-slate-50 p-3 rounded"><code># In cassandra.yaml
+authenticator: PasswordAuthenticator
+authorizer: CassandraAuthorizer</code></pre>
+        </div>
+      </div>
+      <div class="rounded-xl bg-slate-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Misconception</div>
+        <p class="text-sm text-slate-800">Creating users without auditing and without least-privilege still leaves risk. Regularly review granted permissions and remove anything unnecessary.</p>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Practical Commands</div>
+        <p class="text-sm text-slate-700 mt-2">As a superuser, create an application user and grant narrow permissions. The examples below follow the chapter's hands-on walkthrough.</p>
+        <pre class="mt-3"><code>-- Connect as superuser: cqlsh -u cassandra -p cassandra
+CREATE USER 'data_ingest_app' WITH PASSWORD 'super_secret_password' NOSUPERUSER;
+CREATE KEYSPACE IF NOT EXISTS app_data WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3};
+GRANT MODIFY ON TABLE app_data.sensor_readings TO data_ingest_app;
+GRANT SELECT ON TABLE app_data.analytics_results TO data_ingest_app;
+REVOKE ALL PERMISSIONS ON ALL KEYSPACES FROM data_ingest_app;</code></pre>
+        <div class="mt-3 text-sm text-slate-700">Use NOSUPERUSER for application accounts so you avoid granting administrative capability. Keep superuser usage tightly controlled and audited.</div>
+      </div>
+      <div class="rounded-xl bg-amber-50 border-l-4 border-l-amber-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-sm text-slate-800">Maintain a role matrix mapping applications to roles and periodically run a permissions audit to detect privilege creep.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

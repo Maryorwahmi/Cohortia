@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Azure AD Connect Demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">On-premises check (example)</div>
+      <div class="text-xs text-slate-600 mt-1">Query Active Directory for a user and attributes</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 overflow-auto">
+        <pre><code>Get-ADUser -Identity "j.smith" -Properties mail,memberOf,whenChanged
+# Sample output:
+# DistinguishedName : CN=John Smith,OU=Users,DC=corp,DC=local
+# mail              : j.smith@corp.local
+# memberOf          : CN=Staff,OU=Groups,DC=corp,DC=local
+# whenChanged       : 2024-05-10 09:15:22</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Confirm that the authoritative attributes and membership match expectations before checking the cloud side.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Cloud check (example)</div>
+      <div class="text-xs text-slate-600 mt-1">Use Azure AD PowerShell to confirm synchronized user data</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 overflow-auto">
+        <pre><code>Get-AzureADUser -ObjectId "j.smith@contoso.com" | Select DisplayName,UserPrincipalName,ProxyAddresses,DirSyncEnabled
+# Sample output:
+# DisplayName     : John Smith
+# UserPrincipalName: j.smith@contoso.com
+# ProxyAddresses  : SMTP:j.smith@contoso.com
+# DirSyncEnabled  : True</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">If attributes differ, investigate transformation rules in the sync configuration and review connector logs for errors or filtered objects.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-white p-4 card-border">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Pro tip</div>
+    <div class="text-sm text-slate-700 mt-2">Add these checks to an operational runbook and automate alerts for sync failures or high error counts so identity drift is detected proactively.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white card-border p-4 h-full">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">EX2300-A (Master) — Example CLI</h3>
+
+    <div class="mt-3 grid grid-cols-2 gap-4 h-4/5">
+      <div class="bg-slate-50 p-3 rounded card-border">
+        <pre class="text-sm" style="white-space:pre-wrap;tab-size:2;"><code># Enter configuration mode
+# user@switch1&gt; configure
+
+# Set member ID and role
+set virtual-chassis member 0 role master
+set virtual-chassis member 0 serial-number &lt;SERIAL_NUMBER_OF_SWITCH1&gt;
+
+# Configure VCPs (example: pic-slot 0 ports 0 and 1)
+request virtual-chassis vc-port set pic-slot 0 port 0
+request virtual-chassis vc-port set pic-slot 0 port 1
+
+# Commit (this will reboot the switch into VC mode)
+commit and-quit</code></pre>
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded card-border">
+        <pre class="text-sm" style="white-space:pre-wrap;tab-size:2;"><code># On Switch 2 (Backup)
+# user@switch2&gt; configure
+set virtual-chassis member 1 role backup
+set virtual-chassis member 1 serial-number &lt;SERIAL_NUMBER_OF_SWITCH2&gt;
+request virtual-chassis vc-port set pic-slot 0 port 0
+request virtual-chassis vc-port set pic-slot 0 port 1
+commit and-quit</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-slate-600">Note: commit will reboot the switch into VC mode. Ensure serial numbers match physical devices before committing.</div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Provision member IDs and serials before connecting VCPs to keep member identities stable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

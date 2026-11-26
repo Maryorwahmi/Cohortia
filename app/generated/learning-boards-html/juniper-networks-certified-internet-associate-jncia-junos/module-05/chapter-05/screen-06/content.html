@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span>TCP Flags</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="card p-4 h-2/3">
+        <div class="text-sm font-bold text-slate-900">Why flags matter</div>
+        <div class="mt-2 text-sm text-slate-700">TCP flags identify whether a packet is starting a connection, acknowledging data, or tearing down a session. Matching flags lets you permit or deny specific connection stages.</div>
+
+        <div class="mt-4 mono text-sm text-slate-700">
+          Example pattern:
+
+          set firewall family inet filter MY-FILTER term allow-web-in from protocol tcp
+          set firewall family inet filter MY-FILTER term allow-web-in from destination-port http
+          set firewall family inet filter MY-FILTER term allow-web-in from tcp-flags syn
+          set firewall family inet filter MY-FILTER term allow-web-in then accept
+
+          set firewall family inet filter MY-FILTER term allow-web-out from protocol tcp
+          set firewall family inet filter MY-FILTER term allow-web-out from source-port http
+          set firewall family inet filter MY-FILTER term allow-web-out from tcp-flags ack
+          set firewall family inet filter MY-FILTER term allow-web-out then accept
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-700">Blocking based only on SYN without allowing return ACKs will prevent actual communication. Always model both directions for stateless filters.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Analogy</div>
+        <div class="mt-2 text-sm text-slate-700">Think of SYN as someone knocking on a door and ACK as the door being opened. You need rules for both the knock and the response.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Key takeaway</div>
+        <div class="mt-2 text-sm text-slate-700">Design separate terms for connection starts and for established traffic to avoid accidental blocks.</div>
+      </div>
+    </div>
+  </div>
+</div>

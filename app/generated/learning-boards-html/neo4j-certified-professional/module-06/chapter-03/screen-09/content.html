@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 3</span>
+    <span>›</span>
+    <span class="text-slate-700">Avoiding N+1: batching and Data Loaders</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Batching pattern</h3>
+      <ol class="list-decimal list-inside mt-3 text-sm text-slate-600">
+        <li>Collect keys requested by child resolvers during the tick.</li>
+        <li>Run a single batched Cypher with WHERE ID(m) IN $keys.</li>
+        <li>Map collected results back to each resolver call.</li>
+      </ol>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-amber-600">Pro tip</div>
+      <div class="text-sm text-slate-700 mt-1">Batching also benefits from caching identical requests within a request lifecycle to avoid duplicate DB queries.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example batched Cypher</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+MATCH (m:Movie)-[:ACTED_IN]->(a:Actor)
+WHERE ID(m) IN $movieIds
+RETURN m, COLLECT(a) AS actors
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Use the returned movie records and grouped actors to satisfy each Movie.actors resolver without issuing N queries.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

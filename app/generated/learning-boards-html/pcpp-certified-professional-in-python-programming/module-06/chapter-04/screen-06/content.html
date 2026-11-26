@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Chained Hash Table</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Simplified implementation</div>
+      <pre class="rounded bg-slate-900 text-white p-3 text-sm overflow-auto"><code>class SimpleHashTable:
+    def __init__(self, capacity=10):
+        self.capacity = capacity
+        self.table = [[] for _ in range(self.capacity)]  # each bucket is a list
+
+    def _hash(self, key):
+        return hash(key) % self.capacity
+
+    def insert(self, key, value):
+        index = self._hash(key)
+        for i, (k, v) in enumerate(self.table[index]):
+            if k == key:
+                self.table[index][i] = (key, value)
+                return
+        self.table[index].append((key, value))
+
+    def get(self, key):
+        index = self._hash(key)
+        for k, v in self.table[index]:
+            if k == key:
+                return v
+        raise KeyError(f"Key '{key}' not found")</code></pre>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">How operations map to steps</div>
+        <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+          <li>Insert: hash key → index → update if present else append to bucket.</li>
+          <li>Get: hash key → index → scan bucket for matching key.</li>
+          <li>Delete: hash key → index → locate and remove from bucket.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Use chains when you expect collisions; keep capacity moderate or implement resizing to maintain average constant time.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

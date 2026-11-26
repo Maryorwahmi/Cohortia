@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border">Hands-on Activity</span><span class="text-slate-700">CLI Demo</span></div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <h2 class="text-lg font-bold text-slate-800">Leaderboard commands</h2>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;">redis-cli
+ZADD global:leaderboard 100 "player:alice" 150 "player:bob" 75 "player:charlie"
+ZADD global:leaderboard 120 "player:alice"
+ZINCRBY global:leaderboard 20 "player:bob"
+ZREVRANGE global:leaderboard 0 2 WITHSCORES
+ZSCORE global:leaderboard "player:alice"</pre>
+      <div class="mt-3 text-sm text-slate-600">Run these commands sequentially to watch scores change atomically and to fetch the top players.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <h2 class="text-lg font-bold text-slate-800">Stream and consumer group demo</h2>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;"># Terminal A
+XADD user:activity:stream * event_type login user_id 101 ip_address 192.168.1.10
+XADD user:activity:stream * event_type page_view user_id 102 page_url /dashboard
+
+# Terminal B
+XGROUP CREATE user:activity:stream analytics_group 0-0 MKSTREAM
+XREAD GROUP analytics_group consumer_1 COUNT 1 STREAMS user:activity:stream >
+
+# Back in Terminal A
+XADD user:activity:stream * event_type purchase user_id 101 item_id 500
+# After consumer processes, acknowledge
+XACK user:activity:stream analytics_group 1678881234567-0</pre>
+      <div class="mt-3 text-sm text-slate-600">Use two terminals to simulate a producer and a consumer. Observe XACK to mark messages processed and XGROUP DESTROY when finished.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

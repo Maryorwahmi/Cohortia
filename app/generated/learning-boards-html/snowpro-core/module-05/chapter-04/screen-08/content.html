@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">SQL Stored Procedure</div>
+      <div class="text-sm text-slate-600 mt-2">Creates a table if it does not exist and returns a message.</div>
+
+      <div class="mt-4">
+        <pre class="p-3 rounded bg-slate-50 text-sm">-- As a role with CREATE PROCEDURE privilege
+CREATE OR REPLACE PROCEDURE create_table_if_not_exists(table_name VARCHAR)
+RETURNS VARCHAR
+LANGUAGE SQL
+AS
+$$
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE TABLE IF NOT EXISTS ' || :table_name || ' (id INT, name VARCHAR)';
+    RETURN 'Table ' || :table_name || ' created or already exists.';
+END;
+$$;
+
+CALL create_table_if_not_exists('my_new_table');</pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">Verify by querying INFORMATION_SCHEMA or running a SELECT on the new table. Always sanitize or validate table_name to prevent unintended object creation.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation and tips</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>EXECUTE IMMEDIATE runs the constructed SQL string at runtime.</li>
+        <li>SQL scripting procedures are ideal for administrative and DDL orchestration.</li>
+        <li>Consider privileges: does the caller need CREATE TABLE rights, or should the procedure use EXECUTE AS OWNER?</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Common mistake</div>
+      <div class="mt-2 text-sm text-slate-600">Concatenating unvalidated identifiers can create security or management problems. Validate names against a whitelist when possible.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">SQL scripting procedures are compact for DDL tasks. Use EXECUTE IMMEDIATE responsibly and validate identifiers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

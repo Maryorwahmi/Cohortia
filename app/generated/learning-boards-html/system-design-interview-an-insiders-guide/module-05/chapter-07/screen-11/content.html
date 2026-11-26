@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Leaderboard Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 panel shadow-sm">
+        <div class="text-sm font-bold text-slate-700">Activity template</div>
+        <div class="text-xs text-slate-600 mt-2">Design cache placement, invalidation, eviction policy, and list common mistakes to avoid.</div>
+
+        <div class="mt-4 grid gap-2">
+          <div class="p-3 rounded-lg bg-white border">1. Cache placement: Distributed cache (Redis) for the top-100 list.</div>
+          <div class="p-3 rounded-lg bg-white border">2. Invalidation: Background recompute every 30 seconds and atomic replace.</div>
+          <div class="p-3 rounded-lg bg-white border">3. Eviction: Fixed size for the leaderboard; LRU/TTL for per-player caches.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Safety notes</div>
+        <p class="text-sm font-medium text-slate-800">Avoid letting the first read after expiry trigger recompute. Use scheduled jobs and atomic updates to keep reads stable.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 panel h-full">
+        <div class="text-sm font-semibold text-slate-700">Concrete example steps</div>
+        <ol class="text-xs text-slate-600 mt-2 list-decimal ml-5">
+          <li>Schedule a 30-second job to recompute the top 100 from a streaming aggregator.</li>
+          <li>Write the new list atomically to the distributed cache.</li>
+          <li>Serve reads from the cache; measure refresh duration and hit ratio.</li>
+        </ol>
+
+        <div class="mt-4 rounded-lg bg-white p-3 panel">
+          <div class="text-sm font-semibold">Check your understanding</div>
+          <div class="text-xs text-slate-600 mt-2">If the recompute job sometimes takes longer than 30 seconds, how would you prevent serving an inconsistent partial result?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

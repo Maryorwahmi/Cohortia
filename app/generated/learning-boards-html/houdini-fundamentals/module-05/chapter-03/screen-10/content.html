@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-xs tiny-label text-blue-700 font-bold mb-2">Definition</div>
+      <div class="text-xl font-bold text-slate-900">Particle attributes and POP Wrangle</div>
+      <div class="text-sm text-slate-600 mt-2">Attributes let you read and write particle state to control both behavior and shading.</div>
+
+      <div class="mt-4 space-y-2 text-sm text-slate-600">
+        <div class="font-semibold">Common attributes</div>
+        <ul class="ml-4 list-disc">
+          <li>P — position vector</li>
+          <li>v — velocity vector</li>
+          <li>id — unique identifier</li>
+          <li>age — lifetime progress</li>
+          <li>pscale, Cd — visual attributes</li>
+        </ul>
+
+        <div class="font-semibold mt-2">Best practice</div>
+        <div>Use id for stable randomness and age to drive transitions such as size or color over lifetime.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">POP Wrangle example</div>
+      <pre class="code">// inside a POP Wrangle
+float life = @life; // particle lifetime
+float a = @age / life; // normalized age from 0 to 1
+@pscale = fit(a, 0, 1, 0.1, 0.0);
+@Cd = lerp({1,0.9,0.7}, {0.2,0.2,0.25}, a);
+// use @id for per-particle seeded randomness
+</pre>
+
+      <div class="mt-3 text-sm">
+        <div class="rounded-lg p-3 bg-emerald-50">Tip: Map age to both pscale and Cd for smooth fade-out effects</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Attributes are the levers for behavior and look. Use POP Wrangle to compute them every step and test with low particle counts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Error Handling</div>
+      <div class="text-lg font-bold text-slate-900 mb-2">Robust try/except pattern</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>import requests
+
+try:
+    response = requests.get('https://httpbin.org/status/404')
+    response.raise_for_status()
+    print('Request successful!')
+except requests.exceptions.HTTPError as errh:
+    print(f'Http Error: {errh}')
+except requests.exceptions.ConnectionError as errc:
+    print(f'Error Connecting: {errc}')
+except requests.exceptions.Timeout as errt:
+    print(f'Timeout Error: {errt}')
+except requests.exceptions.RequestException as err:
+    print(f'Something went wrong: {err}')</code></pre>
+
+      <div class="mt-3">
+        <div class="text-sm font-semibold">Common handling strategies</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 mt-2 space-y-2">
+          <li>Use raise_for_status to detect 4xx/5xx early.</li>
+          <li>Retry transient server errors with exponential backoff.</li>
+          <li>Fail fast on client errors and surface clear messages.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Timeout example</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>try:
+    response = requests.get('https://httpbin.org/delay/5', timeout=3)
+except requests.exceptions.Timeout:
+    print('The request timed out after 3 seconds.')</code></pre>
+
+      <div class="mt-3 p-3 bg-slate-50 rounded">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Prefer explicit short timeouts in client libraries and allow callers to override them as needed.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

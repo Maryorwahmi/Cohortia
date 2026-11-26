@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-panel{background:#0f172a;border-radius:.5rem;padding:12px;color:#e6eef8;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Host Discovery: Ping Loop and Nmap</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Manual Ping Sweep</div>
+      <div class="text-sm text-slate-600 mt-2">A simple loop sends a single ICMP echo request per address to see who replies.</div>
+      <div class="mt-4 code-panel">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;">for i in $(seq 1 254); do ping -c 1 192.168.1.$i | grep "bytes from" & done</pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-700">Notes: This sends one ICMP packet per host. Fast but misses hosts that block ICMP. Use only in an authorized lab.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Nmap Host Discovery</div>
+      <div class="text-sm text-slate-600 mt-2">Nmap -sn performs host discovery using ARP and other probes; more comprehensive for local networks.</div>
+      <div class="mt-4 code-panel">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;">sudo nmap -sn 192.168.1.0/24</pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-700">Notes: Nmap chooses ARP for local networks and can use TCP probes when ICMP is blocked. Requires appropriate privileges for some probes.</div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl bg-white p-3 card-border shadow-sm">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Reflection</div>
+    <div class="text-sm text-slate-700 mt-2">Compare outputs: hosts missing from the ping loop but present in Nmap usually indicate ICMP filtering or ARP discovery differences. Document findings and reasons for discrepancies.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

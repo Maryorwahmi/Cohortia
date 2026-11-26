@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">IPC — Queue</span>
+    <span>›</span>
+    <span class="text-slate-700">multiprocessing.Queue</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Queue example</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size:2;">
+        <pre><code>import multiprocessing
+import time
+
+def worker_with_queue(q, name):
+    print(f"Worker {name}: Waiting for data...")
+    data = q.get()
+    print(f"Worker {name}: Received: {data}")
+    result = data * 2
+    q.put(result)
+
+if __name__ == "__main__":
+    print("Main: Starting queue example...")
+    q = multiprocessing.Queue()
+
+    p1 = multiprocessing.Process(target=worker_with_queue, args=(q, "P1"))
+    p2 = multiprocessing.Process(target=worker_with_queue, args=(q, "P2"))
+
+    p1.start()
+    p2.start()
+
+    q.put(10)
+    q.put(20)
+
+    result1 = q.get()
+    result2 = q.get()
+
+    print(f"Main: Received results: {result1}, {result2}")
+
+    p1.join()
+    p2.join()
+    print("Main: Queue example finished.")</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Protocol design tips</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Decide whether inputs and outputs share a queue or use separate queues for clarity.</li>
+          <li>Use sentinel values to signal worker shutdown or count expected results for the parent.</li>
+          <li>Avoid sending non-picklable objects; test serialization before deploying.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Performance note</div>
+        <div class="mt-2 text-sm text-slate-700">Queue operations involve serialization and OS-level synchronization; compare wall-clock times to ensure parallelism wins for your workload size.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-1">Queue is a reliable many-to-many IPC primitive. Design the message protocol and expected result counts to avoid blocking forever.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

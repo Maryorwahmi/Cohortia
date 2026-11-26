@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Launching and joining threads</h3>
+      <pre class="code rounded bg-slate-50 p-3 text-sm">#include &lt;thread&gt;
+#include &lt;iostream&gt;
+
+void worker_function(int id) {
+  std::cout &lt;&lt; "Worker " &lt;&lt; id &lt;&lt; " starting...
+";
+  std::this_thread::sleep_for(std::chrono::milliseconds(100 + id * 50));
+  std::cout &lt;&lt; "Worker " &lt;&lt; id &lt;&lt; " finished.
+";
+}
+
+int main() {
+  std::vector&lt;std::thread&gt; workers;
+  for (int i = 0; i &lt; 3; ++i) workers.emplace_back(worker_function, i);
+
+  // Do other work, then join
+  for (auto&amp;&nbsp;&t : workers) {
+    if (t.joinable()) t.join();
+  }
+}
+</pre>
+    </div>
+    <div class="w-1/3 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Safety notes</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Always ensure a thread is joined or detached before its destructor runs.</li>
+        <li>Avoid data races by protecting shared data with mutexes or by message passing.</li>
+        <li>For complex coordination, prefer higher-level abstractions like task queues.</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Destroying a joinable std::thread causes std::terminate. Always join or detach.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

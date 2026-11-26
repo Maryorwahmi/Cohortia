@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">NETCONF Session Lifecycle</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold mb-3">Session Phases</div>
+      <ol class="list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li><strong>Connect over SSH</strong> — secure transport, authenticate the client.</li>
+        <li><strong>Capabilities exchange</strong> — both sides announce supported YANG models and operations.</li>
+        <li><strong>RPC operations</strong> — get-config, edit-config, get, lock/unlock, etc.</li>
+        <li><strong>Commit/close</strong> — apply candidate changes or close the session.</li>
+      </ol>
+      <div class="mt-4 text-xs text-slate-500">Pro-tip: verify that the required YANG module is present in the server capabilities before you send model-specific RPCs.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold mb-3">Example Workflow</div>
+      <div class="text-sm text-slate-700">A typical change uses lock &rarr; edit-config &rarr; commit &rarr; unlock. Lock prevents concurrent modifications and commit ensures transactional integrity if the device supports a candidate datastore.</div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 bg-blue-50 rounded-lg text-sm">Lock the running datastore to prevent conflicts.</div>
+        <div class="p-3 bg-amber-50 rounded-lg text-sm">Edit-config with operation attributes like merge or replace.</div>
+        <div class="p-3 bg-emerald-50 rounded-lg text-sm">Commit changes or discard if validation fails.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Common mistake: assuming every device supports candidate/commit semantics. Check during capability exchange.</div>
+    </div>
+  </div>
+</div>

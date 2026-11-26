@@ -1,0 +1,78 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;max-height:36vh;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Welcome Message Code</span>
+    </div>
+
+    <div class="flex gap-6 h-[68vh]">
+      <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+        <div class="text-xl font-bold text-slate-900">Server script (ServerScriptService)</div>
+        <div class="text-sm text-slate-600 mt-1">Creates RemoteEvent and fires messages to joining players.</div>
+
+        <pre class="code mt-4"><code>local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local displayMessageEvent = Instance.new("RemoteEvent")
+displayMessageEvent.Name = "DisplayMessage"
+displayMessageEvent.Parent = ReplicatedStorage
+
+local GAME_GROUP_ID = 1234567 -- Replace with your Roblox Group ID
+
+Players.PlayerAdded:Connect(function(player)
+  displayMessageEvent:FireClient(player, "Welcome, " .. player.Name .. "!", Color3.fromRGB(0, 255, 0))
+  task.wait(3)
+  displayMessageEvent:FireClient(player, "Join our Roblox Group for updates and rewards! Group ID: " .. GAME_GROUP_ID, Color3.fromRGB(255, 255, 0))
+end)
+</code></pre>
+
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+        <div class="text-xl font-bold text-slate-900">Client script (StarterGui LocalScript)</div>
+        <div class="text-sm text-slate-600 mt-1">Listens to the RemoteEvent and creates a temporary notification UI.</div>
+
+        <pre class="code mt-4"><code>local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local displayMessageEvent = ReplicatedStorage:WaitForChild("DisplayMessage")
+
+local function displayNotification(message, color)
+  local screenGui = script.Parent
+  local notificationFrame = Instance.new("Frame")
+  notificationFrame.Size = UDim2.new(0.3, 0, 0.05, 0)
+  notificationFrame.Position = UDim2.new(0.35, 0, 0.9, 0)
+  notificationFrame.BackgroundColor3 = color
+  notificationFrame.BackgroundTransparency = 0.2
+  notificationFrame.BorderMode = Enum.BorderMode.Outline
+  notificationFrame.BorderSizePixel = 2
+  notificationFrame.Parent = screenGui
+
+  local messageLabel = Instance.new("TextLabel")
+  messageLabel.Size = UDim2.new(1, 0, 1, 0)
+  messageLabel.BackgroundTransparency = 1
+  messageLabel.Text = message
+  messageLabel.TextColor3 = Color3.new(1,1,1)
+  messageLabel.TextScaled = true
+  messageLabel.Font = Enum.Font.SourceSansBold
+  messageLabel.Parent = notificationFrame
+
+  notificationFrame:TweenPosition(UDim2.new(0.35, 0, 0.8, 0), "Out", "Quad", 0.5, true)
+  task.delay(5, function()
+    notificationFrame:TweenPosition(UDim2.new(0.35, 0, 0.9, 0), "In", "Quad", 0.5, true)
+    task.delay(0.6, function()
+      notificationFrame:Destroy()
+    end)
+  end)
+end
+
+displayMessageEvent.OnClientEvent:Connect(displayNotification)
+</code></pre>
+
+        <div class="mt-4 text-sm text-slate-700">Note: Create the RemoteEvent in ReplicatedStorage or let the server script create it. Test with a friend or secondary account to confirm messages display correctly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span class="text-slate-700">Independent vs correlated</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 rounded-xl p-4 bg-white shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Independent 2-bit predictor</div>
+      <div class="text-sm text-slate-600 mt-2">Each branch has its own 2-bit saturating counter. No information crosses branches.</div>
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li>• Definition: per-branch 2-bit counters track recent taken/not-taken for one branch.</li>
+        <li>• Limitation: averages behavior across contexts and loses conditional patterns.</li>
+        <li>• Misconception: adding bits to the counter captures correlation — it does not.</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use history, not larger counters, to capture correlations between branches.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-xl p-4 bg-white shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-800">Three branches where the third depends on the first two:</div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Trace A</div>
+          <div class="text-sm text-slate-800 mt-1">If prior pattern is 11 then Branch 3 is taken 90% of the time.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Trace B</div>
+          <div class="text-sm text-slate-800 mt-1">If prior pattern is 00 then Branch 3 is taken 30% of the time.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-700">Because a 2-bit counter sees a mixed stream, it converges to an average and mispredicts in each context. A predictor that indexes based on prior bits can separate these contexts and store distinct counters for them.</div>
+    </div>
+  </div>
+</div>

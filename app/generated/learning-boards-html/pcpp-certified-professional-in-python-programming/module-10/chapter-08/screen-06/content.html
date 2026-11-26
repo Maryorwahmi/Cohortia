@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #f8fafc; }
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.8</span>
+    <span>›</span>
+    <span class="text-slate-700">cProfile</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Run from the terminal</div>
+      <div class="mt-3 text-sm text-slate-600">Execute: python -m cProfile your_script.py and inspect the table it prints. Look for functions with high tottime and high cumtime as starting points.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Example script</div>
+        <pre class="mt-2 bg-black text-white p-3 rounded-lg overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>def slow_function_a():
+    sum(range(10**6))
+
+def slow_function_b():
+    [x*x for x in range(10**5)]
+
+def main():
+    for _ in range(5):
+        slow_function_a()
+        slow_function_b()
+
+if __name__ == '__main__':
+    main()
+
+# Run: python -m cProfile my_slow_app.py
+</code></pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use cProfile for end-to-end profiling and inspect both tottime and cumtime before changing code.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">How to interpret</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>If tottime is high: optimize the function body or use faster algorithms.</li>
+        <li>If cumtime is high but tottime is low: inspect the callees the function invokes.</li>
+        <li>If ncalls is large: consider caching or reducing call frequency.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-violet-50 border border-violet-100">
+        <div class="text-sm font-semibold text-violet-700">Visualization</div>
+        <div class="text-sm text-slate-700 mt-1">Exporting profile data to visualization tools can make call relationships and hot spots easier to understand.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

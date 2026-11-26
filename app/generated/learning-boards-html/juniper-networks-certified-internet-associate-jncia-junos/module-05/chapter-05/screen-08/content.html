@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span>Actions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="card p-4 h-2/3">
+        <div class="text-sm font-bold text-slate-900">Action types</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>accept — forward the packet normally.</li>
+          <li>discard — silently drop the packet.</li>
+          <li>reject — drop and send a reset when applicable.</li>
+          <li>count — increment a named counter for monitoring; does not alter forwarding.</li>
+          <li>log — emit a syslog entry for matched packets.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4 mono">
+        <div class="text-sm font-bold text-slate-900">Monitoring example</div>
+        <div class="mt-2 text-sm text-slate-700">set firewall family inet filter MY-FILTER term 9 then count HTTP-TRAFFIC
+set firewall family inet filter MY-FILTER term 10 then log
+
+Use show firewall to read named counters and verify expected hit counts.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Concrete scenario</div>
+        <div class="mt-2 text-sm text-slate-700">Count web hits to measure load, log suspicious IPs to audit events, and explicitly accept or discard so the filter's final effect is clear.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Key takeaway</div>
+        <div class="mt-2 text-sm text-slate-700">Observation actions provide visibility; pair them with an explicit final action so behavior is unambiguous.</div>
+      </div>
+    </div>
+  </div>
+</div>

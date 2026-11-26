@@ -1,0 +1,95 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)}
+    .code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter Final Lab</span>
+      <span>›</span>
+      <span class="text-slate-700">LVM & Filesystem</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <!-- Top: process steps as vertical cards -->
+    <div class="w-5/12 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-bold text-slate-700">Process: idempotent storage tasks</div>
+        <ol class="mt-3 text-sm text-slate-700 list-decimal ml-5 space-y-2">
+          <li>Confirm vg_app exists or create PV &amp; VG if required.</li>
+          <li>Create logical volume webapp_data with community.general.lvol (state: present).</li>
+          <li>Format with ansible.builtin.filesystem only if needed (fstype: xfs).</li>
+          <li>Create mount directory and mount with ansible.posix.mount (state: mounted, opts: defaults).</li>
+          <li>Verify with lsblk, df -h, and mount output; add handlers if restore or reload is needed.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Idempotence checklist</div>
+        <ul class="mt-2 text-sm text-slate-700 ml-4 list-disc space-y-1">
+          <li>Use state: present for LVs.</li>
+          <li>Avoid formatting an already formatted device.</li>
+          <li>Persist mounts via fstab through mount module.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">If you're uncertain whether an LV was created previously, run a quick lsblk or vgdisplay in a debug task before formatting.</p>
+      </div>
+    </div>
+
+    <!-- Right: code panel + example -->
+    <div class="w-7/12 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex-1 flex flex-col">
+        <div class="flex items-center justify-between">
+          <div class="text-lg font-bold text-slate-800">Playbook excerpt</div>
+          <div class="text-xs uppercase tracking-wider text-slate-500">Mount & Format</div>
+        </div>
+
+        <div class="mt-3 overflow-auto code bg-slate-50 p-3 rounded-lg flex-1">
+          <pre><code># Create LV (idempotent)
+- name: Create webapp_data Logical Volume on webserver1
+  community.general.lvol:
+    vg: vg_app
+    lv: webapp_data
+    size: 5G
+    state: present
+  when: inventory_hostname == 'webserver1'
+
+# Format only if needed
+- name: Format webapp_data LV with XFS on webserver1
+  ansible.builtin.filesystem:
+    fstype: xfs
+    dev: "/dev/vg_app/webapp_data"
+  when: inventory_hostname == 'webserver1'
+
+# Mount persistently
+- name: Mount webapp_data LV persistently on webserver1
+  ansible.posix.mount:
+    path: /srv/webapp
+    src: "/dev/vg_app/webapp_data"
+    fstype: xfs
+    state: mounted
+    opts: defaults
+  when: inventory_hostname == 'webserver1'
+</code></pre>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Verify</div>
+            <div class="text-sm text-slate-800 mt-1">Run df -h /srv/webapp and lsblk to confirm the LV and mount are correct.</div>
+          </div>
+          <div class="rounded-lg bg-rose-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Avoid</div>
+            <div class="text-sm text-slate-800 mt-1">Do not blindly format a device path without confirming it belongs to your LV. That risks data loss.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

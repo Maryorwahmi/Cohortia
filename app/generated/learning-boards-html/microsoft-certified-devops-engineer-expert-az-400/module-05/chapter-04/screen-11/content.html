@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Module Consumption</span></div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Integrating Modules into Main Deployments</h1><p class="text-base text-slate-600 mb-6">Referencing and customizing modules in a parent Bicep file</p><div class="flex flex-col lg:flex-row flex-grow gap-6"><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="p-4 bg-white rounded-xl shadow-md border border-slate-200"><h3 class="text-lg font-semibold text-slate-800 mb-2">Consuming a Module</h3><ul class="list-disc list-inside text-sm text-slate-600 space-y-1"><li>Use the `module` keyword followed by a symbolic name.</li><li>Specify the path to the module file (e.g., `'storage.bicep'`).</li><li>Pass parameters to the module using the `params` block.</li><li>Access module outputs via `moduleSymbolicName.outputs.outputName`.</li></ul></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Reusability in Action</div><p class="text-xs font-medium text-slate-800">A single module definition can be instantiated multiple times with different parameters, creating distinct resource instances.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Bicep modules enable highly organized and maintainable IaC solutions by promoting component reuse and clear separation of concerns.</p></div></div><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="p-4 bg-slate-800 rounded-lg text-white text-xs font-mono overflow-x-auto whitespace-pre-wrap h-full flex flex-col justify-between" style="tab-size: 2;"><pre><code>// main.bicep (parent file using the module)
+param resourceLocation string = resourceGroup().location
+param webAppStorageName string = 'cohortiawebappstorage'
+param logStorageName string = 'cohortialogstorage'
+
+module webAppStorage 'storage.bicep' = {
+  name: 'webAppStorageDeployment' // Name of the deployment
+  params: {
+    location: resourceLocation
+    storageAccountName: '${webAppStorageName}${uniqueString(resourceGroup().id)}'
+    storageSku: 'Standard_GRS'
+  }
+}
+
+module logStorage 'storage.bicep' = {
+  name: 'logStorageDeployment'
+  params: {
+    location: resourceLocation
+    storageAccountName: '${logStorageName}${uniqueString(resourceGroup().id)}'
+    storageSku: 'Standard_LRS'
+  }
+}
+
+output webAppBlobEndpoint string = webAppStorage.outputs.storageAccountEndpoint
+output logStorageId string = logStorage.outputs.storageAccountResourceId</code></pre><div class="mt-4 text-slate-400"><p>// `module` keyword to consume `storage.bicep`.</p><p>// `webAppStorage` and `logStorage` are symbolic names for module instances.</p><p>// `params` block passes values to the module's parameters.</p><p>// Outputs from modules are accessed via `moduleSymbolicName.outputs.outputName`.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

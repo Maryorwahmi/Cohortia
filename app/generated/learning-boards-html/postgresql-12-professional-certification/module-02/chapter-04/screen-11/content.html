@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Activity steps</div>
+      <ol class="mt-2 text-sm text-slate-600 list-decimal pl-5 space-y-2">
+        <li>Connect to project_alpha_db with psql and confirm tables exist.</li>
+        <li>Insert dummy rows to give the planner enough data to choose indexes.</li>
+        <li>Run EXPLAIN ANALYZE for a target query to capture baseline plan and time.</li>
+        <li>Create a relevant index (B-tree or GIN), then re-run EXPLAIN ANALYZE and compare.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border border-slate-100">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:12px; margin:0;">-- Insert sample customers
+INSERT INTO customers (first_name, last_name, email, phone_number)
+SELECT
+  'FirstName' || generate_series,
+  'LastName' || generate_series,
+  'email' || generate_series || '@example.com',
+  '555-' || LPAD(generate_series::text, 4, '0')
+FROM generate_series(3, 1002);
+
+-- Baseline analysis
+EXPLAIN ANALYZE
+SELECT * FROM customers WHERE email = 'email500@example.com';
+
+-- Create index and re-run
+CREATE INDEX idx_customers_email ON customers (email);
+EXPLAIN ANALYZE
+SELECT * FROM customers WHERE email = 'email500@example.com';</pre>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">What to record</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Execution time and whether the plan shows Index Scan or Sequential Scan.</li>
+        <li>Estimated vs actual rows to detect planner estimation errors.</li>
+        <li>Whether ORDER BY was satisfied by the index to avoid sort costs.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">The hands-on loop of create, measure, and verify is essential: never assume an index helps without EXPLAIN ANALYZE evidence.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#f8fafc'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Process Flow</div>
+      <h3 class='text-xl font-bold text-slate-800'>LOGIN, NOLOGIN, VALID UNTIL</h3>
+      <p class='text-sm text-slate-600 mt-2'>A repeatable process to build identities and privileges safely.</p>
+
+      <div class='mt-4 space-y-4'>
+        <div class='flex items-start gap-3'>
+          <div class='w-10 h-10 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold'>1</div>
+          <div>
+            <div class='font-semibold text-slate-800'>Create NOLOGIN group roles</div>
+            <div class='text-sm text-slate-600 mt-1'>Define shared privileges centrally for teams or services.</div>
+          </div>
+        </div>
+
+        <div class='flex items-start gap-3'>
+          <div class='w-10 h-10 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center font-bold'>2</div>
+          <div>
+            <div class='font-semibold text-slate-800'>Create LOGIN accounts</div>
+            <div class='text-sm text-slate-600 mt-1'>Assign passwords and set VALID UNTIL for temporary accounts.</div>
+          </div>
+        </div>
+
+        <div class='flex items-start gap-3'>
+          <div class='w-10 h-10 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center font-bold'>3</div>
+          <div>
+            <div class='font-semibold text-slate-800'>GRANT group TO login</div>
+            <div class='text-sm text-slate-600 mt-1'>Members inherit group privileges, unless NOINHERIT is set.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class='flex-1 card p-5 flex flex-col'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Details & Example</div>
+      <div class='text-sm text-slate-700'>Example commands for a temporary account:</div>
+      <pre class='mt-3 p-3 bg-slate-50 rounded-md text-sm text-slate-800' style='white-space:pre-wrap; tab-size:2;'>CREATE ROLE temp_user WITH LOGIN PASSWORD 'TempPass' VALID UNTIL '2024-12-01';
+CREATE ROLE reporting_group WITH NOLOGIN;
+GRANT SELECT ON public.sensitive_data TO reporting_group;
+GRANT reporting_group TO temp_user;</pre>
+      <div class='mt-3 text-sm text-slate-600'>Misconception: setting VALID UNTIL is a substitute for revoking membership — it only expires the password, not the membership. Use both when stricter removal is needed.</div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Design identity and privilege separately: groups for privileges, logins for access.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

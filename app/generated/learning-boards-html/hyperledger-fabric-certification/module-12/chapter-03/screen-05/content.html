@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.mono{font-family:ui-monospace,Menlo,monospace} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Gateway Connection</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 bg-white rounded-2xl p-4 card shadow-sm'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Node.js SDK pattern</div>
+      <pre class='mono text-sm p-3 bg-slate-50 rounded-lg overflow-auto' style='white-space:pre-wrap; tab-size:2;'>
+const { Gateway, Wallets } = require('fabric-network');
+const fs = require('fs');
+
+const ccp = JSON.parse(fs.readFileSync('connection-org1.json', 'utf8'));
+const wallet = await Wallets.newFileSystemWallet('./wallet');
+const identity = await wallet.get('appUser');
+if (!identity) {
+  console.log('Enroll appUser before running this application');
+  return;
+}
+await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+      </pre>
+      <div class='text-xs text-slate-600 mt-2'>Note: this pattern separates configuration, identity, and network discovery for easier operations and safer secrets handling.</div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='rounded-xl p-3 bg-white card shadow-sm'>
+        <div class='text-[10px] uppercase tracking-wider text-slate-500 mb-2'>Practical tip</div>
+        <div class='text-sm text-slate-700'>Check the wallet for the identity before calling connect. Give clear, actionable logs so operators can enroll missing users without digging into stack traces.</div>
+      </div>
+
+      <div class='rounded-xl p-3 bg-white card shadow-sm'>
+        <div class='text-[10px] uppercase tracking-wider text-slate-500 mb-2'>Misconception</div>
+        <div class='text-sm text-slate-700'>Discovery reduces manual config but does not remove the need for secure TLS and validated certificates. Always validate TLS CA certs in production.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

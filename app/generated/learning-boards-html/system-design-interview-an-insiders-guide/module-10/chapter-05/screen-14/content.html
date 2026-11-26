@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Mistakes & monitoring</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex gap-6">
+    <div class="w-1/2 min-w-0">
+      <div class="text-sm font-semibold text-slate-800">Common mistakes</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">Not handling late data</div>
+          <div class="text-sm text-slate-700 mt-1">Leads to missing or incorrect historical aggregates.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">Non-idempotent writes</div>
+          <div class="text-sm text-slate-700 mt-1">Retries double-count when writes increment stored values rather than replace them.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">High-cardinality without approximations</div>
+          <div class="text-sm text-slate-700 mt-1">Consumes excessive memory or results in performance issues.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Monitoring & reconciliation</div>
+      <div class="mt-3 rounded-lg bg-white card-border p-4 flex-1">
+        <p class="text-sm text-slate-600">Implement audits that periodically recompute aggregates from raw event samples and compare them with materialized view values. Alert on large deltas or unusual update frequencies. When discrepancies arise, run a controlled backfill: recompute the aggregate for the affected keys and upsert the corrected values. Keep raw events long enough to support these reconciliations.</p>
+
+        <div class="mt-4 text-sm text-slate-700">Pro tip: instrument update latency, upsert failure rate, and processor backlog. These metrics often expose problems before aggregate drift becomes visible to users.</div>
+      </div>
+    </div>
+  </div>
+</div>

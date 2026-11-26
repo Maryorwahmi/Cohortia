@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Copy vs Binding</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800">Passing a plain value</div>
+      <pre class="mt-3 bg-slate-100 text-slate-800 p-3 rounded-lg" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size: 13px; color: #172554;">
+// Parent
+let value = 5
+ChildView(number: value)
+
+// Child
+struct ChildView: View {
+  var number: Int // copy
+}
+</pre>
+      <div class="mt-3 text-sm text-slate-700">Result: child has a copy. Mutations in the child do not affect the parent’s state. This leads to stale or desynchronized UI if you expected two-way updates.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800">Passing a binding</div>
+      <pre class="mt-3 bg-slate-100 text-slate-800 p-3 rounded-lg" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size: 13px; color: #172554;">
+// Parent
+@State private var count = 0
+ChildView(count: $count)
+
+// Child
+struct ChildView: View {
+  @Binding var count: Int
+}
+</pre>
+      <div class="mt-3 text-sm text-slate-700">Result: child writes through the binding and updates the parent's @State. The UI reflects changes in both views consistently.</div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+      <p class="text-xs font-medium text-slate-800">Declaring @State in a child to try to mutate a parent value creates separate owners and breaks synchronization. Use @Binding instead.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

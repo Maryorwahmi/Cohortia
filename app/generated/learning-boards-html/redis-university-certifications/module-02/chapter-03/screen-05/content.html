@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border">Process</span><span class="text-slate-700">Commands</span></div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h2 class="text-xl font-bold text-slate-800">Command walkthrough</h2>
+      <div class="mt-3 text-sm text-slate-600">Run these in redis-cli to practice the common patterns.</div>
+
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;">ZADD global:leaderboard 100 "player:alice" 150 "player:bob" 75 "player:charlie"
+ZADD global:leaderboard 120 "player:alice"
+ZINCRBY global:leaderboard 20 "player:bob"
+ZREVRANGE global:leaderboard 0 2 WITHSCORES
+ZSCORE global:leaderboard "player:alice"
+ZRANGEBYSCORE global:leaderboard 100 150 WITHSCORES
+ZREM global:leaderboard "player:charlie"
+ZCARD global:leaderboard</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-lg font-semibold text-slate-800">Explanation & best practices</h3>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Use ZADD to add or overwrite a member's score in one call; it is atomic for that member.</li>
+        <li>ZINCRBY is ideal for high-concurrency increments because it avoids read-modify-write races.</li>
+        <li>Prefer ZREVRANGE WITHSCORES to fetch top N with scores in a single round trip.</li>
+        <li>Use ZRANGEBYSCORE to filter by numeric ranges instead of scanning all members in application code.</li>
+      </ul>
+
+      <div class="mt-auto grid grid-cols-1 gap-2">
+        <div class="rounded-lg p-2 bg-white card-border text-xs">Common mistake: calling ZSCORE repeatedly inside a loop instead of using range queries that return scores.</div>
+        <div class="rounded-lg p-2 bg-white card-border text-xs">Pro tip: use prefixes in member strings, e.g., player:123, to avoid key collisions and to identify entity types.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

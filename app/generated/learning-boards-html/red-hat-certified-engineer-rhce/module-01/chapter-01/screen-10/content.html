@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">SSH Keys & Debug</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">SSH Setup Steps</div>
+      <div class="text-sm text-slate-600 mt-2">Commands and file checks to secure passwordless access.</div>
+
+      <div class="mt-3">
+        <pre class="rounded-lg bg-slate-900 text-slate-50 p-3"><code># Generate key on control node
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+
+# Copy public key to managed node
+ssh-copy-id user@managed-node
+
+# Verify SSH connection
+ssh user@managed-node 'echo connection-ok'
+
+# Verbose debug
+ssh -vvv user@managed-node
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Troubleshooting Checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Confirm the public key is present in managed node ~/.ssh/authorized_keys for the intended user.</li>
+        <li>Ensure ~/.ssh has 700 and authorized_keys has 600 permissions.</li>
+        <li>Use ssh -vvv to inspect which keys are offered and why authentication fails.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Copying the key to the wrong user or wrong home directory is a frequent cause of failures. Double-check user names and paths.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.3</span>
+      <span>›</span>
+      <span class='text-slate-700'>Errors & Permissions</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 flex-1'>
+    <div class='rounded-2xl bg-white p-6 card-border shadow-sm'>
+      <div class='text-xs font-bold uppercase text-slate-500'>Definition</div>
+      <h3 class='text-xl font-bold text-slate-800 mt-2'>Anticipate FileNotFoundError and PermissionError</h3>
+      <div class='mt-3 text-sm text-slate-600'>File system state can change. Use try except even when you check beforehand to account for race conditions.</div>
+
+      <div class='mt-4 font-mono text-sm bg-slate-50 p-3 rounded' style='white-space:pre-wrap; tab-size:2'>
+import os
+import shutil
+
+try:
+  if os.path.isfile('temp.txt'):
+    os.remove('temp.txt')
+except FileNotFoundError:
+  print('File already deleted')
+except PermissionError as e:
+  print('Permission denied', e)
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-6 card-border shadow-sm'>
+      <div class='text-sm font-semibold text-slate-700'>Practical guidance</div>
+      <ul class='mt-3 ml-5 list-disc text-sm text-slate-600 space-y-2'>
+        <li>Use try finally to always restore state like working directory</li>
+        <li>Log errors and return appropriate exit codes in scripts</li>
+        <li>When deleting, verify ownership and permissions to avoid failures</li>
+      </ul>
+
+      <div class='mt-4 rounded-lg bg-amber-50 p-3 text-amber-800'>
+        <div class='text-xs font-bold uppercase tracking-wider'>Misconception</div>
+        <div class='text-sm mt-1'>A prior exists check does not replace exception handling because other processes or threads may mutate filesystem state.</div>
+      </div>
+    </div>
+  </div>
+</div>

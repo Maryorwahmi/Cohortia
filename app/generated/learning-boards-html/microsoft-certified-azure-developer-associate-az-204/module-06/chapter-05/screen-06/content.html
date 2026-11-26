@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.5</span><span>›</span><span class="text-slate-700">Redis Implementation</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-between"><div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Implementation Steps</div><ol class="list-decimal list-inside text-sm text-slate-600 space-y-2"><li><strong>Provision Redis Instance:</strong> Create an Azure Cache for Redis resource in your Azure subscription.</li><li><strong>Install Client Library:</strong> Add a Redis client library (e.g., <code>StackExchange.Redis</code> for .NET) to your application project.</li><li><strong>Modify Application Code:</strong> Implement logic to check the cache first, then the primary data source, and finally store results in the cache.</li></ol></div><div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Example Scenario</div><h3 class="text-xl font-semibold text-slate-800 mb-3">Caching Product Details</h3><p class="text-sm text-slate-600">An e-commerce API retrieves product information. By caching product details, subsequent requests for the same product are served much faster, reducing database load.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The 'cache-aside' pattern is fundamental: check cache, if not found, fetch from source, then cache and return.</p></div></div><div class="w-1/2 flex flex-col"><div class="bg-slate-800 rounded-2xl p-4 text-white font-mono text-xs overflow-auto flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">C# Code Example: ProductService</div><pre style="white-space: pre-wrap; tab-size: 2;"><code class="language-csharp">public class ProductService
+{
+    private readonly IDatabase _cache;
+    // Assume _dbContext is your database context
+
+    public ProductService(IConnectionMultiplexer redis)
+    {
+        _cache = redis.GetDatabase();
+    }
+
+    public async Task&lt;Product&gt; GetProductByIdAsync(string productId)
+    {
+        string cacheKey = $"product:{productId}";
+
+        // Try to get from cache
+        string cachedProductJson = await _cache.StringGetAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedProductJson))
+        {
+            return JsonSerializer.Deserialize&lt;Product&gt;(cachedProductJson);
+        }
+
+        // Fetch from database (simulated)
+        Product product = await _dbContext.Products.FirstOrDefaultAsync(p =&gt; p.Id == productId);
+
+        if (product != null)
+        {
+            // Store in cache for 5 minutes
+            await _cache.StringSetAsync(cacheKey, JsonSerializer.Serialize(product), TimeSpan.FromMinutes(5));
+        }
+
+        return product;
+    }
+}</code></pre></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

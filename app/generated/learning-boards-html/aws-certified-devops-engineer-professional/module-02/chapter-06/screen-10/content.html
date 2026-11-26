@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;font-family:ui-monospace,monospace;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Alarm + EventBridge</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white card rounded-xl p-4">
+      <h3 class="text-2xl font-bold text-slate-800">Step-by-step</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Select metric: AWS/CodePipeline → PipelineExecutionFailed for MyStaticWebsitePipeline.</li>
+        <li>Create alarm: Statistic Sum, Period 5m, Threshold &gt;= 1 → Action: MyPipelineAlertsTopic.</li>
+        <li>Create EventBridge rule: match stage FAILED and target the same SNS topic or a Lambda.</li>
+        <li>Test: commit a breaking change, observe notifications, then revert.</li>
+      </ol>
+    </div>
+
+    <div class="bg-white card rounded-xl p-4">
+      <div class="text-sm font-semibold text-slate-800">Event pattern example</div>
+      <pre><code>{
+  "source": ["aws.codepipeline"],
+  "detail-type": ["CodePipeline Stage Execution State Change"],
+  "detail": {
+    "state": ["FAILED"],
+    "pipeline": ["MyStaticWebsitePipeline"]
+  }
+}</code></pre>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Testing alarms and rules with a controlled failure validates your monitoring and reduces surprises in production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

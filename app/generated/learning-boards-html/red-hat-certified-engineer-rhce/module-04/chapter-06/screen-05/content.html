@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-block{background:#0b122042;padding:12px;border-radius:10px;color:#0b1220}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-hidden">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <h4 class="text-lg font-bold text-slate-800">NFS server playbook</h4>
+      <p class="text-sm text-slate-600 mt-2">This playbook is idempotent: it ensures the package, directory, and export entry are present and restarts the server only when exports change.</p>
+      <div class="mt-4 code-block">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;color:#07102b"><code>---
+- name: Configure NFS Server
+  hosts: nfs_servers
+  become: yes
+  tasks:
+    - name: Ensure nfs-utils package is installed
+      ansible.builtin.yum:
+        name: nfs-utils
+        state: present
+
+    - name: Ensure directory to export exists
+      ansible.builtin.file:
+        path: /srv/nfs_share
+        state: directory
+        mode: '0755'
+
+    - name: Configure NFS export in /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: "/srv/nfs_share *(rw,sync,no_root_squash,no_subtree_check)"
+        state: present
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart nfs-server
+
+    - name: Enable and start nfs-server service
+      ansible.builtin.service:
+        name: nfs-server
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart nfs-server
+      ansible.builtin.service:
+        name: nfs-server
+        state: restarted
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Explanation and checks</div>
+      <ul class="mt-3 list-inside list-disc text-sm text-slate-600">
+        <li>Install nfs-utils to provide nfs-server binaries used by exports and rpc services.</li>
+        <li>Use file to create the export path with correct ownership and mode.</li>
+        <li>Use lineinfile to add a safe, idempotent entry to /etc/exports and notify a handler on change.</li>
+        <li>Use a system service task to ensure the nfs-server is enabled and running; the handler restarts only on export changes.</li>
+        <li>Verify with exportfs -v to list active exports and their options after playbook runs.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Idempotent edits and notify handlers make export management reliable and predictable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

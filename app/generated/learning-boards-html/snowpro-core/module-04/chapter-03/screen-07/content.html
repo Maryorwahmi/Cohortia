@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .step{background:#f8fafc;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9);} .small{font-size:13px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Apply & Test Masking</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 rounded-2xl bg-white card-border p-5 shadow-sm h-full">
+      <h3 class="text-xl font-bold">Validation steps</h3>
+      <div class="mt-4 grid gap-3">
+        <div class="step">
+          <div class="text-sm font-semibold">1. Prepare test user and roles</div>
+          <div class="text-xs text-slate-600 mt-1">Create roles like DATA_GOVERNANCE, DATA_ANALYST, BUSINESS_USER and a TEST_USER, grant SELECT and role membership for controlled testing.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold">2. Switch roles and run queries</div>
+          <div class="text-xs text-slate-600 mt-1">Use USE ROLE to change the active role and confirm the masking policy returns expected strings for each role.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold">3. Test edge cases and nulls</div>
+          <div class="text-xs text-slate-600 mt-1">Verify behavior for NULL, short strings, and malformed entries so masking doesn't produce misleading output.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold">4. Measure performance</div>
+          <div class="text-xs text-slate-600 mt-1">Compare query plans and runtimes before and after masking, especially when masked columns appear in WHERE or JOIN conditions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white card-border p-5 shadow-sm h-full">
+      <div class="text-sm font-bold">Common mistakes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4">
+        <li>Assuming masking won't impact queries used for joins or filtering.</li>
+        <li>Neglecting role inheritance and session role chains when validating CURRENT_ROLE checks.</li>
+        <li>Applying complex string functions inside policy without benchmarking.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Keep masking logic as simple and predictable as possible, and codify tests that run when roles or policies change.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

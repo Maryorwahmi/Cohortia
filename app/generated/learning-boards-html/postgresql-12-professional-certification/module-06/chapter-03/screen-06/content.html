@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory Parameters</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">shared_buffers</div>
+      <div class="text-sm text-slate-600 mt-2">Amount of memory PostgreSQL uses for caching data pages.</div>
+      <div class="mt-4 text-sm text-slate-600">Common recommendation: about 25% of total RAM on a dedicated DB server. Too high can reduce OS file cache and cause worse performance.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-violet-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Example setting</div>
+        <pre class="text-sm bg-slate-50 p-2 rounded text-slate-700 overflow-auto" style="white-space:pre-wrap;tab-size:2"># postgresql.conf
+shared_buffers = 4GB</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">effective_cache_size</div>
+      <div class="text-sm text-slate-600 mt-2">Planner estimate of total cache available, including OS cache and shared_buffers.</div>
+      <div class="mt-4 text-sm text-slate-600">Set to 50–75% of RAM to guide the planner toward index use when appropriate. It does not allocate memory directly.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example setting</div>
+        <pre class="text-sm bg-slate-50 p-2 rounded text-slate-700 overflow-auto" style="white-space:pre-wrap;tab-size:2"># postgresql.conf
+effective_cache_size = 10GB</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-lg p-4 bg-white border shadow-sm">
+    <div class="text-sm font-semibold text-slate-800">Why balance matters</div>
+    <div class="mt-2 text-sm text-slate-600">Increasing shared_buffers helps Postgres cache more pages, but the OS file cache is still critical for sequential I/O. Treat shared_buffers as the explicit footprint and effective_cache_size as the planner hint. Test changes incrementally and monitor buffer hit rates and disk reads to validate.</div>
+    <div class="mt-3 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800">Key Takeaway: Balance allocations and planner estimates to avoid starving the OS cache.</div>
+      <div class="rounded-lg p-3 bg-white border">Common mistake: Treating effective_cache_size as reserved RAM.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

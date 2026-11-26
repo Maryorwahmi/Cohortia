@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50">Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">C-instruction & ALU</span>
+    </div>
+    <h3 class="text-2xl font-bold mt-3">C-instruction execution</h3>
+    <p class="text-sm text-slate-600 mt-1">How comp, a, dest, and jump drive ALU behavior and writes.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture view</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-1">
+        <div class="p-3 rounded bg-violet-50">
+          <div class="text-sm font-semibold">ALU inputs</div>
+          <div class="text-xs text-slate-600 mt-1">a=0 → inputs D and A. a=1 → inputs D and M (RAM[A]).</div>
+        </div>
+        <div class="p-3 rounded bg-blue-50">
+          <div class="text-sm font-semibold">comp</div>
+          <div class="text-xs text-slate-600 mt-1">Selects the operation the ALU performs, producing zr and ng flags.</div>
+        </div>
+        <div class="p-3 rounded bg-amber-50">
+          <div class="text-sm font-semibold">dest</div>
+          <div class="text-xs text-slate-600 mt-1">Determines which of A, D, or M receives the result on update.</div>
+        </div>
+        <div class="p-3 rounded bg-emerald-50">
+          <div class="text-sm font-semibold">jump</div>
+          <div class="text-xs text-slate-600 mt-1">Jump bits consult ALU flags to decide whether to load PC from A.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete examples</div>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-sm font-semibold">D=A</div><div class="text-xs text-slate-600 mt-1">comp=A, dest=D, no jump → D gets A, PC++</div></div>
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-sm font-semibold">D=D+A</div><div class="text-xs text-slate-600 mt-1">ALU computes D + A, dest=D, PC++</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <p class="text-xs font-medium text-slate-800">Assuming ALU reads M before A is set. A must already hold the address if a=1 and M is to be used.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Decode comp and a-bit first so the ALU selects the correct inputs; dest writes are committed at update.</p>
+      </div>
+    </div>
+  </div>
+</div>

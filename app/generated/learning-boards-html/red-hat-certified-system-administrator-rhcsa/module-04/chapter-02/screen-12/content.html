@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Practice</div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">chronyd configuration and verification</h3>
+
+    <div class="mt-4 flex gap-4 h-full">
+      <div class="w-1/2 mono bg-slate-50 p-3 rounded-md border card-border text-sm">
+        <div class="text-xs text-slate-500">Suggested /etc/chrony.conf entries</div>
+        <pre style="white-space:pre-wrap; tab-size:2;"># Use public NTP servers from the pool project.
+pool 0.rhel.pool.ntp.org iburst
+pool 1.rhel.pool.ntp.org iburst
+pool 2.rhel.pool.ntp.org iburst
+pool 3.rhel.pool.ntp.org iburst
+
+# Allow NTP client access from local network.
+# allow 192.168.0.0/16
+
+logdir /var/log/chrony</pre>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border mono">
+          <div class="text-xs text-slate-500">Start and enable</div>
+          <pre style="white-space:pre-wrap; tab-size:2;">sudo dnf install -y chrony
+sudo systemctl enable --now chronyd
+sudo systemctl status chronyd</pre>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border mono">
+          <div class="text-xs text-slate-500">Verify with chronyc</div>
+          <pre style="white-space:pre-wrap; tab-size:2;">chronyc sources -v
+chronyc tracking</pre>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use pool lines with iburst, enable chronyd, and confirm a small system time offset and a selected source in chronyc output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

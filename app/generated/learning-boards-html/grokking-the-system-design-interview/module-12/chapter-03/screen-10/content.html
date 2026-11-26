@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-800 mt-2">Signed URL Generator (Python)</div>
+    <div class="text-sm text-slate-600 mt-2">Example code constructs an Expires parameter and an HMAC-SHA256 signature.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+      <div class="col-span-1">
+        <pre class="p-3 bg-slate-900 text-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size: 2;">
+import hashlib
+import hmac
+import time
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+
+def generate_signed_url(base_url, secret_key, expiration_minutes):
+  # 1. Parse the base URL
+  parsed_url = urlparse(base_url)
+
+  # 2. Calculate expiration time
+  expires = int(time.time()) + (expiration_minutes * 60)
+
+  # 3. Prepare query parameters, including 'Expires'
+  query_params = parse_qs(parsed_url.query)
+  query_params['Expires'] = [str(expires)]
+
+  # Reconstruct query string with Expires
+  signed_query_string = urlencode(query_params, doseq=True)
+  string_to_sign = f"{parsed_url.path}?{signed_query_string}"
+
+  # 5. Generate HMAC-SHA256 signature
+  signature = hmac.new(
+      secret_key.encode('utf-8'),
+      string_to_sign.encode('utf-8'),
+      hashlib.sha256
+  ).hexdigest()
+
+  # 6. Add 'Signature' to query parameters
+  query_params['Signature'] = [signature]
+
+  # 7. Reconstruct the final URL
+  final_query_string = urlencode(query_params, doseq=True)
+  final_url = urlunparse(parsed_url._replace(query=final_query_string))
+
+  return final_url
+
+# Example usage:
+# signed = generate_signed_url('https://cdn.example.com/videos/movie/segment_001.ts', 'mySuperSecretKey123', 60)
+print('Signed URL generated')
+        </pre>
+      </div>
+
+      <div class="col-span-1 flex flex-col">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">What this does</div>
+          <div class="text-sm text-slate-700 mt-2">Parses URL, computes Expires, signs path and query, appends Signature, and returns a URL the CDN can validate.</div>
+        </div>
+
+        <div class="mt-3 rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Operational Notes</div>
+          <div class="text-sm text-slate-800 mt-1">Keep secret_key secure, rotate keys, and avoid signing per-user identifiers that fragment caches.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Produce short-lived signatures and sign consistent paths so edges can cache identical requests across users.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

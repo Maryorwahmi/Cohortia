@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>Monitoring &amp; Maintenance</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='card p-4'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Key monitoring queries</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># On primary
+SELECT client_addr, state, sync_state, sent_lsn, write_lsn, flush_lsn, replay_lsn FROM pg_stat_replication;
+
+# On standby
+SELECT pg_is_in_recovery();
+SELECT pg_last_wal_replay_lsn();</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Compare sent_lsn to replay_lsn to determine lag and act if the gap grows unexpectedly.</div>
+    </div>
+
+    <div class='card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Archiving considerations</div>
+      <div class='text-sm text-slate-700'>Archive WAL segments to another location for PITR and to rebuild standbys if streaming fails. Ensure archive_command is idempotent and does not block the server.</div>
+
+      <div class='mt-3 text-sm text-slate-700'>Operational checklist: monitor archive disk usage, test archive restoration, set appropriate max_wal_senders based on your expected number of consumers, and regularly test failover procedures.</div>
+
+      <div class='mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Monitoring and archiving together provide resilience: streaming for near-real-time copies and archiving for recovery flexibility.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

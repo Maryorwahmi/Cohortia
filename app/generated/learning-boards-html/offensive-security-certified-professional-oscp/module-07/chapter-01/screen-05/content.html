@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Knowing Who You Are: `whoami` and `id`</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col gap-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Initial Recon</div>
+      <h2 class="text-3xl font-bold text-slate-800 mb-2">Knowing Who You Are: `whoami` and `id`</h2>
+      <p class="text-base text-slate-700 mb-4">Understanding Your Current User Context</p>
+      <p class="text-sm text-slate-600">Let's start with the most fundamental commands for understanding your current position on the system: `whoami` and `id`. When you first gain a shell, you might be logged in as a low-privileged user, such as `www-data` on a web server, or a generic user account. The `whoami` command is straightforward; it simply prints the username of the current effective user. For example, if you've just exploited a web application, running `whoami` might reveal `www-data`. This immediately tells you the level of access you have. The `id` command, however, provides much richer detail. It shows your User ID (UID), your primary Group ID (GID), and any supplementary groups you belong to. These groups are incredibly important because they often dictate what resources you can access. For instance, if the `id` command shows you are part of the `sudo` group, it's a massive indicator that you might be able to run commands as root using `sudo`. Similarly, being in the `docker` group could allow you to interact with Docker containers, potentially leading to privilege escalation. A common mistake is to overlook the significance of these groups; they are often the direct pathway to elevated privileges. Always analyze the output of `id` carefully, paying close attention to every group listed, as it can unlock hidden capabilities.</p>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Your user and group memberships, revealed by `whoami` and `id`, are critical clues for privilege escalation.</p>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col justify-center items-center">
+      <div class="w-full h-full flex flex-col gap-4">
+        <div class="bg-slate-800 text-white p-4 rounded-xl shadow-lg border border-slate-700">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-0.657 0-1.293.07-1.905.207M12 8a2 2 0 100-4 2 2 0 000 4zm0 0a2 2 0 110 4 2 2 0 010-4zm-3 7a2 2 0 100-4 2 2 0 000 4zm0 0a2 2 0 110 4 2 2 0 010-4zm6 0a2 2 0 100-4 2 2 0 000 4zm0 0a2 2 0 110 4 2 2 0 010-4z"></path></svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Command</span>
+          </div>
+          <pre class="text-xs font-mono whitespace-pre-wrap" style="tab-size: 2;">whoami
+id</pre>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl shadow-lg border border-slate-200">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Example Output</span>
+          </div>
+          <pre class="text-xs font-mono whitespace-pre-wrap" style="tab-size: 2;">www-data
+gid=33(www-data) groups=33(www-data), 100(docker)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

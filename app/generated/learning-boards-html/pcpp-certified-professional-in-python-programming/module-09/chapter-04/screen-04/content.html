@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {white-space: pre-wrap; tab-size:2} .card {border-radius:1rem; border:1px solid rgba(226,232,240,0.9); background:white}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Declarative Base</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-800">Concept</div>
+        <div class="mt-2 text-sm text-slate-700">Declarative Base lets you declare tables and map them to Python classes. It centralizes schema and behavior and enables Base.metadata.create_all to create the database layout.</div>
+
+        <div class="mt-4">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Example model</div>
+          <div class="mt-2 code-panel rounded-md bg-slate-900 text-white p-3 code" style="font-size:13px;">
+<pre><code>from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
+
+class Author(Base):
+  __tablename__ = 'authors'
+  id = Column(Integer, primary_key=True)
+  name = Column(String(100), nullable=False, unique=True)
+  books = relationship('Book', back_populates='author', cascade='all, delete-orphan')
+
+  def __repr__(self):
+    return f"&lt;Author(id={self.id}, name='{self.name}')&gt;"
+
+class Book(Base):
+  __tablename__ = 'books'
+  id = Column(Integer, primary_key=True)
+  title = Column(String(200), nullable=False)
+  author_id = Column(Integer, ForeignKey('authors.id'))
+  author = relationship('Author', back_populates='books')
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Why this matters</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Models express both schema and instance behavior so domain logic lives with the data definition.</li>
+          <li>Create tables with Base.metadata.create_all(engine) based on class definitions.</li>
+          <li>Use cascade options to control child row lifecycle and prevent orphaned rows.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Common misconception</div>
+        <div class="mt-2 text-sm text-slate-700">Developers sometimes expect the ORM to hide all SQL. In fact, you still choose types, constraints, and the exact shape of queries; the ORM maps objects to SQL but does not remove the need to think about database design.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-800">Use declarative models to keep schema and behavior together, then create tables explicitly with metadata.create_all.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Try this</div>
+        <div class="mt-2 text-sm text-slate-700">Add a validation method to Author that checks name length before commit. Observe behavior when name is empty.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>LoginButton Tests</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Component overview</div>
+      <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm overflow-auto' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// src/components/LoginButton.tsx
+import React from 'react';
+import { Pressable, Text, ActivityIndicator } from 'react-native';
+
+const LoginButton = ({ onPress, title, isLoading=false }) =&gt; {
+  const handlePress = async () =&gt; { if (!isLoading) await onPress(); };
+  return (
+    &lt;Pressable testID='login-button' disabled={isLoading} onPress={handlePress}&gt;
+      {isLoading ? &lt;ActivityIndicator testID='loading-spinner' /&gt; : &lt;Text&gt;{title}&lt;/Text&gt;}
+    &lt;/Pressable&gt;
+  );
+};
+</pre>
+    </div>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col'>
+      <div class='text-sm font-semibold'>Test highlights</div>
+      <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm overflow-auto' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>it('calls onPress when pressed', async () =&gt; {
+  const mockOnPress = jest.fn().mockResolvedValueOnce(undefined);
+  render(&lt;LoginButton title='Login' onPress={mockOnPress} /&gt;);
+  fireEvent.press(screen.getByTestId('login-button'));
+  await waitFor(() =&gt; expect(mockOnPress).toHaveBeenCalledTimes(1));
+});
+</pre>
+      <div class='mt-4 grid gap-2'>
+        <div class='rounded-lg p-3 bg-emerald-50 text-emerald-800'>
+          <div class='text-xs font-bold uppercase tracking-wider'>Edge case</div>
+          <div class='text-sm text-slate-700 mt-1'>Assert that isLoading disables the button and shows the spinner so users cannot double-submit.</div>
+        </div>
+      </div>
+      <div class='mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Combine jest.fn, fireEvent, and waitFor to verify async handlers and conditional rendering.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

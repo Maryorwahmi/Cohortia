@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Port Cost</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Default cost examples</div>
+      <div class="text-sm text-slate-700 mt-2">Typical default Juniper costs: 20,000 for 100 Mbps, 2,000 for 1 Gbps, 200 for 10 Gbps. Use manual costs to override defaults where necessary.</div>
+
+      <div class="mt-4 p-3 bg-slate-50 rounded border">
+        <div class="text-sm font-bold">Manual cost command</div>
+        <pre class="text-sm mt-2" style="white-space:pre-wrap; tab-size:2;"># Set explicit cost for an interface
+set protocols rstp interface ge-0/0/0 cost 100
+commit</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div>Example: To prefer a 10 Gbps link, ensure it has a lower cost than any competing path. If a competing 1 Gbps uplink has cost 2000, setting the 10 Gbps port to 200 will prefer it.</div>
+        <div>Misconception check: Do not assume physical speed always wins; configured costs or defaults may change preference.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Comparison — two uplinks</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 text-sm text-slate-700">
+        <div class="p-3 rounded bg-white border">
+          <div class="font-bold">Uplink A</div>
+          <div class="mt-1">Speed: 10 Gbps<br/>Cost: 200</div>
+        </div>
+        <div class="p-3 rounded bg-white border">
+          <div class="font-bold">Uplink B</div>
+          <div class="mt-1">Speed: 1 Gbps<br/>Cost: 2000</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">With these costs, the switch will prefer Uplink A to reach the Root. If you manually increase A's cost above B, the preferred path will flip. After changes, run show spanning-tree interface on both ports to confirm role and state.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

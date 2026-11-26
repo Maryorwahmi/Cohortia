@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg { background-color: #ffffff; } pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Subqueries in WHERE</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800">Filter by computed aggregate</h3>
+      <p class="text-sm text-slate-600 mt-3">You compute a value or set with the subquery, then the outer query applies the filter. This is ideal for comparisons to global statistics like averages.</p>
+
+      <div class="mt-4">
+        <pre><code>&lt;!-- Subquery in WHERE clause --&gt;
+SELECT
+  product_name,
+  price
+FROM
+  Products
+WHERE
+  price &gt; (SELECT AVG(price) FROM Products); -- Subquery calculates the average price
+</code></pre>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="text-sm text-slate-700">Tips: ensure the inner query returns a single scalar for direct comparisons. If it returns multiple rows, use IN or EXISTS depending on intent.</div>
+        <div class="text-sm text-slate-700">Misconception: people assume the inner query always runs once. If it references outer columns, expect per-row execution and test performance on sample data.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <p class="text-sm text-slate-600 mt-2">A product team wants to flag items priced above the catalog average for a pricing review. The WHERE-subquery yields a scalar average used for the comparison, making the intent explicit and compact.</p>
+
+        <div class="mt-4">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Check your understanding</div>
+          <ol class="text-sm text-slate-700 mt-2 list-decimal list-inside">
+            <li>Does the inner query return a single value?</li>
+            <li>Is the inner query correlated with the outer row?</li>
+            <li>Would a CTE improve reuse or readability?</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">WHERE subqueries are great for computed filters; prefer CTEs if you reuse the same computation multiple times or need clearer step names.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

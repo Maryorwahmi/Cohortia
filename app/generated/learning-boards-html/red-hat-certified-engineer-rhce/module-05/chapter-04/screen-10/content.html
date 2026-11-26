@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable services & ports</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="font-bold">Playbook tasks</div>
+      <pre class="bg-slate-900 text-white p-3 rounded text-sm mt-3" style="white-space:pre-wrap;tab-size:2"><code>- name: Allow SSH service in the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: ssh
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Allow HTTP service in the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: http
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Open custom port 8080/tcp
+  ansible.posix.firewalld:
+    zone: public
+    port: 8080/tcp
+    state: enabled
+    permanent: yes
+    immediate: yes</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card flex flex-col justify-between">
+      <div>
+        <div class="font-bold">Why this matters</div>
+        <p class="text-sm text-slate-600 mt-2">Explicit declarations avoid drift and ensure that re-running the playbook keeps the firewall in the intended state. This supports reproducible deployments across many hosts.</p>
+
+        <div class="mt-4 p-3 rounded-lg bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="font-bold">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Enabling services in the wrong zone or forgetting immediate, leading to unexpected lack of runtime exposure.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Use the module to declare services and ports. Verify with firewall-cmd after the play to confirm runtime and permanent states match.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

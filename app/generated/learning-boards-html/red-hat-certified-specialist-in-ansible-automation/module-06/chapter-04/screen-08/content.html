@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Starter commands</div>
+      <pre class="mono bg-slate-900 text-slate-50 rounded-md p-3 mt-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2"><code># Create project structure
+mkdir -p my_project/group_vars/all
+
+# Create a new vaulted file
+ansible-vault create my_project/group_vars/all/secrets.yml
+
+# Example contents inside the vaulted editor
+# ---
+# db_root_password: "MySuperSecretDBPass123"
+# app_api_key: "AppKey_XYZ_456"
+
+# Create a vault password file and restrict it
+echo "cohortia_vault_pass" > ~/my_vault_pass.txt
+chmod 600 ~/my_vault_pass.txt
+
+# Run playbook with the password file
+ansible-playbook -i my_project/inventory my_project/deploy_app.yml --vault-password-file ~/my_vault_pass.txt
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Checks and safety</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+        <li>Confirm secrets.yml shows $ANSIBLE_VAULT header by running cat.</li>
+        <li>Do not commit the vault password file to version control.</li>
+        <li>If you decrypt for editing, re-encrypt or delete the plaintext file immediately.</li>
+      </ul>
+
+      <div class="mt-4 border-t pt-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-700 mt-1">Follow the lab steps to see how playbooks consume vaulted variables while files remain encrypted on disk.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

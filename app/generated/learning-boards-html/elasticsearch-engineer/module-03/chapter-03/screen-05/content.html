@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.3</span><span>›</span><span class="text-slate-700">`must` Clause</span></div><div class="flex h-full w-full"><div class="w-2/5 pr-6 flex flex-col justify-between"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">`bool` Clause Deep Dive</div><h2 class="text-3xl font-bold text-slate-900 mb-2">`must`: Essential Matches</h2><p class="text-md text-slate-600">Documents *must* satisfy these conditions and contribute to relevance.</p></div><div class="space-y-4"><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div class="flex items-center mb-2"><svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="text-sm font-semibold text-slate-800">All Queries Must Match</h4></div><p class="text-xs text-slate-600">Acts as a logical AND; all sub-queries must be true for a document to be included.</p></div><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div class="flex items-center mb-2"><svg class="w-5 h-5 text-violet-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M18 14v4m0 0l-1.4-1.4M18 18l1.4-1.4M18 18l-1.4 1.4M12 12h.01M12 7h.01M12 17h.01M12 20h.01M12 4h.01M17 12h.01M7 12h.01"></path></svg><h4 class="text-sm font-semibold text-slate-800">Contributes to Relevance Score</h4></div><p class="text-xs text-slate-600">Matching documents receive a higher `_score`, indicating greater relevance.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Use `must` for conditions that are absolutely required and should influence the document's ranking.</p></div></div></div><div class="w-3/5 pl-6 flex flex-col justify-center items-center"><div class="bg-slate-800 rounded-xl p-4 w-full max-w-lg font-mono text-sm text-slate-200 shadow-lg"><pre><code class="language-json">GET /products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "description": "laptop"
+          }
+        },
+        {
+          "term": {
+            "in_stock": true
+          }
+        }
+      ]
+    }
+  }
+}</code></pre></div><div class="mt-4 w-full max-w-lg"><div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div class="flex items-center mb-2"><svg class="w-5 h-5 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><h4 class="text-sm font-semibold text-slate-800">Example Scenario</h4></div><p class="text-xs text-slate-600">Find products where the description *must* contain "laptop" AND the `in_stock` field *must* be `true`. Both conditions are mandatory and contribute to the product's relevance score.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">Instrument OrderProcessor</div>
+      <div class="text-sm text-slate-600 mt-3">Deploy the provided Lambda, ensure PutMetricData permission, set environment variables, then invoke repeatedly.</div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Lambda snippet</div>
+        <pre class="mt-2 rounded-md bg-slate-50 p-3 text-sm border border-slate-100">import time
+import random
+import boto3
+cloudwatch = boto3.client('cloudwatch')
+# publish OrderProcessingTime and OrderProcessingErrors to MyApplication/Orders</pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Alarm steps</div>
+      <ol class="list-decimal ml-5 text-sm text-slate-600 mt-2">
+        <li>Create HighProcessingTime alarm on OrderProcessingTime &gt; 300 ms for 1 datapoint, 1 minute.</li>
+        <li>Create HighErrorRate alarm on OrderProcessingErrors &gt; 0 for 1 datapoint, 1 minute.</li>
+        <li>Create composite alarm CriticalOrderProcessorIssues with rule ALARM("HighProcessingTimeAlarm") OR ALARM("HighErrorRateAlarm").</li>
+      </ol>
+      <div class="mt-4 rounded-xl p-3 bg-white border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Verification</div>
+        <div class="text-sm text-slate-600 mt-1">Invoke the function, review the custom metrics in CloudWatch, and observe alarm state transitions in the console.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

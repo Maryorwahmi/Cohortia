@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Multi-signer Testing</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 h-full card-border shadow-sm grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-lg font-bold text-slate-900">Pattern</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Get signers: const [owner, addr1, addr2] = await ethers.getSigners();</li>
+        <li>Deploy contract with one signer in beforeEach.</li>
+        <li>Simulate actions: await contract.connect(addr1).someAction();</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Reminder</div>
+        <p class="text-sm text-slate-800 mt-1">Always connect the signer that should be the transaction sender; otherwise tests may not simulate real permission paths.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="rounded-xl bg-white p-3 mt-3 card-border">
+        <pre class="text-xs font-mono whitespace-pre-wrap">// Simulate addr1 decrementing after owner increment
+await counter.increment();
+await counter.connect(addr1).decrement();
+expect(await counter.getCount()).to.equal(0);
+</pre>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+        <p class="text-sm text-slate-800 mt-1">Forgetting to contract.connect will perform the call from the default signer, giving a false impression of role access.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

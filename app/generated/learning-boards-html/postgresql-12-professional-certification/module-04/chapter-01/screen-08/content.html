@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe UPDATE workflow</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Preview → Transaction → Update → Verify</h3>
+
+    <div class="mt-4 grid grid-cols-4 gap-3 flex-grow">
+      <div class="col-span-1 rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-semibold">1. Preview</div>
+        <p class="text-sm text-slate-700 mt-2">Run SELECT with intended WHERE to inspect rows and counts.</p>
+      </div>
+      <div class="col-span-1 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold">2. Begin transaction</div>
+        <p class="text-sm text-slate-700 mt-2">Start a transaction so you can ROLLBACK if needed.</p>
+      </div>
+      <div class="col-span-1 rounded-lg bg-blue-50 p-3">
+        <div class="text-sm font-semibold">3. Perform UPDATE</div>
+        <p class="text-sm text-slate-700 mt-2">Run the UPDATE statement you prepared.</p>
+      </div>
+      <div class="col-span-1 rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-semibold">4. Verify & commit</div>
+        <p class="text-sm text-slate-700 mt-2">Run SELECT to confirm changes and COMMIT if correct, otherwise ROLLBACK.</p>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-slate-50 p-3 card-border">
+      <div class="text-sm font-semibold">Example sequence</div>
+      <pre class="mt-2 bg-slate-900 text-slate-100 rounded-md p-3"><code>BEGIN;
+SELECT * FROM customer_accounts WHERE balance < 100;
+UPDATE customer_accounts SET status = 'Inactive' WHERE balance < 100;
+SELECT count(*) FROM customer_accounts WHERE status = 'Inactive';
+-- If OK: COMMIT; else: ROLLBACK;</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

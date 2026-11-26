@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1.4</span>
+    <span>›</span>
+    <span>Azure Compute Options for Developers</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploying a Web App to Azure App Services</span>
+  </div>
+  <div class="flex-grow flex flex-col items-center justify-center">
+    <div class="w-full max-w-4xl flex flex-col gap-6">
+      <div class="flex gap-6">
+        <div class="w-1/2">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">Demo</div>
+          <h2 class="text-3xl font-bold text-slate-800 mb-4">Deploying a Web App to Azure App Services</h2>
+          <p class="text-base text-slate-700 mb-6">A practical walkthrough using Azure CLI to deploy a simple Python Flask application.</p>
+          <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">Deployment Steps</div>
+            <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+              <li>Create App Service Plan (`az appservice plan create`)</li>
+              <li>Create Web App (`az webapp create`)</li>
+              <li>Deploy code (`az webapp up`)</li>
+              <li>Verify deployment in browser</li>
+            </ul>
+          </div>
+        </div>
+        <div class="w-1/2">
+          <div class="bg-slate-800 rounded-xl p-4 shadow-lg">
+            <pre><code class="text-xs text-slate-200 font-mono leading-relaxed"># Create App Service Plan
+az appservice plan create \
+  --name MyFlaskPlan \
+  --resource-group MyComputeRG \
+  --sku B1 \
+  --is-linux \
+  --location eastus
+
+# Create Web App
+WEBAPP_NAME=\"myflaskapp$(head /dev/urandom | tr -dc a-z0-9 | head -c 8)\" # Unique name
+az webapp create \
+  --resource-group MyComputeRG \
+  --plan MyFlaskPlan \
+  --name $WEBAPP_NAME \
+  --runtime \"PYTHON|3.9\"
+
+# Deploy code (example)
+az webapp up --resource-group MyComputeRG --name $WEBAPP_NAME --runtime PYTHON:3.9 --plan MyFlaskPlan</code></pre>
+          </div>
+          <p class="text-center text-xs text-slate-500 mt-2">Example: Azure CLI commands for deployment</p>
+        </div>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Azure App Services simplifies web app deployment, allowing developers to focus on code rather than infrastructure management.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

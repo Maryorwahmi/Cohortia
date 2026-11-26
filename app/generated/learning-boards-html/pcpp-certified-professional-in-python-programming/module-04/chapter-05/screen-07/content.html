@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.code{background:#081021;color:#e6edf3;padding:12px;border-radius:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">asyncio.gather()</div>
+      <div class="rounded-xl bg-white p-4 card-border flex-1">
+        <div class="text-sm text-slate-600">Use gather to run many awaitables concurrently and receive an ordered list of results. Choose return_exceptions when you want to inspect failures rather than abort.</div>
+        <div class="mt-4 code" style="white-space:pre-wrap; tab-size:2;"><pre><code>results = await asyncio.gather(task1, task2, task3)
+# results order matches (task1, task2, task3)
+
+# collect exceptions instead of raising
+results = await asyncio.gather(*tasks, return_exceptions=True)</code></pre></div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+            <li>Gather preserves the input order in the returned list even if tasks finish out of order.</li>
+            <li>Default behaviour raises the first exception and cancels pending awaitables unless handled.</li>
+            <li>Use return_exceptions=True to receive exceptions as results and continue processing other outcomes.</li>
+          </ul>
+        </div>
+        <div class="mt-4 grid gap-2">
+          <div class="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">gather returns ordered results and controls how exceptions are handled via return_exceptions.</p>
+          </div>
+          <div class="rounded-lg bg-white p-2 border card-border text-xs text-slate-600">
+            <div class="font-semibold">Example scenario</div>
+            <div class="mt-1">When calling several APIs where one failure should abort the whole batch, use gather default behaviour. When partial results are acceptable, use return_exceptions.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

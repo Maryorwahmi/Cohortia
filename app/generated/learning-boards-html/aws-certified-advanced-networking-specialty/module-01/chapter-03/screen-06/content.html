@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class='h-full flex gap-4'>
+    <div class='w-2/3 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Process Flow</div>
+      <div class='text-2xl font-bold mb-2'>Create an Inbound Endpoint</div>
+      <div class='text-sm text-slate-600 mb-4'>At least two ENIs in different subnets; ENI IPs become the targets for on-premises conditional forwarders.</div>
+      <div class='flex gap-2'>
+        <div class='p-3 rounded-lg bg-slate-50 w-1/3'>
+          <div class='text-sm font-semibold'>Step 1</div>
+          <div class='text-xs text-slate-600 mt-1'>Select VPC and two private subnets in different AZs.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 w-1/3'>
+          <div class='text-sm font-semibold'>Step 2</div>
+          <div class='text-xs text-slate-600 mt-1'>Specify two IP addresses for ENIs and attach a restrictive security group.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 w-1/3'>
+          <div class='text-sm font-semibold'>Step 3</div>
+          <div class='text-xs text-slate-600 mt-1'>Configure conditional forwarders on on-prem DNS to point to the ENI IPs.</div>
+        </div>
+      </div>
+      <div class='mt-4'>
+        <div class='text-sm font-semibold mb-1'>Supporting notes</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Security groups should allow only your on-premises DNS server IPs on UDP/TCP port 53.</li>
+          <li>ENIs should be in subnets with route table entries that allow communication back to on-premises networks via VPN or Direct Connect.</li>
+          <li>Use at least two ENIs across AZs for high availability.</li>
+        </ul>
+      </div>
+    </div>
+    <div class='w-1/3 card p-5 flex flex-col'>
+      <div class='text-sm font-bold mb-2'>Concrete example</div>
+      <div class='text-xs text-slate-600'>Create inbound endpoint with ENI IPs 10.0.1.10 and 10.0.2.10 in subnets in AZ-A and AZ-B. On AD DNS add a conditional forwarder for aws.example.com to these IPs.</div>
+      <div class='mt-3 p-3 rounded-lg bg-amber-50'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Common Mistake</div>
+        <div class='text-xs text-slate-700'>Not opening port 53 both UDP and TCP or allowing broader access in the security group, leaving endpoints unreachable or exposed.</div>
+      </div>
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Inbound endpoints let on-premises DNS resolve AWS private hosted zone records when properly secured and placed across AZs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

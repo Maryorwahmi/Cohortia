@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Hands-on Activity</div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-lg font-bold">Starter code (annotated)</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-md mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+import re
+log_entry = "ERROR:2023-10-27 15:30:45: User 'admin' failed login from IP 192.168.1.10. (Attempt 3)"
+
+# 1. Error type
+error_type_pattern = re.compile(r"^(\w+):")
+err = error_type_pattern.search(log_entry)
+if err:
+    error_type = err.group(1)
+
+# 2. Timestamp
+timestamp_pattern = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")
+# 3. Username
+username_pattern = re.compile(r"User '([\w]+)'")
+# 4. IP address
+ip_pattern = re.compile(r"IP (\d{1,3}(?:\.\d{1,3}){3})")
+# 5. Attempt number
+attempt_pattern = re.compile(r"\(Attempt (\d+)\)")
+
+# 6. Replace text
+modified = re.sub(r"failed login", "unsuccessful authentication", log_entry)
+print(modified)
+        </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold">Explanation & checklist</div>
+      <ul class="list-disc pl-5 mt-2 text-sm text-slate-700">
+        <li>Compile focused patterns for each field to improve clarity and reuse.</li>
+        <li>Use search to find each field anywhere in the entry, except when anchored.</li>
+        <li>Extract groups with group(1) for the relevant capture.</li>
+        <li>Use re.sub and assign its result to perform replacements.</li>
+      </ul>
+
+      <div class="mt-auto grid gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Break the log into fields with small, tested patterns, compile for reuse, and use sub for consistent replacements across entries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

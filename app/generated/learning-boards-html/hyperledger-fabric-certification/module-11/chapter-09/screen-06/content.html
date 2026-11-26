@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">PKCS#11</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">What PKCS#11 provides</div>
+      <div class="text-sm text-slate-700 mt-2">A vendor-neutral API surface for cryptographic modules that supports listing tokens, authenticating, and performing operations so Fabric can delegate signing to an HSM.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold mb-1">Practical checklist</div>
+        <ul class="list-disc list-inside space-y-2">
+          <li>Ensure the PKCS#11 shared library is installed on the host.</li>
+          <li>Provide correct PIN and Label via secure injection.</li>
+          <li>Verify with pkcs11-tool that the token and slot exist.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example config</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 text-sm" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Example: point to your PKCS#11 library
+BCCSP:
+  Default: PKCS11
+  PKCS11:
+    Library: /usr/lib/softhsm/libsofthsm2.so
+    Pin: "1234"
+    Label: "my-hsm-label"
+    hash: SHA2
+    security: 256
+    immutable: false
+      </pre>
+      <div class="text-xs text-slate-600 mt-2">Note: avoid hardcoding PINs; use environment variables or secrets.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

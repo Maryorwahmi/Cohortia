@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code-panel{background:#0f172a;color:#e6eef9;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Calculating CPI impact</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">CPI formula</div>
+      <div class="text-sm text-slate-600 mt-1">Translate profiler numbers into CPI impact.</div>
+
+      <div class="mt-4">
+        <div class="code-panel">
+          <pre style="white-space:pre-wrap;tab-size:2;margin:0;color:#e6eef9"><code>CPI = Base CPI + Branch_Frequency × Mispredict_Rate × Branch_Penalty
+
+Example:
+Base CPI = 1.0
+Branch_Frequency = 0.20  (1 branch every 5 instructions)
+Mispredict_Rate = 0.05  (95% accuracy)
+Branch_Penalty = 20 cycles
+
+CPI = 1.0 + 0.20 × 0.05 × 20 = 1.2
+</code></pre>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <p>Interpretation: a 5% mispredict rate costs an extra 0.2 CPI in this example, a 20% relative slowdown. Reducing mispredict rate to 2% cuts the extra CPI to 0.08.</p>
+        <p>Practical step: plug your profiler's branch frequency and mispredict numbers into this formula and vary the penalty to model different pipeline depths.</p>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Use the formula to quantify trade-offs and justify predictor complexity numerically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Worked calculation</div>
+      <div class="text-sm text-slate-700 mt-2">We compare 5% vs 2% mispredict with the same frequency and penalty to show relative gains. This demonstrates why designers target even small accuracy improvements for branch-heavy workloads.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Case A: 5% mispredict</div>
+          <div class="text-sm text-slate-700 mt-1">CPI = 1.20 (0.20 extra)</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">Case B: 2% mispredict</div>
+          <div class="text-sm text-slate-700 mt-1">CPI = 1.08 (0.08 extra)</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-md bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Check</div>
+        <div class="text-sm text-slate-800 mt-1">Which parameter—frequency, penalty, or mispredict rate—most affects CPI in your measured workload?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class="text-slate-700">What are Role Dependencies?</span>
+    </div>
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm h-[40%]">
+      <div class="text-sm font-bold text-slate-800 mb-2">Definition</div>
+      <p class="text-sm text-slate-700">A role lists other roles it requires under dependencies in meta/main.yml so those roles run first. Use this to ensure prerequisites such as packages, storage, or firewall rules are present before the main role's tasks execute.</p>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-4">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-3">meta/main.yml example</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;"># webserver/meta/main.yml
+galaxy_info:
+  author: Your Name
+  description: An Ansible role for deploying Nginx web server.
+
+dependencies:
+  - role: common_packages  # ensures utilities are installed first
+  - role: firewall        # open ports before configuring services
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Ordered list: common_packages will run before firewall, and both before the webserver tasks.</div>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation and common pitfall</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Dependencies form a directed graph; avoid cycles to prevent runtime errors.</li>
+        <li>Use dependencies to keep roles small and focused, reducing duplication.</li>
+        <li>Verify execution order by running the playbook and reading the output.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Declare prerequisites in meta/main.yml so roles run predictably and avoid missing dependencies at runtime.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

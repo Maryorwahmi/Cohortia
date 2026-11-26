@@ -1,0 +1,110 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 9.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Python Circuit Breaker</span>
+    </div>
+
+    <div class="h-[68vh] grid grid-cols-2 gap-6">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Starter code (conceptual)</div>
+        <div class="mt-3 text-sm text-slate-600">Run this simulation to observe state transitions. Do not copy to production unchanged — use libraries for hardened implementations.</div>
+
+        <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3"><code>import time
+import random
+from enum import Enum
+
+class CircuitState(Enum):
+  CLOSED = 1
+  OPEN = 2
+  HALF_OPEN = 3
+
+class CircuitBreaker:
+  def __init__(self, failure_threshold=3, reset_timeout_seconds=5, success_threshold=2):
+    self.state = CircuitState.CLOSED
+    self.failure_threshold = failure_threshold
+    self.reset_timeout_seconds = reset_timeout_seconds
+    self.success_threshold = success_threshold
+
+    self.failure_count = 0
+    self.last_failure_time = 0
+    self.success_count = 0
+
+  def _reset(self):
+    self.state = CircuitState.CLOSED
+    self.failure_count = 0
+    self.success_count = 0
+    self.last_failure_time = 0
+
+  def call(self, service_function, *args, **kwargs):
+    if self.state == CircuitState.OPEN:
+      if time.time() - self.last_failure_time > self.reset_timeout_seconds:
+        self.state = CircuitState.HALF_OPEN
+        print(f"[{time.time():.2f}] Circuit Breaker: Transitioning to HALF_OPEN. Allowing test calls.")
+      else:
+        print(f"[{time.time():.2f}] Circuit Breaker: OPEN. Service is down. Failing fast.")
+        raise Exception("Circuit Breaker is OPEN. Service unavailable.")
+
+    try:
+      result = service_function(*args, **kwargs)
+      self._on_success()
+      return result
+    except Exception as e:
+      self._on_failure(e)
+      raise
+
+  def _on_success(self):
+    if self.state == CircuitState.HALF_OPEN:
+      self.success_count += 1
+      if self.success_count >= self.success_threshold:
+        print(f"[{time.time():.2f}] Circuit Breaker: Success threshold met. Transitioning to CLOSED.")
+        self._reset()
+    elif self.state == CircuitState.CLOSED:
+      self.failure_count = 0
+
+  def _on_failure(self, exception):
+    self.failure_count += 1
+    self.last_failure_time = time.time()
+    print(f"[{time.time():.2f}] Circuit Breaker: Call failed ({exception}). Failure count: {self.failure_count}")
+
+    if self.state == CircuitState.HALF_OPEN:
+      print(f"[{time.time():.2f}] Circuit Breaker: Test call failed. Transitioning back to OPEN.")
+      self.state = CircuitState.OPEN
+      self.success_count = 0
+    elif self.state == CircuitState.CLOSED and self.failure_count >= self.failure_threshold:
+      print(f"[{time.time():.2f}] Circuit Breaker: Failure threshold met. Transitioning to OPEN.")
+      self.state = CircuitState.OPEN
+
+# Simulate a flaky external service
+def flaky_external_service(request_id):
+  if random.random() < 0.7:
+    raise Exception(f"External Service Error for request {request_id}")
+  else:
+    print(f"External Service: Successfully processed request {request_id}")
+    return f"Response for {request_id}"</code></pre>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-sm font-bold text-slate-800">How to use it</div>
+        <div class="mt-3 text-sm text-slate-600">Run the simulation and watch printed state transitions and timestamps. Experiment by changing failure_threshold, reset_timeout_seconds, and success_threshold to see how the circuit reacts.</div>
+
+        <div class="mt-4 space-y-3">
+          <div class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">Example experiment: increase the reset timeout to let the downstream recover before probing.</div>
+          <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">Observation: too small a success threshold can close the circuit too early on transient success.</div>
+          <div class="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">Pitfall: using the demo randomness to justify production thresholds. Use real metrics instead.</div>
+        </div>
+
+        <div class="mt-auto pt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+            <p class="text-xs font-medium text-slate-800">Experiment with thresholds to observe different recovery behaviors and to understand their operational impact.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

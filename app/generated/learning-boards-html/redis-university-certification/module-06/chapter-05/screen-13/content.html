@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{ background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:12px; }
+    .codebox{ background:#0b1220; color:#dbeafe; padding:10px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; white-space:pre-wrap; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Operational Best Practices</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-2xl font-extrabold text-slate-800">Backups, Limits, Monitoring, and Updates</h3>
+        <p class="text-sm text-slate-600 mt-1">Practical operational controls that keep Redis available, performant, and recoverable.</p>
+      </div>
+      <div class="text-xs uppercase font-bold text-slate-700 bg-blue-50 px-2 py-1 rounded">Operations</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Backups & Restore</div>
+        <p class="text-sm text-slate-700">Regularly copy RDB snapshots or AOF files to secure off-site storage. The most important test is restoring them: automated restore drills validate your disaster recovery process.</p>
+        <div class="mt-3 codebox"># Example: copy snapshot
+cp /var/lib/redis/dump.rdb /backup/location/dump-$(date +%F).rdb</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">maxmemory & ulimit</div>
+        <p class="text-sm text-slate-700">Set maxmemory to keep Redis from exhausting host RAM. Configure ulimit nofile so Redis can handle many connections under load.</p>
+        <div class="text-xs text-slate-600 mt-2">redis.conf: <span class="font-medium">maxmemory 8gb</span></div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Monitoring & Logging</div>
+        <p class="text-sm text-slate-700">Monitor memory, evictions, slow commands, connection errors, and auth failures. Ship Redis logs to your central system for auditing and troubleshooting. Alert on sudden spikes or persistent errors.</p>
+        <ul class="mt-3 text-sm text-slate-600 space-y-1">
+          <li>Key metrics: used_memory, evicted_keys, rejected_connections.</li>
+          <li>Alert on authentication failures and repeated failed commands.</li>
+        </ul>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Updates & Dedicated Hosts</div>
+        <p class="text-sm text-slate-700">Keep Redis and client libraries up to date to receive security fixes. Run Redis on dedicated servers or VMs to avoid resource contention that hurts latency and stability.</p>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Operational practices—backups, memory limits, monitoring, and updates—are as important as security settings for reliable Redis production systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

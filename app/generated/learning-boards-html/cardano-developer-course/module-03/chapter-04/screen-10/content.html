@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Final Build</div>
+      <div class="text-lg font-bold text-slate-900 mb-3">Build raw, sign, and submit</div>
+      <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>cardano-cli transaction build-raw \
+  --fee $FEE_NFT \
+  --tx-in $TX_IN \
+  --tx-out "$(cat payment.addr) + $CHANGE_ADA_NFT lovelace + 1 $NFT_FULL_ASSET" \
+  --mint "1 $NFT_FULL_ASSET" \
+  --minting-script-file policy.script \
+  --metadata-json-file metadata.json \
+  --out-file nft_matx.raw
+
+cardano-cli transaction sign \
+  --tx-body-file nft_matx.raw \
+  --signing-key-file payment.skey \
+  --script-file policy.script \
+  --testnet-magic 1 \
+  --out-file nft_matx.signed
+
+cardano-cli transaction submit --tx-file nft_matx.signed --testnet-magic 1</code></pre>
+      <div class="mt-3 text-sm text-slate-800">Signing requires the keys that satisfy the minting policy as well as the input owner's payment key. If your policy uses time-locks or other conditions, ensure they are satisfied at submission time.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Checks &amp; Troubleshooting</div>
+      <ul class="list-disc ml-4 space-y-2 text-sm text-slate-800">
+        <li>Confirm nft_matx.signed exists and lists required witnesses.</li>
+        <li>If submission fails, check insufficient fee, missing witness, or stale TX_IN references.</li>
+        <li>Inspect metadata parsing on explorer after the tx is included.</li>
+      </ul>
+      <div class="mt-auto rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800">The mint completes only after a valid signed tx is submitted and included in a block; ensure all signing keys and conditions are present before submission.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

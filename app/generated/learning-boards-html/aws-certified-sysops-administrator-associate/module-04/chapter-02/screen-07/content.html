@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Conditions</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">How Conditions work</div>
+      <p class="text-sm text-slate-600 mt-2">Conditions evaluate at stack creation and control resource and property creation. Combine logical functions like Fn::Equals and Fn::And for expressive checks.</p>
+
+      <div class="mt-4">
+        <pre class="bg-slate-50 p-3 rounded text-sm">Conditions:
+  IsProduction:
+    Fn::Equals: [!Ref EnvironmentParameter, Production]</pre>
+
+        <div class="mt-3 rounded-lg p-3 bg-amber-50 text-amber-800">
+          <div class="text-sm font-semibold">Attach to resource</div>
+          <div class="text-xs text-slate-700 mt-1">Use Condition: IsProduction on the resource to create it only when true.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use Conditions for environment-specific resources. Prefer nested stacks when logic becomes complex to keep templates maintainable.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example & pitfalls</div>
+      <div class="mt-3 text-sm text-slate-700">Imagine you only want a managed database in production. Define Environment as a parameter and a Condition IsProduction. Apply that Condition to the database resource so it only gets created for production. A common error is expecting Conditions to skip required properties; some resources require properties even when not created. Test your template in both modes to ensure predictable behavior.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold">Check your understanding</div>
+          <div class="text-xs text-slate-600 mt-1">If a resource is protected by a Condition, what happens on update when the Condition changes? CloudFormation will create or delete resources to match the new evaluation—plan for that impact.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">
+          <div class="text-sm font-semibold">Common pitfall</div>
+          <div class="text-xs text-slate-700 mt-1">Applying a Condition where the resource type requires the property to exist can cause template validation errors; verify support first.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

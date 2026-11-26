@@ -1,0 +1,82 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code {background:#0f1724;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">MyToken Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 h-full card-border shadow-sm grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-lg font-bold text-slate-900">Starter contract</div>
+      <div class="mt-3 code">// contracts/MyToken.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MyToken {
+    string public name = "MyToken";
+    string public symbol = "MTK";
+    uint256 public totalSupply;
+    mapping(address =&gt; uint256) public balances;
+
+    constructor(uint256 initialSupply) {
+        totalSupply = initialSupply;
+        balances[msg.sender] = initialSupply;
+    }
+
+    function transfer(address recipient, uint256 amount) public returns (bool) {
+        require(balances[msg.sender] &gt;= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[recipient] += amount;
+        emit Transfer(msg.sender, recipient, amount);
+        return true;
+    }
+
+    function balanceOf(address account) public view returns (uint256) {
+        return balances[account];
+    }
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+}
+</div>
+    </div>
+
+    <div>
+      <div class="text-lg font-bold text-slate-900">Test starter</div>
+      <div class="mt-3 code">// test/MyToken.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("MyToken", function () {
+    let MyToken;
+    let myToken;
+    let owner;
+    let addr1;
+    let addr2;
+    const initialSupply = ethers.utils.parseEther("1000"); // 1000 tokens
+
+    beforeEach(async function () {
+        MyToken = await ethers.getContractFactory("MyToken");
+        [owner, addr1, addr2] = await ethers.getSigners();
+        myToken = await MyToken.deploy(initialSupply);
+        await myToken.deployed();
+    });
+
+    // Write your tests here!
+});
+</div>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Activity steps</div>
+        <ol class="text-sm text-slate-800 mt-2 pl-5 list-decimal space-y-1">
+          <li>Assert totalSupply equals initialSupply and owner balance equals initialSupply.</li>
+          <li>Test successful transfer: balances change and Transfer event emits with correct args.</li>
+          <li>Test transferring more than balance reverts with "Insufficient balance".</li>
+          <li>Verify balanceOf returns correct balances after transfers.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

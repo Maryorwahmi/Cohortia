@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 rounded-xl border bg-white p-4 shadow-sm border-slate-100">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">What is a database index?</h3>
+      <p class="text-sm text-slate-600 mt-2">A separate lookup structure that maps column values to row locations, enabling faster retrieval than scanning all rows.</p>
+      <div class="mt-4 space-y-2">
+        <div class="text-sm text-slate-700">• Definition: a lookup table maintained by the database to speed searches.</div>
+        <div class="text-sm text-slate-700">• Analogy: book index points directly to pages instead of paging through the whole book.</div>
+        <div class="text-sm text-slate-700">• Contrast: full table scan reads every row; used when queries are non-selective.</div>
+        <div class="text-sm text-slate-700">• Misconception: more indexes always equal faster queries — not true due to write overhead and storage costs.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">If users.email is indexed, WHERE email='alice@example.com' finds rows via the index rather than scanning millions of rows.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Indexes change expensive scans into targeted lookups, but apply them where queries are selective.</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 rounded-xl border bg-white p-4 shadow-sm border-slate-100 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Illustration: book index vs table scan</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-1">
+        <div class="rounded-lg bg-slate-50 p-3 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-700">Full table scan</div>
+          <pre class="safe-pre mt-2 text-sm text-slate-700">-- The engine reads every row
+SELECT *
+FROM users
+WHERE last_login &gt; now() - interval '30 days';</pre>
+          <div class="mt-2 text-xs text-slate-500">Good when most rows match</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3 border border-slate-100">
+          <div class="text-sm font-semibold text-slate-700">Indexed lookup</div>
+          <pre class="safe-pre mt-2 text-sm text-slate-700">-- Uses index on email
+SELECT *
+FROM users
+WHERE email = 'alice@example.com';</pre>
+          <div class="mt-2 text-xs text-slate-500">Fast when the filter is selective</div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md p-3 bg-white border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Indexing low-cardinality columns like gender often yields little benefit because many rows match.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white border border-slate-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-2">Prefer indexes on columns used in selective WHERE clauses, joins, or ordering operations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

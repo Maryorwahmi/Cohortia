@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-4 h-full"> 
+    <div class="p-4 bg-white card overflow-auto"> 
+      <div class="text-sm font-semibold text-slate-800 mb-2">Violation code</div>
+      <pre class="code bg-slate-50 p-3 rounded-md text-sm">public class SqlDatabaseLogger
+{
+  public void LogError(string message)
+  {
+    Console.WriteLine($"SQL DB Logger: Logging error '{message}' to database.");
+  }
+}
+
+public class OrderProcessor
+{
+  private SqlDatabaseLogger _logger;
+
+  public OrderProcessor()
+  {
+    _logger = new SqlDatabaseLogger(); // Direct instantiation
+  }
+
+  public void ProcessOrder(int orderId)
+  {
+    try { /* process */ }
+    catch (Exception ex) { _logger.LogError(ex.Message); }
+  }
+}</pre>
+    </div>
+    <div class="p-4 bg-white card overflow-auto"> 
+      <div class="text-sm font-semibold text-slate-800 mb-2">Refactor outline</div>
+      <pre class="code bg-slate-50 p-3 rounded-md text-sm">public interface ILogger { void LogError(string message); }
+public class SqlDatabaseLogger : ILogger { /* ... */ }
+public class OrderProcessor
+{
+  private readonly ILogger _logger;
+  public OrderProcessor(ILogger logger) { _logger = logger; }
+}
+
+// At composition root:
+ILogger logger = new SqlDatabaseLogger();
+var processor = new OrderProcessor(logger);</pre>
+      <div class="mt-3 text-sm text-slate-700">This refactor enables unit tests to inject a mock ILogger and production code to choose a real implementation at startup. It isolates responsibility for object creation to the composition root.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

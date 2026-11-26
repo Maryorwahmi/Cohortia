@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Parsing df</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+    <div class="text-sm font-semibold text-slate-800">Robust parsing pattern</div>
+    <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, 'Roboto Mono', Menlo, monospace;">
+# Example parsing strategy
+lines = result.stdout.strip().split('
+')
+# header may be first line; find the line matching the mount path
+for line in lines[1:]:
+    parts = line.split()
+    if parts and parts[-1] == path:
+        try:
+            usage_percent = int(parts[4].strip('%'))
+        except (IndexError, ValueError):
+            logging.error(f"Could not parse usage from line: {line}")
+            raise
+        break
+else:
+    logging.error("No matching mount line found")
+    raise ValueError("Mount path not found in df output")
+    </pre>
+
+    <div class="mt-3 text-sm text-slate-600">Test this parsing with multiple fixtures: different device names, spaces in mount points, and localized output. Defensive checks prevent silent misreports in production.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Apply & Persist</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-2/3 card p-5 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Step-by-step</div>
+      <ol class='list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2'>
+        <li>Record the current value and parameter name.</li>
+        <li>Apply a temporary change for testing and re-read to confirm.</li>
+        <li>Run representative workload tests and collect metrics.</li>
+        <li>If results improve and no regressions appear, add the setting to /etc/sysctl.conf or /etc/sysctl.d/.</li>
+        <li>Reload configuration to apply persistent settings and verify again.</li>
+      </ol>
+
+      <div class='mt-4 text-xs font-bold uppercase tracking-wider text-slate-600'>Example code</div>
+      <pre class='mt-2 p-3 bg-slate-900 text-slate-100 rounded-md text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+# Read current value
+sysctl vm.swappiness
+
+# Temporary change for test
+sudo sysctl -w vm.swappiness=10
+
+# Persist after validation
+echo "vm.swappiness = 10" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+</pre>
+    </div>
+
+    <div class='w-1/3 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Checklist</div>
+      <ul class='list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2'>
+        <li>Record original value</li>
+        <li>Confirm change applied</li>
+        <li>Run realistic tests</li>
+        <li>Document and persist only if safe</li>
+      </ul>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Warning</div>
+        <p class='text-xs font-medium text-slate-800'>Do not persist untested changes in production; verify in staging first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

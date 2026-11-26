@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">assert()</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <h3 class="text-xl font-bold text-slate-800">When assert makes sense</h3>
+        <p class="text-sm text-slate-600 mt-2">Assert checks are reserved for conditions that should be true by construction. Their failure implies a code bug, not invalid input.</p>
+
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>• Use for internal invariants after complex computations.</li>
+          <li>• In Solidity 0.8+, arithmetic overflow checks are automatic, reducing the need for assert for maths.</li>
+          <li>• Failed assert consumes all remaining gas — a deliberate loud signal.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example pattern</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>function processCriticalState(uint _value) internal {
+  uint newCalculatedValue = _value * 2;
+  assert(newCalculatedValue &gt;= _value);
+}</code></pre>
+        <div class="mt-3 text-sm text-slate-700">Here assert checks a mathematical property that should hold; if it fails, investigate the calculation logic rather than blaming user input.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-rose-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="mt-1 text-sm text-rose-600">Using assert for input validation leads to unnecessary gas loss and poor diagnostics. Prefer require or custom errors for expected failures.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

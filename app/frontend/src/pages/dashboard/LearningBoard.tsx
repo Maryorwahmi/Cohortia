@@ -237,7 +237,7 @@ export default function LearningBoard() {
       <LearningBoardPage
         userProfile={userProfile}
         onUpdateProfile={handleUpdateProfile}
-        onChangePage={(page) => navigate(PAGE_PATHS[page] || `/dashboard/${page}`)}
+        onChangePage={(page) => navigate(page.startsWith("/") ? page : PAGE_PATHS[page] || `/dashboard/${page}`)}
         theme={theme}
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}

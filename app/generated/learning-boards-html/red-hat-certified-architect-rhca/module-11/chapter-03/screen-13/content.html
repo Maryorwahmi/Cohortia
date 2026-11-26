@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: serverA & serverB</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">serverA (NTP Server)</div>
+      <div class="mt-3 text-sm text-slate-700">Generate a key, add it to /etc/chrony.keys, edit /etc/chrony.conf with pool and allow 192.168.100.0/24 and ntpserve, restart chronyd, then open UDP 123 in the firewall.</div>
+
+      <div class="mt-4 overflow-auto rounded-lg bg-slate-900 text-white p-3" style="min-height:120px">
+        <pre><code># Example commands (serverA)
+sudo dd if=/dev/urandom bs=16 count=1 | base64
+# Add to /etc/chrony.keys: 1 MD5 YOUR_GENERATED_SECRET
+sudo chmod 600 /etc/chrony.keys
+sudo vi /etc/chrony.conf
+# Add: pool 2.rhel.pool.ntp.org iburst
+#       allow 192.168.100.0/24
+#       ntpserve
+sudo systemctl restart chronyd
+sudo firewall-cmd --permanent --add-service=ntp && sudo firewall-cmd --reload
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">serverB (NTP Client)</div>
+      <div class="mt-3 text-sm text-slate-700">Copy the exact key into /etc/chrony.keys on serverB, add server 192.168.100.10 key 1 iburst to /etc/chrony.conf, restart chronyd, and verify with chronyc sources -v and chronyc tracking.</div>
+
+      <div class="mt-4 overflow-auto rounded-lg bg-slate-900 text-white p-3" style="min-height:120px">
+        <pre><code># Example commands (serverB)
+# Ensure /etc/chrony.keys matches serverA
+sudo chmod 600 /etc/chrony.keys
+sudo vi /etc/chrony.conf
+# Add: server 192.168.100.10 key 1 iburst
+sudo systemctl restart chronyd
+chronyc sources -v
+chronyc tracking
+</code></pre>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab Tip</div>
+          <p class="text-xs font-medium text-slate-800">Treat keys as secrets. Validate keys, permissions, and firewall rules if authentication does not succeed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

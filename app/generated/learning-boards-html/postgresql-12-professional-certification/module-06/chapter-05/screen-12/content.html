@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .warn{background:#fff1f2;border:1px solid rgba(239,102,117,0.15)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Remediation Options</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">When VACUUM isn't enough</div>
+    <div class="text-sm text-slate-600 mt-2">Evaluate whether indexes or table files need rebuilding or a full rewrite is necessary.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-700">REINDEX</div>
+        <div class="text-xs text-slate-600 mt-2">Rebuild indexes to remove dead index entries. Useful when index bloat causes slow lookups and index size growth.</div>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-700">VACUUM FULL</div>
+        <div class="text-xs text-slate-600 mt-2">Rewrites table and indexes to return space to the OS. Requires exclusive lock; plan downtime.</div>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-700">pg_repack (third-party)</div>
+        <div class="text-xs text-slate-600 mt-2">Rewrites tables online without exclusive locks. Consider when you need to avoid downtime and VACUUM cannot reclaim space.</div>
+      </div>
+
+      <div class="rounded-xl p-4 bg-rose-50 card-border warn">
+        <div class="text-sm font-semibold text-rose-700">Avoid</div>
+        <div class="text-xs text-rose-700 mt-2">Do not disable autovacuum. Using VACUUM FULL repeatedly as a substitute for proper tuning leads to recurring problems.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Prefer non-disruptive fixes and per-table tuning; use VACUUM FULL or pg_repack only when necessary and planned.</p>
+    </div>
+  </div>
+</div>

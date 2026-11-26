@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <style> pre.code{background:#0f1724;color:#e6eef6;padding:12px;border-radius:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;line-height:1.4;white-space:pre-wrap;tab-size:2} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white} </style> <div class="mb-4"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span> <span>›</span> <span>Chapter 9.3</span> <span>›</span> <span class="text-slate-700">Define MetaData & Table</span> </div> </div> <div class="flex gap-4 h-full"> <div class="w-1/2 card p-4"> <div class="text-xl font-bold text-slate-800">Key objects</div> <div class="text-sm text-slate-600 mt-2">MetaData holds the collection of Table objects. Each Table defines columns and constraints so schema is explicit and versionable.</div> <div class="mt-4 grid gap-3"> <div class="p-3 border rounded-lg"> <div class="font-semibold text-slate-800">Column constraints</div> <div class="text-sm text-slate-600 mt-2">Use primary_key, unique, nullable, default, and ForeignKey to enforce integrity at the database level.</div> </div> <div class="p-3 border rounded-lg"> <div class="font-semibold text-slate-800">Practical note</div> <div class="text-sm text-slate-600 mt-2">create_all creates missing tables; it does not modify existing table schemas. For changes, use migrations.</div> </div> </div> </div> <div class="w-1/2 card p-4"> <div class="text-sm font-semibold text-slate-800">Example: products & orders</div> <pre class="code">from sqlalchemy import MetaData, Table, Column, Integer, String, Float, ForeignKey
+
+metadata = MetaData()
+
+products_table = Table(
+  'products', metadata,
+  Column('id', Integer, primary_key=True, autoincrement=True),
+  Column('name', String(100), nullable=False, unique=True),
+  Column('description', String(255)),
+  Column('price', Float, nullable=False),
+  Column('quantity', Integer, default=0)
+)
+
+orders_table = Table(
+  'orders', metadata,
+  Column('id', Integer, primary_key=True, autoincrement=True),
+  Column('product_id', Integer, ForeignKey('products.id')),
+  Column('customer_name', String(100), nullable=False),
+  Column('order_date', String(50), nullable=False)
+)</pre> <div class="mt-3 p-3 border rounded-lg"> <div class="font-semibold text-slate-800">Try this</div> <div class="text-sm text-slate-600 mt-2">Run metadata.create_all(engine) against a fresh SQLite file to see the tables created from these definitions.</div> </div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

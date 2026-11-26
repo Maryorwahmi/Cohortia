@@ -1,0 +1,53 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white text-slate-800">  
+  <style>    
+    .card { border-radius:12px; border:1px solid rgba(226,232,240,0.9); padding:12px; background:#fff; }  
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>    
+    <span>›</span>    
+    <span>Chapter 4.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">Static Routes & Precedence</span>  
+  </div>
+
+  <div class="flex gap-6 h-full">    
+    <div class="w-1/2">      
+      <div class="text-xl font-bold mb-2">Static route behavior</div>
+      <div class="text-sm text-slate-600 mb-4">Static routes are manual, take precedence, and are useful for overrides and appliance steering.</div>
+
+      <div class="grid gap-3">        
+          <div class="card">            
+              <div class="text-sm font-semibold">Example</div>            
+              <div class="text-xs text-slate-700 mt-1">Add a static route 0.0.0.0/0 in TGW-RT-App pointing to the Egress VPC attachment so all unmatched traffic is forced through a centralized firewall.</div>          
+          </div>
+
+          <div class="card bg-slate-50">            
+              <div class="text-sm font-semibold">Misconception</div>            
+              <div class="text-xs text-slate-700 mt-1">A propagated route does not override a static route. If you need a propagated route to be preferred, remove or narrow the static entry.</div>          
+          </div>
+
+          <div class="card bg-amber-50">            
+              <div class="text-sm font-semibold">Design tip</div>            
+              <div class="text-xs text-slate-700 mt-1">Use static routes for critical control paths and document them. Consider tag-based naming to identify purpose and owner.</div>          
+          </div>
+      </div>
+    </div>
+
+    <div class="w-1/2">      
+      <div class="card p-4">        
+        <div class="text-sm font-semibold mb-2">Precedence rules to remember</div>
+        <ul class="text-sm text-slate-700 list-disc pl-5 space-y-2">          
+          <li>Static route exists → it takes precedence over propagated entries for the same CIDR.</li>          
+          <li>If multiple routes match, longest prefix match determines the winner.</li>          
+          <li>Blackhole is a special static target that intentionally drops traffic.</li>        
+        </ul>
+      </div>
+
+      <div class="mt-4 card p-3">        
+        <div class="text-sm font-semibold">Scenario</div>        
+        <div class="text-xs text-slate-700 mt-1">You want to ensure a legacy subnet always traverses a monitoring appliance. Create a static route for the legacy subnet in the appropriate TGW route table pointing to the appliance's attachment.</div>
+      </div>
+    </div>
+  </div>
+</div>

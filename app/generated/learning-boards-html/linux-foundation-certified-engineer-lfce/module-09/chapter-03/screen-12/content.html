@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on cleanup</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-semibold uppercase text-slate-500">Cleanup script (/usr/local/bin/daily_cleanup.sh)</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">#!/bin/bash
+LOG_FILE="/var/log/cleanup_script.log"
+TARGET_DIR="/var/log/old_app_logs"
+
+echo "$(date): Starting daily cleanup in $TARGET_DIR" >> "$LOG_FILE"
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo "$(date): Error: Target directory $TARGET_DIR does not exist." >> "$LOG_FILE"
+    exit 1
+fi
+
+find "$TARGET_DIR" -type f -mtime +30 -exec rm {} \; >> "$LOG_FILE" 2>&1
+
+if [ $? -eq 0 ]; then
+    echo "$(date): Cleanup completed successfully." >> "$LOG_FILE"
+else
+    echo "$(date): Cleanup encountered errors." >> "$LOG_FILE"
+fi
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-semibold uppercase text-slate-500">Service and Timer units</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># /etc/systemd/system/daily-cleanup.service
+[Unit]
+Description=Daily log file cleanup service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/daily_cleanup.sh
+User=root
+Group=root
+StandardOutput=journal
+StandardError=journal
+
+# /etc/systemd/system/daily-cleanup.timer
+[Unit]
+Description=Runs daily log file cleanup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+Unit=daily-cleanup.service
+
+[Install]
+WantedBy=timers.target
+      </pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-slate-50 p-4 card-border shadow-sm">
+    <div class="text-sm font-semibold">Verification steps</div>
+    <ol class="mt-2 text-sm text-slate-700 list-decimal list-inside space-y-2">
+      <li>chmod +x the script and create the target directory with a test file.</li>
+      <li>sudo systemctl daemon-reload</li>
+      <li>sudo systemctl enable --now daily-cleanup.timer</li>
+      <li>Check timers: systemctl list-timers --all | grep daily-cleanup</li>
+      <li>Inspect logs: journalctl -u daily-cleanup.service and cat /var/log/cleanup_script.log</li>
+    </ol>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.note{background:#fff7ed;border-radius:.5rem;padding:10px;border:1px solid rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class="text-slate-700">SUID, SGID, Sticky Bit</span>
+    </div>
+
+    <div class="flex gap-6 h-[68%]">
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">What each special bit does</h3>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">SUID (Set User ID)</div>
+            <div class="text-sm text-slate-600 mt-1">An executable with SUID runs with the file owner's effective user ID. Example: passwd requires write access to shadow files.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">SGID (Set Group ID)</div>
+            <div class="text-sm text-slate-600 mt-1">On executables, runs with file group's privileges. On directories, new items inherit the parent's group ownership, useful for shared project folders.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">Sticky bit</div>
+            <div class="text-sm text-slate-600 mt-1">Prevents deletion or renaming by non-owners in a writable shared directory; e.g., /tmp is drwxrwxrwt.</div>
+          </div>
+        </div>
+
+        <div class="mt-4 note">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Security note</div>
+          <div class="text-sm text-slate-700 mt-1">SUID on untrusted binaries or scripts is dangerous. If you must set SUID, ensure the binary is minimal, audited, and well-tested.</div>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Commands & examples</div>
+        <div class="mt-3">
+          <pre class="p-3" style="background:#0b1220;color:#e6eef8;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;">
+# Show SUID/SGID/sticky markers
+ls -l /usr/bin/passwd   # usually shows -rwsr-xr-x
+ls -ld /tmp             # usually shows drwxrwxrwt
+
+# Set SUID on a binary (use caution)
+sudo chmod u+s /usr/local/bin/somebinary
+# Set SGID on a directory so new files inherit group
+sudo chmod 2775 /srv/project_alpha
+# Set sticky bit on a directory
+sudo chmod +t /srv/shared_tmp
+</pre>
+        </div>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use special bits for deliberate, auditable behaviors: SUID for few trusted binaries, SGID for group ownership, sticky for safe shared write directories.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

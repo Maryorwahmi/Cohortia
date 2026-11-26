@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Hands-on Activity</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Deploy Slack Notifier Lambda</div>
+      <div class="text-sm text-slate-600 mt-3">Follow these steps in your terminal and AWS console to build the pipeline.</div>
+
+      <ol class="mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Create a Slack incoming webhook for your channel and copy the URL.</li>
+        <li>Deploy the Python Lambda (slack_notifier.py) and set SLACK_WEBHOOK_URL as an environment variable.</li>
+        <li>Subscribe the Lambda to your IncidentResponseTopic using the SNS subscribe command and add permission for SNS to invoke Lambda.</li>
+        <li>Trigger the High-CPU-Webserver-Alarm and inspect CloudWatch Logs and Slack channel for the enriched message.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Terminal hints</div>
+      <pre><code>aws sns subscribe --topic-arn &lt;YOUR_TOPIC_ARN&gt; --protocol lambda --notification-endpoint arn:aws:lambda:&lt;REGION&gt;:&lt;ACCOUNT&gt;:function:SlackNotifierLambda
+
+aws lambda add-permission --function-name SlackNotifierLambda --statement-id SNSTopicInvoke --action lambda:InvokeFunction --principal sns.amazonaws.com --source-arn &lt;YOUR_TOPIC_ARN&gt;
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-xs font-semibold text-amber-700">Testing</div>
+          <div class="text-sm mt-1">Publish test messages and confirm Slack content and CloudWatch logs match expectations.</div>
+        </div>
+        <div class="rounded-xl bg-rose-50 p-3 mt-3">
+          <div class="text-xs font-semibold text-rose-700">Security note</div>
+          <div class="text-sm mt-1">Use Secrets Manager for production webhook secrets and grant minimal permissions to the Lambda role.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">XFS quotas</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold">XFS quota characteristics</div>
+      <div class="text-sm text-slate-600 mt-2">XFS manages quotas via xfs_quota. Quotas can be set during mkfs or enabled later; runtime tooling differs from ext4's quotacheck flow.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold">Enable quotas</div>
+          <div class="text-xs text-slate-600 mt-1">xfs_quota -x -c "quota on /mnt/data" turns quotas on for a mounted XFS filesystem.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold">Set and report</div>
+          <div class="text-xs text-slate-600 mt-1">Use xfs_quota subcommands to set limits and generate reports to confirm enforcement.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat XFS quotas as a separate workflow and use xfs_quota to manage and verify limits; do not rely on ext4 tools for XFS.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-md font-bold">Example commands</div>
+      <div class="text-xs text-slate-600 mt-2">An example to enable quotas and report usage on /mnt/data.</div>
+
+      <div class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+<pre><code>sudo xfs_quota -x -c "quota on /mnt/data"
+sudo xfs_quota -x -c "limit -u bsoft=100m bhard=120m student" /mnt/data
+sudo xfs_quota -x -c "report -h" /mnt/data</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <div class="rounded-lg bg-amber-50 p-2 text-xs">Misconception<br><span class="text-[10px] text-slate-600">Assuming quotacheck is required for XFS; use xfs_quota instead.</span></div>
+        <div class="rounded-lg bg-blue-50 p-2 text-xs">Verify<br><span class="text-[10px] text-slate-600">After setting limits, create a test file to confirm behavior during and after grace periods.</span></div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

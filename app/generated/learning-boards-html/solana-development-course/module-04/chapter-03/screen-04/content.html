@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Anchor client setup</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why IDL and Provider matter</div>
+      <p class="text-sm text-slate-700 mt-2">The IDL defines how Anchor serializes instruction data and which accounts each instruction requires. The AnchorProvider connects the IDL to a Connection and the user's wallet for signing and sending.</p>
+
+      <div class="mt-4 flex-1">
+        <pre class="mono text-sm p-3 bg-slate-50 rounded-lg overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+// Install
+npm install @coral-xyz/anchor
+
+// Import IDL and instantiate program
+import * as anchor from '@coral-xyz/anchor';
+import idl from '../idl/counter.json';
+const programId = new anchor.web3.PublicKey('YOUR_PROGRAM_ID_HERE');
+
+// Inside a component with connection and wallet
+const provider = new anchor.AnchorProvider(connection, { publicKey, sendTransaction } as any, { commitment: 'confirmed' });
+const program = new anchor.Program(idl as anchor.Idl, programId, provider);
+        </pre>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-500">Note: the type cast for the wallet in AnchorProvider is a common workaround in TypeScript; in production you may wrap the wallet to match Anchor's expected shape.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-violet-50 p-4">
+        <div class="text-xs uppercase tracking-wider text-violet-700 font-bold">Example</div>
+        <p class="mt-2 text-sm text-slate-800">Import your compiled counter.idl into src/idl, set programId to your deployed address, and create the anchor.Program once per app area that performs transactions.</p>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-4">
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-bold">Common mistake</div>
+        <p class="mt-2 text-sm text-slate-800">Using an outdated IDL after program changes will produce incorrect instruction data and lead to signature or account validation errors on submission.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Anchor's IDL and AnchorProvider are the plumbing that turn method calls into signed transactions and submitted RPCs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

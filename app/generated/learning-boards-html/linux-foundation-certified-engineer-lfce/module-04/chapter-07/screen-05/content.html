@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">iptables vs firewalld</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">iptables</div>
+      <div class="text-lg font-bold text-slate-800">Rule order and granularity</div>
+      <div class="text-sm text-slate-700 mt-3">iptables rules are processed in order and allow complex matching. You explicitly add ACCEPT and DROP rules and often set a default DROP policy for INPUT.</div>
+      <div class="mt-4 p-3 rounded bg-slate-50 mono text-sm"><pre>sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -p tcp -s 192.168.1.10 --dport 3306 -j ACCEPT
+sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -P INPUT DROP</pre></div>
+    </div>
+
+    <div class="rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">firewalld</div>
+      <div class="text-lg font-bold text-slate-800">Zones, services, and rich rules</div>
+      <div class="text-sm text-slate-700 mt-3">firewalld abstracts ports into services and groups interfaces by trust zones. Use rich rules for source-limited access.</div>
+      <div class="mt-4 p-3 rounded bg-slate-50 mono text-sm"><pre>sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.1.10" port port="3306" protocol="tcp" accept'
+sudo firewall-cmd --reload</pre></div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-1 gap-3">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Both tools are capable; pick iptables for low-level control and firewalld for maintainability and zone-based policies. Always verify rules after changes.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

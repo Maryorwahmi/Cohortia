@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Push &amp; Pop mechanics</span>
+  </div>
+  <div class="flex-grow grid grid-cols-12 gap-6">
+    <div class="col-span-6 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Push and pop sequences</h3>
+      <div class="mt-3 text-sm text-slate-700">Push: D contains value, store at RAM[SP], then SP = SP + 1. Pop: SP = SP - 1, then read RAM[SP]. When popping into a segment, compute the target address first, then overwrite it with the popped value. Keeping these orders prevents accidental overwrite and maintains the SP invariant for subsequent operations.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">push constant 3; push constant 5; pop temp 0 → temp 0 receives 5; the stack top becomes 3.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-sm font-semibold text-rose-700">Bug pattern</div>
+          <div class="text-sm text-slate-700 mt-1">Incrementing SP before writing during push will leave a zero at the old top and write the value to the next slot, shifting stack contents unexpectedly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Cards</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Push pattern</div>
+          <div class="text-sm text-slate-700 mt-1">D = value; @SP; A=M; M=D; @SP; M=M+1</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold text-violet-700">Pop pattern</div>
+          <div class="text-sm text-slate-700 mt-1">@SP; AM=M-1; D=M; // D now has popped value</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-800">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Always reason about where SP points before and after each stack operation to avoid off-by-one errors.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

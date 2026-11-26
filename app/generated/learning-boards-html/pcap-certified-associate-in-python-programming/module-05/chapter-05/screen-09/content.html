@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Polymorphism with ABCs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 code">
+      <div class="text-sm font-bold text-slate-700">PayPalProcessor example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+class PayPalProcessor(PaymentProcessor):
+    def process_payment(self, amount):
+        print(f"Processing PayPal payment of ${amount}.")
+        return f"PP_TRANS_{amount}_XYZ"
+
+    def refund_payment(self, transaction_id):
+        print(f"Refunding PayPal transaction: {transaction_id}.")
+        return True
+
+# Polymorphism demo
+cc = CreditCardProcessor()
+pp = PayPalProcessor()
+processors = [cc, pp]
+for p in processors:
+    print(f"Using {p.get_processor_name()}:")
+    trans_id = p.process_payment(25.00)
+    p.refund_payment(trans_id)
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 code">
+      <div class="text-sm font-bold text-slate-700">Practices</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Test each concrete implementation independently to verify the contract behavior.</li>
+        <li>Use lists or registries of processors to operate polymorphically in client code.</li>
+        <li>Maintain consistent method signatures to ensure substitutability.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Design interfaces once and implement many ways; client code stays unchanged when implementations vary.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

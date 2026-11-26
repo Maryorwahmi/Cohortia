@@ -1,0 +1,104 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SRP Refactor</span>
+  </div>
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Refactor steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700">
+        <li>Identify distinct reasons to change—persistence, validation, messaging.</li>
+        <li>Define small interfaces for each responsibility.</li>
+        <li>Implement concrete classes and inject them into a service.</li>
+        <li>Keep the data class pure and orchestrate behavior in the service.</li>
+      </ol>
+      <div class="mt-4 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Why this helps</div>
+        <div class="text-sm text-slate-600 mt-2">Each implementation can change independently. Unit tests can replace collaborators with test doubles, and teams can work on different concerns without stepping on each other's code.</div>
+      </div>
+    </div>
+    <div class="col-span-5 bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 text-sm mt-2"><code>public class User
+{
+  public int Id { get; set; }
+  public string Name { get; set; }
+  public string Email { get; set; }
+}
+
+public interface IUserRepository
+{
+  void Save(User user);
+}
+
+public class SqlUserRepository : IUserRepository
+{
+  public void Save(User user)
+  {
+    Console.WriteLine($"Saving user {user.Name} to SQL database...");
+    // ... SQL database persistence logic ...
+  }
+}
+
+public interface IEmailService
+{
+  void SendWelcomeEmail(User user);
+}
+
+public class SmtpEmailService : IEmailService
+{
+  public void SendWelcomeEmail(User user)
+  {
+    Console.WriteLine($"Sending welcome email to {user.Email} via SMTP...");
+    // ... actual email sending logic ...
+  }
+}
+
+public interface IUserValidator
+{
+  bool Validate(User user);
+}
+
+public class BasicUserValidator : IUserValidator
+{
+  public bool Validate(User user)
+  {
+    Console.WriteLine($"Validating user {user.Name}...");
+    return !string.IsNullOrEmpty(user.Name) && !string.IsNullOrEmpty(user.Email);
+  }
+}
+
+public class UserService
+{
+  private readonly IUserRepository _userRepository;
+  private readonly IEmailService _emailService;
+  private readonly IUserValidator _userValidator;
+
+  public UserService(IUserRepository userRepository, IEmailService emailService, IUserValidator userValidator)
+  {
+    _userRepository = userRepository;
+    _emailService = emailService;
+    _userValidator = userValidator;
+  }
+
+  public void RegisterUser(User user)
+  {
+    if (!_userValidator.Validate(user))
+    {
+      Console.WriteLine("User validation failed.");
+      return;
+    }
+    _userRepository.Save(user);
+    _emailService.SendWelcomeEmail(user);
+    Console.WriteLine($"User {user.Name} registered successfully.");
+  }
+}
+</code></pre>
+      <div class="mt-3 text-xs text-slate-500">Example orchestration keeps changes localized to repository, email service, or validator.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

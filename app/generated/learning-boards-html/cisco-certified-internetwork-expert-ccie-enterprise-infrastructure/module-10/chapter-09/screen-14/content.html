@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Netmiko Auth</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Task</div>
+      <div class="mt-2 text-sm text-slate-600">Use the template to reproduce an AuthenticationException, diagnose whether credentials or device configuration are at fault, and fix the script with safer logging.</div>
+
+      <div class="mt-4 mono bg-slate-100 p-3 rounded card-border text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre># Steps
+# 1. Run the supplied script and observe AuthenticationException.
+# 2. ssh admin@192.168.1.1 from the script host to verify credentials.
+# 3. If ssh fails, run on-device debug: debug aaa authentication or debug ip ssh.
+# 4. Fix device dict values and add structured logging before re-run.</pre>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Outcome</div>
+        <div class="text-xs text-slate-800">You will learn to map exception types to probable causes and to collect logs that make troubleshooting reproducible.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter Script (Intentional wrong password)</div>
+      <div class="mt-3 mono bg-slate-100 p-3 rounded card-border text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre>from netmiko import ConnectHandler
+from netmiko.exceptions import NetmikoAuthenticationException, NetmikoTimeoutException
+
+device = {
+  "device_type": "cisco_ios",
+  "host": "192.168.1.1",
+  "username": "admin",
+  "password": "wrong_password",
+  "secret": "enable_password"
+}
+
+try:
+  net_connect = ConnectHandler(**device)
+  output = net_connect.send_command("show ip interface brief")
+  print(output)
+  net_connect.disconnect()
+except NetmikoAuthenticationException:
+  print("Authentication failed! Check username, password, or enable password.")
+except NetmikoTimeoutException:
+  print("Connection timed out! Check host reachability or SSH service.")
+except Exception as e:
+  print(f"An unexpected error occurred: {e}")</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

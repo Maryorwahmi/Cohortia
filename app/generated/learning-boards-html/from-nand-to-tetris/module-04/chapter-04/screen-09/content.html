@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mod{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px;} .title{font-weight:800;color:#7b42e8;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Assembler modules</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-3">Module responsibilities</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="mod">
+      <div class="text-sm font-semibold text-slate-800">Parser</div>
+      <div class="mt-2 text-sm text-slate-700">Reads lines, strips comments/whitespace, and returns structured instruction objects: type, symbol/value, dest, comp, jump. Keep parsing deterministic to simplify the passes.</div>
+
+      <div class="mt-3 text-sm font-semibold text-slate-800">SymbolTable</div>
+      <div class="mt-1 text-sm text-slate-700">Dictionary with methods: addEntry(symbol, address), contains(symbol), getAddress(symbol). Initialize with predefined symbols before pass one.</div>
+    </div>
+
+    <div class="mod">
+      <div class="text-sm font-semibold text-slate-800">Code module</div>
+      <div class="mt-2 text-sm text-slate-700">Lookup tables for comp, dest, and jump. Each lookup returns a fixed-width bit string used to construct the final C-instruction word.</div>
+
+      <div class="mt-3 text-sm font-semibold text-slate-800">Main</div>
+      <div class="mt-1 text-sm text-slate-700">Runs pass one with Parser to fill SymbolTable with labels. Then runs pass two to translate each instruction using Code and SymbolTable and write the .hack file.</div>
+    </div>
+
+    <div class="col-span-2 mod">
+      <div class="text-sm font-semibold text-slate-800">Practical layout</div>
+      <div class="mt-2 text-sm text-slate-700">This separation helps you unit-test the Code module entries and print Parser outputs. If your binary output differs from reference, inspect the symbol table and parser output to isolate whether the bug is in parsing, symbol resolution, or code lookup.</div>
+    </div>
+  </div>
+</div>

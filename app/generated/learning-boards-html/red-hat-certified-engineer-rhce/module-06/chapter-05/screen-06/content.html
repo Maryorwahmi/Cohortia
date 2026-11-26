@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Ports vs Services</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900 mt-3">Ports versus services</div>
+    <div class="text-sm text-slate-600 mt-1">Choose the clearest, least-privilege option for each rule.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white card-border rounded-2xl p-4 shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Service card</div>
+      <div class="p-3 rounded-lg bg-violet-50 text-violet-700">Use predefined service names like ssh or http to express intent and reduce the chance of mistyping numeric ports.</div>
+      <div class="mt-3 text-sm text-slate-600">Before enabling, review what ports the service includes. Services may open multiple ports which might be broader than you expect.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example</div>
+      <pre class="bg-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code>- name: Allow SSH service in the public zone permanently
+  ansible.posix.firewalld:
+    service: ssh
+    zone: public
+    state: enabled
+    permanent: yes
+    immediate: yes</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white card-border rounded-2xl p-4 shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Port card</div>
+      <div class="p-3 rounded-lg bg-amber-50 text-amber-700">Use a port declaration when the application uses a nonstandard port or when you need the tightest possible rule.</div>
+      <div class="mt-3 text-sm text-slate-600">Ports are explicit but require correct protocol and number. Prefer explicit ports for custom applications to avoid over-permissive service definitions.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example</div>
+      <pre class="bg-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code>- name: Open HTTP (port 80) in the public zone permanently
+  ansible.posix.firewalld:
+    port: 80/tcp
+    zone: public
+    state: enabled
+    permanent: yes
+    immediate: yes</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Prefer service names for readability; choose ports when you need exact control. Confirm the service definition so you don't open more ports than necessary.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

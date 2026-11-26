@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Benefits</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Faster reads, targeted scans</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Reduces rows the planner must inspect for selective filters.</li>
+        <li>Speeds ORDER BY when index order matches the sort.</li>
+        <li>Improves join performance when joining on indexed keys.</li>
+      </ul>
+      <div class="mt-4 text-xs text-slate-500">Example: an index on customers.email converts email lookups from sequential to index scans.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Costs</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Storage and write overhead</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Each index consumes disk space and increases backup size.</li>
+        <li>INSERT/UPDATE/DELETE must update indexes, adding latency to writes.</li>
+        <li>Many indexes slow bulk data loads and maintenance operations.</li>
+      </ul>
+      <div class="mt-4 text-xs text-slate-500">Misstep: indexing every column often hurts overall throughput more than it helps.</div>
+    </div>
+
+    <div class="col-span-2 card p-4 mt-3">
+      <div class="text-sm font-semibold text-slate-800">Decision checklist</div>
+      <div class="grid grid-cols-3 gap-3 mt-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Measure</div>
+          <div class="text-sm text-slate-800 mt-1">Check query frequency and selectivity before adding indexes.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Validate</div>
+          <div class="text-sm text-slate-800 mt-1">Use EXPLAIN ANALYZE to confirm that the planner uses the index.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-rose-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Avoid</div>
+          <div class="text-sm text-slate-800 mt-1">Don’t index low-selectivity columns unless required by constraints.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Indexes are trade-offs: add where reads benefit and verify with plan analysis.</p>
+        </div>
+
+        <div class="rounded-xl p-3 bg-slate-50 border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Consider partial or expression indexes for niche patterns to reduce index size and cost.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Prepare Configuration Snippet</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl p-4 bg-white card border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Scenario values</div>
+        <div class="mt-3 text-sm text-slate-700">On‑prem ASN: 65001 • On‑prem public IP: 203.0.113.10 • AWS VGW public IP (Tunnel1): 52.X.Y.Z • PSK: MyStrongPSK123 • Tunnel IP (on‑prem): 169.254.20.2/30 • AWS tunnel IP: 169.254.20.1/30 • Advertise: 10.10.0.0/16</div>
+
+        <div class="mt-4 text-sm font-semibold text-slate-800">Template</div>
+        <pre class="bg-slate-50 rounded p-3 mt-2 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2;"><code># IKE
+IKE_ENCRYPTION=AES-256
+IKE_HASH=SHA256
+IKE_DH=Group 14
+IKE_LIFETIME=28800
+
+# IPsec
+ESP_ENCRYPTION=AES-256
+ESP_HASH=SHA256
+ESP_PFS=Group 14
+ESP_LIFETIME=3600
+
+# Tunnel 1
+TUNNEL1_AWS_VGW_PUBLIC_IP=52.X.Y.Z
+TUNNEL1_PSK=MyStrongPSK123
+TUNNEL1_ONPREM_TUNNEL_IP=169.254.20.2/30
+TUNNEL1_AWS_TUNNEL_IP=169.254.20.1/30
+
+# BGP
+ONPREM_ASN=65001
+AWS_ASN=64512
+ADVERTISE=10.10.0.0/16</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-2xl p-4 bg-white card border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Guidance</div>
+        <p class="text-sm text-slate-700 mt-2">After substituting values into the template, configure the device and verify IKE and IPsec states. Then enable BGP and confirm the VPC CIDRs appear in your device route table.</p>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check your work</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc pl-5">
+            <li>PSKs copied without typos</li>
+            <li>Tunnel IPs configured as /30s</li>
+            <li>BGP neighbor addresses match tunnel inside IPs</li>
+          </ul>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+            <p class="text-xs font-medium text-slate-800">Fill the template for Tunnel2 as well using the second tunnel values from AWS, then run a failover test.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+      <div class="text-lg font-semibold text-slate-900">ALB Optimization Steps</div>
+
+      <ol class="mt-4 list-decimal ml-5 text-sm text-slate-700 space-y-3">
+        <li><span class="font-semibold">Design readiness checks.</span> Use endpoints that verify essential dependencies.</li>
+        <li><span class="font-semibold">Set intervals thoughtfully.</span> Match checks to startup and recovery times.</li>
+        <li><span class="font-semibold">Tune keepalives and timeouts.</span> Reduce handshakes for persistent traffic.</li>
+        <li><span class="font-semibold">Distribute targets across AZs.</span> Ensure capacity per zone to avoid hotspots.</li>
+        <li><span class="font-semibold">Monitor and iterate.</span> Use RequestCountPerTarget and latency metrics to refine settings.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Defaults are a starting point; match checks and timeouts to real application behavior to avoid instability.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-3 text-sm text-slate-700">If a service needs a cold-start time of around 10 seconds, set your health-check grace and healthy thresholds accordingly rather than relying on very short intervals. This prevents the ALB from marking the instance unhealthy during boot.</div>
+
+      <div class="mt-5">
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(245,166,35,0.08)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Shorter intervals always improve availability. In reality, overly frequent checks can create load and false failures.</div>
+        </div>
+      </div>
+
+      <div class="mt-5 text-sm text-slate-600">Check: After a deployment, if you see flapping, increase healthy thresholds or add a startup grace period for checks.</div>
+    </div>
+  </div>
+</div>

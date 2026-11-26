@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Push vs Pull: SNS and SQS Models</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Comparison</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-amber-50">
+            <div class="text-sm font-semibold text-amber-700">SNS — Push model</div>
+            <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+              <li>Publishes to multiple subscribers instantly.</li>
+              <li>Supports SQS, Lambda, HTTP, email, and mobile push endpoints.</li>
+              <li>Good for fan-out and notifications.</li>
+            </ul>
+          </div>
+
+          <div class="p-3 rounded-lg bg-emerald-50">
+            <div class="text-sm font-semibold text-emerald-700">SQS — Pull model</div>
+            <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+              <li>Durable queue storing messages until consumers poll.</li>
+              <li>Consumers control consumption rate and manage visibility timeout.</li>
+              <li>Good for buffering, retries, and back-pressure handling.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Combined pattern</div>
+          <p class="text-sm text-slate-700 mt-2">Publish to SNS and subscribe SQS queues to get immediate fan-out while keeping durable, independent processing for each consumer.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common pitfall</div>
+        <p class="text-xs font-medium text-slate-800">Using push-only architectures can overwhelm slow endpoints; pair push with durable queues to avoid data loss.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example scenario</div>
+        <p class="text-sm text-slate-700">An order system publishes "OrderPlaced" to SNS. SNS pushes to: an SQS queue for billing, a Lambda for notifications, and a third-party HTTP endpoint for analytics. If the analytics endpoint fails, the SQS queues ensure core processing continues.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-semibold text-slate-700">Operational tip</div>
+            <p class="text-sm text-slate-700 mt-1">Subscribe SQS queues to SNS topics to combine immediate fan-out with durable retry semantics and DLQs per consumer.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Quick check</div>
+        <p class="text-sm text-slate-700">Do your consumers need independent retry logic or do they expect to be invoked live? That decision determines pull vs push or a hybrid.</p>
+      </div>
+    </div>
+  </div>
+</div>

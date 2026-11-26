@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Python Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example code (Python)</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3 font-mono text-sm h-full overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>from neo4j import GraphDatabase
+
+uri = "neo4j://localhost:7687"
+username = "neo4j"
+password = "your_password"
+
+driver = GraphDatabase.driver(uri, auth=(username, password))
+
+def add_user(tx, name, email):
+  query = (
+    "CREATE (u:User {name: $name, email: $email})"
+    " RETURN u.name AS name, u.email AS email"
+  )
+  result = tx.run(query, name=name, email=email)
+  return result.single()
+
+def find_user(tx, name):
+  query = (
+    "MATCH (u:User {name: $name})"
+    " RETURN u.name AS name, u.email AS email"
+  )
+  result = tx.run(query, name=name)
+  return result.single()
+
+with driver.session() as session:
+  user_data = session.write_transaction(add_user, "Alice", "alice@example.com")
+  print(f"Added user: {user_data['name']} ({user_data['email']})")
+  found = session.read_transaction(find_user, "Alice")
+  if found:
+    print("Found user.")
+  else:
+    print("User not found.")
+
+driver.close()</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 h-full rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & notes</div>
+      <ul class="mt-3 space-y-3 text-sm text-slate-700">
+        <li><strong>Driver creation:</strong> GraphDatabase.driver returns a reusable driver that manages pooling.</li>
+        <li><strong>Parameterized queries:</strong> Use $name and $email placeholders and pass values separately to avoid injection.</li>
+        <li><strong>Transactions:</strong> Use session.write_transaction to wrap commits and handle retries provided by the driver.</li>
+        <li><strong>Result handling:</strong> result.single() may return None; check before accessing returned fields.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete scenario</div>
+          <p class="text-sm text-slate-800">Use this pattern when a web handler needs to create or query a user. Create the driver at process start, open a session per request, and use transactions for write operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

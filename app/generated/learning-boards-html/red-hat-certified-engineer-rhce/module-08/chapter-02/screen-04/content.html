@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.code{background:#0f1724;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-lg font-bold text-slate-800">First triage with top and htop</div>
+      <div class="text-sm text-slate-600 mt-2">Form a working hypothesis about the resource under stress.</div>
+
+      <div class="mt-4 flex-1">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Sample top-like summary (annotated)</div>
+        <div class="code mono text-sm" style="white-space:pre-wrap;tab-size:2;">
+PID  USER      PR  NI  VIRT   RES   SHR S  %CPU %MEM  TIME+  COMMAND
+1234 dbuser    20   0  1.2g  500m  20m R   95.0 30.0  120:45 mysqld
+%Cpu(s):  5.0 us,  2.0 sy,  0.0 ni,  92.0 id,  1.0 wa
+Mem: 32G total, 8G used, 24G free, 1G buffers
+Swap: 0B total, 0B used
+Load average: 3.50, 3.20, 2.80
+
+Annotations:
+- High %CPU on mysqld => likely CPU-bound if load ~ cores.
+- wa (I/O wait) would point to disk latency if large.
+        </div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs font-medium text-slate-800">Top gives immediate clues; don't act before confirming with vmstat or iostat.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-rose-50 border border-rose-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+          <div class="text-xs font-medium text-slate-800">Killing a high CPU process without understanding its role can cause outages.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practice steps</div>
+      <ol class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Run top or htop and note CPU, wa, load average, memory and swap.</li>
+        <li>Identify top processes by %CPU and %MEM; note PIDs for later inspection.</li>
+        <li>If wa is high or load >> cores, capture vmstat and iostat samples to confirm.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Check your understanding</div>
+        <div class="mt-2 text-sm text-slate-600">If CPU usage is low but wa is 60%, which resource is likely the bottleneck? Think of why adding RAM would not help here.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

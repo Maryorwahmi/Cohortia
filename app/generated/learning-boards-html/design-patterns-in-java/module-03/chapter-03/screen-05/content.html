@@ -1,0 +1,53 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Dependency Injection (DI)</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 bg-white rounded-2xl p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-hidden'>
+      <div class='text-sm font-semibold text-slate-800'>Tight coupling (no DI)</div>
+      <pre class='mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 text-sm' style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// Without DI - Tight Coupling
+public class UserService {
+  private UserRepository userRepository;
+
+  public UserService() {
+    this.userRepository = new UserRepositoryImpl(); // creates its own dependency
+  }
+
+  public User getUserById(Long id) {
+    return userRepository.findById(id);
+  }
+}
+</pre>
+      <div class='mt-2 text-xs text-slate-600'>This version hardcodes the concrete repository and resists replacement in tests.</div>
+    </div>
+
+    <div class='flex-1 bg-white rounded-2xl p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-hidden'>
+      <div class='text-sm font-semibold text-slate-800'>Constructor injection (DI)</div>
+      <pre class='mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 text-sm' style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// With DI - Constructor Injection
+public class UserService {
+  private final UserRepository userRepository;
+
+  public UserService(UserRepository userRepository) { // dependency provided from outside
+    this.userRepository = userRepository;
+  }
+
+  public User getUserById(Long id) {
+    return userRepository.findById(id);
+  }
+}
+</pre>
+      <div class='mt-2 text-xs text-slate-600'>This version accepts any implementation that fulfills the UserRepository contract, making substitution and mocking straightforward.</div>
+    </div>
+  </div>
+
+  <div class='mt-4 grid grid-cols-3 gap-3'>
+    <div class='rounded-lg p-3 bg-emerald-50 text-emerald-700'>Benefit: Easier testing and swapability</div>
+    <div class='rounded-lg p-3 bg-amber-50 text-amber-700'>Pitfall: Too many injected dependencies may indicate poor design</div>
+    <div class='rounded-lg p-3 bg-rose-50 text-rose-700'>Misconception: DI removes all coupling; it only shifts it to configuration</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

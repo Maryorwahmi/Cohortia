@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Safety & Verification</span>
+    </div>
+
+    <div class="flex gap-4 h-[72vh]">
+      <div class="w-1/2 card rounded-2xl p-6">
+        <div class="text-xl font-bold text-slate-800">Design safety into playbooks</div>
+        <div class="text-sm text-slate-600 mt-2">Add checks and fallbacks: verify active connection and test connectivity after applying changes, and include rollback logic or staged application.</div>
+
+        <div class="mt-4 text-sm font-bold text-slate-700">Verification pattern</div>
+        <pre class="mono mt-3 p-3 rounded-md bg-slate-50 text-sm">- name: Apply connection profile
+  community.general.nmcli: ...
+
+- name: Wait and verify interface
+  ansible.builtin.wait_for: host=192.168.1.1 port=22 timeout=10
+
+- name: Ping a known host
+  ansible.builtin.command: ping -c 3 8.8.8.8</pre>
+      </div>
+
+      <div class="w-1/2 grid grid-rows-3 gap-4">
+        <div class="card rounded-xl p-4">
+          <div class="text-sm font-bold text-slate-800">Practical fallback</div>
+          <div class="text-sm text-slate-600 mt-2">Use console or out-of-band management if available. If not, design small incremental changes and verification before committing larger updates.</div>
+        </div>
+
+        <div class="card rounded-xl p-4">
+          <div class="text-sm font-bold text-slate-800">Misconception check</div>
+          <div class="text-sm text-slate-600 mt-2">Do not assume automation can always recover a lost connection; design a manual recovery path as part of your plan.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat verification as part of any network change. If you cannot verify, do not proceed with broad automation runs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

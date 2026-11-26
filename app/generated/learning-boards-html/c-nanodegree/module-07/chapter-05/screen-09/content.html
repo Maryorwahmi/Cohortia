@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">enqueue implementation</h3>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">template&lt;class F, class... Args&gt;
+auto enqueue(F&& f, Args&&... args)
+  &gt;&gt; std::future&lt;typename std::result_of&lt;F(Args...)&gt;::type&gt; {
+  using return_type = typename std::result_of&lt;F(Args...)&gt;::type;
+
+  auto task = std::make_shared&lt;std::packaged_task&lt;return_type()&gt;&gt;(
+    std::bind(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...)
+  );
+
+  std::future&lt;return_type&gt; res = task->get_future();
+  {
+    std::unique_lock&lt;std::mutex&gt; lock(queue_mutex);
+    if (stop) throw std::runtime_error("enqueue on stopped ThreadPool");
+    tasks.emplace([task]() { (*task)(); });
+  }
+  condition.notify_one();
+  return res;
+}
+</pre>
+    </div>
+
+    <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Notes on usage</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Return future allows caller to wait or obtain value later.</li>
+        <li>Exceptions are captured by packaged_task and rethrown on future::get.</li>
+        <li>Check stop flag to prevent enqueueing after shutdown.</li>
+      </ul>
+      <div class="mt-4 rounded-md bg-amber-50 p-3">
+        <div class="text-xs font-bold text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Use shared_ptr for packaged_task so a lightweight wrapper can be stored safely in the queue.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

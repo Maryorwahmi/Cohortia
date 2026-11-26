@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Maven Configuration</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-lg font-bold text-slate-900">Surefire and Reporting</div>
+        <p class="text-sm text-slate-600 mt-2">Use the Surefire plugin to execute the runner, and add a reporting plugin to convert JSON output into HTML artifacts that CI can publish.</p>
+
+        <div class="mt-4 mono text-sm bg-slate-50 p-3 rounded-lg overflow-auto" style="height:240px;">
+&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.0.0-M5&lt;/version&gt;
+  &lt;configuration&gt;
+    &lt;testFailureIgnore&gt;false&lt;/testFailureIgnore&gt; <!-- Fail the build on test failures -->
+    &lt;includes&gt;
+      &lt;include&gt;**/*Runner.java&lt;/include&gt; <!-- Your Cucumber runner class -->
+    &lt;/includes&gt;
+  &lt;/configuration&gt;
+&lt;/plugin&gt;
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Concrete Example</div>
+        <div class="mt-2 text-sm text-slate-600">Run mvn clean install locally to make sure the Surefire plugin finds and runs your Cucumber runner. If test reports are missing, verify the runner class name pattern and that feature files are on the test classpath.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Common Mistake</div>
+        <div class="mt-2 text-sm text-slate-600">Leaving testFailureIgnore true or misconfiguring includes causes CI to report green builds despite failing scenarios or to skip scenarios entirely.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-600">Explicitly configure your test plugin and validate locally before CI runs the job to avoid surprises in pipeline runs.</div>
+      </div>
+    </div>
+  </div>
+</div>

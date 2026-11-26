@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace}</style>
+
+  <div class="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Implementing __set__</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+      <div class="text-sm font-bold">Pattern</div>
+      <p class="text-sm text-slate-700 mt-3">Capture the attribute name in __set_name__, validate in __set__, and store the value in instance.__dict__[self._name]. This ensures per-instance storage and predictable behavior.</p>
+
+      <pre class="code text-sm bg-slate-50 p-3 rounded-md mt-4">class TypeChecked:
+  def __init__(self, expected_type):
+    self.expected_type = expected_type
+    self._name = None
+
+  def __set_name__(self, owner, name):
+    self._name = name
+
+  def __get__(self, instance, owner):
+    if instance is None:
+      return self
+    return instance.__dict__.get(self._name, None)
+
+  def __set__(self, instance, value):
+    if not isinstance(value, self.expected_type):
+      raise TypeError(f"Expected {self.expected_type.__name__}, got {type(value).__name__}")
+    instance.__dict__[self._name] = value</pre>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-bold text-amber-700">Wrong approach</div>
+        <div class="text-sm text-slate-700 mt-2">Assigning self.value = value stores state on the descriptor object itself, making the attribute shared across all owner instances.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="rounded-lg bg-slate-50 p-3 mt-3">
+        <div class="text-sm font-bold">Person example</div>
+        <div class="text-xs text-slate-700 mt-2">Person.name = TypeChecked(str) stores each person's name in their own __dict__ key, preventing cross-instance leakage.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-bold">Key takeaway</div>
+        <div class="text-xs text-slate-800 mt-1">Use instance.__dict__ to keep attributes instance-local; use descriptor attributes only for metadata like expected_type or _name.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

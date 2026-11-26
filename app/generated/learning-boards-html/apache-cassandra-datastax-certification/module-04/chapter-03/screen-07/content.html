@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">E‑commerce Example</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">CQL Tables</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>CREATE TABLE products_by_category (
+  category_id uuid,
+  product_id uuid,
+  product_name text,
+  price decimal,
+  description text,
+  PRIMARY KEY ((category_id), product_id)
+);</code></pre>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>CREATE TABLE products_by_id (
+  product_id uuid,
+  category_id uuid,
+  product_name text,
+  price decimal,
+  description text,
+  PRIMARY KEY (product_id)
+);</code></pre>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>CREATE TABLE products_by_brand (
+  brand_name text,
+  product_id uuid,
+  product_name text,
+  price decimal,
+  category_id uuid,
+  PRIMARY KEY ((brand_name), product_id)
+);</code></pre>
+      <div class="mt-3 text-sm text-slate-700">These tables duplicate product details to serve distinct queries directly. Plan updates for each duplicated column when product details change.</div>
+    </div>
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Example rationale</div>
+      <p class="text-sm text-slate-700 mt-2">products_by_category returns a group of products quickly because category_id is the partition key. products_by_id allows single-row lookups by product identifier. products_by_brand supports brand-based listings.</p>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Update cost</div>
+          <p class="text-xs font-medium text-slate-800">Expect to update product fields in every table that stores them; this is the trade-off for fast reads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

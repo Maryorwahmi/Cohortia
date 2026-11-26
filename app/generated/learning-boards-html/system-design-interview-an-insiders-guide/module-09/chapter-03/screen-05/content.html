@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 3</span>
+    <span>›</span>
+    <span class="text-slate-700">Two-Phase Commit (2PC)</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-lg font-bold text-slate-900">How 2PC works</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal ml-5">
+        <li>Coordinator sends prepare to all participants.</li>
+        <li>Participants reply ready or abort after ensuring local commitability.</li>
+        <li>If all ready, coordinator sends commit; otherwise it sends rollback.</li>
+      </ol>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Why it fails in practice</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc ml-5">
+        <li>Blocking: participants hold locks while waiting for coordinator decision.</li>
+        <li>Coordinator failure leaves participants in indeterminate prepared state.</li>
+        <li>Tight coupling and poor scalability for independently deployed services.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+      <p class="text-sm text-slate-700 mt-3">Imagine three services with separate databases: orders, payments, and inventory. Under 2PC each service must lock rows until the coordinator decides, increasing latency and risking deadlocks during network issues. If the coordinator fails between phases, human or automated recovery is required to resolve prepared participants.</p>
+
+      <div class="mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception check</div>
+        <div class="text-sm text-slate-700 mt-2">Believing 2PC is a drop-in for transactions across services ignores operational recovery costs and the availability trade-offs it imposes.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Practical note</div>
+          <p class="text-xs font-medium text-slate-800">Prefer asynchronous Saga approaches for microservices unless you control all participants and accept blocking consequences.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

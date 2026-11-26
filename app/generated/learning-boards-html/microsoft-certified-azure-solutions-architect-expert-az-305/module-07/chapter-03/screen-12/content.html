@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Loading Partitioned Parquet Data with PySpark</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col justify-center">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Code Walkthrough</div>
+      <h1 class="text-3xl font-bold text-slate-800 mb-3">Loading Partitioned Parquet Data with PySpark</h1>
+      <p class="text-base text-slate-600 mb-4">Accessing curated data in ADLS Gen2 using Spark.</p>
+      <div class="space-y-3 text-sm text-slate-700">
+        <p>Use <code>spark.read.parquet()</code> to load data from ADLS Gen2.</p>
+        <p>Specify the curated path, leveraging partitioning for efficiency.</p>
+        <p>Inspect schema with <code>printSchema()</code> and view data with <code>show()</code>.</p>
+        <p>Queries benefit from columnar format and partition pruning for speed and cost savings.</p>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex items-center justify-center">
+      <div class="relative w-full h-full flex items-center justify-center">
+        <div class="relative p-6 rounded-xl border border-slate-200 bg-white shadow-lg flex flex-col items-center justify-center w-full">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-3">PySpark Code Snippet</div>
+          <pre class="w-full overflow-x-auto text-left font-mono text-sm text-slate-800 bg-slate-50 p-4 rounded-lg border border-slate-200 shadow-sm">
+<code class="language-python">
+# Assume ADLS Gen2 path is configured
+adls_base_path = "abfss://data@yourdatalake.dfs.core.windows.net/"
+curated_path = f"{adls_base_path}curated/customer_interactions_parquet/2023/10/26/"
+
+df_interactions = spark.read.parquet(curated_path)
+
+df_interactions.printSchema()
+df_interactions.show(5)
+
+# Example query
+df_filtered = df_interactions.select("customer_id", "interaction_type") \
+                           .filter("interaction_type = 'page_view'")
+df_filtered.show(5)
+</code></pre>
+          <div class="mt-4 text-xs text-slate-500 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l-12 12m12-12l4 4M4 12l12 12"></path></svg>
+            <span>Efficiently reads and processes data optimized for analytics.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

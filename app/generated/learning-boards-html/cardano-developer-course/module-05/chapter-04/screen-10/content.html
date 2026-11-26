@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Lucid Metadata</span></div><div class="flex flex-col h-full"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Advanced Capabilities</div><h1 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Attaching Custom Metadata to Transactions with Lucid</h1><p class="text-md text-slate-600 mb-6">Storing arbitrary data on-chain</p><div class="flex flex-col lg:flex-row gap-6 h-full"><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-2xl p-6 text-white font-mono text-sm overflow-auto flex-grow" style="tab-size: 2; white-space: pre-wrap;"><pre><code>import { Lucid } from 'lucid-cardano';
+
+const sendAdaWithMetadata = async (recipientAddress, amountAda, message) => {
+  // ... wallet connection check ...
+
+  try {
+    const lovelaceAmount = BigInt(amountAda * 1_000_000);
+    const metadata = {
+      0: { // Metadata label 0 for general messages
+        msg: message,
+        app: "Cohortia DApp"
+      }
+    };
+
+    const tx = await lucid
+      .newTx()
+      .payToAddress(recipientAddress, { lovelace: lovelaceAmount })
+      .attachMetadata(721, metadata) // Attach metadata with label 721
+      .complete();
+
+    const signedTx = await tx.sign().complete();
+    const txHash = await signedTx.submit();
+    console.log(`Transaction with metadata submitted! Tx Hash: ${txHash}`);
+    return txHash;
+  } catch (error) {
+    console.error("Error sending ADA with metadata:", error);
+    alert("Transaction with metadata failed: " + error.message);
+    return null;
+  }
+};</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Lucid's `attachMetadata()` method allows developers to include arbitrary JSON data in a transaction under a specified numerical label, enhancing on-chain data storage capabilities.</p></div></div><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 flex-grow"><h3 class="text-lg font-semibold text-slate-900 mb-3">Metadata Components</h3><ul class="list-none space-y-3"><li><div class="flex items-center gap-3"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">01</span><p class="text-sm text-slate-800"><strong>Metadata Label:</strong> A numerical identifier (e.g., <code>0</code> for general, <code>721</code> for NFTs).</p></div></li><li><div class="flex items-center gap-3"><span class="bg-violet-100 text-violet-700 text-xs font-bold px-3 py-1 rounded-full">02</span><p class="text-sm text-slate-800"><strong>JSON Object:</strong> The actual data to be stored, structured as a standard JSON object.</p></div></li><li><div class="flex items-center gap-3"><span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">03</span><p class="text-sm text-slate-800"><strong>Immutability:</strong> Once on-chain, metadata cannot be altered.</p></div></li></ul></div><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200"><h3 class="text-lg font-semibold text-slate-900 mb-3">Use Case: DApp Messaging</h3><p class="text-sm text-slate-700">A DApp could use metadata to embed a public message or a link to off-chain content directly within a transaction, making it permanently verifiable.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

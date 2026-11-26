@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Latency-based Routing</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 rounded-2xl'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>How it works</div>
+      <ol class='list-decimal pl-5 text-sm text-slate-600 space-y-2'>
+        <li>Create A records in each target region and set the Region parameter.</li>
+        <li>Create health checks for each endpoint and attach them to the records.</li>
+        <li>Route 53 uses latency measurements to pick the best record, ignoring unhealthy ones.</li>
+        <li>Adjust TTLs to control how quickly clients observe routing changes.</li>
+      </ol>
+
+      <div class='mt-4'>
+        <div class='text-sm font-bold text-slate-800 mb-1'>Example configuration</div>
+        <div class='text-sm text-slate-600'>Two A records: www.example.com -> 192.0.2.1 (us-east-1), 198.51.100.1 (eu-west-1); set Region accordingly and attach health checks probing HTTP port 80.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 grid grid-rows-3 gap-4'>
+      <div class='card p-4 rounded-xl'>
+        <div class='text-sm font-bold text-slate-800 mb-2'>Common mistake</div>
+        <div class='text-sm text-slate-600'>Treating latency routing as a substitute for a CDN. It directs users to the best origin region, but you still need edge caching for static assets and reduced RTT for larger downloads.</div>
+      </div>
+
+      <div class='card p-4 rounded-xl'>
+        <div class='text-sm font-bold text-slate-800 mb-2'>Pro tip</div>
+        <div class='text-sm text-slate-600'>Use low TTLs during rollouts so Route 53 can update answers faster, then raise TTLs for stability once you confirm health and performance.</div>
+      </div>
+
+      <div class='p-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Combine latency routing with health checks and appropriate TTLs to optimize performance while keeping traffic away from failing endpoints.</p>
+      </div>
+    </div>
+  </div>
+</div>

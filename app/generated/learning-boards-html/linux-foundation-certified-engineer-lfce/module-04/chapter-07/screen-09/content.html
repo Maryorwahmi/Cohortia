@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Database Hardening</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Configuration Best Practices</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Use mysql_secure_installation to remove test users and set strong root password.</li>
+        <li>Set bind-address appropriately; 127.0.0.1 for local-only, or specific IP for controlled access.</li>
+        <li>Disable remote root logins and grant least privilege to application accounts.</li>
+        <li>Restrict /var/lib/mysql ownership and SELinux/AppArmor contexts for the data directory.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example & Commands</div>
+      <div class="mt-3 mono text-sm p-3 rounded bg-slate-50"><pre># Allow only a specific app server to reach MariaDB
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.2.10" port port="3306" protocol="tcp" accept'
+sudo firewall-cmd --reload
+
+# SELinux context for MySQL data directory (if custom)
+sudo semanage fcontext -a -t mysqld_db_t "/custom/mysql(/.*)?"
+sudo restorecon -Rv /custom/mysql</pre></div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Combine bind-address, firewall rules, and least-privilege accounts to prevent unnecessary database exposure.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

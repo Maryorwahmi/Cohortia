@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Condition Variable</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">What it does</div>
+        <p class="text-sm text-slate-600">A condition variable lets a thread wait for a boolean condition to become true without busy‑polling. It works with a mutex: wait() atomically releases the lock and puts the thread to sleep; notify wakes a waiter to re-acquire the lock and continue.</p>
+
+        <div class="mt-4 grid gap-3">
+          <div class="p-3 rounded-lg bg-blue-50">
+            <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Mechanics</div>
+            <ul class="text-sm text-slate-700 list-disc pl-4 mt-2">
+              <li>wait(unique_lock, predicate) releases lock and sleeps atomically.</li>
+              <li>notify_one wakes a single waiter; notify_all wakes all waiting threads.</li>
+              <li>Predicate re-checks the condition to survive spurious wakeups.</li>
+            </ul>
+          </div>
+
+          <div class="p-3 rounded-lg bg-emerald-50">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Common mistake</div>
+            <div class="text-sm text-slate-700 mt-2">Calling notify while holding the mutex can delay the woken thread; unlock before notifying when possible.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use condition variables to block threads efficiently and hand off work only when real work exists.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col h-full">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm h-3/5">
+        <div class="text-sm font-bold text-slate-800 mb-2">Analogy: waiting at a bakery</div>
+        <div class="text-sm text-slate-600">Imagine a baker who wakes a single customer when the next loaf is ready. Customers don’t stand and stare; they wait outside until the baker calls them. notify_one is that call; the predicate is the customer checking that the loaf is indeed available.</div>
+      </div>
+
+      <div class="mt-4 p-5 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Why it matters for pipelines</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Reduces CPU usage compared to polling.</li>
+          <li>Improves latency by waking exactly when needed.</li>
+          <li>Makes shutdown predictable with a finished flag and notify_all.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Code Walkthrough</span>
+      <span class="text-slate-600">Hands-on</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800 mt-2">Hands-on: Player Stats using a Map</div>
+    <div class="text-sm text-slate-600 mt-1">Pattern for safe keyed lookups and default initialization.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Pseudo-Blueprint flow</div>
+      <pre class="rounded-lg p-3 bg-slate-900 text-white text-sm">// Variable: PlayerStats : Map(String -> Float)
+// Event BeginPlay
+Add(PlayerStats, "Strength", 10.0)
+Add(PlayerStats, "Intelligence", 8.0)
+Add(PlayerStats, "Agility", 12.0)
+PrintString("Player stats initialized.")
+
+// Custom Event: GetPlayerStat(StatName : String) -> (StatValue : Float)
+FoundValue, IsValid = Find(PlayerStats, StatName)
+if (IsValid) {
+  StatValue = FoundValue
+  PrintString(StatName + ": " + StatValue)
+} else {
+  StatValue = 0.0
+  PrintString(StatName + " not found!")
+  Add(PlayerStats, StatName, StatValue) // optional defaulting
+}
+</pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-700">Explanation & test</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Using Find gives you both the value and an IsValid flag to tell if the key exists.</li>
+        <li>If the key is missing, choose whether to return a default, add it to the Map, or handle the missing case differently.</li>
+        <li>Testing: call GetPlayerStat("Strength") to confirm a found path, then call GetPlayerStat("Luck") to observe the fallback behavior.</li>
+      </ul>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistake</div>
+      <div class="rounded-lg p-3 bg-rose-50 text-rose-700 text-sm">Using the found value without checking IsValid can lead to invalid data usage and runtime errors if the key is missing.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Maps require explicit handling when keys are missing. Use Find and IsValid, and initialize defaults when appropriate to keep your game state consistent.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

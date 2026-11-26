@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 10</span>
+      <span>›</span>
+      <span>Chapter 10.1</span>
+      <span>›</span>
+      <span class='text-slate-700'>Rolling Deployment</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Process</div>
+      <h2 class='text-2xl font-bold text-slate-800 mt-2'>Update in batches with health gates</h2>
+      <ol class='mt-3 space-y-2 text-sm text-slate-600'>
+        <li>1. Take a small batch out of service.</li>
+        <li>2. Deploy new version to batch and run health checks.</li>
+        <li>3. If healthy, reattach and proceed; if not, halt and roll back.</li>
+      </ol>
+      <div class='mt-4 p-3 rounded-md bg-slate-50 text-sm'>
+        AWS mappings: Auto Scaling Group rolling updates, ECS service rolling update, Kubernetes rolling update (EKS).
+      </div>
+    </div>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Example & concerns</div>
+      <div class='mt-2 p-3 rounded-md bg-amber-50 text-sm text-slate-700'>
+        With three instances, update one instance and verify health. While the other two serve traffic, some clients will hit the updated instance and require backward-compatible behavior. If you change database schema or API payloads, ensure compatibility or use feature flags to avoid errors.
+      </div>
+      <div class='mt-4 grid gap-2'>
+        <div class='rounded-lg p-3 border-l-4 border-l-emerald-500 bg-emerald-50'>
+          <div class='text-xs font-bold uppercase tracking-wider text-emerald-700'>Pro tip</div>
+          <div class='text-sm text-slate-800 mt-1'>Design API changes to accept old and new payloads for a transition period to avoid failures during the overlap window.</div>
+        </div>
+        <div class='rounded-lg p-3 border-l-4 border-l-rose-500 bg-rose-50'>
+          <div class='text-xs font-bold uppercase tracking-wider text-rose-700'>Common mistake</div>
+          <div class='text-sm text-slate-800 mt-1'>Assuming health checks alone guarantee compatibility; they confirm liveliness but not API contract correctness.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

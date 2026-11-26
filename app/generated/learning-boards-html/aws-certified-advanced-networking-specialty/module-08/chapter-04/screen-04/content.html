@@ -1,0 +1,95 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">S3 Transfer Acceleration: Mechanism</span>
+  </div>
+
+  <div class="flex flex-grow">
+    <div class="w-1/2 pr-8 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Core Concept</div>
+      <h2 class="text-3xl font-bold text-slate-900 mb-2">S3 Transfer Acceleration Explained</h2>
+      <p class="text-lg text-slate-700 mb-6">Leveraging Edge Locations for faster S3 uploads</p>
+
+      <div class="space-y-4 mb-6">
+        <div class="flex items-start">
+          <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mr-3">1</span>
+          <p class="text-sm text-slate-700"><strong>User Uploads to Edge:</strong> Data is first uploaded to the nearest CloudFront Edge Location, not directly to the S3 bucket.</p>
+        </div>
+        <div class="flex items-start">
+          <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-violet-100 text-violet-700 text-xs font-semibold mr-3">2</span>
+          <p class="text-sm text-slate-700"><strong>AWS Global Network:</strong> From the Edge Location, data travels over the optimized AWS global network to the S3 bucket's Region.</p>
+        </div>
+        <div class="flex items-start">
+          <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold mr-3">3</span>
+          <p class="text-sm text-slate-700"><strong>Bypasses Public Internet:</strong> This optimized path avoids the unpredictable latency and congestion of the public internet for most of the journey.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200 mb-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Concrete Example</div>
+        <p class="text-xs text-slate-800">A user in London uploading a 10GB video file to an S3 bucket in Oregon (us-west-2) will experience significantly faster and more reliable transfers by using S3 Transfer Acceleration, as the data quickly enters the AWS network in Europe.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">S3 Transfer Acceleration is ideal for large file uploads from geographically distant locations, leveraging AWS's backbone network for superior performance.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex items-center justify-center bg-slate-50 rounded-xl p-6 shadow-inner border border-slate-200">
+      <div class="relative w-full h-full flex items-center justify-center">
+        <svg class="w-full h-full" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- User -->
+          <rect x="50" y="175" width="80" height="50" rx="8" fill="#2563eb"/>
+          <text x="90" y="205" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">User</text>
+          <text x="90" y="235" font-family="Inter" font-size="12" fill="#2563eb" text-anchor="middle">Distant Location</text>
+
+          <!-- Public Internet -->
+          <path d="M130 200 C180 150, 250 150, 300 200" stroke="#ef6675" stroke-width="2" stroke-dasharray="5 5"/>
+          <text x="215" y="140" font-family="Inter" font-size="12" fill="#ef6675" text-anchor="middle">Public Internet (Slow)</text>
+
+          <!-- AWS Edge Location -->
+          <rect x="270" y="70" width="80" height="50" rx="8" fill="#7b42e8"/>
+          <text x="310" y="100" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Edge</text>
+          <text x="310" y="130" font-family="Inter" font-size="12" fill="#7b42e8" text-anchor="middle">Nearest Point</text>
+
+          <!-- AWS Global Network -->
+          <path d="M350 95 H470" stroke="#10b981" stroke-width="3"/>
+          <text x="410" y="80" font-family="Inter" font-size="12" fill="#10b981" text-anchor="middle">AWS Global Network (Optimized)</text>
+
+          <!-- S3 Bucket -->
+          <rect x="470" y="175" width="80" height="50" rx="8" fill="#f5a623"/>
+          <text x="510" y="205" font-family="Inter" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">S3 Bucket</text>
+          <text x="510" y="235" font-family="Inter" font-size="12" fill="#f5a623" text-anchor="middle">Destination Region</text>
+
+          <!-- Arrow from User to Edge -->
+          <path d="M130 200 L270 95" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowheadBlue)"/>
+          <text x="190" y="150" font-family="Inter" font-size="12" fill="#2563eb" text-anchor="middle">Upload to Edge</text>
+
+          <!-- Arrow from Edge to S3 -->
+          <path d="M350 95 L470 200" stroke="#10b981" stroke-width="2" marker-end="url(#arrowheadEmerald)"/>
+          <text x="410" y="150" font-family="Inter" font-size="12" fill="#10b981" text-anchor="middle">Optimized Transfer</text>
+
+          <!-- Arrow from Public Internet to S3 (for comparison) -->
+          <path d="M300 200 L470 200" stroke="#ef6675" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrowheadRose)"/>
+          <text x="385" y="240" font-family="Inter" font-size="12" fill="#ef6675" text-anchor="middle">Direct to S3 (Slower)</text>
+
+          <defs>
+            <marker id="arrowheadBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb" />
+            </marker>
+            <marker id="arrowheadEmerald" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+            </marker>
+            <marker id="arrowheadRose" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#ef6675" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>

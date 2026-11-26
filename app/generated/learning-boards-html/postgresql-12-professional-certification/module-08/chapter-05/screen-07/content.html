@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Index bloat</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Why index bloat happens</div>
+        <p class="text-sm text-slate-700 mt-2">Updates to indexed columns leave old index entries behind. Over time, these entries make the index larger and scans slower.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Detection steps</div>
+        <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+          <li>Compare pg_indexes_size with expected index sizes.</li>
+          <li>Check index page counts and depth; increased depth often correlates with bloat.</li>
+          <li>Use community bloat queries that estimate ideal index size.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pro tip</div>
+          <p class="text-sm text-slate-700">If index bloat is the problem, REINDEX or drop-and-create during a maintenance window often yields the best space recovery with reduced complexity versus VACUUM FULL.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Concrete scenario</div>
+        <p class="text-sm text-slate-700 mt-2">A table with heavy updates on a column used in three indexes shows high pg_indexes_size. Reindex one heavy index at a time to reduce impact and monitor query plans for improvement.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-2">Assuming VACUUM will always reduce index size. In many cases, vacuuming lowers dead entries but does not compact the index file; reindexing is needed to shrink the on-disk index footprint.</p>
+      </div>
+    </div>
+  </div>
+</div>

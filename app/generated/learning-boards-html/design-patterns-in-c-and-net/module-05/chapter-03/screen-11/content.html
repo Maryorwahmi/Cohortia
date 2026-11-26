@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.3</span><span>›</span><span class="text-slate-700">Chat Client Usage</span></div><div class="flex flex-col h-full"><div class="mb-6"><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Chat Application: Client Usage & Benefits</h2><p class="text-lg text-slate-600">Demonstrating interaction and highlighting decoupling.</p></div><div class="flex-1 grid grid-cols-2 gap-6"><div class="flex flex-col justify-between bg-slate-900 rounded-2xl p-6 shadow-md border border-slate-700 text-white font-mono text-sm"><div class="mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-2">Client Code (Program.Main)</div><pre><code style="white-space: pre-wrap; tab-size: 2;">public class Client
+{
+    public static void Main(string[] args)
+    {
+        ChatRoom chatRoom = new ChatRoom();
+
+        ChatUser john = new ChatUser(chatRoom, &quot;John&quot;);
+        ChatUser jane = new ChatUser(chatRoom, &quot;Jane&quot;);
+        ChatUser mike = new ChatUser(chatRoom, &quot;Mike&quot;);
+
+        chatRoom.AddUser(john);
+        chatRoom.AddUser(jane);
+        chatRoom.AddUser(mike);
+
+        Console.WriteLine(&quot;
+--- Chat Session ---&quot;);
+        john.Send(&quot;Hi everyone!&quot;);
+        jane.Send(&quot;Hello John!&quot;);
+        mike.Send(&quot;What's up?&quot;);
+
+        // Notice that users don't directly know about each other.
+        // All communication goes through the chatRoom (Mediator).
+    }
+}</code></pre><p class="text-xs text-slate-300 mt-4">This client code demonstrates how users interact by sending messages through the <code>ChatRoom</code> mediator.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Key Observation</div><p class="text-xs font-medium text-slate-200">Users are unaware of each other; all communication is orchestrated by the <code>ChatRoom</code>, showcasing loose coupling.</p></div></div><div class="flex flex-col justify-between bg-slate-900 rounded-2xl p-6 shadow-md border border-slate-700 text-white font-mono text-sm"><div class="mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-400 mb-2">Simulated Output</div><pre><code style="white-space: pre-wrap; tab-size: 2;">John has joined the chat room.
+Jane has joined the chat room.
+Mike has joined the chat room.
+
+--- Chat Session ---
+John sends: Hi everyone!
+Jane receives: [John]: Hi everyone!
+Mike receives: [John]: Hi everyone!
+Jane sends: Hello John!
+John receives: [Jane]: Hello John!
+Mike receives: [Jane]: Hello John!
+Mike sends: What's up?
+John receives: [Mike]: What's up?
+Jane receives: [Mike]: What's up?</code></pre><p class="text-xs text-slate-300 mt-4">The output clearly shows messages being sent by one user and received by others, all facilitated by the mediator.</p></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1">Benefit Highlight</div><p class="text-xs font-medium text-slate-200">Centralized communication logic simplifies modifications; adding new features like private messaging only requires changes to the mediator.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

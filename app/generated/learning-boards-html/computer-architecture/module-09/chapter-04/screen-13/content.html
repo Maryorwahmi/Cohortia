@@ -1,0 +1,38 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Lab Walkthrough</span>
+    <span class="text-slate-700">Implement & Compare</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-xl p-4 bg-white shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Step 1 — gshare</div>
+      <div class="text-sm text-slate-700 mt-2">Add an 8-bit GHR and a 256-entry 2-bit table. Compute index = (PC_low8 ^ GHR) & 0xFF. Update counter_table[index] on resolution and shift the real outcome into GHR.</div>
+
+      <div class="text-sm font-bold text-slate-800 mt-4">Step 2 — tournament</div>
+      <div class="text-sm text-slate-700 mt-2">Add a local 256-entry 2-bit table indexed by PC_low8, a gshare global table (256 entries), and a meta 256-entry 2-bit selector. On resolution update local, global, and meta based on correctness.</div>
+
+      <div class="text-sm font-bold text-slate-800 mt-4">Step 3 — BTB</div>
+      <div class="text-sm text-slate-700 mt-2">Implement a 16-entry BTB with index = PC_low4, store tag and target. Report BTB hit rate and effect on fetch stalls for indirect branches.</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Experiment</div>
+          <div class="text-xs font-medium text-slate-800">Run traces with correlated branches and report accuracy for: 2-bit baseline, gshare, tournament. Note how meta-predictor behavior changes per branch.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-700">Starter pseudocode</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-green-200 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">// update gshare
+index = (PC_low &lt;&lt; 0) ^ GHR
+if (outcome == TAKEN) counter[index] = min(counter[index]+1, 3) else counter[index] = max(counter[index]-1, 0)
+GHR = ((GHR &lt;&lt; 1) | (outcome==TAKEN?1:0)) &amp; 0xFF
+
+// meta update
+if (global_correct &amp;&amp; !local_correct) meta[index] = min(meta[index]+1,3)
+if (local_correct &amp;&amp; !global_correct) meta[index] = max(meta[index]-1,0)
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

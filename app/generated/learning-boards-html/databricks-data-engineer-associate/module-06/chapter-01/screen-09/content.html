@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Starter Script — Fail Fast</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-8 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Starter Code</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>from pyspark.sql import SparkSession
+from pyspark.sql.functions import rand
+import logging
+
+spark = SparkSession.builder.appName("SparkUIMonitoring").getOrCreate()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+num_records = 10000000
+logging.info(f"Creating a DataFrame with {num_records} records.")
+large_df = spark.range(num_records).withColumn("random_value", rand() * 1000)
+
+logging.info("Attempting to collect large DataFrame to driver. This might cause issues.")
+try:
+  collected_data = large_df.collect()
+  logging.info(f"Successfully collected {len(collected_data)} records.")
+except Exception as e:
+  logging.error(f"Failed to collect data: {e}")
+  print(f"Failed to collect data: {e}")
+
+logging.info("Job finished.")</code></pre>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Activity Steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Run the script on a cluster and observe the job in Databricks Jobs.</li>
+        <li>Open the Spark UI from the run and inspect Stages and Executors.</li>
+        <li>Identify the stage tied to collect and confirm driver memory pressure in Executors.</li>
+        <li>Change collect to a distributed aggregation and re-run to confirm the fix.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Reproducing a failure in a controlled way teaches you where the UI points and what concrete code changes remove the root cause.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

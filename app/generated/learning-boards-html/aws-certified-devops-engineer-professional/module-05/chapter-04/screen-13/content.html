@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .panel{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Live Coding Plan</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 panel shadow-sm">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600">Terminal commands (sequence)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-xs"><code># 1) Create DLQ
+aws sqs create-queue --queue-name SnsAlertDlq
+
+# 2) Get DLQ ARN
+DLQ_ARN=$(aws sqs get-queue-attributes --queue-name SnsAlertDlq --attribute-names QueueArn --query 'Attributes.QueueArn' --output text)
+
+# 3) Create SNS topic
+aws sns create-topic --name DevOpsCriticalAlerts
+
+# 4) Subscribe HTTPS (mock PagerDuty)
+aws sns subscribe --topic-arn <SNS_TOPIC_ARN> --protocol https --notification-endpoint <WEBHOOK_URL> \
+  --attributes "FilterPolicy={\"severity\":[\"CRITICAL\",\"HIGH\"]},RedrivePolicy={\"deadLetterTargetArn\":\"$DLQ_ARN\"}"
+
+# 5) Publish tests (see earlier screens for examples)</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 panel shadow-sm">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600">Demo checks</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Confirm webhook.site shows the CRITICAL message.</li>
+        <li>Confirm LOW message does not appear.</li>
+        <li>Make webhook unreachable and confirm the DLQ receives the failed message.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Using journalctl to diagnose failures</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 h-full rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Command callouts</div>
+      <pre class='mt-3 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+# Show recent entries with explanations and jump to the end
+journalctl -u httpd -xe
+
+# Follow new journal entries in real time for the unit
+journalctl -f -u httpd
+
+# Limit by time window
+journalctl -u httpd --since "2026-01-01 10:00:00" --until "2026-01-01 10:15:00"
+</pre>
+      <div class='mt-3 text-sm text-slate-600'>Use these filters to extract only the relevant lines and include them in your incident notes for reproducibility.</div>
+    </div>
+    <div class='w-1/2 h-full rounded-2xl bg-white border p-4 shadow-sm flex flex-col' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Explanation and example</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>journalctl aggregates systemd and kernel messages that might explain why a service failed before the app could write logs.</li>
+        <li>Follow mode helps when reproducing a failure during a configuration change or a client request.</li>
+        <li>Always note exact timestamps and the first error line; those are the best clues for root cause analysis.</li>
+      </ul>
+      <div class='mt-4 rounded-xl p-3 bg-amber-50 border' style='border-color: rgba(226,232,240,0.9)'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Common Mistake</div>
+        <div class='text-xs text-slate-800'>Relying only on tailing application logs without checking the journal misses system-level failures like missing library loads or unit-level ExecStart errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

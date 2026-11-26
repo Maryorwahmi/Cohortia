@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+      <span class="text-slate-600">ProcessPoolExecutor lab</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">Image resizing activity with ProcessPoolExecutor</h3>
+    <p class="text-sm text-slate-600 mt-1">Simulate CPU-heavy resizing and run tasks in parallel with map.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter code (simulation)</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>def simulate_image_resize(image_name, scale_factor):
+    # CPU work simulated by a heavy loop
+    dummy_iterations = int(10_000_000 * scale_factor)
+    _ = sum(i*i for i in range(dummy_iterations))
+    return f"resized_{image_name}"
+
+if __name__ == "__main__":
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        resized = list(executor.map(simulate_image_resize, image_files, scale_factors))</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Replace the simulated loop with a real resize call in production and ensure image data or file paths are picklable.</div>
+    </div>
+
+    <div class="rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Activity steps</div>
+      <ol class="list-decimal ml-5 mt-2 text-sm text-slate-600">
+        <li>Run the simulation and record elapsed time.</li>
+        <li>Adjust max_workers and observe changes.</li>
+        <li>Change to executor.submit and as_completed to see response ordering differences.</li>
+        <li>Swap in a real image library and confirm picklability of inputs.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Measure and choose worker counts and task granularity so process overhead does not erase parallelism gains.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

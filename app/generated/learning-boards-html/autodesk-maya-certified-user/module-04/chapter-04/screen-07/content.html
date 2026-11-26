@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;font-size:13px}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Script Example</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 h-full">
+      <div class="rounded-2xl bg-white p-4 h-full card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Python template (annotated)</div>
+        <pre class="mt-3"><code># Ensure Arnold is loaded and set as current renderer
+if not cmds.pluginInfo('mtoa', query=True, loaded=True):
+  cmds.loadPlugin('mtoa')
+cmds.setAttr('defaultRenderGlobals.currentRenderer', 'arnold', type='string')
+
+# Set project for output
+project_path = "C:/MayaProjects/myRenderProject"  # Replace with your path
+cmds.workspace(project_path, open=True)
+
+# Create and animate a sphere
+cmds.polySphere(name='animatedSphere', r=1)
+cmds.setKeyframe('animatedSphere', attribute='translateX', value=0, time=1)
+cmds.setKeyframe('animatedSphere', attribute='translateX', value=5, time=60)
+
+# Configure render globals for batch
+cmds.setAttr('defaultRenderGlobals.imageFormat', 32)  # PNG
+cmds.setAttr('defaultRenderGlobals.startFrame', 1)
+cmds.setAttr('defaultRenderGlobals.endFrame', 60)
+
+# Set Arnold samples lower for quick test
+cmds.setAttr('defaultArnoldRenderOptions.AASamples', 3)
+
+# Perform Batch Render
+cmds.arnoldRender(b=True)
+</code></pre>
+      </div>
+    </div>
+    <div class="w-2/5 h-full flex flex-col justify-between">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">When to use scripting</div>
+        <p class="text-sm text-slate-700 mt-2">Automate repetitive setup across many scenes, ensure consistent filenames and frame ranges, and integrate into simple render farm workflows.</p>
+      </div>
+      <div class="mt-4 rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <p class="text-sm text-slate-700 mt-2">Scripting won't fix bad lighting or sampling choices; it only automates tasks you would otherwise perform manually. Understand the settings first.</p>
+      </div>
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-2">Use scripts to repeat exact render setups and reduce manual errors, but verify project paths and plugin availability before running them.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

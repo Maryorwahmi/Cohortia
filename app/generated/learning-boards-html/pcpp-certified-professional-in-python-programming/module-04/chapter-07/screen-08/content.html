@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Comparison</span>
+      <span class="text-slate-600">map vs submit</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">map() vs submit()/as_completed()</h3>
+    <p class="text-sm text-slate-600 mt-1">Understand trade-offs between ordered simplicity and responsive handling.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">executor.map (ordered)</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>results = list(executor.map(process_image, image_files, scale_factors))
+# results[i] corresponds to image_files[i]</code></pre>
+      <p class="mt-2 text-sm text-slate-600">Use when output order must match input order. Simpler code and lower bookkeeping.</p>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">submit + as_completed (responsive)</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>futs = [executor.submit(task, a) for a in items]
+for fut in concurrent.futures.as_completed(futs):
+    handle(fut.result())</code></pre>
+      <p class="mt-2 text-sm text-slate-600">Use when tasks vary in time and you want to process quick results early.</p>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700">map: ordered outputs</div>
+    <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">submit: per-task control</div>
+    <div class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">as_completed: completion order</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

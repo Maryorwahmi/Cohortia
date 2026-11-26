@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Debounce Patterns</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-lg font-bold mb-2 text-slate-800">Why debounce matters</div>
+      <div class="text-sm text-slate-600 mb-3">Touched can fire many times per second while parts remain in contact. Without debounce, you get runaway effects.</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Per-player timestamp table avoids cross-player interference.</li>
+        <li>os.time avoids sleeping the script and is server-safe.</li>
+        <li>Use UserId as the key so the table survives player name changes.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Damage zone pattern (excerpt)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">-- Script inside "DamageZone"
+local DAMAGE_AMOUNT = 10
+local COOLDOWN_TIME = 1
+local playersInZone = {}
+
+local function onDamageZoneTouched(otherPart)
+  local character = otherPart.Parent
+  if not character then return end
+  local humanoid = character:FindFirstChildOfClass("Humanoid")
+  if not humanoid then return end
+  local player = game.Players:GetPlayerFromCharacter(character)
+  if not player then return end
+
+  local lastDamageTime = playersInZone[player.UserId] or 0
+  if os.time() - lastDamageTime < COOLDOWN_TIME then
+    return
+  end
+
+  humanoid:TakeDamage(DAMAGE_AMOUNT)
+  playersInZone[player.UserId] = os.time()
+end
+
+damageZone.Touched:Connect(onDamageZoneTouched)</pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <div class="p-2 rounded-lg bg-blue-50 text-blue-700 text-xs card-border">Pro tip: Use os.time() for server-wide consistent cooldowns.</div>
+        <div class="p-2 rounded-lg bg-rose-50 text-rose-700 text-xs card-border">Don't: Use task.wait inside the handler—this blocks the thread.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

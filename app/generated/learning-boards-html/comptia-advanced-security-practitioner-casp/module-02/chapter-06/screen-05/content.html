@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+        <div class="text-xl font-bold text-slate-800">Dynamic Application Security Testing (DAST)</div>
+        <div class="text-sm text-slate-600 mt-2">Black-box scanning that interacts with an application to detect runtime vulnerabilities.</div>
+        <div class="mt-4 flex-1 overflow-hidden">
+          <div class="rounded-lg bg-slate-50 p-3 h-full">
+            <div class="text-sm font-semibold text-slate-700">What DAST finds</div>
+            <ul class="mt-2 text-sm text-slate-600 space-y-2 list-disc pl-4">
+              <li>Reflected and stored cross-site scripting that appears in responses.</li>
+              <li>Authentication and session management weaknesses.</li>
+              <li>Server and configuration issues that only show at runtime.</li>
+            </ul>
+            <div class="mt-3 text-sm font-semibold text-slate-700">Integration notes</div>
+            <ul class="mt-2 text-sm text-slate-600 space-y-2 list-disc pl-4">
+              <li>Run DAST in staging or pre-production to avoid impacting users.</li>
+              <li>Schedule targeted scans for PRs and full scans nightly to trade coverage for speed.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">Reflected XSS example</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-slate-50 p-3"><code>&lt;!-- Server echoes user input without encoding --&gt;
+GET /search?q=&lt;script&gt;alert('xss')&lt;/script&gt;
+
+&lt;!-- Response includes the query unescaped in the page --&gt;
+&lt;div&gt;Results for: &lt;script&gt;alert('xss')&lt;/script&gt;&lt;/div&gt;
+
+-- DAST will detect the echoed payload in the rendered response --</code></pre>
+        <div class="mt-3 text-sm text-slate-600">DAST uses HTTP requests and rendered responses to detect where inputs become executable in pages. That requires authenticated crawling when protected areas must be exercised.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">Run a nightly full DAST scan against staging and a short authenticated scan on PRs to balance speed and coverage.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-rose-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">Large unscoped scans can exceed runtime windows and cause pipeline delays; scope scans carefully.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">DAST reveals runtime issues and should be integrated into delivery with attention to scope, auth, and scheduling.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

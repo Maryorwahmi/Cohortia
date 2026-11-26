@@ -1,0 +1,47 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Feed simulation and blocking worker</h3>
+      <p class="text-sm text-slate-600 mt-3">Run these commands in the CLI to simulate a feed and a worker that waits for tasks.</p>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"><code>redis-cli
+# Producer: add posts to Alice's feed
+LPUSH user:alice:feed "post:100: Alice posted about Redis"
+LPUSH user:alice:feed "post:101: Alice shared a new article"
+LPUSH user:alice:feed "post:102: Alice liked a photo"
+LTRIM user:alice:feed 0 9   # keep newest 10
+LRANGE user:alice:feed 0 4  # retrieve 5 newest
+
+# Worker pattern (open another window)
+BLPOP user:bob:tasks 10
+# In first window
+LPUSH user:bob:tasks "task:clean_cache"</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Observe how the blocked client receives the new task instantly. Use LTRIM on the producer side to keep the feed bounded.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tag management (Sets)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"><code>SADD article:1:tags "redis" "database" "nosql" "cache"
+SADD article:2:tags "redis" "database" "performance"
+SADD article:3:tags "nosql" "mongodb" "database"
+
+SMEMBERS article:1:tags
+SISMEMBER article:2:tags "cache"
+SINTER article:1:tags article:2:tags
+SUNION article:1:tags article:3:tags</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Practice SINTER to find common tags and SUNION to list all unique tags across articles. Use SSCAN for iterative retrieval on large sets.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

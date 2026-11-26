@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">SIEM Querying</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border h-2/3">
+        <div class="text-sm font-bold text-slate-800">One-sentence subtitle</div>
+        <div class="text-xs text-slate-600 mt-2">Compose index, event filters, enrichment lookups, and stats to find anomalous authentications.</div>
+
+        <div class="mt-3 text-xs text-slate-700">Supporting points:</div>
+        <ul class="mt-2 text-xs text-slate-700 list-disc list-inside">
+          <li>Enrich with geoip to detect logins from unexpected countries.</li>
+          <li>Aggregate by user and source IP to count rare occurrences.</li>
+          <li>Keep time windows narrow to reduce noise and speed investigations.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete Example</div>
+        <div class="mt-2 text-xs text-slate-700">A Splunk-like query can find successful logins to critical servers, enrich with geoip, filter out the city or country you expect, and count events by user and source IP.</div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">SIEM queries should return a compact, pivotable table of events so you can confidently escalate to endpoint or network analysis.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border overflow-auto h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example Query (Splunk-like)</div>
+        <pre class="bg-slate-900 text-white rounded-lg p-3"><code>index=windows_events event_id=4624 (dest_host="critical_server_A" OR dest_host="critical_server_B")
+| lookup geoip client_ip AS src_ip
+| where geo_country != "United States" AND _time &gt; relative_time(now(), "-7d")
+| stats count by _time, user, src_ip, geo_country
+| sort - count</code></pre>
+
+        <div class="mt-3 text-xs text-slate-600">This query locates successful Windows logins, enriches source IP with country, filters out expected geography, and returns counts for investigation.</div>
+
+        <div class="mt-4 rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+          <div class="text-xs text-slate-700 mt-2">Broad queries over long periods create alert fatigue and hide rare, recent anomalies.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

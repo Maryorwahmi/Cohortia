@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>
+    .panel { border:1px solid rgba(226,232,240,0.9); background:#fff; border-radius:12px; padding:16px; }
+    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; white-space: pre-wrap; tab-size:2; }
+  </style>
+
+  <div class="mb-3"> 
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> 
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 7.8</span>
+      <span>›</span>
+      <span class="text-slate-700">gNMI Subscribe (Python)</span>
+    </div>
+  </div>
+
+  <div class="panel h-full flex flex-col"> 
+    <div class="text-xs uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">Conceptual gNMI subscription</h3>
+    <div class="text-sm text-slate-600 mb-3">This conceptual snippet illustrates the connect, subscribe, and receive loop you'll implement with production client libraries.</div>
+
+    <div class="mb-3 overflow-auto" style="max-height:42%"> 
+      <pre><code># Conceptual gNMI subscribe (simplified and conceptual)
+from gnmi import gnmi_pb2, gnmi_pb2_grpc
+import grpc
+import time
+
+TARGET_IP = "192.168.1.101"
+TARGET_PORT = 50051
+USERNAME = "admin"
+PASSWORD = "cisco"
+INTERFACE_STATS_PATH = "/interfaces/interface[name='GigabitEthernet1']/state/statistics"
+
+def subscribe_to_telemetry():
+  channel = grpc.secure_channel(f"{TARGET_IP}:{TARGET_PORT}", grpc.ssl_channel_credentials())
+  stub = gnmi_pb2_grpc.gNMIStub(channel)
+
+  subscribe_request = gnmi_pb2.SubscribeRequest()
+  subscribe_request.subscribe.mode = gnmi_pb2.SubscriptionList.STREAM
+  subscribe_request.subscribe.encoding = gnmi_pb2.Encoding.JSON_IETF
+  subscribe_request.subscribe.subscription.add(
+    path=gnmi_pb2.Path(elem=[gnmi_pb2.PathElem(name=e) for e in INTERFACE_STATS_PATH.strip('/').split('/')]),
+    mode=gnmi_pb2.SubscriptionMode.SAMPLE,
+    sample_interval=1000000000
+  )
+
+  metadata = [('username', USERNAME), ('password', PASSWORD)]
+
+  for response in stub.Subscribe(subscribe_request, metadata=metadata):
+    if response.update:
+      # Parse response.update.update[0].val.json_ietf_val or proto_bytes
+      pass
+    time.sleep(0.1)</code></pre>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mt-2"> 
+      <div class="rounded p-3 bg-slate-50"> 
+        <div class="text-sm font-bold">Example detail</div>
+        <div class="text-xs text-slate-600 mt-1">The sample interval in this snippet is 1 second (expressed in nanoseconds) to capture high-frequency interface metrics.</div>
+      </div>
+      <div class="rounded p-3 bg-rose-50"> 
+        <div class="text-sm font-bold">Caution</div>
+        <div class="text-xs text-slate-600 mt-1">This code omits TLS cert handling, reconnection and robust parsing—add those in production clients.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-3"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">The subscribe flow is connect, build subscription list, receive updates, parse encoding, and persist. Harden each step before production use.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

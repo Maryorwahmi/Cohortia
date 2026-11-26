@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 10.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Structured Logging</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl p-4 bg-white shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Why use JSON</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Fields like request_id, user_id or component become first-class searchable keys.</li>
+        <li>No need to rely on brittle regular expressions to find relevant events.</li>
+        <li>Supports alerts that target specific field values instead of text matches.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-700">Keep readable messages while including structured fields. A single JSON entry should be sufficient for automated tools to take action.</div>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">JsonFormatter example</div>
+      <pre class="bg-slate-900 text-slate-100 rounded p-3 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if hasattr(record, 'user_id'):
+            log_record['user_id'] = record.user_id
+        if hasattr(record, 'request_id'):
+            log_record['request_id'] = record.request_id
+        return json.dumps(log_record)
+
+json_handler.setFormatter(JsonFormatter())
+</code></pre>
+
+      <div class="mt-3 rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-1">Serialize both standard fields and 'extra' attributes to make logs machine-friendly while preserving a message for humans.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Flag Propagation</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800">Per-stage flags</div>
+      <p class="text-sm text-slate-700 mt-2">When a stage detects an exception, it asserts a flag that is latched into the pipeline register between stages. That flag travels with the instruction until resolution.</p>
+
+      <div class="mt-3 space-y-2 text-sm text-slate-700">
+        <div class="p-3 rounded-lg bg-white border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="font-semibold">Example</div>
+          <div class="text-xs mt-1">EX detects divide-by-zero and sets EX flag; the EX/MEM register carries the flag into MEM so the control can later decide to flush before state changes.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-rose-50">
+          <div class="font-semibold">Misconception check</div>
+          <div class="text-xs mt-1">A flag does not immediately commit handling. It is an annotation used by later prioritization and commit logic.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-4 flex flex-col" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800">Control decisions</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-2">
+        <li>Compare flags and program counters or use stage order to find the earliest excepting instruction.</li>
+        <li>Assert write-disable signals for any later instructions so they cannot update registers or memory.</li>
+        <li>When the excepting instruction reaches the stage that could alter state, assert a pipeline flush and transfer control to the handler.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Flags tied to pipeline registers let prioritization and flush logic operate without ambiguity.</p>
+      </div>
+    </div>
+  </div>
+</div>

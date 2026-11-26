@@ -1,0 +1,16 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <style>    .code-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}  </style>  <div class="flex h-full gap-4">    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>      <div class="text-xl font-bold text-slate-800">Pointer to Pointer</div>      <div class="text-sm text-slate-600 mt-2">A second level of indirection lets a function update a caller's pointer so newly allocated memory can be returned indirectly.</div>      <div class="mt-4 code-pre bg-slate-50 rounded-md p-3 border card-border">int x = 42;        
+int *ptr = &x;        
+int **pptr = &ptr;        
+
+// *pptr == ptr (address), **pptr == x (value)
+</div>      <div class="mt-4 grid gap-2">        <div class="rounded-lg bg-white p-3 card-border">          <div class="text-sm font-semibold text-slate-800">When to use</div>          <div class="text-xs text-slate-500 mt-1">When a function must allocate or reassign a pointer in the caller. Example: allocating memory for a buffer inside a helper function.</div>        </div>        <div class="rounded-lg bg-amber-50 p-3 mt-2">          <div class="text-[10px] uppercase tracking-wider text-amber-700">Common mistake</div>          <div class="text-xs text-slate-800 mt-1">Dereferencing the wrong level. Using *pptr when you needed **pptr leads to reading an address instead of the value or crashing.</div>        </div>      </div>    </div>    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">      <div class="text-sm font-semibold text-slate-800">Example scenario</div>      <div class="text-sm text-slate-600 mt-2">A function wants to allocate memory for an integer and return that pointer to main. Passing &myPtr as int ** allows the function to call malloc and store the new address into main's variable.</div>      <div class="mt-4 code-pre bg-slate-50 rounded-md p-3 border card-border">void allocate_int(int **p) {
+  *p = (int *)malloc(sizeof(int));
+  if (*p != NULL) {
+    **p = 100; // set value
+  }
+}
+
+/* Caller: */
+int *myPtr = NULL;
+allocate_int(&myPtr);
+</div>      <div class="mt-4">        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          <p class="text-xs font-medium text-slate-800">Pointer-to-pointer gives the callee access to change a pointer variable in the caller. Visualize each asterisk to avoid incorrect dereferencing.</p>        </div>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

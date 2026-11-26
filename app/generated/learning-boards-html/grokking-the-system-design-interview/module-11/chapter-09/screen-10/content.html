@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Hot Shard — Causes & Mitigations</div>
+    <div class="text-sm text-slate-600 mt-1">Compare typical mitigation patterns and when to apply each.</div>
+    <div class="mt-6 grid grid-cols-3 gap-4 h-full">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Sub-partitioning</div>
+        <div class="text-sm text-slate-700 mt-2">Split a hot chat_id by time windows or message buckets to spread writes and reads across nodes while preserving local ordering per sub-shard.</div>
+      </div>
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Buffering / Queues</div>
+        <div class="text-sm text-slate-700 mt-2">Use the message queue to absorb spikes and apply backpressure to the database, smoothing write traffic.</div>
+      </div>
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Caching & Read Replicas</div>
+        <div class="text-sm text-slate-700 mt-2">Cache recent messages in-memory or use read replicas to offload read-heavy traffic from the primary shard.</div>
+      </div>
+      <div class="col-span-3 rounded-xl p-4 bg-slate-50 card-border mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-sm text-slate-700 mt-2">A public event chat receives 100× normal traffic. Immediate mitigation: buffer writes in the queue and return cached recent messages while applying sub-partitioning for long-term scaling.</div>
+      </div>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Decision Tip</div>
+        <div class="text-sm text-slate-800 mt-1">Choose mitigation based on whether the hotspot is transient or sustained; buffering helps spikes, sub-partitioning handles sustained load.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+        <div class="text-sm text-slate-800 mt-1">Avoid naive shuffling of chat_id which breaks ordering; design sub-partitioning to preserve ordering semantics where needed.</div>
+      </div>
+    </div>
+  </div>
+</div>

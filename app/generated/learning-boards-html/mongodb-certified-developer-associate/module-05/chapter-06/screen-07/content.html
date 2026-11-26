@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">$out vs $merge</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">$out</div>
+      <h3 class="text-lg font-semibold text-slate-800 mt-2">Full replacement</h3>
+      <ul class="list-disc ml-5 mt-3 text-sm text-slate-700">
+        <li>Creates or replaces the target collection.</li>
+        <li>Must be the last pipeline stage.</li>
+        <li>Good for materialized views or full reports.</li>
+      </ul>
+      <div class="mt-4 text-sm text-slate-600">Misconception: $out is not an upsert. It destroys previous data in the target collection.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">$merge</div>
+      <h3 class="text-lg font-semibold text-slate-800 mt-2">Controlled merges</h3>
+      <ul class="list-disc ml-5 mt-3 text-sm text-slate-700">
+        <li>Atomically insert or update by match key.</li>
+        <li>Supports merge strategies and pipelines.</li>
+        <li>Better for incremental and upsert scenarios.</li>
+      </ul>
+      <div class="mt-4 text-sm text-slate-600">Misconception: $merge always preserves everything. Behavior depends on whenMatched strategy.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Decision rule</div>
+    <p class="text-xs font-medium text-slate-800">If you need a deterministic snapshot and do not need prior document state, use $out. If you need atomic, document-level updates or upserts, use $merge with explicit match and strategy.</p>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.3</span><span>›</span><span class="text-slate-700">`sshd_config` Basics</span></div><div class="flex flex-col lg:flex-row flex-grow gap-8"><div class="flex-1 flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Server Configuration</div><h2 class="text-3xl font-bold text-slate-900 mb-2">Securing SSH Server: `sshd_config` Basics</h2><p class="text-base text-slate-600 mb-6">Controlling server-side SSH behavior for robust security</p><div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 mb-6"><h3 class="text-lg font-semibold text-slate-800 mb-2">The `sshd_config` File</h3><p class="text-sm text-slate-600">Located at `/etc/ssh/sshd_config`, this file dictates how the SSH daemon (`sshd`) operates on your server. It's the central point for server-side SSH security settings.</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-blue-50 rounded-xl p-4 border border-blue-100"><div class="flex items-center gap-2 mb-2"><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg><span class="text-sm font-semibold text-blue-800">Key Parameters</span></div><p class="text-xs text-blue-700">Controls listening port, allowed authentication methods, and user access.</p></div><div class="bg-amber-50 rounded-xl p-4 border border-amber-100"><div class="flex items-center gap-2 mb-2"><svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"></path></svg><span class="text-sm font-semibold text-amber-800">Caution Required</span></div><p class="text-xs text-amber-700">Misconfigurations can lock you out. Always have a backup access method.</p></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">`/etc/ssh/sshd_config` is the central file for SSH server security. Always back it up and test changes carefully.</p></div></div><div class="flex-1 flex items-center justify-center"><div class="relative w-full h-full bg-violet-50 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center"><div class="absolute top-4 left-4 text-violet-400 text-xs font-mono">sshd-config-file.svg</div><div class="bg-slate-800 rounded-xl p-4 w-full max-w-md"><pre><code class="language-bash text-slate-200 whitespace-pre-wrap" style="tab-size: 2;"># /etc/ssh/sshd_config - Excerpt
+
+# Port 22
+# AddressFamily any
+# ListenAddress 0.0.0.0
+# ListenAddress ::
+
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+#HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Ciphers and KexAlgorithms
+# ...
+
+# Authentication:
+#LoginGraceTime 2m
+#PermitRootLogin prohibit-password
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+
+#PubkeyAuthentication yes
+#AuthorizedKeysFile .ssh/authorized_keys
+
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+
+#ChallengeResponseAuthentication no
+
+#UsePAM yes
+
+#AllowAgentForwarding yes
+#AllowTcpForwarding yes
+#X11Forwarding yes
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+#PermitTTY yes
+#PrintMotd yes
+#PrintLastLog yes
+#TCPKeepAlive yes
+#UseLogin no
+#UsePrivilegeSeparation sandbox # deprecated
+#ClientAliveInterval 0
+#ClientAliveCountMax 3
+#Compression delayed
+#LogLevel INFO
+#SyslogFacility AUTHPRIV
+#Protocol 2
+#AcceptEnv LANG LC_*
+#Subsystem       sftp    /usr/lib/openssh/sftp-server
+
+# Example of overriding settings for a specific user
+#Match User admin
+#  ForceCommand /usr/bin/git-shell
+
+# Example of overriding settings for a specific group
+#Match Group sftpusers
+#  ChrootDirectory %h
+#  ForceCommand internal-sftp
+#  AllowTcpForwarding no
+#  X11Forwarding no</code></pre></div><div class="mt-6 text-center"><p class="text-sm text-slate-700 font-semibold mb-2">Default Port Setting:</p><div class="bg-white rounded-lg px-4 py-2 shadow-sm border border-slate-200 text-sm text-slate-800">`Port 22` (Default)</div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

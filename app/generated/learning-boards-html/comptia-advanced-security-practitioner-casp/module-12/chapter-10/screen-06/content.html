@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.10</span>
+      <span>›</span>
+      <span class="text-slate-700">IaC Runbooks</span>
+    </div>
+  </div>
+
+  <div class="grid grid-rows-2 h-full gap-4">
+    <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Conceptual commands (do not run as-is)</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Example: Triggering a DRP runbook via an Ansible playbook
+# This playbook would orchestrate provisioning, data restore, and application startup
+ansible-playbook -i inventory/recovery_site.ini playbooks/dr_full_recovery.yml --extra-vars "target_region=us-east-2"
+
+# Example: Using AWS CloudFormation to deploy a recovery stack
+# This command would create all necessary resources (EC2, RDS, VPC, etc.) in a target region
+aws cloudformation deploy --template-file cloudformation/dr_stack.yaml --stack-name ProductionAppDR --region us-east-2 --capabilities CAPABILITY_IAM
+
+# Example: Azure Site Recovery (ASR) failover command (conceptual)
+# This would trigger a pre-configured failover plan
+az site-recovery failover-planned --resource-group myResourceGroup --name myRecoveryPlan --direction primaryToRecovery
+</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex">
+      <div class="w-2/3 pr-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Implementation guidance</div>
+        <ul class="text-sm text-slate-600 list-disc ml-5">
+          <li>Parameterize templates for region, instance sizes, and secrets; never hard-code credentials in templates.</li>
+          <li>Protect IaC repositories and require peer review for changes that affect recovery paths.</li>
+          <li>Automate DR testing by executing IaC in a non-production account and validating RTO/RPO metrics.</li>
+        </ul>
+      </div>
+      <div class="w-1/3">
+        <div class="rounded-lg p-3 bg-slate-50 text-slate-700">Example card: Using IaC reduces human error by ensuring the same network and security configurations are applied during every recovery run.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

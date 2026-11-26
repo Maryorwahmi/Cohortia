@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;tab-size:2;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerAudioController</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 card">
+      <div class="text-lg font-bold text-slate-800">Example script</div>
+      <pre class="mt-3"><code>using UnityEngine;
+
+public class PlayerAudioController : MonoBehaviour
+{
+    public AudioSource playerAudioSource; // Assign in Inspector
+    public AudioClip pickupSound;         // Assign in Inspector
+    public AudioClip jumpSound;           // Assign in Inspector
+
+    void Update()
+    {
+        // Example: Play jump sound on spacebar press
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (jumpSound != null)
+            {
+                playerAudioSource.clip = jumpSound; // Assign the jump sound
+                playerAudioSource.Play();           // Play it
+            }
+        }
+    }
+
+    // This method could be called by an item's script when picked up
+    public void PlayPickupSound()
+    {
+        if (pickupSound != null)
+        {
+            playerAudioSource.clip = pickupSound;
+            playerAudioSource.Play();
+        }
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Key points</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Public fields let you wire components in the Inspector.</li>
+        <li>Assigning clip then calling Play restarts that clip.</li>
+        <li>Use PlayOneShot instead when pickups can overlap rapidly.</li>
+        <li>Always check for nulls: audioSource and audioClip may be unassigned.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <p class="text-xs font-medium text-slate-800">Assigning clip at runtime is flexible, but it changes the AudioSource.clip which may be used elsewhere. Consider PlayOneShot to avoid replacing the assigned clip.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

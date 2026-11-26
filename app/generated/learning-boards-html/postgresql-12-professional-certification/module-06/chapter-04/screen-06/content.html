@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Handle blocked sessions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Inspect → Notify → Cancel → Terminate</h3>
+
+      <ol class="mt-4 list-decimal list-inside text-sm text-slate-700 space-y-3">
+        <li><strong>Inspect:</strong> Query pg_stat_activity and capture pid, state, and application identity.</li>
+        <li><strong>Identify:</strong> Check for locks or wait events to find the blocking session.</li>
+        <li><strong>Notify:</strong> If the session belongs to another team, coordinate before action.</li>
+        <li><strong>Cancel or terminate:</strong> Use pg_cancel_backend(pid) first; use pg_terminate_backend(pid) only if necessary.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl bg-rose-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+          <p class="text-sm text-slate-700 mt-2">Terminating without notifying can cause cascading client errors and data rollbacks. Prefer cancel where possible.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example commands</div>
+      <pre class="text-sm mt-2 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">-- Find the long-running session
+SELECT pid, usename, application_name, state, query_start, query
+FROM pg_stat_activity
+WHERE query LIKE '%pg_sleep%' AND state != 'idle';
+
+-- Attempt a graceful cancel
+SELECT pg_cancel_backend(12345);
+
+-- Forceful termination only if cancel fails
+SELECT pg_terminate_backend(12345);</pre>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always prefer a cancel request and verify owner and impact before using terminate.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

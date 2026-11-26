@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#f8fafc;padding:10px;border-radius:8px}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100'>Definition</span>
+    <span>›</span>
+    <span class='text-slate-700'>Key slots & key files</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='card p-4 flex flex-col'>
+      <div class='text-lg font-semibold text-slate-800'>Add and remove keys</div>
+      <div class='text-sm text-slate-600 mt-2'>Commands for key slot management and a secure key file example.</div>
+
+      <div class='mt-3 mono'>
+<pre style='white-space:pre-wrap;tab-size:2;'>sudo dd if=/dev/urandom of=/root/luks_key.bin bs=512 count=4
+sudo chmod 0400 /root/luks_key.bin
+sudo cryptsetup luksAddKey /dev/sdb1 /root/luks_key.bin
+sudo cryptsetup luksRemoveKey /dev/sdb1</pre>
+      </div>
+
+      <div class='mt-3 text-xs text-slate-500'>Use luksAddKey to add either an interactive passphrase or a specified key file. luksRemoveKey prompts for an existing credential to verify.</div>
+    </div>
+
+    <div class='card p-4 flex flex-col justify-between'>
+      <div>
+        <div class='text-sm font-semibold text-slate-800'>Compare: passphrase vs key file</div>
+        <div class='mt-3 grid grid-cols-1 gap-3'>
+          <div class='p-3 rounded-md bg-blue-50 text-blue-800'>Passphrase: human-readable recovery method, requires manual entry at boot.</div>
+          <div class='p-3 rounded-md bg-emerald-50 text-emerald-800'>Key file: supports automation, must be stored with at least file-system level protection and preferably on encrypted media.</div>
+        </div>
+      </div>
+
+      <div class='mt-4'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Misconception check</div>
+        <div class='text-sm text-slate-700'>Multiple slots do not weaken encryption if keys are managed correctly. Each slot is an access method to the same encrypted data.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

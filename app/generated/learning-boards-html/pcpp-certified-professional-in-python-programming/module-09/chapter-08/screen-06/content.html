@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Connecting</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Typical connection code</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-md text-sm mt-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, PyMongoError
+
+try:
+  client = MongoClient('mongodb://localhost:27017/')
+  db = client.product_catalog
+  products = db.products
+  print('Connected to MongoDB and accessed products collection')
+except ConnectionFailure as e:
+  print('Could not connect to MongoDB:', e)
+  exit()
+except PyMongoError as e:
+  print('PyMongo error:', e)
+  exit()
+        </pre>
+      <div class="mt-4 text-sm text-slate-700">Note: Database and collection names create resources only on insert. Client creation may be deferred until first operation.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Checklist</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Install PyMongo with pip before running code.</li>
+        <li>Use try-except for ConnectionFailure and PyMongoError.</li>
+        <li>Close client when done to release resources.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3 card-border">
+          <div class="text-sm font-semibold">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use a connection URI for cloud instances. Test connectivity with a small read to validate auth credentials.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Create MongoClient safely, access db.collection lazily, and always handle connection exceptions to avoid crashes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

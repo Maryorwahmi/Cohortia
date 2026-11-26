@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#0b1220;color:#e6eef8;padding:14px;border-radius:10px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">BEFORE & Query ID</span>
+    </div>
+    <div class="text-lg font-bold text-slate-900 mt-2">Target the moment before a statement</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border border-slate-100 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Find the Query ID</div>
+      <div class="text-sm text-slate-600 mt-2">Search your query history for the DELETE or UPDATE statement and note its QUERY_ID.</div>
+      <pre class="code mt-3">-- Example: find the DELETE statement's Query ID
+-- SELECT QUERY_ID, QUERY_TEXT FROM TABLE(INFORMATION_SCHEMA.QUERY_HISTORY()) WHERE QUERY_TEXT LIKE '%DELETE FROM my_table%';
+
+-- Then use BEFORE with that Query ID
+SELECT * FROM my_table BEFORE (STATEMENT =&gt; 'abcdef12-3456-7890-abcd-ef1234567890');
+</pre>
+      <div class="mt-2 text-xs text-slate-500">BEFORE returns the exact table state just before the referenced statement executed.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical hints</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600">
+        <li>Confirm the statement's timing and ensure it's within retention.</li>
+        <li>Validate the selected rows before re-inserting or replacing live data.</li>
+        <li>If the table was dropped, use UNDROP rather than BEFORE to restore the object.</li>
+      </ul>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using the wrong Query ID or a Query ID outside retention will return no useful historical state.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

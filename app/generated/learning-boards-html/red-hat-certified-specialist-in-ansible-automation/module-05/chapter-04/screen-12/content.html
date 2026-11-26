@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Flexible Service Role</div>
+      <div class="text-sm text-slate-600 mt-3">Define defaults, conditionals, and call the role with different parameters to observe behavior.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Why this exercise</div>
+      <ul class="list-disc pl-5 mt-2 text-sm text-slate-600 space-y-2">
+        <li>See variable overrides in action.</li>
+        <li>Validate conditional installation and service management.</li>
+        <li>Practice include_role invocation with guard conditions.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border mono text-sm">
+      <div class="text-sm font-bold text-slate-800">Key files (excerpt)</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded">
+<pre><code># flexible_service/defaults/main.yml
+---
+service_name: "nginx"
+service_state: "started"
+service_enabled: true
+install_package: true
+
+# flexible_service/tasks/main.yml
+---
+- name: Ensure service package is installed (if requested)
+  ansible.builtin.package:
+    name: "{{ service_name }}"
+    state: present
+  when: install_package
+
+- name: Ensure service is in desired state and enabled
+  ansible.builtin.service:
+    name: "{{ service_name }}"
+    state: "{{ service_state }}"
+    enabled: "{{ service_enabled }}"
+
+# test_flexible_service.yml (excerpt)
+- name: Include flexible_service role for Nginx
+  ansible.builtin.include_role:
+    name: flexible_service
+  vars:
+    service_name: "nginx"
+    service_state: "started"
+    install_package: true</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">Run the provided playbook and confirm service states. Adjust variables to see how the role adapts without editing its tasks.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

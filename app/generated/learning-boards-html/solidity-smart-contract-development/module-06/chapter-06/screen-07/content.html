@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Avoid Redundant Logic</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col justify-center">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2">Optimization Strategy</div>
+      <h2 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Avoiding Redundant Calculations & Loops</h2>
+      <p class="text-lg text-slate-700 mb-6">Streamlining computation for lower gas costs</p>
+
+      <div class="space-y-4">
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">Pre-calculate Values</p>
+          </div>
+          <p class="text-xs text-slate-600">Compute a value once and store it in a memory variable if it's used multiple times within a function.</p>
+        </div>
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">Minimize Loops</p>
+          </div>
+          <p class="text-xs text-slate-600">Loops, especially over dynamic arrays or mappings, are gas-intensive. Consider alternative data structures or off-chain processing.</p>
+        </div>
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">Avoid External Calls in Loops</p>
+          </div>
+          <p class="text-xs text-slate-600">Making external contract calls or complex state changes inside loops incurs significant gas costs per iteration.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-center items-center bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-4">Code Example: Loop Optimization</div>
+      <pre class="bg-slate-900 text-slate-100 p-4 rounded-lg text-xs w-full overflow-x-auto" style="white-space: pre-wrap; tab-size: 2;"><code>
+contract LoopExample {
+    uint256[] public values;
+
+    function sumValuesBad() public view returns (uint256) {
+        uint256 total = 0;
+        for (uint i = 0; i < values.length; i++) {
+            total += values[i]; // Reads values[i] multiple times if used elsewhere
+        }
+        return total;
+    }
+
+    function sumValuesGood() public view returns (uint256) {
+        uint256 total = 0;
+        uint256 length = values.length; // Cache length
+        for (uint i = 0; i < length; i++) {
+            uint256 currentValue = values[i]; // Cache array element
+            total += currentValue;
+        }
+        return total;
+    }
+}
+</code></pre>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6 w-full">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Cache array lengths and elements within loops to avoid redundant reads and calculations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Example</div>
+      <h3 class="text-lg font-bold text-slate-900">fetch_data walkthrough</h3>
+      <p class="text-sm text-slate-600 mt-2">Read the code and notice where control returns to the event loop. Predict the total runtime before running.</p>
+
+      <pre><code>import asyncio
+import time
+
+async def fetch_data(delay, name):
+  print(f"Coroutine {name}: Starting fetch (simulated delay {delay}s)...")
+  await asyncio.sleep(delay)
+  print(f"Coroutine {name}: Finished fetch.")
+  return f"Data from {name}"
+
+async def main():
+  start = time.perf_counter()
+  task1 = fetch_data(2, "A")
+  task2 = fetch_data(1, "B")
+  task3 = fetch_data(3, "C")
+  results = await asyncio.gather(task1, task2, task3)
+  print(time.perf_counter() - start)
+
+asyncio.run(main())</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Note: calling fetch_data returns a coroutine object. The gather call schedules them and awaits their completion.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700">
+        <li>async def defines a coroutine that can pause at await points.</li>
+        <li>await asyncio.sleep yields control to the event loop; other coroutines run while sleeping.</li>
+        <li>asyncio.gather runs multiple awaitables concurrently and returns their results.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+        <div class="text-sm text-slate-800 mt-1">Three coroutines with delays 2, 1, and 3 seconds complete in about 3 seconds total, demonstrating overlapping I/O waits.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misstep to avoid</div>
+        <p class="text-xs font-medium text-rose-700">Do not run blocking CPU work inside a coroutine; it will block the event loop and stall concurrency.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

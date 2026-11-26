@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-600">›</span>
+      <span class="text-slate-700">invoke_signed</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-3">Program signing via invoke_signed</div>
+    <div class="text-sm text-slate-600 mt-2">How to supply signer_seeds and avoid CPI failures.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Mechanics</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700 space-y-2">
+        <li>Construct signer_seeds as an array of byte slices matching derivation seeds.</li>
+        <li>Append the bump as a single-element byte slice, e.g., &[&[b"escrow", user.key.as_ref(), &[bump]]].</li>
+        <li>Call invoke_signed with those signer_seeds so the runtime can validate the PDA signer.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Debug checklist</div>
+      <div class="mt-2 text-sm text-rose-700">If invoke_signed fails: verify seed content and order, confirm bump is included, and verify the PDA account is owned by your program.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example signer_seeds shape</div>
+      <pre class="mt-3 p-3 bg-gray-50 rounded-lg text-xs card-border"><code>// Rust-style signer seeds for a PDA
+let signer_seeds: &[&[u8]] = &[
+  b"escrow",
+  initializer.key.as_ref(),
+  &[bump_seed],
+];
+invoke_signed(
+  &create_account_ix,
+  accounts,
+  &[&signer_seeds],
+)?;
+</code></pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Wrap seed construction in a helper function shared by client and program to avoid order mismatch bugs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

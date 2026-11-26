@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 3</span>
+      <span>›</span>
+      <span class="text-slate-700">place_order Tests</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Observed Behavior</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="font-bold text-slate-800">Valid case</div>
+          <div class="text-sm text-slate-600 mt-1">place_order succeeds and prints remaining stock. No exception is raised.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="font-bold text-slate-800">Insufficient stock</div>
+          <div class="text-sm text-slate-600 mt-1">The custom InsufficientStockError is raised and can be caught separately to provide a domain-specific response.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 border card-border">
+          <div class="font-bold text-slate-800">Invalid quantity or negative stock</div>
+          <div class="text-sm text-slate-600 mt-1">ValueError communicates invalid numeric values for business rules.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 border card-border">
+          <div class="font-bold text-slate-800">Wrong types</div>
+          <div class="text-sm text-slate-600 mt-1">TypeError prevents the function from proceeding with incompatible types.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Handler patterns</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg">try:
+    place_order("Mouse", 5, 3)
+except InsufficientStockError as e:
+    print(f"Order failed: {e}")
+except ValueError as e:
+    print(f"Order failed: {e}")
+except TypeError as e:
+    print(f"Order failed: {e}")
+except AssertionError as e:
+    print(f"Internal Error: {e}")</pre>
+      <div class="mt-3 text-sm text-slate-600">Catching exceptions in order of specificity lets you respond precisely to the problem. Assertions are last-resort developer checks and should usually be fixed, not handled at runtime.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

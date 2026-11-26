@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Optimistic Locking Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Starter steps</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded mt-2" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+-- Add a version column
+ALTER TABLE products ADD COLUMN version INT DEFAULT 1;
+
+-- Session A: read
+SELECT description, version FROM products WHERE product_id = 123;
+-- suppose version = 5
+
+-- Session B: update and commit
+UPDATE products SET description = 'New by B', version = 6 WHERE product_id = 123 AND version = 5;
+
+-- Session A: attempt update
+UPDATE products SET description = 'New by A', version = 6 WHERE product_id = 123 AND version = 5;
+-- If 0 rows affected -> conflict detected
+      </pre>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Expected behavior</div>
+        <div class="text-sm text-slate-600 mt-2">Session A's update should affect zero rows if Session B committed first; the app must then reload and resolve.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Not checking the rows-affected count allows silent overwrites. Always verify and handle zero-row updates.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Optimistic locking requires explicit conflict detection and a retry or merge strategy in your application.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

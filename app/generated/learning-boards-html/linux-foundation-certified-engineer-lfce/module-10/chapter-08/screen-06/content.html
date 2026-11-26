@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-lg font-semibold text-slate-800">Common strace session</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded-md border" style="white-space:pre-wrap;tab-size:2;"><code># Run and save output
+strace -o output.txt ls -l /tmp
+
+# Summarize system calls
+strace -c ls -l /tmp
+
+# Show time spent per call
+strace -T ls -l /tmp
+
+# Attach to running process
+sudo strace -p &lt;PID&gt;
+
+# Attach and view timestamps
+strace -tt -p &lt;PID&gt;</code></pre>
+    </div>
+    <div class="flex-1 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm text-slate-700 mb-2">Interpreting output</div>
+      <ul class="text-sm text-slate-700 space-y-2 mb-3">
+        <li><strong>openat</strong> shows file access; ENOENT indicates a missing file or wrong path.</li>
+        <li><strong>read/write</strong> patterns indicate I/O behaviour; many small reads suggest buffering issues.</li>
+        <li><strong>poll/nanosleep</strong> point to waiting for events or timers.</li>
+        <li><strong>-c summary</strong> helps find which syscall consumes most time without full trace noise.</li>
+      </ul>
+      <div class="rounded-md bg-amber-50 p-3">
+        <div class="text-xs font-semibold text-amber-700">Example</div>
+        <div class="text-sm text-slate-800 mt-1">Attaching strace to a sleeping loop shows repeated nanosleep calls, confirming the process is idle and waiting rather than busy.</div>
+      </div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-md bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">Misinterpretation risk</div>
+          <div class="text-sm text-slate-700 mt-1">Long traces on busy processes can slow them and change behavior; prefer short, focused samples.</div>
+        </div>
+        <div class="p-3 rounded-md bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">Check yourself</div>
+          <div class="text-sm text-slate-700 mt-1">If you find many small reads, consider buffering strategy before assuming disk slowness.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

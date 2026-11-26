@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Integration Pattern</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Pipeline steps</div>
+      <div class="mt-4 grid grid-cols-4 gap-3 items-center">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800">Devices / Producers</div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-800">Kinesis Data Streams</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-800">Kinesis Data Analytics / Lambda</div>
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Firehose → S3</div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Glue crawlers pick up new parquet objects in S3 and populate the Data Catalog. EMR reads the Glue catalog to run complex batch analytics and writes refined parquet back to S3 for reporting.</div>
+
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        <div class="rounded-xl p-4 bg-white card-border">
+          <div class="text-sm font-semibold">Real-time path</div>
+          <div class="text-xs text-slate-700 mt-2">Kinesis Data Streams → Data Analytics or Lambda for alerts and live dashboards.</div>
+        </div>
+        <div class="rounded-xl p-4 bg-white card-border">
+          <div class="text-sm font-semibold">Batch path</div>
+          <div class="text-xs text-slate-700 mt-2">Firehose delivers to S3 → Glue crawler → EMR jobs for deep aggregation and ML training.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 h-full grid grid-rows-3 gap-4">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-xs text-slate-700 mt-2">IoT telemetry streams from devices. Use Data Analytics to compute rolling averages, and Firehose to create columnar files for historical analysis.</div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-4 card-border text-rose-700">
+        <div class="text-sm font-semibold">Mistake to avoid</div>
+        <div class="text-xs mt-2">Treating this as a single system. Design separately for real-time SLA and batch throughput and instrument both paths independently.</div>
+      </div>
+
+      <div class="rounded-xl p-4 bg-emerald-50 text-emerald-800 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider">Key Takeaway</div>
+        <div class="text-sm mt-2">Design hybrid pipelines: use streaming for immediacy and S3 + Glue + EMR for deep, cost-effective analytics on historical data.</div>
+      </div>
+    </div>
+  </div>
+</div>

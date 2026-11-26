@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-3/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Image widget</h3>
+      <p class="text-sm text-slate-700 mt-2">Use Image.asset, Image.network, Image.file, or Image.memory depending on where the image comes from. Always plan for loading and errors.</p>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Why placeholders matter</div>
+        <div class="mt-2">Showing a loading indicator or a static placeholder avoids sudden layout jumps when the remote image arrives and provides feedback that content is on its way.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example code</div>
+        <pre class="bg-slate-900 text-white rounded-md p-3 mt-2" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+Image.network(
+  'https://via.placeholder.com/150',
+  width: 150,
+  height: 150,
+  fit: BoxFit.cover,
+  loadingBuilder: (context, child, loadingProgress) {
+    if (loadingProgress == null) return child;
+    return Center(child: CircularProgressIndicator(value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null));
+  },
+  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+)
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2 pl-4">
+        <li>Constrain width and height explicitly for predictable layout.</li>
+        <li>Choose BoxFit to preserve aspect ratio and composition.</li>
+        <li>Use loadingBuilder and errorBuilder for network images.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Plan for latency and failures; placeholders and explicit sizes keep the UI stable and performant.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

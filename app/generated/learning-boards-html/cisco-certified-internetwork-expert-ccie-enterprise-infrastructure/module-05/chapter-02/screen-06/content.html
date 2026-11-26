@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">IOS DHCP Server</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Commands: create pool and exclude addresses</div>
+      <div class="mt-3 text-sm text-slate-600">Below is a canonical example. Use excluded-address to protect static infrastructure addresses before creating a pool.</div>
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 code border border-[rgba(226,232,240,0.9)]">
+<pre><code>ip dhcp excluded-address 192.168.10.1
+ip dhcp excluded-address 192.168.20.1
+ip dhcp pool DHCP_POOL_VLAN10
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+ip dhcp pool DHCP_POOL_VLAN20
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 8.8.4.4
+</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">After applying these commands, verify leases with show ip dhcp binding. If bindings are absent, re-check the network and mask in the pool and ensure client VLAN interfaces are up.</div>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical advice</div>
+      <ul class="list-disc pl-4 mt-2 text-sm text-slate-600">
+        <li>Always exclude interface IPs and server IPs to avoid conflicts.</li>
+        <li>Set a reasonable lease time for client churn: short for labs, longer in production.</li>
+        <li>Use consistent DNS settings to avoid fragmented name resolution behavior across clients.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-[12px] text-slate-800 mt-1">Default-router in the pool does not need to match the server's own IP; it must match the client's gateway on that subnet.</div>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-[12px] text-slate-800 mt-1">Correctly exclude static IPs and match pool network/mask to the VLAN to ensure clients receive addresses.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

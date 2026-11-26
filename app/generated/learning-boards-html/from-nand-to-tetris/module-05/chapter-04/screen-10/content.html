@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="h-full flex gap-4">
+    <div class="w-2/3 rounded-xl bg-white border border-slate-100 p-4 shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">While loop implementation</div>
+      <div class="text-sm text-slate-600 mt-2">Loop structure that repeats while the condition holds.</div>
+
+      <div class="mt-4 rounded-lg border border-slate-100 p-3 bg-white">
+        <div class="text-sm font-semibold text-slate-800">VM example (chapter)</div>
+        <pre class="mt-2 text-sm text-slate-700" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">label WHILE_START
+push local 0    // i
+push local 1    // n
+lt
+if-goto WHILE_END
+push local 2    // sum
+push local 0    // i
+add
+pop local 2
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_START
+label WHILE_END</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Translate step-by-step: declare (F$WHILE_START), translate the comparison and if-goto to pop-and-test with @F$WHILE_END and D;JNE (or D;JE Q depending on which sense is used), emit the body, then emit @F$WHILE_START and 0;JMP to loop. Run the generated assembly with small inputs to confirm iteration counts match expectations.</div>
+    </div>
+
+    <div class="w-1/3 rounded-xl bg-white border border-slate-100 p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Testing tip</div>
+      <div class="text-sm text-slate-700 mt-2">Use simple initial values so you can easily count loop iterations in the simulator. If the loop doesn't terminate, inspect whether the loop variable is updated or whether the comparison was emitted with the wrong sense.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A while loop is a small composition of label, conditional test that may jump to the end, body, and an unconditional jump back to the start; translate and test each part carefully.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Deploying chrony with Ansible</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+      <div class="font-semibold text-slate-800">Playbook flow</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc list-inside">
+        <li>Install chrony package.</li>
+        <li>Deploy chrony.conf.j2 via ansible.builtin.template and set owner, group, mode.</li>
+        <li>Notify handler to restart chronyd.</li>
+        <li>Ensure chronyd service is enabled and started.</li>
+        <li>Verify with chronyc sources.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-600">Remember to allow a few minutes for synchronization and to check firewall rules if no sources appear.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+      <div class="font-semibold text-slate-700">Playbook snippet</div>
+      <pre class="bg-slate-900 text-green-200 p-3 rounded-md mt-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">- name: Ensure chrony package is installed
+  ansible.builtin.package:
+    name: chrony
+    state: present
+
+- name: Deploy chrony.conf from template
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart chronyd
+
+- name: Ensure chronyd service is running and enabled
+  ansible.builtin.systemd:
+    name: chronyd
+    state: started
+    enabled: yes
+
+handlers:
+  - name: Restart chronyd
+    ansible.builtin.systemd:
+      name: chronyd
+      state: restarted
+      daemon_reload: yes</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

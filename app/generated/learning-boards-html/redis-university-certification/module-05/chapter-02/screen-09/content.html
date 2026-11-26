@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term {background:#071430;color:#e6eef8;border-radius:8px;padding:12px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Simulation</span>
+    <span>›</span>
+    <span>Master failure</span>
+    <span>›</span>
+    <span class="text-slate-700">SHUTDOWN and observe</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 border border-slate-100">
+      <div class="text-sm font-bold text-slate-800">Master shutdown</div>
+      <div class="mt-3 term">
+<pre class="mono"># On master
+redis-cli -p 6379
+SHUTDOWN
+
+# On Sentinel loop
+while true; do redis-cli -p 26379 SENTINEL masters; sleep 1; done</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Look for flags containing sdown then odown, and finally the new master ip:port in the masters output.</div>
+    </div>
+    <div class="rounded-xl bg-white p-4 border border-slate-100">
+      <div class="text-sm font-bold text-slate-800">Verification</div>
+      <div class="mt-3 text-sm text-slate-600">After promotion, connect to the new master (for example, redis-cli -p 6380) and run INFO replication. Confirm role: master, and that the other replica follows the new master.</div>
+      <div class="mt-4 p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">A controlled SHUTDOWN and observation of Sentinel outputs is the fastest way to learn failover behavior and to tune your timeouts.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 overflow-auto">
+      <div class="text-sm font-bold">Node.js minimal app (save as app.js)</div>
+      <pre class="mt-3 rounded-md bg-slate-50 p-3 text-xs overflow-auto border"><code>// /var/www/app.example.com/html/app.js
+const http = require('http');
+const port = 3000;
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello from Node.js backend!
+');
+});
+server.listen(port, '127.0.0.1', () => {
+  console.log(`Server running at http://127.0.0.1:${port}/`);
+});
+
+# Run in background: node /var/www/app.example.com/html/app.js &</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Run the app bound to 127.0.0.1 to avoid exposing the backend directly. Then create Nginx server blocks and validate.</div>
+    </div>
+    <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 overflow-auto">
+      <div class="text-sm font-bold">Nginx server blocks (static + proxy)</div>
+      <pre class="mt-3 rounded-md bg-slate-50 p-3 text-xs overflow-auto border"><code>server {
+    listen 80;
+    server_name static.example.com;
+    root /var/www/static.example.com/html;
+    index index.html;
+}
+
+server {
+    listen 80;
+    server_name app.example.com;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+# Test: sudo nginx -t && sudo systemctl reload nginx
+# Then obtain certificates: sudo certbot --nginx -d static.example.com -d app.example.com</code></pre>
+    </div>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+      <div class="text-sm text-slate-700 mt-1">Use /etc/hosts for local testing or set DNS A records to your server IP for real domain validation by certbot.</div>
+    </div>
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Bind backends to localhost, set proxy headers, test configs, and obtain certificates to complete the lab setup securely.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

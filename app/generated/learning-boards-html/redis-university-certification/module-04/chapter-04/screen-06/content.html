@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Read & Rank</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Top-N and per-player</div>
+      <div class="text-sm text-slate-600 mt-2">Commands for retrieving leaders and ranks, and how to present them.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold text-slate-700">Common queries</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+            <li>ZREVRANGE key 0 N-1 WITHSCORES → top N members with scores.</li>
+            <li>ZREVRANK key member → 0-based rank with highest first.</li>
+            <li>ZSCORE key member → numeric score or null if not present.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Presentation note</div>
+          <div class="text-sm text-slate-700 mt-2">Add one to Redis rank for human-readable 1-based ranking.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example & pagination</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded card-border text-sm" style="white-space:pre-wrap; tab-size:2"># Top 3 players
+r.zrevrange('game:leaderboard', 0, 2, withscores=True)
+
+# Player rank and score
+score = r.zscore('game:leaderboard', 'Alice')
+rank = r.zrevrank('game:leaderboard', 'Alice')  # 0-based
+if score is not None:
+  print('Rank', rank + 1, 'Score', int(score))</pre>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Gotcha</div>
+          <div class="text-sm text-slate-700 mt-1">Avoid returning entire large sets; use offsets and limits to paginate top-N results.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+          <div class="text-sm text-slate-700 mt-1">Use ZREVRANGE for leaderboards and convert 0-based ranks to human-friendly values.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

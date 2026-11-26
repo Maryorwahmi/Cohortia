@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Junos IPsec Elements</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-[72%]">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Configuration structure</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Define ike proposal (algorithms, DH, lifetime).</li>
+        <li>Create ike policy and set authentication method.</li>
+        <li>Define ipsec proposal (esp, encryption, hash, lifetime).</li>
+        <li>Create ipsec policy and enable PFS if desired.</li>
+        <li>Configure ike gateway and vpn binding to st0.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow define → bind → verify: proposals define algorithms, policies bind them, and gateway/vpn stanzas activate the tunnel.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">CLI template (guided)</div>
+      <pre class="mt-2 rounded-md bg-slate-900 text-white p-3" style="white-space:pre-wrap;tab-size:2;"><code># Enter configuration mode
+edit
+
+# 1. IKE Phase 1 proposal
+set security ike proposal my-ike-prop authentication-method pre-shared-keys
+set security ike proposal my-ike-prop authentication-algorithm sha-256
+set security ike proposal my-ike-prop encryption-algorithm aes-128-cbc
+set security ike proposal my-ike-prop dh-group group2
+set security ike proposal my-ike-prop lifetime-seconds 86400
+
+# 2. IKE policy
+set security ike policy my-ike-policy mode main
+set security ike policy my-ike-policy proposals my-ike-prop
+set security ike policy my-ike-policy pre-shared-key ascii-text "CohortiaVPNpass!"
+
+# 3. IPsec Phase 2 proposal
+set security ipsec proposal my-ipsec-prop protocol esp
+set security ipsec proposal my-ipsec-prop authentication-algorithm hmac-sha-256-96
+set security ipsec proposal my-ipsec-prop encryption-algorithm aes-128-cbc
+set security ipsec proposal my-ipsec-prop lifetime-seconds 3600
+
+# 4. IPsec policy with PFS
+set security ipsec policy my-ipsec-policy proposals my-ipsec-prop
+set security ipsec policy my-ipsec-policy perfect-forward-secrecy keys group2
+
+# 5. IKE gateway and VPN binding
+set security ike gateway remote-gw ike-policy my-ike-policy
+set security ike gateway remote-gw address 203.0.113.1
+set security ipsec vpn my-site-to-site-vpn bind-interface st0.0
+set security ipsec vpn my-site-to-site-vpn ike gateway remote-gw
+set security ipsec vpn my-site-to-site-vpn ike ipsec-policy my-ipsec-policy
+
+# commit and verify
+commit and-quit
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note: this template is a minimal starting point; routing for st0 and security policies must be configured separately to permit traffic through the tunnel.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

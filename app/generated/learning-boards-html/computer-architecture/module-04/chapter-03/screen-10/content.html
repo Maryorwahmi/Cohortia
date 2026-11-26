@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Forwarding detection</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Rule summary</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>If EX.src == EX_MEM.dest and EX_MEM.regWrite then forward EX_MEM.value.</li>
+        <li>Else if EX.src == MEM_WB.dest and MEM_WB.regWrite then forward MEM_WB.value.</li>
+        <li>Prioritize the freshest producer and avoid forwarding from loads in EX_MEM if the data is not yet available.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Implementation notes</div>
+        <div class="text-sm text-slate-600 mt-2">Comparators are simple equality checks on register IDs; multiplexers select between register file data and forwarded values. Extra control bits indicate whether the pipeline stage's instruction will write the register so false forwards are avoided.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Pseudo detection snippet</div>
+      <pre class="mt-2 bg-slate-100 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;"># detection for source A
+if EX_MEM.regWrite and EX_MEM.dest != 0 and EX_MEM.dest == EX.srcA:
+  forwardA = EX_MEM.value
+elif MEM_WB.regWrite and MEM_WB.dest != 0 and MEM_WB.dest == EX.srcA:
+  forwardA = MEM_WB.value
+else:
+  forwardA = registerFile[EX.srcA]</pre>
+      <div class="text-sm text-slate-600 mt-2">This snippet prioritizes EX_MEM because it holds the most recent computed result; handle srcB analogously.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

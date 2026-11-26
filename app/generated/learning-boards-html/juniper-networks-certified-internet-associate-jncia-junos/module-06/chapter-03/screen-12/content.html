@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, Menlo, monospace;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid rgba(226,232,240,0.9);} .step{padding:10px;border-radius:10px;background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Configure Zones and Policies</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="card rounded-xl p-4 h-2/3">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Activity steps</div>
+        <div class="mt-3 grid gap-3">
+          <div class="step">1) Enter configuration mode. Define zones external and internal and assign interfaces.</div>
+          <div class="step">2) Set host-inbound-traffic: be restrictive on external interfaces.</div>
+          <div class="step">3) Create policy internal-to-external to permit needed traffic.</div>
+          <div class="step">4) Create policy external-to-internal-web to permit HTTP/HTTPS to the web server address.</div>
+          <div class="step">5) Commit and verify with show security zones, show security policies, and show security flow session.</div>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl card h-1/3">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Verification</div>
+        <div class="mt-2 text-sm text-slate-800">Generate test traffic, then inspect sessions to confirm which policy matched. Adjust order or match conditions if necessary.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="card rounded-xl p-4 h-1/2">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Starter code template</div>
+        <pre class="code">edit
+
+set security zones security-zone external interfaces ge-0/0/0.0 host-inbound-traffic system-services ping
+set security zones security-zone internal interfaces ge-0/0/1.0 host-inbound-traffic system-services all
+
+set security policies from-zone internal to-zone external policy internal-to-external match source-address any
+set security policies from-zone internal to-zone external policy internal-to-external match destination-address any
+set security policies from-zone internal to-zone external policy internal-to-external match application any
+set security policies from-zone internal to-zone external policy internal-to-external then permit
+
+set security address-book global address web-server 172.16.1.10/32
+set security policies from-zone external to-zone internal policy external-to-internal-web match source-address any
+set security policies from-zone external to-zone internal policy external-to-internal-web match destination-address web-server
+set security policies from-zone external to-zone internal policy external-to-internal-web match application junos-http
+set security policies from-zone external to-zone internal policy external-to-internal-web match application junos-https
+set security policies from-zone external to-zone internal policy external-to-internal-web then permit
+
+commit and-quit</pre>
+      </div>
+
+      <div class="card rounded-xl p-4 h-1/2">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Troubleshooting hint</div>
+        <div class="mt-2 text-sm text-slate-800">If a flow is denied, confirm zone membership first, then policy order, then whether match conditions actually fit the traffic.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

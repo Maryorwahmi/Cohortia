@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">ALTER TABLE</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-900 mb-2">Common ALTER operations</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+-- Add a new column
+ALTER TABLE products
+ADD COLUMN weight_kg NUMERIC(5, 2);
+
+-- Change the data type (may fail if data doesn't conform)
+ALTER TABLE products
+ALTER COLUMN description TYPE VARCHAR(1000);
+
+-- Rename a column
+ALTER TABLE products
+RENAME COLUMN stock_quantity TO available_stock;
+
+-- Add a CHECK constraint
+ALTER TABLE products
+ADD CONSTRAINT chk_weight_positive CHECK (weight_kg &gt;= 0);
+
+-- Drop a constraint
+ALTER TABLE products
+DROP CONSTRAINT chk_weight_positive;
+      </pre>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-amber-50 border" style="border-color: rgba(245,166,35,0.15)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Operational guidance</div>
+        <div class="text-sm text-slate-800 mt-2">When adding NOT NULL to existing tables, add as nullable, backfill in batches, then set NOT NULL. Test ALTERs on staging first.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Concrete example</div>
+        <div class="text-sm text-slate-800 mt-2">Changing description to VARCHAR(1000) is a narrowing operation and can fail or require validation of existing rows before altering the type.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Plan ALTER operations, anticipate table rewrites, and use backfills to make non-disruptive changes on production systems.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

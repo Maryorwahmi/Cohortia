@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7.8</span>
+    <span>›</span>
+    <span>Chapter 7.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Scoring Script and Environment</span>
+  </div>
+  <div class="flex-grow flex flex-row gap-6">
+    <div class="w-1/2 flex flex-col justify-center">
+      <div class="text-lg font-bold text-slate-800 mb-3">`score.py` - Inference Logic</div>
+      <pre class="w-full h-48 overflow-y-auto text-xs font-mono bg-slate-800 text-white p-3 rounded-lg shadow-inner border border-slate-700">
+import json
+import numpy as np
+import os
+import joblib # For loading scikit-learn models
+
+# Called when the service is loaded
+def init():
+    global model
+    # AZUREML_MODEL_DIR is an environment variable created during deployment.
+    # It points to the directory containing the model file.
+    model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'churn_model.pkl')
+    model = joblib.load(model_path)
+    print("Model loaded successfully.")
+
+# Called when a request is made to the service
+def run(raw_data):
+    try:
+        data = json.loads(raw_data)['data'] # Expects {'data': [[feature1, feature2, ...]]}
+        data = np.array(data)
+        result = model.predict(data)
+        return json.dumps({"prediction": result.tolist()})
+    except Exception as e:
+        error = str(e)
+        return json.dumps({"error": error})
+</pre>
+    </div>
+    <div class="w-1/2 flex flex-col justify-center">
+      <div class="text-lg font-bold text-slate-800 mb-3">`conda_env.yml` - Dependencies</div>
+      <pre class="w-full h-48 overflow-y-auto text-xs font-mono bg-slate-800 text-white p-3 rounded-lg shadow-inner border border-slate-700">
+name: churn-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - scikit-learn=1.0.2 # Ensure this matches the version used for training
+  - numpy=1.21.6
+  - pip=21.2.4
+  - pip:
+    - azureml-defaults
+    - inference-schema[numpy-pandas]
+    - joblib # For model loading
+</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.95)} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Create the Replica</div>
+      <div class="text-sm text-slate-600 mb-3">Run the create-db-instance-read-replica command in the destination region using the source DB ARN.</div>
+
+      <div class="rounded-lg bg-white p-3 card-border mb-3">
+        <div class="text-sm font-semibold text-slate-800 mb-2">CLI Example</div>
+        <pre class="text-sm bg-slate-900 text-white p-3 rounded-md"><code>aws rds create-db-instance-read-replica \
+  --db-instance-identifier my-dr-mysql-replica \
+  --source-db-instance-identifier arn:aws:rds:us-west-2:ACCOUNT_ID:db:my-primary-mysql-db \
+  --destination-region us-east-1 \
+  --db-instance-class db.r5.large \
+  --no-multi-az \
+  --region us-east-1</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-amber-700">Verification</div>
+        <div class="text-sm text-slate-700 mt-1">Use describe-db-instances to confirm the replica's status and check CloudWatch ReplicaLag under AWS/RDS namespace.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Monitor ReplicaLag</div>
+      <div class="text-sm text-slate-600 mb-3">Set a CloudWatch alarm scoped to the replica's DBInstanceIdentifier and choose a period and threshold appropriate for your RPO.</div>
+
+      <div class="rounded-lg bg-white p-3 card-border mb-3">
+        <div class="text-sm font-semibold text-slate-800 mb-2">CloudWatch Alarm CLI</div>
+        <pre class="text-sm bg-slate-900 text-white p-3 rounded-md"><code>aws cloudwatch put-metric-alarm \
+  --alarm-name "RDS-DR-ReplicaLag-High" \
+  --alarm-description "Alarm when RDS Read Replica lag exceeds 60 seconds" \
+  --metric-name "ReplicaLag" \
+  --namespace "AWS/RDS" \
+  --statistic "Maximum" \
+  --period 60 \
+  --threshold 60 \
+  --comparison-operator "GreaterThanThreshold" \
+  --dimensions "Name=DBInstanceIdentifier,Value=my-dr-mysql-replica" \
+  --evaluation-periods 1 \
+  --alarm-actions "arn:aws:sns:us-east-1:ACCOUNT_ID:MySNSTopic" \
+  --region us-east-1</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-semibold text-emerald-700">Operational Tip</div>
+        <div class="text-sm text-slate-700 mt-1">Create the alarm in the DR region and test it to ensure notification routing works during incidents.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

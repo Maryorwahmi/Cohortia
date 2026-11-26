@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="h-full flex gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Value vs Reference Types</h3>
+      <p class="text-sm text-slate-600 mt-3">A precise definition and practical implications for storage and gas.</p>
+
+      <div class="mt-4 space-y-3 flex-1">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">Value types copy data: integer, bool, address.</div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-700">Reference types copy pointers: arrays, structs, mappings.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">Storage location matters: storage, memory, calldata.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick value types for independent small data. Use reference types intentionally and avoid copying large structures.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-md">
+        <pre class="text-sm font-mono text-slate-800" style="white-space:pre-wrap;tab-size:2">// Storage reference vs memory copy
+uint[] public storageArray;
+
+function addThenCopy() public {
+  storageArray.push(1); // modifies storage
+  uint[] memory copyArray = storageArray; // copies values into memory -- gas cost
+  // modifying copyArray does not change storageArray
+}
+</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="p-3 rounded-md bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Misconception</div>
+          <p class="mt-2 text-sm text-slate-600">Assuming a reference assignment makes an independent snapshot. In reality you still reference the same storage unless you explicitly copy to memory.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

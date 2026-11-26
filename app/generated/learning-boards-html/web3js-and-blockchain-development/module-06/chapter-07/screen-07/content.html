@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full"> 
+    <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">useEffect subscription pattern</div>
+
+      <div class="mt-4 space-y-3"> 
+        <div class="flex items-start gap-3"> 
+          <div class="rounded-full bg-blue-50 p-2 text-blue-700"> 
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4"> 
+              <path d="M12 2v4"></path>
+            </svg>
+          </div>
+          <div class="text-sm text-slate-800">Check contract instance and dependencies before subscribing to avoid runtime errors.</div>
+        </div>
+
+        <div class="flex items-start gap-3"> 
+          <div class="rounded-full bg-violet-50 p-2 text-violet-700"> 
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4"> 
+              <path d="M3 12h18"></path>
+            </svg>
+          </div>
+          <div class="text-sm text-slate-800">Attach .on('data') to update state, and .on('error') to handle problems gracefully.</div>
+        </div>
+
+        <div class="flex items-start gap-3"> 
+          <div class="rounded-full bg-emerald-50 p-2 text-emerald-700"> 
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4"> 
+              <path d="M5 12h14"></path>
+            </svg>
+          </div>
+          <div class="text-sm text-slate-800">Return cleanup that calls subscription.unsubscribe() to remove the listener on unmount or dependency change.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border"> 
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Pitfall</div>
+        <div class="text-sm text-slate-800 mt-1">If your effect re-runs frequently due to unstable dependencies, you may create multiple subscriptions. Stabilize dependencies with useCallback or refs.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]"> 
+      <div class="text-sm font-bold text-slate-700">Concrete snippet</div>
+      <pre class="mt-3 rounded bg-slate-50 p-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2;">useEffect(() =&gt; {
+  if (simpleStorageContract) {
+    const subscription = simpleStorageContract.events.DataChanged()
+      .on('data', event =&gt; setStoredData(event.returnValues.newData))
+      .on('error', err =&gt; console.error(err));
+
+    return () =&gt; {
+      if (subscription && subscription.unsubscribe) subscription.unsubscribe();
+    };
+  }
+}, [simpleStorageContract]);</pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Place subscriptions in useEffect, stabilize dependencies, and always unsubscribe in the cleanup to keep listeners predictable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,Helvetica Neue,monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Indexes and Efficient Cypher</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Comparison</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-1">Indexed lookup vs full scan</h2>
+      <p class="text-sm text-slate-600 mt-2">Index-based filters find nodes quickly; full scans examine many nodes and slow queries as data grows.</p>
+
+      <div class="mt-3">
+        <div class="text-sm text-slate-700">Create a property index example:</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">CREATE INDEX person_email_index FOR (p:Person) ON (p.email)</pre>
+        <div class="text-sm text-slate-600 mt-3">Uniqueness constraint example that also helps performance:</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">CREATE CONSTRAINT unique_person_email FOR (p:Person) REQUIRE p.email IS UNIQUE</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Profiling tips</div>
+        <ul class="list-disc pl-4 mt-2 text-sm text-slate-600 space-y-2">
+          <li>Use EXPLAIN and PROFILE to inspect how Cypher executes your query.</li>
+          <li>Ensure indexed predicates appear early in MATCH clauses.</li>
+          <li>Avoid MATCH patterns that are not connected; they can create Cartesian products.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example scenario</div>
+      <p class="text-sm text-slate-600 mt-2">Suppose you must find a user by email and then list their friends. Use an indexed email lookup first, then match friends from that node. This keeps the search narrow and predictable as the database grows.</p>
+
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Indexes and constraints are low-effort, high-impact changes. Profile before and after to validate gains.</p>
+        </div>
+        <div class="rounded-xl bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Adding indexes without reviewing query patterns can produce little benefit. Pair schema changes with query tuning.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

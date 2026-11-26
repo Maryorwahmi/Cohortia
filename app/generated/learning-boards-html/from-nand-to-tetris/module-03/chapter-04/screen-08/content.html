@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Hands-on: Draw Line</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Algorithm</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Compute base = 16384 + 128 * 32.</li>
+        <li>Set D = 0xFFFF (all bits 1).</li>
+        <li>Repeat 32 times: M = D; A = A + 1.</li>
+      </ol>
+
+      <div class="mt-3 text-sm text-slate-700">The loop writes full words so adjacent pixels join to form a continuous line.</div>
+    </div>
+
+    <div class="flex-1 card p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Conceptual assembly outline</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-slate-100 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// compute base address for row 128
+@16384
+D = A
+@128
+D = D + A*32  // conceptual: compute 16384 + 128*32
+@SCREEN_BASE
+A = D
+// set all bits
+D = -1         // D = 0xFFFF
+@COUNT
+M = 32         // conceptual counter
+(WRITE_LOOP)
+M = D           // write 0xFFFF
+@NEXT
+A = A + 1       // advance to next word
+...             // decrement counter and loop
+      </pre>
+
+      <div class="mt-3 text-xs text-slate-600">Note: This outline is conceptual; the simulator uses standard Hack assembly instructions to implement arithmetic and looping.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

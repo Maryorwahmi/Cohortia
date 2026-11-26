@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Prefix-list</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Define and reuse prefix-list</div>
+      <p class="text-sm text-slate-600 mt-3">Prefix-lists contain exact prefixes. Reference them from a term's 'from' to create precise matches.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border shadow-sm">
+          <div class="text-xs font-semibold text-slate-600">Configuration example</div>
+          <pre class="code mt-2 text-sm bg-slate-50 p-3 rounded-md border text-slate-800">policy-options {
+    prefix-list INTERNAL_NETS {
+        172.16.0.0/16;
+        192.168.100.0/24;
+    }
+}
+
+policy-statement FILTER_AND_TAG {
+    term MATCH_INTERNAL_OSPF {
+        from {
+            protocol ospf;
+            prefix-list INTERNAL_NETS;
+        }
+        then accept;
+    }
+}</pre>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-xs text-slate-600 mt-1">If OSPF has learned 192.168.100.0/24, the term will match. 192.168.100.128/25 would not match unless listed explicitly.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+          <div class="text-xs text-slate-600 mt-1">Expecting prefix-list to match descendants. Use route-filter orlonger for that behavior.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">When to use prefix-list</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Exact control of a small, managed set of prefixes.</li>
+        <li>When multiple policies need the same prefix set — reuse the named list.</li>
+        <li>When you need minimal risk: only explicitly listed prefixes are matched.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use prefix-list for explicit, reusable exact matches. For subnets or ranges, prefer route-filter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

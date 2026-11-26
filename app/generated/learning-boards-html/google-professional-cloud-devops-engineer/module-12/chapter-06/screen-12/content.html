@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab: blocked ICMP</span>
+    </div>
+
+    <div class="flex gap-4 h-[72%]">
+      <div class="w-1/2 panel p-4 flex flex-col overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Step-by-step commands</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2;"><code>gcloud compute instances create instance-a --zone=us-central1-a --machine-type=e2-micro --image-family=debian-11 --image-project=debian-cloud --tags=instance-a-tag
+
+gcloud compute instances create instance-b --zone=us-central1-a --machine-type=e2-micro --image-family=debian-11 --image-project=debian-cloud --tags=instance-b-tag
+
+gcloud compute firewall-rules create block-icmp-a-to-b \
+  --network=default \
+  --action=DENY \
+  --direction=EGRESS \
+  --rules=icmp \
+  --priority=1000 \
+  --destination-ranges=10.128.1.2/32 \
+  --source-tags=instance-a-tag</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">SSH into instance-a and run ping to verify failure. Then create a Connectivity Test from the Network Intelligence Center with source set to instance-a and destination to 10.128.1.2 using ICMP. The test will report the blocking firewall rule.</div>
+      </div>
+
+      <div class="w-1/2 panel p-4 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Inspect logs</div>
+        <div class="text-sm text-slate-600 mt-2">If VPC Flow Logs are enabled, query Cloud Logging with:</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2;"><code>resource.type="gce_subnetwork" AND jsonPayload.connection.src_ip="10.128.0.2" AND jsonPayload.connection.dest_ip="10.128.1.2" AND jsonPayload.connection.protocol=1</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Look for entries where jsonPayload.connection.is_allowed=false and jsonPayload.reporter="FIREWALL" to confirm the deny and its timestamp. Then delete the firewall rule with the provided gcloud command and re-run your connectivity checks to validate the resolution.</div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Reflection prompt</div>
+            <p class="text-xs font-medium text-slate-800">Which single evidence item would you include in a remediation ticket to justify changing the firewall rule?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

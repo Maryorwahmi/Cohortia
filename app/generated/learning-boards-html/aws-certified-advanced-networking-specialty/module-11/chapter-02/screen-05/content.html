@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Distribution Components</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+    <div class="w-2/5 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Origins, Behaviors, Cache Policies</h3>
+      <p class="text-sm text-slate-600 mt-3">Use behaviors to map path patterns to origins and choose cache policies to control TTLs and forwarding.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-sky-50 card-border">
+          <div class="text-sm font-semibold text-slate-800">Behavior precedence</div>
+          <div class="text-sm text-slate-600 mt-1">More specific path patterns take priority; order your behaviors accordingly.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-sm font-semibold text-slate-800">Forwarding decisions</div>
+          <div class="text-sm text-slate-600 mt-1">Forward headers/cookies only when necessary to avoid cache fragmentation and stale content.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Separate static and dynamic paths into different behaviors to apply appropriate caching and forwarding rules.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 pl-4 border-l card-border min-h-0 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Concrete distribution example</div>
+        <div class="mt-3 grid gap-3">
+          <div class="p-3 rounded bg-white border card-border">
+            <div class="text-sm font-medium text-slate-800">Origins</div>
+            <div class="text-sm text-slate-600 mt-1">my-website-bucket (S3), my-api-alb (ALB)</div>
+          </div>
+
+          <div class="p-3 rounded bg-white border card-border">
+            <div class="text-sm font-medium text-slate-800">Behaviors</div>
+            <div class="text-sm text-slate-600 mt-1">Default /* → S3 with TTL 24 hours; /api/* → ALB with TTL=0 and all headers forwarded.</div>
+          </div>
+
+          <div class="p-3 rounded bg-white border card-border">
+            <div class="text-sm font-medium text-slate-800">Cache policy</div>
+            <div class="text-sm text-slate-600 mt-1">Use a caching policy with selective header forwarding and appropriate TTLs per behavior.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-2">Caching dynamic API responses for long TTLs can return stale, incorrect data to users.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-2">Use separate cache policies for static and dynamic behaviors to keep rules explicit and auditable.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

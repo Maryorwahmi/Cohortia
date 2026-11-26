@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .safe-pre{ white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; } :root{--slate-100:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Junos Redistribution Example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-4" style="border-color:var(--slate-100);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Config template</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 border" style="border-color:var(--slate-100);">
+        <pre class="safe-pre text-sm"># Define a policy to select static routes
+set policy-options policy-statement REDISTRIBUTE_STATIC term 1 from protocol static
+set policy-options policy-statement REDISTRIBUTE_STATIC term 1 then accept
+
+# Apply the policy to OSPF and specify metric and metric-type
+set protocols ospf export REDISTRIBUTE_STATIC
+set protocols ospf export REDISTRIBUTE_STATIC metric 200 metric-type 1
+
+# Interface and area examples
+set interfaces ge-0/0/0 unit 0 family inet address 10.0.0.1/24
+set protocols ospf area 0.0.0.0 interface ge-0/0/0.0</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-100);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+          <p class="text-sm text-slate-600 mt-2">Configure static 172.16.10.0/24 on R1, create REDISTRIBUTE_STATIC to match protocol static, and export with metric 200 metric-type 1 so internal cost is added.</p>
+        </div>
+        <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-100);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <p class="text-sm text-slate-600 mt-2">Creating a policy but not applying it via set protocols ospf export — no redistribution will occur.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-4 flex flex-col" style="border-color:var(--slate-100);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</div>
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="mb-2">On the ASBR: show ospf database external — confirm Type 5 LSA for redistributed prefix.</div>
+        <div class="mb-2">On internal router: show route protocol ospf — confirm the external route, metric, and whether it shows Ext1 or Ext2.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Policies control what is redistributed; export with metric and metric-type controls how OSPF treats that external route.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Inserts & Selects</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Sample Inserts</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>INSERT INTO articles_by_author (author_id, article_id, publish_date, article_title, article_content)
+VALUES (a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11, b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12, '2023-10-26 12:00:00+0000', 'Cassandra Best Practices', 'Content...');
+
+INSERT INTO comments_by_article (article_id, comment_id, comment_text, user_id, user_name, comment_time)
+VALUES (b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12, now(), 'Great article!', c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13, 'UserX', '2023-10-26 13:00:00+0000');</code></pre>
+      <div class="text-xs text-slate-500 mt-2">Insert statements populate each table with the denormalized fields needed for display.</div>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Sample Selects</div>
+      <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded text-sm"><code>SELECT article_title, publish_date FROM articles_by_author WHERE author_id = a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11;
+SELECT user_name, comment_text FROM comments_by_article WHERE article_id = b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12;
+SELECT activity_type, related_article_title FROM user_activity_feed WHERE user_id = c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13;</code></pre>
+      <div class="text-sm text-slate-700 mt-3">Each select uses a partition key so Cassandra returns a single partition and clustering order gives the most recent rows first.</div>
+    </div>
+    <div class="col-span-1 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Runtime note</div>
+      <p class="text-sm text-slate-700 mt-2">When you insert, write denormalized copies for every table that needs that data. This ensures reads are cheap and fast.</p>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">If a select requires a full scan or ALLOW FILTERING, create a new table to serve that query instead.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

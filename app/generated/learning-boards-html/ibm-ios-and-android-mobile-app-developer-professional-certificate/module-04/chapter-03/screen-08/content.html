@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Counter example</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[calc(100%-40px)]">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Model (lib/models/counter_model.dart)</div>
+        <pre class="p-3 rounded border bg-slate-50"><code>import 'package:flutter/foundation.dart';
+
+class CounterModel extends ChangeNotifier {
+  int _count = 0;
+
+  int get count =&gt; _count;
+
+  void increment() {
+    _count++;
+    notifyListeners();
+  }
+
+  void decrement() {
+    _count--;
+    notifyListeners();
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Provider (lib/main.dart)</div>
+        <pre class="p-3 rounded border bg-slate-50"><code>void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) =&gt; CounterModel(),
+      child: const MyApp(),
+    ),
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="card p-4 col-span-2">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Consume (lib/screens/counter_screen.dart)</div>
+        <pre class="p-3 rounded border bg-slate-50"><code>final counter = context.watch&lt;CounterModel&gt;();
+
+// UI shows counter.count
+// Buttons call:
+context.read&lt;CounterModel&gt;().increment();
+context.read&lt;CounterModel&gt;().decrement();
+</code></pre>
+        <div class="mt-3 text-sm text-slate-600">This pattern keeps UI code simple: watch for display, read for actions. Avoid using watch inside event handlers.</div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

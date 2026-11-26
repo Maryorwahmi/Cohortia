@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-panel{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px}</style>
+
+  <div class="flex gap-6 h-full">
+    <!-- Left: explanation -->
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h2 class="text-xl font-bold text-slate-900">Map and reduce with STL algorithms</h2>
+      <p class="text-sm text-slate-700">Using std::transform and std::accumulate expresses two different data transformations: producing a new sequence, and collapsing a sequence to a value. Both are single-pass and readable.</p>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Transform maps, accumulate reduces. Avoid forgetting to size the output range for transform.</p>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm mt-3">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <p class="text-sm text-slate-600 mt-1">Square numbers and sum them using transform then accumulate. Destination vector must match source size.</p>
+      </div>
+    </div>
+
+    <!-- Right: code panel and bullets -->
+    <div class="w-7/12 flex flex-col gap-3">
+      <div class="code-panel flex-1 overflow-auto">
+        <pre class="text-sm"><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt; // std::transform
+#include &lt;numeric&gt;   // std::accumulate
+#include &lt;iostream&gt;
+
+int main() {
+  std::vector&lt;int&gt; numbers = {1, 2, 3, 4, 5};
+  std::vector&lt;int&gt; squared(numbers.size());
+
+  // Apply lambda to each element and store in squared
+  std::transform(numbers.begin(), numbers.end(), squared.begin(),
+                 [](int n) { return n * n; });
+
+  // Sum the squared numbers
+  long long sum_of_squares = std::accumulate(squared.begin(), squared.end(), 0LL);
+
+  std::cout &lt;&lt; "Sum of squared numbers: " &lt;&lt; sum_of_squares &lt;&lt; std::endl;
+}
+</code></pre>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="rounded-lg bg-white card-border p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explains</div>
+          <ul class="text-sm text-slate-700 mt-2">
+            <li>transform applies the lambda to every element.</li>
+            <li>accumulate reduces to a scalar using an initial value.</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-white card-border p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Not sizing the destination vector or assuming remove_if removes elements physically.</div>
+        </div>
+        <div class="rounded-lg bg-white card-border p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Try this</div>
+          <div class="text-sm text-slate-700 mt-2">Combine mapping into accumulate to avoid a temporary when you only need the sum.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

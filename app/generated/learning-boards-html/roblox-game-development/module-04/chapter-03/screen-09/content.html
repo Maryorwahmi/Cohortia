@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+      <span class="text-slate-700">Starter Shop</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="font-semibold">Server starter snippet</div>
+      <pre class="code mt-3"><code>local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local COINS_PRODUCT_ID = 000000000 -- TODO: replace with your ID
+local VIP_GAMEPASS_ID = 000000000 -- TODO: replace with your ID
+
+local RequestPurchaseEvent = ReplicatedStorage:WaitForChild("RequestPurchaseEvent")
+local CheckVIPStatus = ReplicatedStorage:WaitForChild("CheckVIPStatus")
+
+RequestPurchaseEvent.OnServerEvent:Connect(function(player, itemId, itemType)
+  if itemType == "Product" then
+    MarketplaceService:PromptProductPurchase(player, itemId)
+  elseif itemType == "GamePass" then
+    MarketplaceService:PromptGamePassPurchase(player, itemId)
+  end
+end)
+
+CheckVIPStatus.OnServerInvoke = function(player)
+  local success, owns = pcall(function()
+    return MarketplaceService:UserOwnsGamePassAsync(player.UserId, VIP_GAMEPASS_ID)
+  end)
+  if success then return owns else return false end
+end
+
+MarketplaceService.ProcessReceipt = function(receiptInfo)
+  -- See earlier ProcessReceipt walkthrough
+  return Enum.ProductPurchaseDecision.NotProcessedYet
+end</code></pre>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="font-semibold">Client starter pattern</div>
+      <pre class="code mt-3"><code>-- LocalScript in StarterGui.ShopUI
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RequestPurchaseEvent = ReplicatedStorage:WaitForChild("RequestPurchaseEvent")
+local CheckVIPStatus = ReplicatedStorage:WaitForChild("CheckVIPStatus")
+
+-- When buy button clicked
+RequestPurchaseEvent:FireServer(COINS_PRODUCT_ID, "Product")
+
+-- When check VIP button clicked
+local success, owns = pcall(function()
+  return CheckVIPStatus:InvokeServer()
+end)
+-- Update UI based on owns</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">This split keeps the server authoritative and the client as a requestor. Replace TODO IDs with Creator Dashboard values and test with Roblox test purchases.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

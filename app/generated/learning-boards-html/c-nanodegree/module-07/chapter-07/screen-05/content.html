@@ -1,0 +1,59 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>std::unique_ptr</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Concept</div>
+      <h3 class='text-xl font-bold text-slate-900 mb-2'>Exclusive ownership and moves</h3>
+      <p class='text-sm text-slate-700 mb-3'>unique_ptr is non-copyable and movable. Use it when a single owner should control lifetime and deletion.</p>
+
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-700 mb-1'>When to use</div>
+      <ul class='text-sm text-slate-700 ml-4 list-disc'>
+        <li>Factory functions that return ownership</li>
+        <li>Object owned by one thread or scope</li>
+        <li>Members that should not be shared</li>
+      </ul>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Prefer unique_ptr by default for ownership clarity; move when transfer is required.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Code example</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+#include &lt;iostream&gt;
+#include &lt;memory&gt; // For std::unique_ptr
+
+class MyResource {
+public:
+  MyResource(int id) : id_(id) { std::cout &lt;&lt; "MyResource " &lt;&lt; id_ &lt;&lt; " created." &lt;&lt; std::endl; }
+  ~MyResource() { std::cout &lt;&lt; "MyResource " &lt;&lt; id_ &lt;&lt; " destroyed." &lt;&lt; std::endl; }
+  void do_something() { std::cout &lt;&lt; "MyResource " &lt;&lt; id_ &lt;&lt; " doing something." &lt;&lt; std::endl; }
+private:
+  int id_;
+};
+
+void process_unique_resource() {
+  auto res1 = std::make_unique&lt;MyResource&gt;(1);
+  res1->do_something();
+
+  auto res2 = std::move(res1); // transfer ownership; res1 is now null
+  if (res1) res1->do_something(); // won't run
+  res2->do_something();
+} // res2 destroyed, resource freed here
+</pre>
+
+      <div class='mt-3 text-xs text-slate-600'>Misconception: unique_ptr is slow — in practice it often compiles to raw pointer performance because there is no control block overhead.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

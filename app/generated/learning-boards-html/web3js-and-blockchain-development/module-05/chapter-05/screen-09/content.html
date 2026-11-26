@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">Sending transactions</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border shadow-sm p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">incrementCount example</div>
+      <pre class="code">const incrementCount = useCallback(async () =&gt; {
+  if (contract && accounts.length &gt; 0) {
+    try {
+      setLoading(true);
+      const gasEstimate = await contract.methods.increment().estimateGas({ from: accounts[0] });
+      await contract.methods.increment().send({
+        from: accounts[0],
+        gas: gasEstimate + 10000
+      });
+      await fetchCount();
+    } catch (err) {
+      setError(`Error incrementing count: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  } else {
+    setError('Web3 not initialized or no account connected.');
+  }
+}, [contract, accounts, fetchCount]);</pre>
+    </div>
+
+    <div class="rounded-xl bg-white card-border shadow-sm p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">UX & mistakes</div>
+      <ul class="list-disc list-inside text-sm text-slate-600 space-y-2">
+        <li>Disable action controls while loading to prevent duplicate transactions.</li>
+        <li>Show a friendly confirmation message after the transaction is mined.</li>
+        <li>Handle user rejection of MetaMask prompts clearly rather than treating it as an unknown error.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

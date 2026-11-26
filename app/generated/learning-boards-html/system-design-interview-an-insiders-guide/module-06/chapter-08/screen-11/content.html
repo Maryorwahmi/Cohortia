@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Starter code (excerpt)</div>
+      <pre class="mt-2 text-sm text-slate-800 bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2;"><code>import queue
+import threading
+import time
+import random
+
+message_queue = queue.Queue()
+dead_letter_queue = queue.Queue()
+stop_event = threading.Event()
+
+MAX_RETRIES = 3
+INITIAL_RETRY_DELAY = 1 # seconds
+
+# TODO: Try changing MAX_RETRIES and INITIAL_RETRY_DELAY to see DLQ behavior
+# TODO: Add a DLQ counter and print it at the end of the run
+
+def process_message_with_retries(message_data):
+    message_id = message_data['id']
+    current_retry = 0
+
+    while current_retry <= MAX_RETRIES:
+        try:
+            # Simulated processing and transient failure injection
+            if random.random() < 0.6 and current_retry < MAX_RETRIES:
+                raise ValueError(f"Simulated transient error for {message_id}")
+            time.sleep(random.uniform(0.1, 0.5))
+            return True
+        except ValueError:
+            if current_retry < MAX_RETRIES:
+                delay = INITIAL_RETRY_DELAY * (2 ** current_retry)
+                time.sleep(delay)
+                current_retry += 1
+            else:
+                dead_letter_queue.put(message_data)
+                return False</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Run this script, watch console logs for attempts and DLQ moves, and adjust the TODOs. Observe how retry delays affect overall throughput and DLQ counts.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Exercise checklist</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li>Understand where retries and DLQ insertion occur in the code.</li>
+        <li>Change MAX_RETRIES and INITIAL_RETRY_DELAY and re-run the simulation.</li>
+        <li>Add a DLQ counter and print a summary of DLQ size at the end.</li>
+        <li>Reflect: how would you alert on DLQ growth in production?</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">When testing, introduce reproducible seeds for randomness so you can iterate on fixes deterministically.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

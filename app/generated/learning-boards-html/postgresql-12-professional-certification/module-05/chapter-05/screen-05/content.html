@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Server prerequisites</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border" style="border-color:var(--slate-100); box-shadow: 0 6px 18px rgba(15,23,42,0.04);">
+      <div class="text-lg font-bold text-slate-800">Key server settings</div>
+      <div class="text-sm text-slate-600 mt-2">These settings enable replication protocol access and WAL streaming.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-md bg-slate-50">
+          <div class="font-semibold text-slate-800">wal_level = replica</div>
+          <div class="text-xs text-slate-600 mt-1">Enables required WAL detail for streaming and archiving.</div>
+        </div>
+
+        <div class="p-3 rounded-md bg-slate-50">
+          <div class="font-semibold text-slate-800">max_wal_senders</div>
+          <div class="text-xs text-slate-600 mt-1">Provide enough senders for -X stream backups and other replication clients.</div>
+        </div>
+
+        <div class="p-3 rounded-md bg-slate-50">
+          <div class="font-semibold text-slate-800">pg_hba.conf entry</div>
+          <div class="text-xs text-slate-600 mt-1">Add host replication USER ADDR METHOD and reload Postgres to apply changes.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border flex flex-col" style="border-color:var(--slate-100);">
+      <div class="text-sm font-semibold text-slate-800">Command example (pg_hba.conf)</div>
+      <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;" class="text-xs bg-slate-50 p-3 rounded"># pg_hba.conf
+host    replication     postgres        192.168.1.0/24          md5</pre>
+
+      <div class="mt-3 text-xs text-slate-600">After editing, reload with pg_ctl reload or the system service equivalent so the server accepts replication connections immediately.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+        <p class="text-xs font-medium text-slate-800">Editing only the client command without setting wal_level to replica will not enable streaming WAL delivery; the server must be configured.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

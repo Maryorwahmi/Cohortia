@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.step{background:#f8fafc;padding:10px;border-radius:10px}</style>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Filtering with remove_if + erase</h3>
+      <p class="text-sm text-slate-700">Use remove_if to partition elements that satisfy a condition, then erase the trailing range that now contains removed elements.</p>
+
+      <div class="step mt-2">
+        <div class="text-sm font-semibold text-slate-800">Steps</div>
+        <ol class="text-sm text-slate-700 mt-2 list-decimal list-inside space-y-1">
+          <li>Call std::remove_if with a predicate lambda; capture threshold by value for safety.</li>
+          <li>std::remove_if returns an iterator new_end marking valid elements.</li>
+          <li>Call container.erase(new_end, container.end()) to physically remove them.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Code example</div>
+        <pre class="bg-slate-50 p-2 rounded text-sm overflow-auto"><code>#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+
+int min_score_threshold = 85;
+auto new_end = std::remove_if(students.begin(), students.end(),
+    [min_score_threshold](const Student &s) {
+        return s.score &lt; min_score_threshold;
+    });
+students.erase(new_end, students.end());
+</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Pitfall</div>
+        <p class="text-sm text-slate-700">Calling erase repeatedly inside a loop on std::vector is costly. Use the single erase(new_end, end) idiom.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why it matters</div>
+        <p class="text-xs font-medium text-slate-800">Understanding remove_if’s behavior prevents logical bugs and poor performance when removing many elements.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

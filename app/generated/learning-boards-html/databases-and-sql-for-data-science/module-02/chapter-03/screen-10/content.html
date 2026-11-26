@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">OFFSET & Pagination</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Basic pagination</h3>
+      <p class="text-sm text-slate-600 mt-2">Calculate the OFFSET as the number of rows to skip. For page two with 5 items per page, OFFSET 5 and LIMIT 5 returns rows 6–10.</p>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-800 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+SELECT OrderItemID, LineTotal
+FROM OrderItems
+ORDER BY LineTotal DESC
+LIMIT 5 OFFSET 5; -- returns items 6 through 10
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">Always pair OFFSET with ORDER BY; without a stable order pages will not be consistent between requests.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Performance note</h3>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>OFFSET can be inefficient on very large tables because skipped rows are still processed.</li>
+        <li>For deep pagination consider alternatives such as keyset pagination using a WHERE clause on an indexed column.</li>
+        <li>For typical reports and small to moderate page sizes, LIMIT/OFFSET is simple and effective.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

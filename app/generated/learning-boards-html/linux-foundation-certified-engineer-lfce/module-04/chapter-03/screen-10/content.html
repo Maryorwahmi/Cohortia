@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-900">Upstream example</h3>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">upstream app_pool {
+    server 10.0.0.11:5000;
+    server 10.0.0.12:5000;
+}
+
+server {
+    listen 80;
+    server_name app.example.com;
+
+    location / {
+        proxy_pass http://app_pool;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="font-semibold">Verification</div>
+        <ul class="list-disc pl-5 mt-2">
+          <li>Send repeated requests and check which backend logged each request.</li>
+          <li>Consider sticky sessions only when backend state requires it.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Operational note</div>
+      <div class="mt-2 text-sm text-slate-600">Nginx provides basic load balancing out of the box. For active health checks or advanced algorithms, add the proper modules or use a dedicated balancer.</div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Default Nginx does not perform active health checks of backends without additional configuration or modules.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Upstream blocks enable simple round-robin balancing; plan monitoring or health checks depending on production needs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card rounded-xl p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">std::map</div>
+      <div class="text-sm text-slate-600 mt-2">Unique key-value pairs kept sorted by key; implemented as a balanced tree with O(log N) operations.</div>
+
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">Insert safely</div>
+          <div class="text-sm text-slate-700 mt-1">Prefer insert/emplace when you want to detect duplicates. operator[] will create or overwrite.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Iteration</div>
+          <div class="text-sm text-slate-700 mt-1">Iterating yields keys in sorted order, which is useful for reports and deterministic output.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use std::map when order and predictable O(log N) behavior are required; insert to detect duplicates.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card rounded-xl p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Code Example</div>
+      <div class="mt-2 text-sm text-slate-700">Student scores stored in a map are printed in alphabetical order.</div>
+
+      <pre class="mt-3"><code>&lt;#include &gt; &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main() {
+  std::map&lt;std::string, int&gt; student_scores;
+  student_scores["Alice"] = 95;    // creates or overwrites
+  student_scores.insert({"Bob", 88}); // insert returns a pair indicating success
+
+  // Iterate in sorted key order
+  for (const auto &p : student_scores) {
+    std::cout &lt;&lt; p.first &lt;&lt ": " &lt;&lt; p.second &lt;&lt std::endl;
+  }
+  return 0;
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note: the example uses insert to detect existing keys. If insert fails, the existing value remains unchanged.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

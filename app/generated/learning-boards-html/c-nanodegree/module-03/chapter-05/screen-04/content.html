@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">What is shared ownership?</span>
+    </div>
+
+    <div class="flex gap-6 h-[72vh]">
+      <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-700">Definition & meaning</div>
+        <p class="text-sm text-slate-600 mt-3">Shared ownership allows multiple smart pointers to manage the same dynamic object. The object is destroyed only when the last owner is gone.</p>
+
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg bg-violet-50 p-3 text-violet-700">
+            <div class="text-xs font-bold uppercase tracking-wider">Reference counting</div>
+            <div class="text-sm mt-1 text-slate-800">Each shared_ptr increments a counter. When it falls to zero, the resource is deallocated.</div>
+          </div>
+
+          <div class="rounded-lg bg-blue-50 p-3 text-blue-700">
+            <div class="text-xs font-bold uppercase tracking-wider">Concrete example</div>
+            <div class="text-sm mt-1 text-slate-800">A DataProcessor created by make_shared is copied into backupProcessor and temporary local shared_ptrs increase use_count(). Destruction occurs after the last owner leaves scope.</div>
+          </div>
+
+          <div class="rounded-lg bg-amber-50 p-3 text-amber-800">
+            <div class="text-xs font-bold uppercase tracking-wider">Misconception</div>
+            <div class="text-sm mt-1 text-slate-800">Copying a shared_ptr does not clone the object; it only adds another owner. Clean up requires all owners to release the pointer.</div>
+          </div>
+        </div>
+
+        <div class="mt-auto pt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Shared ownership extends lifetime; prefer it only when multiple independent owners need the resource.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white card-border p-6 shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-700">Analogy & quick check</div>
+        <div class="mt-3 text-sm text-slate-600">Think of the resource as a library book. Each shared_ptr is a checked-out record. The book is returned only when every record is closed. If one person never returns their record, the book is never returned to the shelf—this models a leak created by a retained shared_ptr.</div>
+
+        <div class="mt-6">
+          <div class="text-sm font-semibold text-slate-700">Check your understanding</div>
+          <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+            <li>Does copying a shared_ptr create another owner? Yes.</li>
+            <li>When is the underlying object destroyed? When use_count() reaches zero.</li>
+            <li>Is make_shared recommended? Yes, for efficiency; it allocates object and control block together.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

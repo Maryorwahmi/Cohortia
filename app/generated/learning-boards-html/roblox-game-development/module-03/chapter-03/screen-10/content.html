@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">ProximityPrompt Triggered</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-lg font-bold mb-2 text-slate-800">Locked chest script</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">-- Script placed inside a Part named "LockedChest"
+local chest = script.Parent
+local prompt = chest:FindFirstChildOfClass("ProximityPrompt")
+
+if not prompt then
+    warn("LockedChest is missing a ProximityPrompt!")
+    return
+end
+
+prompt.ActionText = "Open"
+prompt.ObjectText = "Chest"
+prompt.HoldDuration = 0.5
+prompt.KeyboardKeyCode = Enum.KeyCode.E
+
+local isOpen = false
+
+local function onPromptTriggered(player)
+    if isOpen then
+        print("Chest is already open!")
+        return
+    end
+
+    print(player.Name .. " opened the chest!")
+    isOpen = true
+    chest.BrickColor = BrickColor.new("Dark green")
+    prompt.Enabled = false
+
+    -- spawn loot or perform other actions
+end
+
+prompt.Triggered:Connect(onPromptTriggered)</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation & tips</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Triggered gives you the Player, so no hit validation is needed.</li>
+        <li>Use a state variable to prevent duplicate handling while the action executes.</li>
+        <li>Disable the prompt for one-time interactions, or re-enable after reset if needed.</li>
+      </ul>
+
+      <div class="mt-4 p-2 rounded-lg bg-blue-50 text-blue-700 text-xs card-border">Pro tip: Use HoldDuration to reduce accidental activations for important actions.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,22 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.2</span><span>›</span><span class="text-slate-700">Get Latest Price</span></div><h2 class="text-3xl font-bold text-slate-900 mb-2">Retrieving the Latest Price Data</h2><p class="text-lg text-slate-600 mb-6">Calling <code>latestRoundData()</code> to fetch current market prices.</p><div class="flex flex-col lg:flex-row gap-6 h-[calc(100%-180px)]"><div class="flex-1 flex flex-col gap-4"><div class="bg-slate-800 rounded-2xl shadow-lg p-6 flex-grow font-mono text-sm text-slate-50 overflow-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-3"><code>getLatestPrice()</code> Implementation</div><pre><code style="white-space: pre-wrap; tab-size: 2;">contract PriceConsumerV3 {
+    AggregatorV3Interface internal priceFeed;
+    // ... constructor
+
+    /**
+     * @dev Returns the latest price of the asset pair.
+     * The price is returned as an integer, scaled by the 'decimals' value.
+     */
+    function getLatestPrice() public view returns (int256) {
+        // latestRoundData() returns 5 values
+        ( 
+            uint80 roundId,
+            int256 price,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+        
+        // For now, we focus on the 'price' value.
+        return price;
+    }
+}</code></pre></div></div><div class="flex-1 flex flex-col gap-4"><div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow"><div class="flex items-center gap-3 mb-3"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><h3 class="text-xl font-semibold text-slate-800">The <code>latestRoundData()</code> Call</h3></div><p class="text-base text-slate-700 mb-4">This function is the core mechanism for fetching the most recent aggregated data from the Chainlink oracle network.</p><ul class="list-disc list-inside text-sm text-slate-600 space-y-2"><li>Returns five values, with <code>price</code> being the primary focus.</li><li>It's a <code>view</code> function, meaning it's gas-free for external calls.</li><li>Provides real-time market data for your dApp's logic.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800"><code>getLatestPrice()</code> leverages <code>priceFeed.latestRoundData()</code> to securely retrieve the current aggregated price from Chainlink.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

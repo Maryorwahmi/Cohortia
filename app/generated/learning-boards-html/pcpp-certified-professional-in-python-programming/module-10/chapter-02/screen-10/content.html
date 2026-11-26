@@ -1,0 +1,63 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">BankAccount tests</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Production: account.py</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-slate-100 p-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+class BankAccount:
+    def __init__(self, initial_balance=0):
+        if not isinstance(initial_balance, (int, float)) or initial_balance < 0:
+            raise ValueError("Initial balance must be a non-negative number.")
+        self.balance = initial_balance
+
+    def deposit(self, amount):
+        if not isinstance(amount, (int, float)) or amount <= 0:
+            raise ValueError("Deposit amount must be a positive number.")
+        self.balance += amount
+        return self.balance
+
+    def withdraw(self, amount):
+        if not isinstance(amount, (int, float)) or amount <= 0:
+            raise ValueError("Withdrawal amount must be a positive number.")
+        if amount > self.balance:
+            raise ValueError("Insufficient funds.")
+        self.balance -= amount
+        return self.balance
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Tests: test_account.py</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-slate-100 p-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+import unittest
+from account import BankAccount
+
+class TestBankAccount(unittest.TestCase):
+    def test_initial_balance(self):
+        account = BankAccount(100)
+        self.assertEqual(account.balance, 100)
+
+    def test_deposit(self):
+        account = BankAccount(100)
+        account.deposit(50)
+        self.assertEqual(account.balance, 150)
+
+    def test_deposit_zero_or_negative_amount_raises_error(self):
+        account = BankAccount(100)
+        with self.assertRaises(ValueError):
+            account.deposit(0)
+        with self.assertRaises(ValueError):
+            account.deposit(-10)
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Run: python -m unittest test_account.py or python -m unittest for discovery.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

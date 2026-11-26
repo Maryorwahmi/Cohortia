@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 6.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Diagnosing Neighbor State</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <!-- Left: explanation -->
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Interpret FSM states from show bgp summary</h3>
+      <p class="text-sm text-slate-600 mt-2">Use the neighbor state to decide whether to check transport or BGP parameters. Active/Connect usually means TCP problems; OpenSent/OpenConfirm suggests parameter mismatch.</p>
+
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li>IP reachability: run ping to the neighbor IP to confirm basic transport.</li>
+        <li>Interface check: show interfaces terse to find administratively down or wrong IP.</li>
+        <li>Routing to neighbor: show route &lt;neighbor-ip-address&gt; ensures a route exists for TCP sessions over loopbacks.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg border bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Assuming BGP will form a session without verifying the underlying IP path and the source address used for TCP.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Neighbor FSM states point you to either TCP/infrastructure issues or BGP parameter mismatches. Validate reachability first.</p>
+      </div>
+    </div>
+
+    <!-- Right: terminal-style examples -->
+    <div class="w-1/2 card p-4 bg-white border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <div class="mt-3 mono text-sm bg-slate-50 p-3 rounded-md border border-slate-100 overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+show bgp summary
+  Neighbor        AS     Up/Down   State
+  10.0.0.2        65002  never     Active
+
+# Follow-ups
+ping 10.0.0.2
+show interfaces terse
+show route 10.0.0.2
+</div>
+      <div class="mt-3 p-3 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Peer stuck in Active. Ping fails. show interfaces terse reveals interface to neighbor is down. Bring interface up and session progresses to Established.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card rounded-2xl p-5 border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Activity Steps</div>
+      <ol class="list-decimal pl-4 text-sm text-slate-600 space-y-3">
+        <li>Create a KMS CMK and alias; note the ARN.</li>
+        <li>Create an S3 bucket and enable default SSE-KMS with the CMK ARN.</li>
+        <li>Upload a file and verify encryption metadata.</li>
+        <li>Create a secret in Secrets Manager and retrieve it via the CLI.</li>
+        <li>Enable rotation if the secret type is supported, and validate rotation events.</li>
+      </ol>
+    </div>
+
+    <div class="card rounded-2xl p-5 border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Starter CLI snippets</div>
+      <pre class="rounded-md bg-slate-50 p-3 text-sm"><code>aws kms create-key --description "KMS key for S3 bucket encryption"
+aws kms create-alias --alias-name alias/MyS3EncryptionKey --target-key-id YOUR_KMS_KEY_ID
+
+aws s3api put-bucket-encryption --bucket my-kms-encrypted-data-unique-name-123 \
+  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"arn:aws:kms:YOUR_REGION:YOUR_ACCOUNT_ID:key/YOUR_KMS_KEY_ID"}}]}'
+
+aws secretsmanager create-secret --name "MyApplicationDBPassword" --description "Database password for MyApplication" --secret-string '{"username":"dbuser","password":"SuperSecurePassword!23"}'
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

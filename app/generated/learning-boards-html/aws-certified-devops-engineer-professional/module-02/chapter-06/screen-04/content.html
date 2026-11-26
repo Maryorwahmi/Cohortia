@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudWatch Logs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col justify-start">
+      <h3 class="text-2xl font-bold text-slate-800">CloudWatch Logs</h3>
+      <p class="text-sm text-slate-600 mt-2">Collect build and deploy output, then query with Logs Insights to surface error patterns and timestamps.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="bg-white card rounded-xl p-3">
+          <div class="text-sm font-semibold text-slate-800">Why use Logs Insights</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+            <li>Query multiple log streams for matching error patterns or timestamps.</li>
+            <li>Aggregate counts of errors to detect spikes across builds.</li>
+            <li>Filter by log fields to speed diagnosis of environment-specific issues.</li>
+          </ul>
+        </div>
+
+        <div class="bg-white card rounded-xl p-3">
+          <div class="text-sm font-semibold text-slate-800">Common-mistake</div>
+          <div class="text-sm text-slate-600 mt-2">Relying only on a single stream. Successful diagnosis inspects related streams and correlates timestamps with pipeline stages.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div>
+        <div class="bg-slate-800 rounded-xl p-3 text-white">
+          <div class="text-xs font-semibold">Logs Insights — sample query</div>
+          <pre style="white-space:pre-wrap;tab-size:2"><code>fields @timestamp, @message
+| filter @message like /ERROR/ or @message like /AccessDenied/
+| sort @timestamp desc
+| limit 50</code></pre>
+        </div>
+
+        <div class="mt-3 bg-white card rounded-xl p-3">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">If CodeBuild shows a dependency error, query all recent build logs for that error string. A cluster of errors after a time indicates a dependency or network change.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use Logs Insights to search, correlate, and validate fixes. Expand logging only when it helps diagnosis and retain useful indices.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

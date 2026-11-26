@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Casting during load</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Example load with casting</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+COPY INTO raw_events (event_id, event_timestamp, event_data)
+FROM (
+  SELECT
+    $1:user_id::INT,
+    $1:timestamp::TIMESTAMP_NTZ,
+    $1
+  FROM @my_json_stage/events.json
+)
+FILE_FORMAT = (TYPE = JSON);
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">This SELECT extracts and casts user_id and timestamp while storing the full JSON into event_data. Casting here prevents later surprises and supports pruning when queried.</div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Checks and tips</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Run a sample SELECT on staged records to confirm paths before COPY INTO.</li>
+        <li>Use TRY_PARSE_JSON if the staged content might be raw strings containing JSON.</li>
+        <li>Promote fields you filter on to typed columns to enable pruning and indexes to work.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+          <div class="text-sm text-slate-700">Relying on implicit type inference can return unexpected types or nulls in downstream queries.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

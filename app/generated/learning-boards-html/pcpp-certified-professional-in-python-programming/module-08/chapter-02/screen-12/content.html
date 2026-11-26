@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Command Protocol Exercise</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Starter server fragment</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+# Inside service_connection after assembling messages:
+for msg_bytes in messages:
+    msg = msg_bytes.decode().strip()
+    response = b''
+    if msg == "TIME":
+        response = datetime.datetime.now().strftime("%H:%M:%S").encode()
+    elif msg.startswith("UPPERCASE:"):
+        text_to_upper = msg[len("UPPERCASE:"):]
+        response = text_to_upper.upper().encode()
+    else:
+        response = msg_bytes
+
+    if response:
+        data['outb'] += response + b'
+'  # Send with newline
+      </pre>
+    </div>
+
+    <div class="flex-1 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-semibold text-slate-700">Notes for robustness</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Assume messages may be fragmented; keep incomplete bytes in data['inb'] until a newline is seen.</li>
+          <li>Send responses with a delimiter so clients can read full replies.</li>
+          <li>Test with multiple clients sending commands concurrently to validate selector handling.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+        <p class="text-xs font-medium text-slate-800">Use the provided client to send TIME and UPPERCASE commands and verify the server responds correctly under concurrent connections.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

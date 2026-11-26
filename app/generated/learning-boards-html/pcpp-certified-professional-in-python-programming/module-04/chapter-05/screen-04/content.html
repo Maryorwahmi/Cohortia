@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    .code { background: #0f1724; color: #e6edf3; border-radius: 12px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size: 13px; }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">What is an asyncio.Task?</div>
+      <div class="text-sm text-slate-600 mb-4">A Task schedules a coroutine to run on the event loop and exposes its future result.</div>
+      <div class="flex-1 rounded-xl bg-white p-4 card-border overflow-hidden">
+        <div class="code" style="white-space: pre-wrap; tab-size: 2;"><pre><code>import asyncio
+
+async def worker(name, delay):
+  print(f"Worker {name}: Starting (delay {delay}s)...")
+  await asyncio.sleep(delay)
+  print(f"Worker {name}: Finished.")
+  return f"Result from {name}"
+
+async def main_tasks():
+  task1 = asyncio.create_task(worker("A", 3))
+  task2 = asyncio.create_task(worker("B", 1))
+
+  # main can do other work while tasks run
+  await asyncio.sleep(0.5)
+
+  result1 = await task1
+  result2 = await task2
+  print(result1, result2)
+</code></pre></div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border mb-3 h-full flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Explanation</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+            <li>create_task schedules the coroutine immediately on the loop but returns a handle you can await later.</li>
+            <li>Task is a subclass of Future; it supports result(), exception(), and add_done_callback().</li>
+            <li>Awaiting a coroutine directly suspends the caller until completion; creating a Task does not.</li>
+          </ul>
+        </div>
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use Tasks to run coroutines concurrently and await their results when you need them.</p>
+          </div>
+          <div class="rounded-lg bg-white p-2 border card-border text-xs text-slate-600">
+            <div class="font-semibold text-slate-800">Common misconception</div>
+            <div class="mt-1">create_task does not copy or clone code; it schedules the provided coroutine. Forgetting to await a Task can leave background errors unobserved.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

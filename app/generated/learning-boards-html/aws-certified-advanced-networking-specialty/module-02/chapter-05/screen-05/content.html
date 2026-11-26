@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">BGP Failover</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Failover steps</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Register each on-prem device as a separate CGW with its public IP and configure BGP.</li>
+        <li>Confirm each CGW establishes an 'Established' BGP session to the VGW.</li>
+        <li>Verify both devices advertise the same on-prem prefixes to AWS.</li>
+        <li>Test failover: simulate Router-A outage and observe BGP withdrawals and continued traffic on Router-B.</li>
+      </ol>
+      <div class="mt-4 text-xs text-slate-500">Check: route propagation and VPC route tables remain correct after failover.</div>
+    </div>
+    <div class="flex-1 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example scenario</div>
+      <div class="mt-2 text-sm text-slate-700">Router-A advertises 10.10.0.0/16, Router-B does the same. Router-A loses internet; its BGP session to VGW stops. VGW receives only Router-B advertisements and traffic keeps flowing through Router-B without manual changes.</div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3 text-sm">Validation: 'show ip bgp summary' shows session states; AWS console 'Tunnel Details' shows BGP up/down.</div>
+        <div class="rounded-lg bg-rose-50 p-3 text-sm">Pitfall: mismatched advertised prefixes cause route ambiguity and traffic to follow unexpected paths.</div>
+      </div>
+    </div>
+  </div>
+</div>

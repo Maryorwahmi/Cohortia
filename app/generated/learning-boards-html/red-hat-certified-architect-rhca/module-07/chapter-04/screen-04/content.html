@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mb-1">Create VLAN-aware bridge</div>
+      <div class="text-sm text-slate-600 mb-4">Step-by-step network commands to place VMs onto VLAN 20.</div>
+      <div class="space-y-3 flex-1 overflow-hidden">
+        <div class="rounded-lg p-3 bg-blue-50">
+          <div class="font-semibold text-slate-800">Step 1 — Define VLAN device</div>
+          <div class="text-sm text-slate-600 mt-1">Create enp1s0.20 which tags outbound frames with VLAN ID 20.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-violet-50">
+          <div class="font-semibold text-slate-800">Step 2 — Create bridge br20</div>
+          <div class="text-sm text-slate-600 mt-1">Define bridge and set appropriate IP method for host management if needed.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="font-semibold text-slate-800">Step 3 — Enslave VLAN device</div>
+          <div class="text-sm text-slate-600 mt-1">Attach enp1s0.20 to br20 so guests attached to br20 carry VLAN tags.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="font-semibold text-slate-800">Verification</div>
+          <ul class="text-sm text-slate-600 list-disc pl-5 mt-1">
+            <li>Run ip a show br20 and confirm state is UP.</li>
+            <li>Use brctl show or ip link to check bridge members.</li>
+            <li>Confirm guest frames are tagged on the switch or with tcpdump.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">VLAN-aware bridges let you segment traffic without extra physical NICs; always verify switch port tagging and bridge membership.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Reference command sequence</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>sudo nmcli connection add type vlan con-name enp1s0.20 dev enp1s0 id 20
+sudo nmcli connection add type bridge con-name br20 ifname br20 ipv4.method auto ipv6.method ignore
+sudo nmcli connection add type ethernet con-name enp1s0.20-slave ifname enp1s0.20 master br20
+sudo nmcli connection up br20
+sudo nmcli connection up enp1s0.20-slave</code></pre>
+      <div class="mt-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-1">Place a pool of web VMs on br20. The host tags their traffic with VLAN 20 so the switch places them in the web-tier broadcast domain.</div>
+        </div>
+        <div class="mt-3 rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="font-semibold text-slate-800">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Forgetting to configure the physical switch port for 802.1Q tagging will make the VLAN invisible to hosts and guests.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Wallet Connection</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Pattern</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Detect and react to chain changes</h3>
+      <div class="mt-3 text-sm text-slate-600">
+        <p>Subscribe to window.ethereum events, get chainId via web3.eth.getChainId, and compare to your target chain.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-semibold text-slate-700">Event handlers to implement</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>chainChanged: reload or update chain state and block risky actions</li>
+          <li>accountsChanged: update the active account and re-fetch balances</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-blue-50">
+        <div class="text-sm font-semibold text-blue-700">Concrete scenario</div>
+        <div class="text-xs text-slate-700 mt-1">User connects on Mainnet while your dApp targets Sepolia. Your detection triggers a prompt and calls wallet_switchEthereumChain to request Sepolia.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Example Code (excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">// Using Web3 and the injected provider
+if (window.ethereum) {
+  const web3 = new Web3(window.ethereum);
+  // get numeric chain id
+  web3.eth.getChainId().then(id =&gt; { console.log('Connected chainId:', id); });
+  // listen for changes
+  window.ethereum.on('chainChanged', (chainIdHex) =&gt; {
+    // parse hex chain id and update state
+    const dec = parseInt(chainIdHex, 16);
+    console.log('chain changed to', dec);
+    window.location.reload();
+  });
+  window.ethereum.on('accountsChanged', (accounts) =&gt; {
+    console.log('accounts changed', accounts);
+  });
+}
+</pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Assuming the chain never changes during a session. Users can switch networks externally; your UI must adapt.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

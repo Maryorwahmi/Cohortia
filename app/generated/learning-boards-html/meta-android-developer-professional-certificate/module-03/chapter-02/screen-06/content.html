@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">NavController Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">HomeFragment — navigate()</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm border border-slate-100">// In HomeFragment.kt
+class HomeFragment : Fragment(R.layout.fragment_home) {
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    val navigateButton: Button = view.findViewById(R.id.navigateButton)
+    navigateButton.setOnClickListener {
+      val itemId = 123
+      val itemName = "Example Item"
+      val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(itemId, itemName)
+      findNavController().navigate(action)
+    }
+  }
+}</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">DetailFragment — retrieve args</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm border border-slate-100">// In DetailFragment.kt
+class DetailFragment : Fragment(R.layout.fragment_detail) {
+  private val args: DetailFragmentArgs by navArgs()
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    val itemId = args.itemId
+    val itemName = args.itemName
+
+    val detailTextView: TextView = view.findViewById(R.id.detailTextView)
+    detailTextView.text = "Item ID: $itemId, Name: $itemName"
+  }
+}</pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl bg-emerald-50 p-3 border border-emerald-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Safe Args generates the classes you call and read, reducing runtime errors from mismatched bundle keys or types.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

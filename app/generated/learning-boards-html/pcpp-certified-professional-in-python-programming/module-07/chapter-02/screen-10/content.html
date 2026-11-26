@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">TemporaryFileManager</div>
+      <div class="text-sm text-slate-600 mt-2">Create a temporary file, yield its path, and delete on exit.</div>
+
+      <pre class="mt-3 bg-slate-900 p-3 rounded text-sm text-slate-100" style="white-space:pre-wrap;tab-size:2"><code>import tempfile
+import os
+
+class TemporaryFileManager:
+  def __init__(self, suffix='.tmp'):
+    self.suffix = suffix
+    self.filepath = None
+
+  def __enter__(self):
+    fd, self.filepath = tempfile.mkstemp(suffix=self.suffix)
+    os.close(fd)
+    print('Created', self.filepath)
+    return self.filepath
+
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    if self.filepath and os.path.exists(self.filepath):
+      os.remove(self.filepath)
+      print('Deleted', self.filepath)
+    if exc_type:
+      print('An exception occurred:', exc_val)
+    return False  # don't suppress exceptions
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4 shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Usage</div>
+      <p class="text-sm text-slate-600 mt-2">Use the context manager in a with block. The file is available inside, and it is guaranteed to be deleted when exiting the block, whether the block completes or an exception is raised.</p>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Design notes</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>Close low-level file descriptors if you open them with mkstemp.</li>
+          <li>Return False from __exit__ to let exceptions propagate unless you deliberately want to suppress them.</li>
+          <li>Test cleanup paths by raising an exception inside the with block.</li>
+        </ul>
+      </div>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Implementing __enter__ and __exit__ ensures deterministic resource cleanup regardless of how the with block exits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

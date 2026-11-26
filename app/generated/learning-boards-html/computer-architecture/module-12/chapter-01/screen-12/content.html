@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;tab-size:2;white-space:pre-wrap;} .card-border{border:1px solid rgba(226,232,240,0.95);} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Design</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">Designing a 4×4 Mesh Router — Calculation and XY Routing</div>
+    <div class="text-sm text-slate-600 mt-1">Stepwise arithmetic and a routing trace for a packet from (0,0) to (3,3).</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow">
+      <div class="text-sm font-bold text-slate-800">Buffer sizing code block</div>
+      <pre><code>// Parameters
+ports = 5
+vcs_per_port = 2
+flits_per_vc = 4
+flit_width_bits = 128
+
+// Per-router calculation
+buffer_bits_per_router = ports * vcs_per_port * flits_per_vc * flit_width_bits
+// = 5 * 2 * 4 * 128 = 5120 bits
+
+// Network-wide
+num_routers = 16
+total_buffer_bits = buffer_bits_per_router * num_routers
+// = 16 * 5120 = 81920 bits</code></pre>
+      <div class="mt-2 text-sm text-slate-700">Round-robin switch allocator ensures fairness and bounded starvation risk; implement per-output arbitration rotating grants each cycle.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow">
+      <div class="text-sm font-bold text-slate-800">XY routing trace and latency</div>
+      <div class="text-sm text-slate-600 mt-2">XY routing: move in X until correct column, then in Y. From (0,0) to (3,3): Δx=3, Δy=3 ⇒ hops=6.</div>
+      <pre><code>// Latency parameters
+router_cycles = 2  // with lookahead
+link_cycles = 1
+hops = 6
+
+// Naive estimate
+latency_cycles = hops * (router_cycles + link_cycles)
+// = 6 * (2 + 1) = 18 cycles
+
+// With lookahead overlaps, effective router cycles per hop may reduce; account for overlaps in detailed timing models.</code></pre>
+      <div class="mt-2 text-sm text-slate-700">Remember: each hop requires VC allocation and a switch grant; contention increases latency beyond the arithmetic estimate.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

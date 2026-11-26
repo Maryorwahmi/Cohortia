@@ -1,0 +1,21 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Calculation</div>
+      <div class="text-lg font-bold text-slate-900 mb-3">Compute minimum ADA for the NFT output</div>
+      <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>MIN_ADA_REQUIRED_NFT=$(cardano-cli transaction calculate-min-required-utxo \
+  --tx-out "$(cat payment.addr) + 0 lovelace + 1 $NFT_FULL_ASSET" \
+  --protocol-params-file protocol.json)
+echo "Minimum ADA required for NFT UTXO: $MIN_ADA_REQUIRED_NFT"</code></pre>
+      <div class="mt-3 text-sm text-slate-800">Use the returned MIN_ADA_REQUIRED_NFT value in your final --tx-out so the UTXO contains both the NFT and the required lovelace.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Why this matters</div>
+      <div class="text-sm text-slate-800 mb-2">If you underfund an output, the transaction will be invalid or the resulting UTXO may be unusable by wallets expecting min ADA. Always recompute after adding metadata, since metadata size influences required lovelace when assets are present.</div>
+      <div class="mt-auto rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Include MIN_ADA_REQUIRED_NFT in the final tx-out to ensure the NFT UTXO is valid and wallet-friendly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RemoteControl & Undo</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Code: Invoker with history</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-4 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>// Invoker: RemoteControl
+class RemoteControl {
+  private Command command;
+  private List&lt;Command&gt; history = new ArrayList&lt;&gt;(); // For undo/redo
+
+  public void setCommand(Command command) {
+    this.command = command;
+  }
+
+  public void pressButton() {
+    if (command != null) {
+      command.execute();
+      history.add(command); // Add to history for undo
+    }
+  }
+
+  public void pressUndo() {
+    if (!history.isEmpty()) {
+      Command last = history.remove(history.size() - 1);
+      last.undo();
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>The invoker keeps a history stack of executed commands so undo can be performed in reverse order.</li>
+        <li>Undo logic is delegated to the command's undo method; invoker only manages sequencing.</li>
+        <li>Design note: for redo, maintain a second stack and push commands when undone so they can be reapplied.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold">Edge case</div>
+          <div class="text-sm text-slate-700 mt-1">If commands share receivers and mutate shared state, ensure the command captured all necessary context for undo before execute.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)] mt-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+          <div class="text-xs text-slate-800">What must a command capture to make undo reliable for a complex Receiver?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RDB vs AOF</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3 border border-blue-100">
+          <div class="text-sm font-semibold text-blue-700">RDB</div>
+          <div class="text-sm text-slate-700 mt-1">Compact snapshot, fast to load, best for backups and disaster recovery. Data-loss window exists between snapshots.</div>
+        </div>
+
+        <div class="rounded-lg bg-emerald-50 p-3 border border-[rgba(16,185,129,0.12)]">
+          <div class="text-sm font-semibold text-emerald-700">AOF</div>
+          <div class="text-sm text-slate-700 mt-1">Logs every write command. Offers better durability depending on appendfsync, but can be larger and slower to replay.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Use both in many production systems. On restart, Redis prefers AOF if both are present because it minimizes data loss.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Use-case guide</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700 space-y-2">
+        <li>Cache data with acceptable loss: RDB-only with frequent snapshots.</li>
+        <li>Critical, real-time events: AOF with appendfsync everysec or always.</li>
+        <li>Balanced reliability: enable both and test recovery procedures.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Misconfiguration trap</div>
+          <div class="text-sm text-slate-600 mt-1">Enabling AOF with appendfsync no for critical data weakens durability. Choose settings deliberately.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

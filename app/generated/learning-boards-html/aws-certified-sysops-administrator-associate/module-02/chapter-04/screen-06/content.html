@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda Remediation</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Architecture</div>
+      <div class="text-xs text-slate-600 mt-2">SNS or SQS delivers the alarm payload; Lambda processes the message, calls AWS APIs, and writes logs. Design for retries, errors, and idempotence.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">Idempotence: make state changes reversible or detectable so multiple runs are harmless.</div>
+        <div class="rounded-lg bg-slate-50 p-3">Least privilege: grant only the permissions required to act.</div>
+        <div class="rounded-lg bg-slate-50 p-3">Logging: include clear messages and correlation identifiers for auditing.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-xs text-slate-600 mt-2">A Lambda function uses the AWS SDK to call reboot_instances for a specific instance ID extracted from the SNS message. The function logs receipt and action, and handles exceptions by recording failures to CloudWatch Logs or a dead-letter queue.</div>
+
+      <div class="mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+      <div class="text-xs text-rose-700 mt-1">Not making the function idempotent or giving it overly broad IAM permissions. Both increase risk in production.</div>
+    </div>
+  </div>
+</div>

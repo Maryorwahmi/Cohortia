@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4 h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Indexes and constraints across partitions</h3>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800 mb-2">Per-partition indexes</div>
+        <p class="text-sm text-slate-600">Each child has its own indexes. A parent-level unique constraint will create child indexes only when defined correctly and when the constraint includes the partition key.</p>
+      </div>
+      <div class="p-3 bg-slate-50 rounded border mono">
+        <div class="font-semibold text-slate-800 mb-2">Example note</div>
+        <pre class="p-3">-- Indexes on children must be created or will be missing
+CREATE INDEX ON daily_sales_2023_02 (region);</pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="p-3 card bg-amber-50 text-amber-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Operational tip</div>
+        <p class="text-xs">Automate index creation as part of partition creation scripts to avoid uneven performance.</p>
+      </div>
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <p class="text-xs text-slate-700">Assuming a parent index protects you — it doesn’t become a global index over children.</p>
+      </div>
+      <div class="p-3 card bg-emerald-50 text-emerald-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Key Takeaway</div>
+        <p class="text-xs">Plan index and constraint creation for every new partition to maintain consistent query performance.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

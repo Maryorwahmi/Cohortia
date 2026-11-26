@@ -1,0 +1,57 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.6</span>
+      <span>›</span>
+      <span class='text-slate-700'>WalletConnector.js Walkthrough</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Starter code</div>
+      <pre class='bg-slate-900 text-white p-3 rounded text-sm' style='white-space:pre-wrap; tab-size:2; font-family:Menlo,monospace'>
+// connectWalletConnect (excerpt)
+const provider = new WalletConnectProvider({
+  infuraId: INFURA_ID,
+  rpc: {
+    [SEPOLIA_CHAIN_ID]: NETWORKS[SEPOLIA_CHAIN_ID].rpcUrl,
+    [MUMBAI_CHAIN_ID]: NETWORKS[MUMBAI_CHAIN_ID].rpcUrl,
+  },
+  qrcodeModalOptions: { mobileLinks: ['metamask', 'trust', 'rainbow'] }
+});
+
+await provider.enable();
+const web3Instance = new Web3(provider);
+setWeb3(web3Instance);
+setAccount((await web3Instance.eth.getAccounts())[0]);
+setChainId(await web3Instance.eth.getChainId());
+      </pre>
+
+      <div class='mt-3 text-sm text-slate-700'>
+        Important: attach provider.on('accountsChanged', ...), provider.on('chainChanged', ...), and provider.on('disconnect', ...) and remove them on cleanup.
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Switch network example</div>
+      <pre class='bg-slate-100 text-slate-800 p-3 rounded text-sm' style='white-space:pre-wrap; tab-size:2; font-family:Menlo,monospace'>
+await provider.request({
+  method: 'wallet_switchEthereumChain',
+  params: [{ chainId: NETWORKS[targetChainId].chainIdHex }]
+});
+      </pre>
+
+      <div class='mt-4 text-sm text-slate-700'>
+        Add a clear status message for: request in progress, user rejected, chain added, or switch successful. This improves user trust and troubleshooting.
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Use this starter component to normalize providers and test connections by switching between Sepolia and Mumbai while watching state updates and contract reloads.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Custom metaclass structure</div>
+      <div class="text-sm text-slate-600 mt-3">Inherit from type and override __new__ and/or __init__ to control class creation and post-creation initialization.</div>
+
+      <pre class="mono text-sm mt-4 p-3 bg-slate-50 rounded card-border" style="white-space:pre-wrap; tab-size:2;">class MyMetaclass(type):
+  def __new__(mcs, name, bases, namespace):
+    # modify namespace before class creation
+    if 'version' not in namespace:
+      namespace['version'] = '0.0-default'
+    namespace['added_by_metaclass'] = True
+    new_cls = super().__new__(mcs, name, bases, namespace)
+    new_cls.metaclass_processed = True
+    return new_cls
+
+  def __init__(cls, name, bases, namespace):
+    super().__init__(name, bases, namespace)
+    # additional initialization if needed
+</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Behavioral notes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Code in __new__ runs before the class object exists and can change the namespace that constructs the class.</li>
+        <li>__init__ receives the created class object and should call super to preserve normal initialization.</li>
+        <li>Prints or logs in the metaclass occur at import/definition time, not at instance creation.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-700">When adding attributes, choose names unlikely to collide with user-defined names. Consider configuration flags as reserved keys.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Metaclasses intercept class creation; use __new__ to change the namespace and __init__ to finalize the class object.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

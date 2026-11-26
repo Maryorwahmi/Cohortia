@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">RDB Backup</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <ol class="list-decimal pl-5 space-y-4 text-slate-700">
+        <li><strong>Verify save directives</strong>: Ensure redis.conf has the desired snapshot intervals.</li>
+        <li><strong>Trigger snapshot</strong>: Run BGSAVE to create a background dump.</li>
+        <li><strong>Confirm completion</strong>: Check LASTSAVE or logs to ensure dump finished.</li>
+        <li><strong>Copy with timestamp</strong>: Move dump.rdb off-server for retention.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Pro tip: automate BGSAVE and the file copy so manual steps are not missed.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Terminal commands (example)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code># Trigger a fresh snapshot in redis-cli
+BGSAVE
+
+# After completion, copy the file with a timestamp
+cp /var/lib/redis/dump.rdb /tmp/redis_backup/dump-2023-07-01.rdb</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always confirm BGSAVE completion and copy dump.rdb to off-server storage with a timestamp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

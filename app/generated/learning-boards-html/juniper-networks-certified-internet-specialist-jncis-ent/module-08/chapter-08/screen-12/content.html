@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter: Troubleshooting</span>
+      <span>›</span>
+      <span class="text-slate-700">Firewall Filters</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800">Troubleshooting firewall filters and dropped sessions</div>
+    <div class="text-sm text-slate-600 mt-1">Use session checks, counters, and packet captures to find where filters block traffic.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-700 mb-2">Core debugging steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2 mb-3">
+        <li>Check session table: <span class="font-mono">show security flow session</span>.</li>
+        <li>Confirm filter applied on the correct interface and direction.</li>
+        <li>Inspect term order and remember implicit deny at the end.</li>
+        <li>Add counters to suspect terms and observe with <span class="font-mono">show firewall filter &lt;name&gt; counter &lt;counter&gt;</span>.</li>
+        <li>Capture live packets with <span class="font-mono">monitor traffic interface &lt;int&gt;</span> if needed.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="font-semibold text-slate-700 mb-1">Example commands</div>
+        <pre class="code">show security flow session
+show configuration interfaces ge-0/0/0 | display set | match "filter"
+show firewall filter MY-FILTER counter
+monitor traffic interface ge-0/0/0 matching "tcp port 179"</pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-700 mb-2">Example: add a counter term</div>
+      <pre class="code"># add a counter to term 10 to count matches
+set firewall family inet filter MY-FILTER term TERM-10 then count TERM10-COUNT
+commit
+# after traffic runs
+show firewall filter MY-FILTER counter TERM10-COUNT</pre>
+
+      <div class="font-semibold text-slate-700 mt-3 mb-1">Misconception</div>
+      <p class="text-sm text-rose-700">Assuming a filter is not applied. Always confirm the interface and direction; an input filter does not affect outbound traffic on the same interface.</p>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the session table and counters before changing policy logic. Counters and packet captures provide objective evidence of hits and drops.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

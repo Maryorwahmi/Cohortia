@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--emerald:#10b981} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">IPsec Phases — What each phase does</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Phase 1 (IKE) and Phase 2 (IPsec)</h3>
+      <p class="text-sm text-slate-600 mt-3">Understand what each phase negotiates and how mismatches manifest in show output.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-700">Phase 1 responsibilities</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc list-inside">
+            <li>Authentication method and pre-shared key</li>
+            <li>Encryption, hash, DH group, lifetime</li>
+            <li>Establishes the secure control channel</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-1">If Phase 1 is down, fix authentication or parameter mismatches before chasing Phase 2 errors.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="font-semibold text-slate-700">Phase 2 details and example</div>
+      <p class="text-sm text-slate-600 mt-2">Phase 2 negotiates transform-sets and the set of interesting traffic to protect. Example mismatch: both peers authenticate, but Router A uses AES and Router B uses 3DES as the transform — Phase 2 will fail.</p>
+
+      <div class="mt-3">
+        <div class="rounded-md bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-2">You observe show crypto isakmp sa returning QM_IDLE for the peer, indicating Phase 1 is up. Then show crypto ipsec sa shows no active SAs and zero packets encapsulated. This suggests transform-set mismatch or an incorrect crypto map access-list.</div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+            <p class="text-sm text-slate-700 mt-1">Assuming Phase 1 fixes will also fix Phase 2 errors; always check transform-set and crypto ACL definitions separately.</p>
+          </div>
+
+          <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Pro tip</div>
+            <p class="text-sm text-slate-700 mt-1">Check pkts encaps and pkts decaps counters in show crypto ipsec sa to confirm actual encrypted traffic flow.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

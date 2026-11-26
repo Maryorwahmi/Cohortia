@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Service selection by OS family</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-5 shadow-sm border card">
+      <div class="text-sm font-semibold text-slate-800">Preferred (explicit) pattern</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">- name: Ensure httpd is running on RedHat
+  ansible.builtin.service:
+    name: httpd
+    state: started
+  when: ansible_os_family == 'RedHat'
+
+- name: Ensure nginx is running on Debian
+  ansible.builtin.service:
+    name: nginx
+    state: started
+  when: ansible_os_family == 'Debian'</pre>
+      <div class="mt-3 text-sm text-slate-700">This pattern ensures each task only runs where appropriate and avoids accidental management of the wrong service.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border card">
+      <div class="text-sm font-semibold text-slate-800">Alternative (single task)</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">- name: Ensure web service is running
+  ansible.builtin.service:
+    name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'nginx' }}"
+    state: started</pre>
+      <div class="mt-3 text-sm text-slate-700">This is concise but can attempt to manage a service not present on the system if other factors differ. Use with caution and verify package availability first.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+    <p class="text-xs font-medium text-slate-800">Which approach preserves idempotence and reduces the chance of failure on mixed inventories?</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">NFSv4 Overview</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h2 class="text-xl font-bold text-slate-900 mt-2">NFSv4: single-port, global namespace, Kerberos-ready</h2>
+      <p class="text-sm text-slate-700 mt-3">NFSv4 simplifies firewall rules by using port 2049 and unifies exported directories under a pseudo-filesystem. It builds in security hooks to integrate with Kerberos for authentication and optional encryption.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+          <div class="text-sm font-semibold text-blue-700">fsid=0 (pseudo-root)</div>
+          <div class="text-sm text-slate-700 mt-1">Designates the root export for the NFSv4 pseudo-filesystem; all other exports must be subdirectories.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-violet-50 border border-violet-100">
+          <div class="text-sm font-semibold text-violet-700">sec=krb5p</div>
+          <div class="text-sm text-slate-700 mt-1">Kerberos privacy mode: authentication, integrity, and encryption for NFS traffic.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">NFSv4 provides a cleaner namespace and stronger security primitives, but they must be intentionally configured.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete Example</div>
+      <div class="mt-2 bg-slate-800 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap;tab-size:2">
+        # /etc/exports example
+        /srv/nfsshare *(rw,sync,no_subtree_check,fsid=0)
+        /srv/nfsshare/data 192.168.10.0/24(rw,sync,no_subtree_check,sec=krb5p)
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Assuming NFSv4 is secure out-of-the-box. Without Kerberos and correct export options you can still allow unauthenticated or overly permissive access.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-sm font-semibold text-amber-700">Check</div>
+          <p class="text-sm text-slate-700 mt-1">Run showmount -e server to confirm the pseudo-root and subexports are visible as intended.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

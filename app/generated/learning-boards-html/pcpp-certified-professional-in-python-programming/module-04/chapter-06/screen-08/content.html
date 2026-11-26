@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .badge{background:#ecfeff;padding:6px;border-radius:8px;}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900">Barrier — Phase synchronization</div>
+      <div class="text-sm text-slate-600 mt-2">Wait until a fixed number of participants arrive, then release them all together.</div>
+
+      <div class="mt-4 rounded-xl bg-white card-border p-3 shadow-sm">
+        <div class="font-semibold text-slate-800">Example Usage</div>
+        <div class="text-sm text-slate-600 mt-2">Create a barrier with the participant count and call barrier.wait() at phase boundaries. When the Nth participant calls wait, all are released.</div>
+
+        <div class="mt-3 mono p-2 bg-slate-50 rounded text-xs">import threading
+import random
+import time
+
+num_participants = 3
+barrier = threading.Barrier(num_participants)
+
+def participant(id):
+  print(f"Participant {id}: Starting phase 1...")
+  time.sleep(random.uniform(0.5, 2))
+  print(f"Participant {id}: Finished phase 1, waiting at barrier.")
+  barrier.wait()
+  print(f"Participant {id}: Barrier passed! Starting phase 2...")
+</div>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Pitfalls and Mitigations</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Deadlock if a participant never arrives. Use timeouts or watchdogs.</li>
+          <li>Participant failure leaves barrier blocked; design an abort or replacement strategy.</li>
+          <li>Barrier synchronizes phases but does not protect shared mutable state; use locks where needed.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use Barrier for deterministic phase boundaries among a known set of participants, and handle missing participants with timeouts or fallback logic.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

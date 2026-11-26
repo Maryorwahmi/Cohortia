@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Dump and Restore</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-4 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Prepare backup directory
+mkdir -p /data/backups/full_backup
+
+# Dump from a secondary (port 27018) with oplog
+mongodump --host localhost:27018 --out /data/backups/full_backup --oplog --db backup_test_db
+
+# Simulate data loss on primary (27017)
+# In mongo shell:
+use backup_test_db
+db.products.drop()
+
+# Restore to primary and replay oplog
+mongorestore --host localhost:27017 --drop /data/backups/full_backup --oplogReplay --db backup_test_db
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</div>
+      <div class="mt-3 text-sm text-slate-700">
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Connect to primary and run db.users.find() and db.products.find() to confirm restored documents.</li>
+          <li>Check job logs and file timestamps in the backup directory to ensure snapshots completed successfully.</li>
+          <li>Automate smoke checks after restores: verify critical documents and counts.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Safety Note</div>
+          <p class="text-xs font-medium text-slate-800">Do not run mongodump on the primary during peak load; prefer secondaries for production backups.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0b1220;color:#dbeafe;padding:14px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring build.gradle</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-900">Configure Gradle Signing</h3>
+      <p class="text-sm text-slate-600 mt-2">Reference your keystore so Gradle signs release builds automatically, and keep secrets out of version control.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Safer Practice</div>
+        <p class="text-sm text-slate-600 mt-2">Store passwords in a gradle.properties file excluded from git, or use environment variables for CI systems.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-2">A correct signing config prevents unsigned releases and supports reproducible builds.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="text-sm font-semibold text-slate-800">Example build.gradle snippet</div>
+      <pre class="code mt-3" style="white-space:pre-wrap; tab-size:2;">android {
+    ...
+    signingConfigs {
+        release {
+            storeFile file(&quot;your_keystore_name.jks&quot;) // Path to your keystore
+            storePassword "your_store_password"
+            keyAlias "your_key_alias"
+            keyPassword "your_key_password"
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note: Replace quoted passwords with secure lookups in real projects. This snippet shows the structure Gradle expects.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

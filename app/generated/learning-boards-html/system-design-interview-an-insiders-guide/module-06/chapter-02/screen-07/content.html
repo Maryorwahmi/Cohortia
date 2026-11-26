@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Comparison</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Delivery Guarantees</h3>
+        <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-700">
+          <div class="rounded p-3 bg-slate-50"><strong>At-most-once:</strong> delivery 0..1. Low overhead, possible loss. Use for non-critical events.</div>
+          <div class="rounded p-3 bg-slate-50"><strong>At-least-once:</strong> delivery 1..n. Guaranteed delivery; duplicates possible; requires idempotency.</div>
+          <div class="rounded p-3 bg-slate-50"><strong>Exactly-once:</strong> delivery exactly once. Hard to achieve; usually implemented by careful idempotency and transactional writes.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Example: payment processing</div>
+        <div class="mt-2 text-sm text-slate-600">For payments you need an effectively exactly-once result. Use a unique transaction ID and a consumer that checks and records the ID in the same atomic operation as processing.</div>
+        <div class="mt-3 text-xs text-slate-500">Misconception: Broker guarantees remove consumer responsibility — always plan for idempotency and atomic state changes.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Map business requirements to a delivery guarantee and design consumers to tolerate duplicates or loss as required.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Quick reference</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li><strong>Telemetry:</strong> at-most-once</li>
+          <li><strong>Job queues:</strong> at-least-once</li>
+          <li><strong>Payments / ledgers:</strong> aim for effective exactly-once via idempotency and transactions</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Interview tip</div>
+        <div class="mt-2 text-sm text-slate-600">When asked, present a short plan: choose guarantee, explain consumer idempotency, and mention DLQ for poison messages.</div>
+      </div>
+    </div>
+  </div>
+</div>

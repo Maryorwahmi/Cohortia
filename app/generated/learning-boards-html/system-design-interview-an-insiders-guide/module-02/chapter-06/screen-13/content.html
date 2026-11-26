@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Optimistic Concurrency Control</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-900 mb-2">SQL pattern (version number)</div>
+        <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+-- Read
+SELECT balance, version FROM accounts WHERE id = 123;
+-- Suppose balance = 100, version = 5
+
+-- Attempt update
+UPDATE accounts
+SET balance = 100 - 10,
+    version = version + 1
+WHERE id = 123 AND version = 5;
+
+-- If 0 rows affected, another transaction changed the row; re-read and retry.
+        </pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Retry policy</div>
+        <div class="text-sm text-slate-700">On conflict, re-read the record, recompute state, and retry a bounded number of times with backoff to avoid livelock under heavy contention.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-900 mb-2">When OCC fits</div>
+        <div class="text-sm text-slate-700">High read-to-write ratios and rare conflicts. It eliminates lock overhead and deadlocks but requires careful retry handling.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use optimistic control when conflicts are rare and you can tolerate retry cost; otherwise prefer more conservative locking.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

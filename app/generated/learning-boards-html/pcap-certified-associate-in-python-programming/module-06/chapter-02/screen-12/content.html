@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">Common Mistakes</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full grid grid-cols-2 gap-4">
+    <div class="p-4">
+      <div class="text-sm font-bold text-slate-800">Forgot return</div>
+      <pre class="code mt-2 p-3 rounded bg-slate-100 border">def broken(func):
+  def wrapper(*args, **kwargs):
+    func(*args, **kwargs)  # forgotten return
+  return wrapper
+
+@broken
+def value():
+  return 5
+
+# value() returns None</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Fix: capture the result and return it.</div>
+    </div>
+
+    <div class="p-4">
+      <div class="text-sm font-bold text-slate-800">Lost metadata</div>
+      <pre class="code mt-2 p-3 rounded bg-slate-100 border">def log_call(func):
+  def wrapper(*a, **k):
+    return func(*a, **k)
+  return wrapper
+
+# Inspecting decorated function shows 'wrapper' unless functools.wraps is used.</pre>
+      <div class="mt-3 text-xs text-slate-600">Fix: add @wraps(func) before wrapper.</div>
+    </div>
+
+    <div class="p-4">
+      <div class="text-sm font-bold text-slate-800">Side effects at import</div>
+      <div class="text-xs text-slate-600 mt-2">Remember decorators run at definition time. Avoid I/O, heavy computation, or network calls in decorator factories unless intentional.</div>
+    </div>
+
+    <div class="p-4">
+      <div class="text-sm font-bold text-slate-800">Debugging tips</div>
+      <ul class="list-disc pl-5 mt-2 text-xs text-slate-600 space-y-2">
+        <li>Test decorated functions for return values.</li>
+        <li>Print __name__ and __doc__ to confirm metadata.</li>
+        <li>Instrument decorators to observe execution order when chained.</li>
+      </ul>
+    </div>
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

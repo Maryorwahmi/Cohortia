@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .code-panel { background: #0f172a; color: #e6eef8; border-radius: 12px; }
+    .tag { font-size: 10px; letter-spacing: .08em; }
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.8</span>
+      <span>›</span>
+      <span class="text-slate-700">Project scaffold</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border p-4 bg-white shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Why this matters</div>
+        <p class="text-sm text-slate-700">CI needs a stable, machine-readable project structure. This scaffold makes builds deterministic, enables static analyzers, and gives tests a canonical target name for automation.</p>
+      </div>
+
+      <div class="rounded-xl border p-4 bg-white shadow-sm flex-1" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Files to add</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li><strong>CMakeLists.txt</strong> with CMAKE_EXPORT_COMPILE_COMMANDS and enable_testing()</li>
+          <li><strong>src/main.cpp</strong> small function and main for smoke runs</li>
+          <li><strong>test/test_math.cpp</strong> Google Test unit cases</li>
+          <li><strong>.clang-tidy</strong> your static-analysis rules</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Make build and test targets explicit so CI can run the same commands every time.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="code-panel p-4 font-mono text-sm rounded-xl h-2/3 overflow-auto">
+<pre style="white-space: pre-wrap; tab-size: 2"># CMakeLists.txt
+cmake_minimum_required(VERSION 3.15)
+project(CICppDemo CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # For Clang-Tidy and other analyzers
+
+add_executable(my_app src/main.cpp)
+
+enable_testing()
+add_executable(my_tests test/test_math.cpp)
+# In CI, link or add googletest as needed
+add_test(NAME MyMathTests COMMAND my_tests)</pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example src/main.cpp</div>
+        <pre class="text-sm font-mono" style="white-space: pre-wrap; tab-size: 2">#include &lt;iostream&gt;
+
+int add(int a, int b) { return a + b; }
+
+int main() {
+  std::cout << "Result of 2 + 3: " << add(2, 3) << std::endl;
+  return 0;
+}</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

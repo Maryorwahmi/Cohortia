@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} .step{background:#f8fafc;padding:12px;border-radius:10px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <div class="card p-4 h-[68vh] overflow-hidden">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">Lab Timeline</div>
+      <div class="grid grid-cols-1 gap-3 h-full">
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">1. Setup and verify</div>
+          <div class="text-sm text-slate-600">Install httpd, create /srv/webapp/html/index.html, and confirm SELinux is enforcing with sestatus.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">2. Reproduce denial and collect AVC</div>
+          <div class="text-sm text-slate-600">Try to access the page, then use ausearch -c 'httpd' --raw or check /var/log/audit/audit.log to gather messages.</div>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">3. Apply permanent label</div>
+          <pre class="mt-2 bg-slate-50 p-2 rounded text-xs">sudo semanage fcontext -a -t httpd_sys_content_t "/srv/webapp/html(/.*)?"
+sudo restorecon -Rv /srv/webapp/html</pre>
+        </div>
+        <div class="step">
+          <div class="text-sm font-semibold text-slate-800">4. Ports & booleans if needed</div>
+          <div class="text-sm text-slate-600">Add port 8080 to http_port_t and enable httpd_can_network_connect when Apache proxies to a backend.</div>
+        </div>
+        <div class="step mt-auto">
+          <div class="text-sm font-semibold text-slate-800">5. Verify</div>
+          <div class="text-sm text-slate-600">Restart httpd, test the site, and ensure AVC denials related to the fix no longer appear.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace} .card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);background:white}</style>
+
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 card p-4 overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <h4 class="text-lg font-bold text-slate-800">Spoke configuration snippet</h4>
+
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md"><code>interface Tunnel0
+ ip address 172.16.0.2 255.255.255.0
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ no ip redirects
+ ip nhrp network-id 100
+ ip nhrp nhs 172.16.0.1
+ ip nhrp map 172.16.0.1 198.51.100.1
+ ip nhrp map multicast 198.51.100.1
+ tunnel source GigabitEthernet0/1
+ tunnel destination 198.51.100.1
+ tunnel mode gre multipoint
+ crypto ipsec profile COHORTIA_IPSEC_PROFILE
+
+router eigrp 1
+ network 172.16.0.0 0.0.0.255
+ network 10.0.0.0 0.0.0.255
+ no auto-summary</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">This spoke snippet registers its tunnel address with the hub and maps the hub's tunnel IP to the hub's public IP so initial registration and multicast mapping succeed.</div>
+    </div>
+
+    <div class="w-1/3 p-4 flex flex-col gap-3">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Troubleshooting steps</div>
+        <ol class="text-sm text-slate-600 list-decimal pl-5 mt-2 space-y-1">
+          <li>Confirm public IP connectivity to hub.</li>
+          <li>Check show ip nhrp for registrations.</li>
+          <li>Verify show crypto ikev2 sa and show crypto ipsec sa.</li>
+          <li>Validate routing adjacencies (show ip eigrp neighbors).</li>
+        </ol>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Common fixes</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 mt-2">
+          <li>Correct ip nhrp network-id mismatches.</li>
+          <li>Open UDP 500/4500 on firewalls if NAT-T is present.</li>
+          <li>Adjust MTU/MSS to avoid fragmentation for GRE over IPsec.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

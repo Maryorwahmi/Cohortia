@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">pg_restore basics</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Full restore example</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space: pre-wrap; tab-size: 2;"># Create database
+createdb -U postgres sales_db_restore
+
+# Restore from custom format
+pg_restore -U postgres -d sales_db_restore /tmp/sales_db_custom.dump
+
+# Or let pg_restore create the DB
+pg_restore -U postgres --clean --create -d sales_db_restore /tmp/sales_db_custom.dump</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">When to use --create</div>
+          <div class="text-xs text-slate-700">Use --create when the archive includes a CREATE DATABASE entry and you want pg_restore to handle creation for you.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Options at a glance</div>
+      <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+        <li><strong>--clean</strong>: drop objects before recreating them to avoid conflicts.</li>
+        <li><strong>--create</strong>: create the database from the archive's metadata.</li>
+        <li><strong>--table/--schema</strong>: restrict restoration to specific objects.</li>
+        <li><strong>--jobs=N</strong>: run parallel workers to speed up restore.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-lg p-3 bg-amber-50 border card-border">
+          <div class="text-sm font-semibold text-amber-700">Misconception</div>
+          <div class="text-xs text-slate-700">Using --create with an existing database name may not drop the prior database. Understand whether you need to drop first or rely on pg_restore's options.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full overflow-hidden">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Lab Walkthrough</div>
+    <div class="text-lg font-bold text-slate-900 mt-2">Comprehensive policy example</div>
+    <div class="text-sm text-slate-600 mt-2">Read and trace the policy to predict how routes are modified and accepted.</div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 p-3 rounded h-3/4 overflow-auto"><code>policy-options {
+    community NO_ADVERTISE members "no-advertise";
+    community ISP_A_ROUTES members 65000:100;
+
+    policy-statement INBOUND_ISP_A {
+        term PREFER_ISP_A_ROUTES {
+            from {
+                protocol bgp;
+                neighbor 203.0.113.1;
+            }
+            then {
+                local-preference 300;
+                community add ISP_A_ROUTES;
+                next-term;
+            }
+        }
+        term REJECT_BOGONS {
+            from {
+                route-filter 10.0.0.0/8 orlonger;
+                route-filter 172.16.0.0/12 orlonger;
+                route-filter 192.168.0.0/16 orlonger;
+            }
+            then {
+                reject;
+            }
+        }
+        term ACCEPT_ALL_OTHERS {
+            then {
+                accept;
+            }
+        }
+    }
+
+    policy-statement OUTBOUND_TO_ISP_B {
+        term FILTER_INTERNAL_ONLY {
+            from {
+                protocol direct;
+                route-filter 192.168.0.0/16 orlonger;
+            }
+            then {
+                as-path-prepend "65500 65500";
+                metric 500;
+                community add NO_ADVERTISE;
+                accept;
+            }
+        }
+        term REJECT_ALL_OTHERS {
+            then { reject; }
+        }
+    }
+}</code></pre>
+
+    <div class="mt-3 text-xs text-slate-600">Trace each term: attributes applied in earlier terms persist unless overwritten, and accept/reject decisions determine final installation and advertisement.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

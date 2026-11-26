@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Placement Groups & Balancing</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Placement Groups and distribution</div>
+      <div class="text-sm text-slate-600 mt-1">PGs are the mapping unit; choose counts carefully to avoid hotspots or metadata bloat.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-bold">Symptoms of bad PG sizing</div>
+          <ul class="mt-2 list-disc list-inside text-sm text-slate-700">
+            <li>Uneven OSD utilization in ceph osd df output.</li>
+            <li>Some OSDs show consistently higher IOPS.</li>
+            <li>Large rebalances when you change cluster topology.</li>
+          </ul>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-bold">Safe tuning steps</div>
+          <ol class="mt-2 list-decimal list-inside text-sm text-slate-700">
+            <li>Check current pg_num for the pool.</li>
+            <li>Calculate an appropriate target with OSD count and replica factor.</li>
+            <li>Increase pg_num in small increments and set pgp_num to match, monitoring ceph -s.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full">
+        <div class="text-sm font-bold">Diagnostic commands</div>
+        <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Check PG count for a pool
+ceph osd pool get <pool_name> pg_num
+
+# Check OSD utilization
+ceph osd df
+
+# Monitor overall health
+ceph -s
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">If imbalance persists after PG tuning, review CRUSH rules and host-level buckets for topology biases.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

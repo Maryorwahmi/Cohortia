@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Network statement</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Network statement</h3>
+      <p class="text-sm text-slate-700 mt-2">Instructs BGP to advertise a specific prefix only when that exact prefix exists in inet.0. It will not create routes.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc list-inside space-y-1">
+          <li>Prevents advertising unreachable prefixes.</li>
+          <li>Clear operational intent: advertise only known prefixes.</li>
+          <li>Works well with a static discard route or connected summary.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common misconception</div>
+        <p class="text-sm text-slate-600 mt-1">Some expect network to add the route automatically; it does not. Always verify the route is in inet.0.</p>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Configuration example</div>
+      <div class="mt-2 mono text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>set routing-options static route 172.16.1.0/24 next-hop discard
+set protocols bgp group EBGP_PEER family inet unicast
+set protocols bgp group EBGP_PEER neighbor 10.0.0.2 peer-as 65002
+set protocols bgp group EBGP_PEER network 172.16.1.0/24</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-800 mt-1">Add static discard so the network statement has a route to advertise.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Check</div>
+          <div class="text-sm text-slate-800 mt-1">Use show route 172.16.1.0/24 and show route advertising-protocol bgp 10.0.0.2</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Network statements require an exact-match route in the local routing table; configure reachability or a discard route first.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

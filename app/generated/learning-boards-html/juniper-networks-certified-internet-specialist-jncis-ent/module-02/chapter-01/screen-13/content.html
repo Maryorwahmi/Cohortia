@@ -1,0 +1,41 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace}.card{background:#fff;border-radius:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Configuration & Verification</span>
+      <span class='text-slate-700'>Trunk Port</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='text-xl font-bold text-slate-900'>Trunk commands</div>
+      <div class='text-sm text-slate-600'>Allow multiple VLANs on the uplink and verify both endpoints match.</div>
+      <div class='card p-4'>
+        <pre>
+# Configure trunk uplink
+set interfaces ge-0/0/2 unit 0 family ethernet-switching interface-mode trunk
+set interfaces ge-0/0/2 unit 0 family ethernet-switching vlan members [ VLAN_IT VLAN_GUEST ]
+
+# Or allow all VLANs
+# set interfaces ge-0/0/2 unit 0 family ethernet-switching vlan members all
+
+commit
+</pre>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Verification checklist</div>
+        <ul class='text-sm text-slate-700 space-y-2 pl-5'>
+          <li>Run show vlans to confirm member lists on both switches.</li>
+          <li>Run show interfaces ge-0/0/2 extensive to confirm interface-mode is trunk.</li>
+          <li>Check MAC tables to see VLAN MACs learned across the uplink.</li>
+        </ul>
+      </div>
+      <div class='rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Common mistake</div>
+        <p class='text-xs font-medium text-slate-800'>Inconsistent VLAN membership on trunk endpoints causes certain VLAN traffic to be dropped; verify both sides match.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

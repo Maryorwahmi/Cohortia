@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Events Clean</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Starter code excerpt</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded text-sm overflow-auto border" style="white-space: pre-wrap; tab-size: 2;"># 1. Extract city
+events_with_city = events_df.withColumn('user_city', col('location_info.city'))
+
+# 2. Explode actions safely
+from pyspark.sql.functions import explode
+non_empty = events_with_city.filter(col('actions').isNotNull())
+exploded = non_empty.withColumn('action', explode(col('actions')))
+
+# 3. Deduplicate
+dedup = exploded.dropDuplicates(subset=['event_id','user_id','event_timestamp','action'])
+
+# 4. Fill null device
+filled = dedup.na.fill({'device': 'Unknown Device'})
+
+# 5. Filter errors and null timestamps
+clean = filled.filter((col('event_type') != 'ERROR') & (col('event_timestamp').isNotNull()))
+clean.show()</pre>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Explanation & checks</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Compare counts before and after each step to verify expected changes.</li>
+        <li>Keep an original copy to enable audits and debugging.</li>
+        <li>Consider writing invalid or quarantined records to a separate Delta table for inspection.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+        <div class="text-xs text-slate-800">Run the sequence and examine user counts grouped by user_city and action to confirm explode behaved as intended.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

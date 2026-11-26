@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="mb-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-900">Move function (C++)</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Full snippet</div>
+      <pre class="mt-3 bg-slate-50 rounded p-3 card-border text-sm"><code>// In AMyPlayerPawn.cpp, within the Move function:
+void AMyPlayerPawn::Move(const FInputActionValue& Value)
+{
+  FVector2D MovementVector = Value.Get&lt;FVector2D&gt;();
+
+  if (Controller && (MovementVector.X != 0.0f || MovementVector.Y != 0.0f))
+  {
+    const FRotator Rotation = Controller-&gt;GetControlRotation();
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+    const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector RightDirection   = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    AddMovementInput(ForwardDirection, MovementVector.Y * MovementSpeed * GetWorld()-&gt;GetDeltaSeconds());
+    AddMovementInput(RightDirection,   MovementVector.X * MovementSpeed * GetWorld()-&gt;GetDeltaSeconds());
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Value.Get returns the input vector from your input action mapping.</li>
+        <li>Controller validity prevents null dereferences when possession is not active.</li>
+        <li>YawRotation strips pitch and roll so movement stays on the horizontal plane.</li>
+        <li>Multiplying by MovementSpeed and delta seconds makes motion consistent across machines.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Example</div>
+        <div class="text-sm text-slate-700 mt-2">Holding right moves the pawn along the right unit vector derived from controller yaw, scaled to MovementSpeed units per second.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

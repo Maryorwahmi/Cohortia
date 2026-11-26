@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Demo</span>
+    <span>›</span>
+    <span class="text-slate-700">Nova API Failure</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Terminal Sequence</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm font-mono overflow-auto" style="white-space:pre-wrap;tab-size:2">
+# 1. List services
+openstack service list
+
+# 2. Check Nova API unit status
+sudo systemctl status openstack-nova-api.service
+
+# 3. Tail recent Nova API logs
+sudo journalctl -u openstack-nova-api.service -n 50 -f
+
+# 4. Check RabbitMQ backlog and agents
+# (use appropriate rabbitmq or openstack agent commands)
+openstack network agent list
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">Follow these steps to locate the first error line which often points to dependency problems such as RabbitMQ or database connectivity.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Concrete Example</div>
+        <p class="text-sm text-slate-700 mt-2">When logs show "connection refused" to RabbitMQ, inspect RabbitMQ queues and connectivity before restarting Nova services; restarting Nova alone usually does not clear a messaging backlog.</p>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common Mistake</div>
+        <p class="text-sm text-slate-800 mt-1">Restarting multiple services at once without isolating the root cause can obscure the original error and delay recovery.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

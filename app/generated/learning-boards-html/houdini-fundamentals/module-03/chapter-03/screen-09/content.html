@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">set*attrib</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-700">Architecture</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Explicit cross-class writes</div>
+      <div class="text-sm text-slate-600 mt-2">Index-based APIs let you write attributes precisely but require correct indexes and modes.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold">setpointattrib</div>
+          <div class="text-sm text-slate-600 mt-1">setpointattrib(0, "Cd", ptIndex, {1,0,0}, "set"); writes color to a given point index.</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold">setprimattrib / setvertexattrib</div>
+          <div class="text-sm text-slate-600 mt-1">Same pattern: choose the right target class and supply appropriate index and mode.</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border p-3">
+          <div class="font-bold">setdetailattrib</div>
+          <div class="text-sm text-slate-600 mt-1">Write a single global value; useful for configuration-like attributes.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Performance note</div>
+        <p class="text-xs font-medium text-slate-800">These functions are fine when necessary, but prefer direct assignments when writing to the running class to keep nodes efficient.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Example usage</div>
+      <div class="mt-3 bg-slate-900 text-white rounded p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>// Inside a Primitive wrangle: write point colors for points of this primitive
+int pts[] = primpoints(0, @primnum);
+foreach (int pt; pts) {
+  setpointattrib(0, "Cd", pt, {1,0,0}, "set");
+}
+
+// Create a detail integer
+setdetailattrib(0, "global_scale_int", 2, "set");
+</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use set*attrib for targeted writes across classes but be mindful of cost and always validate created attribute names and types in the spreadsheet.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

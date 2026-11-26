@@ -1,0 +1,88 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root { --accent-blue: #2563eb; --muted-slate: #64748b; }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size: clamp(12px, 1.2vw, 14px); }
+  </style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Reading Tracebacks</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Why Tracebacks Matter</div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Understand where errors start</h3>
+      <p class="text-sm text-slate-600 mb-3">A short, disciplined read of the traceback gives you the file, function, and line that raised the exception. That context is what makes debugging efficient.</p>
+
+      <div class="mt-2 space-y-2">
+        <div class="flex items-start gap-2">
+          <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14"></path><path d="M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2"></path><path d="M8 11h8M8 15h5"></path></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Scan the type and message</div>
+            <div class="text-sm text-slate-500">Start at the last line to read the exception name and message; that often says exactly what failed.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2">
+          <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Follow the call path</div>
+            <div class="text-sm text-slate-500">Inspect each frame to see how values flowed into the failing line.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2">
+          <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v2m0 4h.01"/><path d="M21 12a9 9 0 1 0-18 0 9 9 0 0 0 18 0z"/></svg>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+            <div class="text-sm text-slate-500">Don't assume the last function called is the bug — it may only be where an invalid input was detected.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Tracebacks point to both the symptom and the context — read them fully and follow the call chain to find the root cause.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example Traceback</div>
+      <pre class="code bg-slate-50 p-3 rounded-md border text-[13px] leading-5 overflow-auto" style="white-space: pre-wrap; tab-size: 2;">Traceback (most recent call last):
+  File "main.py", line 18, in &lt;module&gt;
+    print(process_values([1, 'x', 3]))
+  File "utils.py", line 6, in process_values
+    return sum(values) / len(values)
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+</pre>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">How to act on this</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-2 list-disc list-inside">
+          <li>Note the final TypeError and the failing expression.</li>
+          <li>Open the indicated file and check the inputs to sum — one element is a string.</li>
+          <li>Trace earlier calls to find where the non-numeric value entered the list.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 flex gap-2">
+        <div class="p-3 bg-blue-50 rounded-lg flex-1">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Scenario</div>
+          <div class="text-sm text-slate-700">A function that expects numbers receives mixed types from user input. The traceback shows the operation and file where Python failed.</div>
+        </div>
+        <div class="p-3 bg-amber-50 rounded-lg flex-1">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Quick check</div>
+          <div class="text-sm text-slate-700">Add simple validation or convert inputs before performing arithmetic to prevent this error.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

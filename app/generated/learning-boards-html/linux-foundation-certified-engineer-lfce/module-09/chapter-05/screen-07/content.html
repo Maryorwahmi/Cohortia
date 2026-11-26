@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border p-5 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Task with notify</div>
+      <pre class="code mt-3 rounded-md bg-slate-50 p-3 text-sm">- name: Deploy custom Nginx configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx</pre>
+
+      <div class="mt-4 text-sm text-slate-700">If the template changes, the task reports changed and the handler will be queued. Handlers run at the end of the play and only once per handler name.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl border p-5 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Handler example</div>
+      <pre class="code mt-3 rounded-md bg-slate-50 p-3 text-sm">---
+- name: restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+  become: true</pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-2">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-bold text-emerald-700">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-2">Test handlers by running the playbook twice and confirming only the first run triggers the restart.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-bold text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Avoid direct immediate restarts in tasks; they cause unnecessary disruptions when no change occurred.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; font-size:13px;}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-800">divide function</h3>
+      <div class="mt-4 text-sm text-slate-600">Read the code to see how a runtime error is thrown on invalid input and handled by specific catch blocks in main.</div>
+
+      <div class="mt-4 bg-slate-50 rounded-lg p-3 overflow-auto">
+        <pre><code>#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+
+double divide(double numerator, double denominator) {
+  if (denominator == 0) {
+    throw std::runtime_error("Error: Division by zero is not allowed.");
+  }
+  return numerator / denominator;
+}
+
+int main() {
+  try {
+    double result1 = divide(10.0, 2.0);
+    std::cout &lt;&lt; "10.0 / 2.0 = " &lt;&lt; result1 &lt;&lt; std::endl;
+
+    double result2 = divide(5.0, 0.0); // This will throw an exception
+    std::cout &lt;&lt; "This line will not be reached." &lt;&lt; std::endl;
+  } catch (const std::runtime_error& e) {
+    std::cerr &lt;&lt; "Caught an exception: " &lt;&lt; e.what() &lt;&lt; std::endl;
+  } catch (const std::exception& e) {
+    std::cerr &lt;&lt; "Caught a general standard exception: " &lt;&lt; e.what() &lt;&lt; std::endl;
+  } catch (...) {
+    std::cerr &lt;&lt; "Caught an unknown exception type." &lt;&lt; std::endl;
+  }
+
+  std::cout &lt;&lt; "Program continues after exception handling." &lt;&lt; std::endl;
+  return 0;
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Explanation</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>When divide throws, the remaining lines in the try block are skipped and control moves to the first matching catch.</li>
+        <li>Using catch by const reference preserves the exception object's type and avoids copying.</li>
+        <li>Specific catches (runtime_error) should appear before broader ones (std::exception) to allow tailored handling.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-2">Change the thrown type and observe which catch block runs to see matching and ordering in practice.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Test both normal and exceptional paths; catching by const reference preserves information and avoids slicing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

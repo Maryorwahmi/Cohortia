@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">ansible-builder & EEs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl card p-5 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Define, build, validate</div>
+      <div class="text-sm text-slate-600 mt-2">Use execution-environment.yml and requirements.txt to include Python libraries and collections inside an EE image.</div>
+
+      <div class="mt-3 p-3 rounded-lg bg-white border border-slate-100 text-sm">
+        <div class="font-semibold text-slate-700">Steps</div>
+        <ol class="list-inside list-decimal text-sm text-slate-600 mt-2">
+          <li>Create requirements.txt listing Python packages your modules need.</li>
+          <li>Create execution-environment.yml describing dependencies and copy steps.</li>
+          <li>Run ansible-builder build -f execution-environment.yml -t your-ee:tag.</li>
+          <li>Test the image locally with ansible-navigator run ... --ee your-ee:tag.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl card p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example execution-environment.yml</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>---
+version: 1
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTIONS_PATH: "/usr/share/ansible/collections"
+dependencies:
+  python: requirements.txt # Include requests from requirements.txt
+additional_build_steps:
+  prepend_base: |
+    # Any system-level packages needed, e.g.,
+    # RUN dnf install -y git
+  append_final: |
+    COPY --from=builder /usr/src/app/my_custom_collection /usr/share/ansible/collections/ansible_collections/my_custom_collection_namespace/my_custom_collection
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">The append_final step copies your built collection into the EE filesystem so Ansible can import your module at runtime.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

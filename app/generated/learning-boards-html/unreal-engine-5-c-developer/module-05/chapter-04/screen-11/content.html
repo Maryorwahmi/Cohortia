@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">UMG to C++</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Widget side</div>
+      <div class="mt-3 text-sm text-slate-700">Add HealButton and create an OnClicked event in the Graph. From OnClicked: GetPlayerCharacter -> Cast To MyCharacter -> Call Heal(20.0f).</div>
+
+      <div class="mt-4 rounded-xl bg-slate-50 p-3 mono" style="white-space:pre-wrap; tab-size:2">
+        <pre style="margin:0">// Graph (visual steps)
+OnClicked_HealButton
+  -> GetPlayerCharacter
+  -> Cast To MyCharacter
+  -> Heal(20.0f)</pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">C++ side</div>
+      <pre style="white-space:pre-wrap; tab-size:2; margin:0">// AMyCharacter.h
+UFUNCTION(BlueprintCallable, Category = "Health")
+void Heal(float HealAmount);
+
+// AMyCharacter.cpp
+void AMyCharacter::Heal(float HealAmount)
+{
+  CurrentHealth = FMath::Clamp(CurrentHealth + HealAmount, 0.0f, MaxHealth);
+  OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+}</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

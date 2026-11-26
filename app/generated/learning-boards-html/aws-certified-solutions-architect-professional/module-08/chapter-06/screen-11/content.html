@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda X-Ray Lab</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card">
+      <div class="text-lg font-bold text-slate-900">Step checklist</div>
+      <ol class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Create Lambda function 'XRayDemoFunction' with Python runtime.</li>
+        <li>Paste the function code that creates subsegments and uses boto3.</li>
+        <li>Enable Active tracing in Configuration → Monitoring and operations tools.</li>
+        <li>Invoke the function multiple times to generate traces.</li>
+        <li>Open X-Ray console → Service map and Traces to inspect results.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card">
+      <div class="text-lg font-bold text-slate-900">Starter code (concept)</div>
+      <pre class="mt-3 rounded-lg bg-slate-50 p-3 mono text-sm" style="white-space:pre-wrap;tab-size:2;">
+import time
+import boto3
+from aws_xray_sdk.core import xray_recorder
+
+def lambda_handler(event, context):
+  time.sleep(0.1)
+  with xray_recorder.in_subsegment('process_input'):
+    input_data = event.get('key', 'default_value')
+    time.sleep(0.05)
+  s3 = boto3.client('s3')
+  try:
+    response = s3.list_buckets()
+  except Exception as e:
+    xray_recorder.current_subsegment().add_exception(e)
+  return {'statusCode':200}
+</pre>
+      <div class="mt-3 text-xs text-slate-600">Deploy and test. Use the X-Ray console to verify segments and subsegments appear as expected.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

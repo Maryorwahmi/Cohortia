@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">DHCP Options</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Common pool options</div>
+      <div class="mt-3 text-sm text-slate-600">Set gateway, DNS, and lease time inside each pool so clients receive consistent parameters.</div>
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 code border border-[rgba(226,232,240,0.9)]">
+<pre><code>ip dhcp pool DHCP_POOL_VLAN10
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+ lease 8
+</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Adjust lease times for device churn. Short leases are useful in dynamic labs; longer leases reduce DHCP traffic in stable production environments.</div>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Validation and pitfalls</div>
+      <ul class="list-disc pl-4 mt-2 text-sm text-slate-600">
+        <li>Test that clients receive the default-router and can ping the gateway.</li>
+        <li>Check DNS resolution from the client when DNS servers are assigned by DHCP.</li>
+        <li>Remember that an incorrect default-router prevents inter-subnet communication even if the client has a valid IP.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-[12px] text-slate-800 mt-1">Options configure client behavior; mismatches produce reachable-but-isolated hosts or broken name resolution.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

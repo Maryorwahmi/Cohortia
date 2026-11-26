@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+    <div class="text-2xl font-bold text-slate-800 mb-1">Multi-key operations and slot constraints</div>
+    <div class="text-sm text-slate-600">Compare single-key semantics with multi-key restrictions in a cluster.</div>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Single-key commands</div>
+      <div class="text-sm text-slate-600 mt-3">Operate on one key and route directly to the owner of that slot. These commands are straightforward in Cluster because the server owning the slot executes them locally.</div>
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">Examples: GET, SET — work normally because only one slot is involved.</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Multi-key commands</div>
+      <div class="text-sm text-slate-600 mt-3">Require all keys to belong to the same slot. If they don’t, the command fails to avoid cross-node atomicity and ordering issues.</div>
+      <div class="mt-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">Examples: MGET key1 key2 — succeeds only if key1 and key2 map to the same slot.</div>
+    </div>
+  </div>
+  <div class="mt-4 bg-white rounded-xl p-3 card-border shadow-sm">
+    <div class="text-sm text-slate-600">Design implication: use hash tags like {id} to group related keys when you need multi-key operations. But avoid funneling all keys through a single tag unless necessary, as that creates hotspots.</div>
+  </div>
+</div>

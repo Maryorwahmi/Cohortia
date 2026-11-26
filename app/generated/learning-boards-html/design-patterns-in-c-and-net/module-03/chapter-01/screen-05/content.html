@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mb-3">Steps to build an object adapter</div>
+      <div class="flex flex-col gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">1. Define Target</div>
+          <div class="text-sm text-slate-600 mt-1">Choose the interface the client expects, such as ILogger.LogMessage(string).</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold text-violet-700">2. Identify Adaptee</div>
+          <div class="text-sm text-slate-600 mt-1">Find the existing class to reuse, like LegacyLogger with a different method shape.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">3. Implement Adapter</div>
+          <div class="text-sm text-slate-600 mt-1">Implement Target and hold the Adaptee instance via constructor injection.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">4. Translate and delegate</div>
+          <div class="text-sm text-slate-600 mt-1">Map Target calls to Adaptee calls, transforming parameters as required.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">5. Test and document</div>
+          <div class="text-sm text-slate-600 mt-1">Add unit tests for translation logic and document mapping rules to avoid surprises.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Example validation checks</div>
+          <ul class="list-disc list-inside text-sm text-slate-600 mt-2">
+            <li>Ensure the injected Adaptee is non-null and behaves as expected.</li>
+            <li>Test that calls to LogMessage produce the correct Adaptee calls.</li>
+            <li>Guard against Adaptee side effects with integration tests.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Concrete scenario</div>
+      <div class="text-sm text-slate-600 mb-3">Client expects ILogger.LogMessage. LegacyLogger exposes WriteToConsole(string) and WriteToFile(string). The Adapter maps LogMessage to WriteToConsole and can optionally add routing logic if needed.</div>
+
+      <div class="rounded-lg bg-slate-50 p-3 mb-3">
+        <div class="text-sm font-semibold text-slate-800">Design rule</div>
+        <div class="text-sm text-slate-600 mt-1">Adapters should not expand responsibilities; keep them focused on interface translation only.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Key Takeaway</div>
+        <div class="text-sm text-slate-600 mt-1">Follow a stepwise process and validate with tests; composition gives you flexibility in C#.</div>
+      </div>
+    </div>
+  </div>
+</div>

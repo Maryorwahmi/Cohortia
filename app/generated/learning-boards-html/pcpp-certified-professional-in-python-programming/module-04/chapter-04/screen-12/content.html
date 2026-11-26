@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Activity</div>
+      <h3 class="text-lg font-bold text-slate-900">Concurrent API fetch simulation</h3>
+      <pre><code>import asyncio
+import time
+import random
+
+async def simulate_api_call(url, min_delay=0.5, max_delay=3):
+  delay = random.uniform(min_delay, max_delay)
+  print(f"Fetching {url} (simulated delay: {delay:.2f}s)...")
+  await asyncio.sleep(delay)
+  data = f"Data from {url} after {delay:.2f}s"
+  print(f"Finished {url}")
+  return url, data
+
+async def main_api_fetch():
+  urls = ["https://api.example.com/data/1", "https://api.example.com/data/2", "https://api.example.com/data/3"]
+  start_time = time.perf_counter()
+  tasks = [simulate_api_call(url) for url in urls]
+  results = await asyncio.gather(*tasks)
+  print(f"All completed in {time.perf_counter() - start_time:.4f} seconds")
+
+asyncio.run(main_api_fetch())</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Expected observations</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700">
+        <li>Total runtime ≈ the maximum simulated delay, not the sum.</li>
+        <li>Printed start messages appear quickly, finishes interleave based on random delays.</li>
+        <li>Results returned by gather match the order of requested URLs, not completion order.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+        <p class="text-xs font-medium text-slate-800">Experiment with many URLs and measure wall-clock time to see scalability benefits for I/O-bound loads.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

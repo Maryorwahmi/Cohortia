@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.95)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;padding:12px;background:#0f172a;color:#e6eef8;border-radius:8px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">SSH Fundamentals</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Key concept</div>
+      <div class="text-xs text-slate-600 mt-2">Private key stays secret; public key lives in ~/.ssh/authorized_keys on the server.</div>
+
+      <div class="mt-4 flex-1">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Analogy</div>
+          <div class="text-sm text-slate-700 mt-2">Think of the private key as a signed ticket in your wallet and the public key as the verifier's copy. The server checks the signature without ever holding your ticket.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700">Common misconception</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+            <li>Public keys are safe to share; private keys must remain private and encrypted with a passphrase.</li>
+            <li>Key failures are often caused by incorrect permissions—verify 700 for ~/.ssh and 600 for authorized_keys.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Keys enable secure, password-less authentication; protect the private key and verify server-side permissions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example</div>
+      <pre>&gt; ssh-keygen -t ed25519 -C "my_laptop_key"
+# Follow prompts to add a strong passphrase
+# Files created: ~/.ssh/id_ed25519 and ~/.ssh/id_ed25519.pub
+
+&gt; ssh-copy-id -i ~/.ssh/id_ed25519.pub testuser@remote_host
+# Copies the public key and ensures permissions</pre>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Check permissions</div>
+        <div class="text-sm text-slate-600 mt-2">On the server: <code class="text-xs">chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys</code>. Incorrect permissions will prevent key auth.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Try this thought</div>
+        <div class="text-sm text-slate-600 mt-2">If a private key is unprotected, who besides you can authenticate? Consider the operational trade-off when skipping a passphrase.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

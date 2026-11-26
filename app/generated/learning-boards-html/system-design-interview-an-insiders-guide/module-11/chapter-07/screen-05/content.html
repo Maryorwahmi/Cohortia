@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.7</span>
+      <span>›</span>
+      <span class="text-slate-700">WebSockets</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Client handshake (example)</div>
+      <pre class="bg-slate-50 p-3 rounded-md mt-3 text-xs"><code>const ws = new WebSocket("wss://notifications.example.com");
+
+ws.onopen = () =&gt; {
+  console.log("WebSocket connection established.");
+  ws.send(JSON.stringify({ type: "authenticate", token: "your_jwt_token" }));
+};
+
+ws.onmessage = (event) =&gt; {
+  const notification = JSON.parse(event.data);
+  console.log("New notification:", notification);
+};
+
+ws.onclose = () =&gt; {
+  console.log("WebSocket connection closed. Attempting to reconnect...");
+};</code></pre>
+      <div class="mt-3 text-sm text-slate-700">This snippet shows the minimal flow: connect, authenticate, handle messages, and reconnect logic. Authentication over the socket secures the mapping between user id and connection.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Explanation bullets</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>WebSocket connections are long-lived; do not treat them as short HTTP calls.</li>
+        <li>Authenticate once on connection and map user id → socket for routing.</li>
+        <li>Implement reconnect and exponential backoff on the client to handle transient network issues.</li>
+        <li>Validate tokens server-side and handle token refresh events gracefully.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-md bg-slate-50 p-3 text-sm">Concrete example: a notification Gateway finds a mapped socket for user_id and writes the notification JSON down the open socket for immediate display.</div>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">WebSockets enable instant delivery but require connection management and authentication mapping at the gateway.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

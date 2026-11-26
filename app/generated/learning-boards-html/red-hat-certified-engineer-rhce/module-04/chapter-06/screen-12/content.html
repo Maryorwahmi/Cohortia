@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0b122042;padding:12px;border-radius:10px;color:#07102b}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-auto">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Server Playbook (lab)</div>
+      <div class="code">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;color:#07102b"><code>---
+- name: Configure NFS Server
+  hosts: nfs_server_host
+  become: yes
+  tasks:
+    - name: Install nfs-utils
+      ansible.builtin.yum:
+        name: nfs-utils
+        state: present
+
+    - name: Create export directory
+      ansible.builtin.file:
+        path: /srv/shared_data
+        state: directory
+        mode: '0777'
+
+    - name: Add export to /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: "/srv/shared_data *(rw,sync,no_root_squash)"
+        state: present
+        create: yes
+
+    - name: Start and enable nfs-server
+      ansible.builtin.service:
+        name: nfs-server
+        state: started
+        enabled: yes
+
+    - name: Reload exports
+      ansible.builtin.command: exportfs -ra
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white card-border p-5 shadow-sm overflow-auto">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Client Playbook (lab)</div>
+      <div class="code">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;color:#07102b"><code>---
+- name: Configure NFS Client
+  hosts: nfs_client_host
+  become: yes
+  tasks:
+    - name: Install nfs-utils
+      ansible.builtin.yum:
+        name: nfs-utils
+        state: present
+
+    - name: Create mount point
+      ansible.builtin.file:
+        path: /mnt/nfs_share
+        state: directory
+        mode: '0755'
+
+    - name: Mount NFS share
+      ansible.posix.mount:
+        path: /mnt/nfs_share
+        src: nfs_server_ip_or_hostname:/srv/shared_data
+        fstype: nfs
+        opts: defaults,_netdev
+        state: mounted
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Run server playbook first, then client. Verify with exportfs -v on server and df -h on client.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

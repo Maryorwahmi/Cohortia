@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Pessimistic Locking</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <p class="text-sm text-slate-600 mt-2">Pessimistic locking acquires exclusive locks on rows before updates to prevent concurrent writes from intervening.</p>
+
+      <div class="mt-4 text-xs font-bold text-slate-700">When to use</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-600">
+        <li>Critical sections where stale writes would cause incorrect state.</li>
+        <li>High-value updates where blocking is acceptable for correctness.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">FOR UPDATE is safe for serialization. Minimize transaction length to reduce blocking.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <pre class="text-sm bg-slate-50 p-3 rounded mt-2" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+BEGIN;
+SELECT balance FROM accounts
+WHERE account_id = 123
+FOR UPDATE;
+-- check balance and perform transfer
+UPDATE accounts SET balance = balance - 100 WHERE account_id = 123;
+COMMIT;
+        </pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Using FOR UPDATE for reads where MVCC would suffice adds blocking with no benefit. Avoid unnecessary locks on read-only flows.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-2">If you must lock, do it in a short transaction and acquire locks in a consistent order to reduce deadlocks.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

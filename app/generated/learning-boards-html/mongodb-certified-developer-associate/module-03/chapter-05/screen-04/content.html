@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code { background:#0f172a; color:#e6eef8; padding:12px; border-radius:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2; }</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900">Using explain() to diagnose queries</div>
+      <div class="text-sm text-slate-600 mt-1">See which plan ran and measure index effectiveness with stable metrics.</div>
+
+      <div class="mt-4 bg-white rounded-xl border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Key explain() metrics</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-1">
+          <li><strong>winningPlan.stage</strong>: IXSCAN, COLLSCAN, FETCH — the execution steps used.</li>
+          <li><strong>totalKeysExamined</strong> and <strong>totalDocsExamined</strong>: show how much work the query did.</li>
+          <li><strong>executionTimeMillis</strong>: overall elapsed time; useful but variable with system load.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-sm font-semibold">Common pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">Relying only on elapsed time can mislead — focus on index usage and examined ratios instead.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-sm font-semibold">Check your work</div>
+          <div class="text-sm text-slate-700 mt-1">After adding an index, re-run explain and confirm winningPlan shows IXSCAN and that totalDocsExamined drops close to nReturned.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-xs text-slate-600 mt-2">Run explain on a category filter to confirm an index is used.</div>
+        <div class="mt-3 code">
+&lt;pre&gt;&lt;code&gt;db.products.find({ "category": "Electronics" }).explain("executionStats")
+&lt;/code&gt;&lt;/pre&gt;
+        </div>
+
+        <div class="mt-3">
+          <div class="text-sm font-semibold">Interpretation checklist</div>
+          <ul class="text-sm text-slate-600 pl-4 mt-2 list-disc space-y-1">
+            <li>Is winningPlan.stage IXSCAN? If not, consider an index.</li>
+            <li>Is totalDocsExamined near nReturned? If not, refine index or filter.</li>
+            <li>Are many keys examined? Consider a more selective index ordering.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-white border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Explain gives you stable signals — winning plan type and examined counts — to base indexing decisions on, not just elapsed time.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

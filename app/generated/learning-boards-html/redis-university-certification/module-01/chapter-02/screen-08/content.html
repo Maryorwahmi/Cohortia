@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter patterns</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Terminal pattern</div>
+      <div class="bg-slate-900 text-slate-50 rounded-lg p-3 term">
+<pre><code># Initialize
+SET page:views:/products/1 0
+
+# On each request
+new = INCR page:views:/products/1
+# For rate limiting per-user
+count = INCR user:123:requests
+if count == 1:
+  EXPIRE user:123:requests 60  # set 60s window
+
+# Check and enforce
+if GET user:123:requests > 100:
+  reject_request()</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        Note: The conditional EXPIRE after INCR ensures only the client creating the key sets the expiry. This reduces race conditions where multiple clients set different expiries or overwrite each other.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example scenario</div>
+      <div class="text-sm text-slate-700">Imagine tracking requests per IP for an API. Each request INCRs an IP-specific key. The first INCR triggers an expiry of 60 seconds, creating a sliding window. Exceeding a threshold can trigger throttling. This design avoids distributed locks and relies on atomic increments plus expirations.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Gotcha</div>
+          <div class="text-sm text-slate-700">If you set EXPIRE unconditionally after INCR, multiple clients can race and overwrite the TTL; using the returned value to conditionally EXPIRE avoids this.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

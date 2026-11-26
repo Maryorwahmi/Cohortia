@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.2</span><span>›</span><span class="text-slate-700">Reading Files Line by Line</span></div><div class="mb-6"><p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">MONITORING & PROCESSING</p><h1 class="text-3xl font-bold text-slate-900 mb-2">Reading Files Line by Line</h1><p class="text-base text-slate-700">Use `while` loops to process text files efficiently.</p></div><div class="flex-grow grid grid-cols-12 gap-6"><div class="col-span-7 flex flex-col bg-slate-800 rounded-xl shadow-lg overflow-hidden"><div class="flex items-center bg-slate-700 px-4 py-2 text-slate-300 text-xs font-mono rounded-t-xl"><div class="flex gap-1 mr-3"><span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span><span class="w-2.5 h-2.5 bg-yellow-500 rounded-full"></span><span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span></div><span>read_file_lines.sh</span></div><pre class="flex-grow p-4 text-sm text-slate-50 font-mono overflow-auto whitespace-pre-wrap" style="tab-size: 2;"><code>#!/bin/bash
+
+# Create a dummy file for demonstration
+echo -e "Line 1: Hello World
+Line 2: Bash Scripting
+Line 3: End of File" > /tmp/sample.txt
+
+# Read file line by line
+echo "Reading /tmp/sample.txt:"
+while IFS= read -r line;
+do
+    echo "  - Processed: '$line'"
+done < /tmp/sample.txt
+
+echo "
+---"
+
+# Example: Counting lines in a file (alternative to wc -l)
+LINE_COUNT=0
+while IFS= read -r line;
+do
+    LINE_COUNT=$((LINE_COUNT + 1))
+done < /tmp/sample.txt
+echo "Total lines counted: $LINE_COUNT"
+
+# Clean up dummy file
+rm /tmp/sample.txt
+</code></pre></div><div class="col-span-5 flex flex-col gap-4"><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Key Components for Reading Lines</h3><ul class="list-disc list-inside text-xs text-slate-600 space-y-1"><li>`IFS=`: Prevents leading/trailing whitespace trimming.</li><li>`read -r line`: Reads a line into the `line` variable, `-r` prevents backslash interpretation.</li><li>`done < file.txt`: Redirects `file.txt` as input to the `while` loop.</li></ul></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">Why this pattern?</h3><p class="text-xs text-slate-600">This robust pattern ensures that each line, including those with leading/trailing spaces or special characters, is read accurately without unintended modifications, crucial for data integrity.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The `while IFS= read -r line` construct is the most reliable way to process text files line by line in Bash, preserving data integrity.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

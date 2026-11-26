@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Table bloat</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">What causes it</div>
+        <p class="text-sm text-slate-700 mt-2">Under MVCC, UPDATE and DELETE create dead tuples. If VACUUM can't keep up, dead tuples accumulate and the physical file grows.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Consequences</div>
+        <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+          <li>Higher disk usage and I/O when scanning tables.</li>
+          <li>Worse cache efficiency in shared buffers.</li>
+          <li>Longer sequential and index scans.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Misconception check</div>
+          <p class="text-sm text-slate-700">A drop in n_dead_tup after VACUUM does not necessarily mean the file shrank. Use pg_total_relation_size to confirm whether space was returned to the OS.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Detecting bloat</div>
+        <p class="text-sm text-slate-700 mt-2">Use pg_stat_user_tables to read n_live_tup and n_dead_tup and combine with pg_total_relation_size to estimate bloat ratio using community bloat queries.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">If n_live_tup = 1,000,000 and n_dead_tup = 5,000,000, the table likely has heavy bloat and will benefit from immediate vacuuming. Decide whether VACUUM or VACUUM FULL is appropriate based on whether you must return space to the OS.</p>
+      </div>
+    </div>
+  </div>
+</div>

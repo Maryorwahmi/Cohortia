@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">VPC vs TGW Route Tables</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">TGW Route Table</div>
+      <h4 class="text-lg font-bold text-slate-900 mt-2">Forwards between attachments</h4>
+      <p class="text-sm text-slate-600 mt-2">Uses propagated attachment CIDRs to route traffic to the correct attachment ID.</p>
+      <div class="mt-4 text-sm text-slate-700">
+        <ul class="list-disc list-inside">
+          <li>Propagation learns CIDRs from attachments.</li>
+          <li>Association determines which table an attachment uses.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">VPC Route Table</div>
+      <h4 class="text-lg font-bold text-slate-900 mt-2">Directs traffic out of a VPC</h4>
+      <p class="text-sm text-slate-600 mt-2">Must have routes that target the Transit Gateway ID for remote CIDRs before traffic will be forwarded by the TGW.</p>
+      <div class="mt-4 text-sm text-slate-700">
+        <ul class="list-disc list-inside">
+          <li>Local routes stay inside the VPC.</li>
+          <li>Non-local routes must point to the TGW to reach other VPCs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-lg p-4 bg-white card-border">
+      <div class="text-sm font-semibold text-slate-800">Concrete Example</div>
+      <pre style="white-space:pre-wrap; tab-size:2;" class="text-sm text-slate-800 mt-2">VPC-App1 Route Table
+Destination     Target
+10.1.0.0/16     Local
+10.2.0.0/16     tgw-0123456789abcdef0
+
+TGW Default Route Table
+10.1.0.0/16     VPC-App1-Attachment
+10.2.0.0/16     VPC-App2-Attachment</pre>
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Both the TGW route table and VPC route tables must be configured: TGW forwards, VPC sends traffic to the TGW.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

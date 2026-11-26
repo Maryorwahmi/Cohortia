@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.safe-pre { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700">Core Concept</span>
+      <span class="text-slate-600">Conditional execution with when</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Definition & guidance</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>when evaluates a Jinja2 expression to permit or skip a task.</li>
+        <li>Use facts like ansible_os_family and filters like default(false) to be safe.</li>
+        <li>Combine conditions with and / or for precise targeting.</li>
+        <li>Always test conditions on a small host subset before wide runs.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Guard tasks with when to run only where they apply and avoid unintended changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-600">Install Nginx only on Red Hat-based systems. Note the quoted string and safe default in the second example.</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3">
+        <pre class="safe-pre"><code>---
+- name: Conditional task execution
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Nginx on Red Hat-based systems
+      ansible.builtin.dnf:
+        name: nginx
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Create a file only if a specific variable is set to true
+      ansible.builtin.file:
+        path: /tmp/important_marker.txt
+        state: touch
+      when: create_marker_file | default(false)
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Misconception: unquoted string comparisons may sometimes work, but quoting avoids ambiguous parsing and is the safer practice.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

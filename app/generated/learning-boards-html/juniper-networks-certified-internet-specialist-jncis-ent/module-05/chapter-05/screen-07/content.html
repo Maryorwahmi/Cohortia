@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Build &amp; Apply</span>
+  </div>
+  <div class="h-full grid grid-cols-3 gap-4">
+    <div class="col-span-2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 space-y-3 text-sm text-slate-700 list-decimal list-inside">
+        <li><span class="font-semibold">Create prefix-list</span> — declare ALLOWED_PREFIXES and add 172.16.10.0/24.</li>
+        <li><span class="font-semibold">Write policy-statement</span> — term ALLOW: from protocol static and from prefix-list ALLOWED_PREFIXES then accept.</li>
+        <li><span class="font-semibold">Add explicit reject</span> — term DENY_ALL then reject for clarity.</li>
+        <li><span class="font-semibold">Apply export</span> — set protocols ospf export FILTER_STATIC_TO_OSPF on the ASBR.</li>
+        <li><span class="font-semibold">Verify</span> — confirm on downstream router with show route protocol ospf.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example snippet</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+set policy-options prefix-list ALLOWED_PREFIXES 172.16.10.0/24
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW from protocol static
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW from prefix-list ALLOWED_PREFIXES
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW then accept
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term DENY_ALL then reject
+set protocols ospf export FILTER_STATIC_TO_OSPF
+      </pre>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Follow a repeatable sequence: list prefixes, match protocol, accept intended routes, reject others, then verify externally.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ansible.posix.firewalld</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Parameters</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li><strong>zone</strong>: which zone to modify.</li>
+        <li><strong>service</strong> or <strong>port</strong>: what to allow or remove.</li>
+        <li><strong>rich_rule</strong>: raw rich rule string for granular control.</li>
+        <li><strong>state</strong>: enabled/disabled or present/absent.</li>
+        <li><strong>permanent</strong>: persist across reboots.</li>
+        <li><strong>immediate</strong>: apply to runtime immediately.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="font-bold">Example task</div>
+      <pre class="bg-slate-900 text-white p-3 rounded text-sm mt-3" style="white-space:pre-wrap;tab-size:2"><code>- name: Allow SSH service in the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: ssh
+    state: enabled
+    permanent: yes
+    immediate: yes</code></pre>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border">
+        <div class="font-bold">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Using state incorrectly for rich rules. Rich rules typically use present/absent while services use enabled/disabled.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Prefer declarative tasks with permanent and immediate set explicitly to avoid drift between runtime and persistent config.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

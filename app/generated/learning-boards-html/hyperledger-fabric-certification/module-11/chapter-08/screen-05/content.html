@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Containerizing Fabric Components</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Architecture Overview</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border flex items-start gap-3">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-slate-600"><rect x="3" y="4" width="18" height="6" rx="1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <div class="font-semibold text-slate-700">Peer container</div>
+            <div class="text-xs text-slate-600 mt-1">Long-lived; mounts PV for /var/hyperledger/production and Secrets for MSP and TLS.</div>
+          </div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border flex items-start gap-3">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-slate-600"><path d="M3 12h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <div class="font-semibold text-slate-700">Orderer container</div>
+            <div class="text-xs text-slate-600 mt-1">Consensus component; requires persistent logs and stable identity across restarts.</div>
+          </div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border flex items-start gap-3">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-slate-600"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/></svg>
+          <div>
+            <div class="font-semibold text-slate-700">Chaincode containers</div>
+            <div class="text-xs text-slate-600 mt-1">Launched per invocation; make them stateless or persist state to the ledger and allow restarts.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operational tip</div>
+          <div class="text-sm text-slate-700 mt-2">Mount MSP and TLS as Secrets. Use image scanning and minimal base images to reduce attack surface.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example configuration</div>
+      <div class="mt-3 text-sm text-slate-600">A peer StatefulSet will request CPU and memory, mount a PVC for ledger data, and mount Secrets for the peer MSP and TLS files. The StatefulSet provides a stable network identity like peer0-org1.</div>
+
+      <div class="mt-5">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(16,185,129,0.08)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Treating chaincode as stateful inside the container causes unexpected failures; prefer stateless containers and persist data in ledger or external stores.</div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Package each Fabric role as a container, mount identities via Secrets, and use PV/PVC for any durable ledger or database state.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

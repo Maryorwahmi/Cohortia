@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 7.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Replication + WAL</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Combining Replication with WAL Archiving</div>
+    <div class="text-sm text-slate-600 mt-1">Streaming replication for quick recovery; WAL archives for PITR and corruption recovery.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl card-border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Process steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Take a regular base backup and store it offsite.</li>
+        <li>Enable WAL archiving and send WAL files to durable storage.</li>
+        <li>Stream WAL to hot standbys for low RTO failover.</li>
+        <li>When needed, restore base backup and replay WAL to a chosen target time for PITR.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl card-border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-3">Archive WAL files to an S3 bucket and run daily base backups using pg_basebackup so you can restore a base backup and replay WAL to a point just before corruption.</div>
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-xs font-bold text-slate-700">Example backup snippet</div>
+        <pre class="mt-2 bg-black text-white rounded p-3 text-xs" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">pg_basebackup -D /var/lib/postgresql/base -F tar -z -X fetch -P -h primary.example.com -U backup_user
+# Ensure WAL archiving is enabled and uploaded to durable storage</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Streaming replication is for low RTO. WAL archiving plus base backups are necessary for PITR and recovery from logical corruption.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

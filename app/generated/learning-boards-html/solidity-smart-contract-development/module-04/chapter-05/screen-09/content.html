@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Hands-on</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Fixing the wallet: Secure patterns applied</div>
+    <div class="text-sm text-slate-600 mt-1">Implement access control and checks-effects-interactions to remove vulnerabilities.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm overflow-auto">
+      <div class="font-semibold text-slate-800">SecureWallet.sol (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-100 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// Key fixes: enforce owner checks and apply checks-effects-interactions
+
+function withdrawAllFunds(address payable _to) public {
+    require(msg.sender == owner, "Only owner");
+    uint256 amount = balances[owner];
+    require(amount &gt; 0, "No funds to withdraw");
+    balances[owner] = 0;
+    (bool success, ) = _to.call{value: amount}("");
+    require(success, "Withdrawal failed");
+}
+
+function withdrawMyFunds(uint256 _amount) public {
+    require(balances[msg.sender] &gt;= _amount, "Insufficient balance");
+
+    // Effects: update state before interaction
+    balances[msg.sender] -= _amount;
+
+    // Interaction: external call after state change
+    (bool success, ) = msg.sender.call{value: _amount}("");
+    require(success, "Withdrawal failed");
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="font-semibold text-slate-800">Run Slither again</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+slither contracts/SecureWallet.sol
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">If the fixes are correct, Slither should no longer flag the missing access control and the specific reentrancy pattern. Document remaining low-confidence warnings and why they are safe or prepare follow-up changes.</div>
+
+      <div class="mt-4 rounded-md p-3 bg-emerald-50 border" style="border-color: rgba(16,185,129,0.12);">
+        <div class="text-sm font-semibold text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Apply checks-effects-interactions and explicit access checks; verify with static tools, but keep human review for logic and incentives.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

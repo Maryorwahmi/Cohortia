@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Configure Trunk Ports</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-[75%]">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Trunk configuration example</div>
+        <pre class="bg-slate-50 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code># Set port to trunk
+set interfaces ge-0/0/2 unit 0 family ethernet-switching port-mode trunk
+
+# Allow specific VLANs across the trunk
+set interfaces ge-0/0/2 unit 0 family ethernet-switching vlan members [ADMIN GUEST]
+
+# Set a secure native VLAN
+set interfaces ge-0/0/2 unit 0 family ethernet-switching native-vlan-id 999
+
+commit and-quit</code></pre>
+        <div class="mt-4 text-sm text-slate-700">Check that both ends of the trunk have identical allowed VLANs and the same native VLAN to avoid misrouting untagged frames.</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Why change native VLAN?</div>
+        <div class="text-sm text-slate-700">Default native VLANs can be exploited in VLAN hopping attacks. Using an unused native VLAN and keeping it consistent across trunks reduces this risk and prevents accidental untagged traffic mapping to a sensitive production VLAN.</div>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Misconfiguration symptom</div>
+        <div class="text-sm text-slate-700">If two switches have mismatched native VLANs, untagged traffic may be assigned to different VLANs at each end, producing odd connectivity and security gaps.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

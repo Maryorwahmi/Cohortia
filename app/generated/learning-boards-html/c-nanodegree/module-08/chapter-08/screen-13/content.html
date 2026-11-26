@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.8</span>
+      <span>›</span>
+      <span class="text-slate-700">Sanitizers & Docker</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Sanitizer flags (CI diagnostic)</div>
+      <pre class="font-mono text-sm p-2 bg-slate-50 rounded" style="white-space: pre-wrap; tab-size: 2"># Configure CMake for sanitizers
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -g -O0"
+# For thread data races, use -fsanitize=thread
+cmake -B build -DCMAKE_CXX_FLAGS="-fsanitize=thread -g -O0"
+</pre>
+      <p class="text-sm text-slate-700 mt-2">Run failing tests under the sanitizer build. The sanitizer output provides stack traces and cause locations to guide fixes.</p>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Dockerfile example for reproducibility</div>
+      <pre class="font-mono text-sm p-2 bg-slate-50 rounded" style="white-space: pre-wrap; tab-size: 2"># Dockerfile
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y \
+  build-essential cmake git python3-pip \
+  && pip3 install conan
+WORKDIR /app
+COPY . /app
+</pre>
+      <p class="text-sm text-slate-700 mt-2">Build and publish this image, then configure CI to use it so every run uses the exact same toolchain.</p>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Caching & artifact strategy</div>
+      <ul class="text-sm text-slate-700 list-disc pl-4">
+        <li>Cache dependency downloads (Conan, vcpkg) between runs to avoid repeated network fetches.</li>
+        <li>Cache heavy build outputs where safe; invalidate caches when toolchain or dependencies change.</li>
+        <li>Store build artifacts (executables, installers) in a registry or artifact store for later deployment steps.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

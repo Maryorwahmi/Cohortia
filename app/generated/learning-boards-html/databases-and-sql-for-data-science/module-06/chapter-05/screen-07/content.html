@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace; background:#f8fafc; padding:10px; border-radius:8px;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Reindexing & Logs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Reindexing options</div>
+      <div class="text-sm text-slate-700 mb-3">Rebuilding an index can return space and improve lookup speed. Prefer non-blocking methods where available.</div>
+      <pre class="code">-- Reindex a specific table
+REINDEX TABLE sales_data;
+
+-- Reindex a specific index
+REINDEX INDEX idx_sales_sale_date;
+
+-- Non-blocking alternative when creating a new index
+CREATE INDEX CONCURRENTLY idx_new ON sales_data (sale_date);
+</pre>
+      <div class="text-xs text-slate-500 mt-2">Note: REINDEX can be resource-intensive; schedule during low activity or use concurrent alternatives.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Integrity & logs</div>
+      <div class="text-sm text-slate-700 mb-3">Run integrity checks appropriate to your database and rotate logs to avoid disk exhaustion. Old logs are useful for postmortem analysis but should be archived off the main disk.</div>
+      <div class="rounded-lg bg-amber-50 p-3 text-sm text-slate-800">Checklist: backup first • rotate logs • reindex if needed • monitor pg_relation_size</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="rounded-xl bg-white card-border p-3 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete example</div>
+      <div class="text-sm text-slate-700">If disk fills quickly, rotate logs, archive old files, then check table and index sizes. If a single index is large and fragmented, plan a reindex during a maintenance window.</div>
+    </div>
+    <div class="rounded-xl bg-white card-border p-3 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+      <div class="text-sm text-slate-700">Running VACUUM FULL or REINDEX without recent backups and without considering lock impact can cause outages.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

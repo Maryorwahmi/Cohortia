@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mb-1">virtio explained</div>
+      <div class="text-sm text-slate-600 mb-4">Paravirtualized drivers minimize emulation overhead and improve throughput for guests.</div>
+      <div class="space-y-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="font-semibold">Network</div>
+          <div class="text-sm text-slate-600 mt-1">virtio-net provides efficient packet transfer between guest and host.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="font-semibold">Block/SCSI</div>
+          <div class="text-sm text-slate-600 mt-1">virtio-blk or virtio-scsi expose disks through a paravirtual interface; virtio-scsi is recommended for advanced features.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+          <div class="font-semibold">Verification</div>
+          <div class="text-sm text-slate-600 mt-1">Check guest dmesg or lsmod for virtio drivers and inspect domain XML for model="virtio" entries.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">XML snippets</div>
+      <div class="text-xs text-slate-600 mb-2">Disk example</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>&lt;disk type='file' device='disk'&gt;
+  &lt;driver name='qemu' type='qcow2' cache='none' io='native'/&gt;
+  &lt;source file='/var/lib/libvirt/images/myvm.qcow2'/&gt;
+  &lt;target dev='vda' bus='virtio'/&gt;
+&lt;/disk&gt;</code></pre>
+      <div class="text-xs text-slate-600 mt-3">Network example</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>&lt;interface type='bridge'&gt;
+  &lt;mac address='52:54:00:xx:xx:xx'/&gt;
+  &lt;source bridge='br0'/&gt;
+  &lt;model type='virtio'/&gt;
+&lt;/interface&gt;</code></pre>
+      <div class="mt-3 rounded-lg p-3 bg-amber-50 border card-border">
+        <div class="font-semibold">Concrete example</div>
+        <div class="text-sm text-slate-700">Switching a VM from an emulated device to virtio often reduces CPU overhead and increases throughput for disk and network I/O.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,93 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">E-commerce: a pragmatic decomposition</div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3 flex-1">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Auth Service</div>
+          <div class="text-sm text-slate-600 mt-1">AWS Lambda + API Gateway, DynamoDB for user storage, SNS for verification events.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Product Catalog</div>
+          <div class="text-sm text-slate-600 mt-1">Containerized service on ECS, backed by DynamoDB for fast catalog reads.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Order Processing</div>
+          <div class="text-sm text-slate-600 mt-1">AWS Step Functions orchestrating Lambdas, SQS for decoupling and resilience.</div>
+        </div>
+
+        <div class="col-span-3 rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Design notes</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+            <li>Use event topics to decouple services and enable async processing.</li>
+            <li>Ensure idempotency and retries for distributed operations.</li>
+            <li>Instrument tracing and metrics across service boundaries.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete code example</div>
+      <div class="text-sm text-slate-600 mt-2">A simple Lambda that stores a user in DynamoDB and publishes an SNS message shows the focused responsibilities of a refactored microservice.</div>
+
+      <pre class="mt-4 rounded-lg bg-slate-50 p-3 text-sm card-border" style="white-space:pre-wrap;tab-size:2;"><code># Lambda function to process a new user registration (part of a refactored auth service)
+import json
+import os
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+users_table = dynamodb.Table(os.environ['USERS_TABLE_NAME'])
+sns_client = boto3.client('sns')
+
+def lambda_handler(event, context):
+  try:
+    body = json.loads(event['body'])
+    username = body['username']
+    email = body['email']
+    password_hash = body['password_hash']
+
+    users_table.put_item(
+      Item={
+        'username': username,
+        'email': email,
+        'passwordHash': password_hash,
+        'status': 'pending_verification'
+      }
+    )
+
+    sns_client.publish(
+      TopicArn=os.environ['VERIFICATION_TOPIC_ARN'],
+      Message=json.dumps({
+        'username': username,
+        'email': email,
+        'verificationCode': 'some_generated_code'
+      }),
+      Subject='New User Registration'
+    )
+
+    return {
+      'statusCode': 200,
+      'body': json.dumps({'message': 'User registered successfully. Verification email sent.'})
+    }
+
+  except Exception as e:
+    print(f"Error processing registration: {e}")
+    return {
+      'statusCode': 500,
+      'body': json.dumps({'message': f'Error: {str(e)}'})
+    }
+</code></pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Small, focused functions are easier to test and deploy, but you must plan for observability and distributed error handling.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

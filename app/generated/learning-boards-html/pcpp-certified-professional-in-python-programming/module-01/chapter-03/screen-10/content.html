@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">HashedPassword</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex gap-6">
+    <div class="flex-1 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">HashedPassword descriptor</div>
+      <div class="text-sm text-slate-600 mt-2">A data descriptor that enforces write-only semantics while hashing on assignment.</div>
+
+      <div class="mt-4 overflow-auto">
+        <pre class="rounded-lg bg-slate-900 text-white p-4"><code>import hashlib
+
+class HashedPassword:
+    def __init__(self):
+        self.private_name = None
+
+    def __set_name__(self, owner, name):
+        self.public_name = name
+        self.private_name = '_' + name
+
+    def __set__(self, instance, raw_password):
+        hashed = hashlib.sha256(raw_password.encode()).hexdigest()
+        setattr(instance, self.private_name, hashed)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        raise AttributeError(f"'{self.public_name}' is not directly readable.")
+</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Use case</div>
+          <div class="text-sm text-slate-700 mt-2">Store hashed passwords safely and allow check_password methods to compare hashes directly from the private instance attribute.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Warning</div>
+          <div class="text-sm text-slate-700 mt-2">Do not expose the hash via __get__ and do not store hashes on descriptor instances to avoid leaking across accounts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-5">
+          <li>Use __set_name__ for private storage key</li>
+          <li>Hash on __set__ and store on instance</li>
+          <li>Raise AttributeError on __get__ to prevent reads</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-700 mt-2">Descriptor-based write-only fields let your class enforce security policies cleanly and consistently at assignment time.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold text-slate-800">Terminal steps (do in a VM)</div>
+    <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; max-height:320px; overflow:auto;"><code># Create partition and format
+sudo fdisk /dev/sdb   # n p 1 w
+sudo mkfs.ext4 /dev/sdb1
+
+# Mount and add data
+sudo mkdir /mnt/testfs
+sudo mount /dev/sdb1 /mnt/testfs
+sudo touch /mnt/testfs/file{1..5}.txt
+echo "Some data" | sudo tee /mnt/testfs/data.txt
+sudo umount /mnt/testfs
+
+# Simulate corruption (DANGER: ensure /dev/sdb1 is correct)
+sudo dd if=/dev/urandom of=/dev/sdb1 bs=1M count=1 seek=10 status=progress
+
+# Repair
+sudo fsck -y /dev/sdb1
+
+# Verify
+sudo mount -o ro /dev/sdb1 /mnt/testfs
+ls /mnt/testfs
+cat /mnt/testfs/data.txt || echo "data unreadable"
+sudo umount /mnt/testfs
+</code></pre>
+
+    <div class="mt-3 text-sm text-slate-700">The lab forces you to interpret fsck messages: files reported as orphaned will appear in lost+found, and I/O errors during mounting indicate unrecoverable data. Practice restoring from backups after the lab to complete the recovery workflow.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

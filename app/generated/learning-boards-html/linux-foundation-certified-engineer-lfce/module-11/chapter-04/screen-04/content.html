@@ -1,0 +1,48 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center mb-4">
+    <div class="flex-1">
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+        <span>›</span>
+        <span>Chapter 11.4</span>
+        <span>›</span>
+        <span class="text-slate-700">Service State</span>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900">Confirming service state with systemctl</h3>
+      <p class="text-sm text-slate-600 mt-2">Use the unit status to decide the next diagnostic step: read logs, test config, or inspect processes.</p>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Quick checklist</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2 flex-1">
+        <li>Run systemctl status &lt;service&gt; to read state, PID, and recent log output.</li>
+        <li>Note the unit's User, WorkingDirectory, and ExecStart to spot misconfiguration.</li>
+        <li>If state is failed, inspect journalctl -u next rather than immediately restarting.</li>
+        <li>Look for non-zero exit codes or repeated restarts that hint at config or permission errors.</li>
+      </ul>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use systemctl status as your first, low-risk diagnostic to gather facts before changing service state.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example & unit snippet</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>$ systemctl status my_app
+● my_app.service - My Cohortia Flask App
+   Loaded: loaded (/etc/systemd/system/my_app.service; enabled)
+   Active: failed (Result: exit-code) since Mon 2026-01-01 12:00:00; 3s ago
+  Process: 12345 ExecStart=/usr/bin/python3 my_app.py (code=exited, status=203/EXEC)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">The status line shows the exit code and the exact ExecStart command. A status like 203/EXEC suggests the binary or script couldn't be executed — often a permission or path issue.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Restarting repeatedly without checking the unit or logs can mask the root cause and make logs rotate away. Gather evidence first.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

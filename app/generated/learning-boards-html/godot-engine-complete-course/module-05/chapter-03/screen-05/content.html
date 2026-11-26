@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Movement Code</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Example script (attach to CharacterBody3D)</div>
+      <pre class="rounded-lg bg-slate-900 text-slate-100 p-4 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+# Player.gd for CharacterBody3D
+extends CharacterBody3D
+
+@export var speed = 5.0
+@export var jump_velocity = 4.5
+
+# Get the gravity from the project settings to be consistent across the game.
+var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+func _physics_process(delta):
+    # Add the gravity.
+    if not is_on_floor():
+        velocity.y -= gravity * delta
+
+    # Handle Jump.
+    if Input.is_action_just_pressed("jump") and is_on_floor():
+        velocity.y = jump_velocity
+
+    # Get the input direction and handle the movement/deceleration.
+    var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+    var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+    if direction:
+        velocity.x = direction.x * speed
+        velocity.z = direction.z * speed
+    else:
+        velocity.x = move_toward(velocity.x, 0, speed)
+        velocity.z = move_toward(velocity.z, 0, speed)
+
+    move_and_slide()
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & Tips</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Use ProjectSettings gravity to stay consistent with project physics values.</li>
+        <li>is_on_floor() prevents double jumps by checking grounded state before jumping.</li>
+        <li>Transform input with transform.basis so movement follows player orientation.</li>
+        <li>Decelerate with move_toward to avoid instant stops and make motion feel natural.</li>
+      </ul>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Place movement code inside _physics_process and let move_and_slide handle collision resolution each physics frame.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

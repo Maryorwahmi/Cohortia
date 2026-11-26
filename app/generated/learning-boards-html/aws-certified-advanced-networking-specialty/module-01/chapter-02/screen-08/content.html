@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#ffffff}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">TGW Hands‑on</span>
+  </div>
+
+  <div class="flex gap-6 h-full"> 
+    <div class="w-1/2 h-full"> 
+      <div class="bg-white rounded-2xl p-6 border shadow-sm h-full border-[rgba(226,232,240,0.9)]"> 
+        <div class="text-sm font-bold text-slate-800">Step sequence (console)</div>
+        <div class="mt-3 mono text-sm text-slate-700">1. VPC Console → Transit Gateways → Create Transit Gateway (name: MyOrg-TGW)
+
+2. Transit Gateway attachments → Create attachment → select MyOrg-TGW, choose AppVPC, select subnets in each AZ → Create
+
+3. Repeat for DataVPC → wait until attachments show status 'available'
+
+4. Transit Gateway route tables → select default or create new → Create association for both attachments
+
+5. Under propagations → Create propagation for both attachments so TGW learns their CIDRs
+
+6. VPC route tables → edit routes for AppVPC subnets → Add route: Destination 10.20.0.0/16 → Target: transit gateway ID
+
+7. Repeat for DataVPC route tables → Destination 10.10.0.0/16 → Target: transit gateway ID
+
+8. Launch instances and validate connectivity; check Security Groups and NACLs</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full"> 
+      <div class="bg-white rounded-2xl p-6 border shadow-sm h-full border-[rgba(226,232,240,0.9)] flex flex-col"> 
+        <div class="text-sm font-bold text-slate-800">Checks and example</div>
+        <div class="mt-2 text-sm text-slate-700">After attachments are available and propagation is set, the TGW route table should list learned CIDRs for both attachments. The VPC route table entries should target the TGW ID. If ping fails, verify Security Groups allow ICMP or the relevant protocol. Also confirm that the TGW route table used by attachments contains the remote CIDR entries.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3"> 
+          <div class="rounded-xl p-3 border bg-white"> 
+            <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Pro tip</div>
+            <div class="text-sm text-slate-800 mt-1">Use clear naming for attachments and route tables (e.g., AppVPC-Attachment) so associations and propagations are easy to audit.</div>
+          </div>
+
+          <div class="rounded-xl p-3 border bg-emerald-50"> 
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Key Takeaway</div>
+            <div class="text-sm text-slate-800 mt-1">A successful TGW deployment requires attachments, correct associations/propagations, VPC route updates, and security validation — all four are necessary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

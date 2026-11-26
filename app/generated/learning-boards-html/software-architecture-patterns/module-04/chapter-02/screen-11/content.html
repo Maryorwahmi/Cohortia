@@ -1,0 +1,70 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Flask Walkthrough</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border overflow-auto">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Controller (app.py)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code># app.py (Controller)
+from flask import Flask, render_template, request, redirect, url_for
+from models import Product
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+  products = Product.get_all()
+  return render_template('index.html', products=products)
+
+@app.route('/add_product', methods=['GET','POST'])
+def add_product():
+  if request.method == 'POST':
+    name = request.form['name']
+    price = float(request.form['price'])
+    Product.create(name, price)
+    return redirect(url_for('index'))
+  return render_template('add_product.html')
+
+if __name__ == '__main__':
+  app.run(debug=True)</code></pre>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border overflow-auto">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Model (models.py)</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code># models.py (Model - simplified)
+class Product:
+  _products = []
+  def __init__(self, id, name, price):
+    self.id = id
+    self.name = name
+    self.price = price
+
+  @classmethod
+  def get_all(cls):
+    return list(cls._products)
+
+  @classmethod
+  def create(cls, name, price):
+    new_id = len(cls._products) + 1
+    p = Product(new_id, name, price)
+    cls._products.append(p)
+    return p</code></pre>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border overflow-auto">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">View (templates/index.html)</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>&lt;!-- templates/index.html --&gt;
+&lt;h1&gt;Products&lt;/h1&gt;
+&lt;ul&gt;
+{% for product in products %}
+  &lt;li&gt;{{ product.name }} - ${{ "{:.2f}".format(product.price) }}&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

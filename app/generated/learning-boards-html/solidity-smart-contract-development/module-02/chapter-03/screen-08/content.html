@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Payable functions</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Example: register payable</div>
+      <pre class="mt-3 text-sm bg-white p-3 rounded font-mono" style="white-space:pre-wrap; tab-size:2;">function register() public payable {
+  require(msg.value >= 0.01 ether, "Minimum fee required");
+  registeredUsers[msg.sender] = true;
+  emit Registered(msg.sender);
+}</pre>
+      <div class="mt-3 text-sm text-slate-600">This function enforces a minimum payment, marks the sender as registered, and emits an event for auditing.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Withdraw pattern</div>
+      <pre class="mt-3 text-sm bg-white p-3 rounded font-mono" style="white-space:pre-wrap; tab-size:2;">function withdrawAll() public onlyOwner {
+  require(address(this).balance > 0, "No Ether to withdraw.");
+  (bool success, ) = owner.call{value: address(this).balance}("");
+  require(success, "Withdrawal failed.");
+}</pre>
+      <div class="mt-3 text-sm text-slate-600">Withdraw only when needed and check call success. Restrict to owner with a modifier to prevent misuse.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

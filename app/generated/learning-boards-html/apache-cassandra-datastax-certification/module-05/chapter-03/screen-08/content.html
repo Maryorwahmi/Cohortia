@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Diagnosing a WriteTimeoutException</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">One-sentence</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">WriteTimeout troubleshooting</h3>
+      <p class="text-sm text-slate-600 mt-3">Follow timestamps, inspect coordinator and replica logs, then use nodetool to find backpressure or GC issues.</p>
+
+      <div class="mt-4 flex-1 overflow-auto">
+        <div class="rounded-lg bg-slate-50 p-4 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Step check list</div>
+          <ol class="list-decimal ml-5 text-sm text-slate-700">
+            <li>Check system.log on coordinator and replicas for timeout messages.</li>
+            <li>Run nodetool tpstats to inspect MutationStage pending tasks.</li>
+            <li>Run nodetool netstats to find pending messages.</li>
+            <li>Check gc.log for long GC pauses during the time window.</li>
+            <li>Examine disk I/O and compaction activity for saturation.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <p class="text-sm text-slate-600 mt-2">If system.log shows 'Timeout while waiting for replica' on the coordinator and tpstats shows a high pending count for MutationStage on a replica, that replica is likely overwhelmed and causing the timeout.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common pitfall</div>
+        <p class="text-sm text-slate-700 mt-2">Assuming network only: often GC pauses or disk saturation are the real cause. Correlate across logs and metrics before concluding.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A write timeout is a symptom; logs and nodetool data across nodes reveal whether it is overload, GC, network, or disk related.</p>
+      </div>
+    </div>
+  </div>
+</div>

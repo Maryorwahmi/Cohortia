@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Loops</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Why loops matter</div>
+    <p class="mt-2 text-sm text-slate-600">Loops let a single template produce many configuration blocks from structured variables, keeping roles concise and maintainable.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-grow">
+      <div class="rounded-lg bg-white p-3 border">
+        <div class="text-xs font-semibold text-slate-700">Process: render repeated blocks</div>
+        <ol class="mt-2 ml-4 text-sm text-slate-700 list-decimal">
+          <li>Ensure the list variable exists, e.g., web_vhosts is defined and not empty.</li>
+          <li>Use a for loop: for vhost in web_vhosts to iterate each dictionary item.</li>
+          <li>Inside the loop, reference keys like vhost.port and vhost.domain to fill template fields.</li>
+          <li>Close the loop with endfor and manage whitespace if blank lines are sensitive.</li>
+        </ol>
+
+        <div class="mt-4 text-xs text-slate-500">Common error: missing endfor or referencing a key that some list elements don't include.</div>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-3 border">
+        <div class="text-xs font-semibold text-slate-700">Code example</div>
+        <pre class="mt-2 bg-[#0b1220] text-white rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>{% raw %}{% for vhost in web_vhosts %}
+server {
+    listen {{ vhost.port }};
+    server_name {{ vhost.domain }};
+    root {{ vhost.docroot }};
+    index index.html;
+}
+{% endfor %}{% endraw %}</code></pre>
+      </div>
+
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg bg-white p-3 border">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <div class="mt-2 text-sm text-slate-600">A role receives a list of vhosts from inventory. One template renders all server blocks so adding a new host entry requires only a variable change.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <div class="mt-2 text-sm text-slate-600">Loops don't magically validate keys. Always assume some items may omit optional keys and use default filters accordingly.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border">
+        <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+        <div class="mt-2 text-sm text-slate-600">Guard loops with: {% raw %}{% if web_vhosts is defined and web_vhosts | length > 0 %}{% endraw %} to avoid empty output and runtime warnings.</div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use loops to replace duplicated blocks, paired with existence checks and defaults to keep templates resilient.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

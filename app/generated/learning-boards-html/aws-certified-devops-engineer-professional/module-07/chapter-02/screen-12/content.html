@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} </style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Hands-on Activity</div>
+      <div class="text-2xl font-bold text-slate-900">Launch Template user data</div>
+      <div class="text-sm text-slate-600 mt-2">Use this script in your Launch Template user data to install Nginx and display AZ information.</div>
+
+      <div class="mt-4 rounded-xl bg-white p-4 card-border shadow-sm h-3/4 overflow-auto">
+        <pre class="bg-slate-50 p-3 rounded text-sm text-slate-800">#!/bin/bash
+yum update -y
+yum install -y nginx
+systemctl start nginx
+systemctl enable nginx
+AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+HOST=$(hostname -f)
+echo "&lt;h1&gt;Hello from ${HOST} in AZ ${AZ}&lt;/h1&gt;" &gt; /usr/share/nginx/html/index.html</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Activity steps</div>
+        <ol class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Create a VPC with at least two public subnets in separate AZs and appropriate route tables.</li>
+          <li>Create a Launch Template that uses the user data above and an AMI with Amazon Linux 2.</li>
+          <li>Create a target group for port 80 and an ALB across the public subnets; set health check path to /.</li>
+          <li>Create an ASG with desired capacity 2, min 2, max 4, using the Launch Template and attach it to the target group.</li>
+          <li>Validate by visiting the ALB DNS and refreshing to see different AZ hostnames; terminate an instance and observe replacement.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <p class="text-sm text-slate-800">What would you change in this flow to test how the ASG handles an AZ outage? Consider subnet selection and ASG balancing weights.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Garbage Collection</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col h-full">
+      <div class="text-lg font-bold text-slate-800">Garbage collection process</div>
+      <div class="mt-3 grid grid-cols-3 gap-3 h-full">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">1. Roots</div>
+          <div class="text-sm text-slate-700 mt-2">UGameInstance, UWorld, or objects added with AddToRoot act as traversal starting points.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">2. Traversal</div>
+          <div class="text-sm text-slate-700 mt-2">Engine follows references recorded by reflection data to mark reachable objects.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">3. Collection</div>
+          <div class="text-sm text-slate-700 mt-2">Objects not marked as reachable are eligible for reclamation in the GC pass.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Practical note: GC timing and how often passes run can affect when an unreachable object is reclaimed. For predictable lifetimes, maintain clear ownership hierarchies, use UPROPERTY for strong references, and prefer weak pointers when you accept collection may happen.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-700 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider">Example scenario</div>
+          <div class="text-sm text-slate-800 mt-1">An actor creates a UMyDataContainer with NewObject and stores it in a UPROPERTY member. While actor exists, data container is reachable. When actor is destroyed and no other references exist, the container becomes collectible.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception check</div>
+          <div class="text-sm text-slate-800 mt-1">The engine will not track raw pointers for you. If you rely on raw pointers, you may see objects collected unexpectedly during a GC pass.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

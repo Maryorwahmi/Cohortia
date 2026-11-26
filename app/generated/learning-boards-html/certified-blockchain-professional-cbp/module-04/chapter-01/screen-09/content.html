@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#ffffff}
+    .code { background:#0f172a; color:#e6eef8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace; padding:12px; border-radius:8px; }
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre code { white-space: pre-wrap; tab-size: 2; }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Compile & Deploy</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-lg font-bold text-slate-900">From source to contract</div>
+        <p class="mt-2 text-sm text-slate-700">Compile Solidity to EVM bytecode using a tool like Hardhat. Deploy by sending the bytecode in a transaction; on mining the code is stored at an address.</p>
+
+        <div class="mt-4">
+          <div class="text-sm font-bold text-slate-900">Sample Solidity (Storage.sol)</div>
+          <div class="mt-2 code"><pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Storage {
+  uint256 private storedData; // State variable to store a number
+
+  event DataStored(uint256 newValue, address indexed sender);
+
+  function set(uint256 x) public {
+    storedData = x;
+    emit DataStored(x, msg.sender);
+  }
+
+  function get() public view returns (uint256) {
+    return storedData;
+  }
+}
+</code></pre></div>
+
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-sm font-bold text-slate-900">Deployment script (illustrative)</div>
+        <div class="mt-2 code"><pre><code>const { ethers } = require("hardhat");
+
+async function main() {
+  const Storage = await ethers.getContractFactory("Storage");
+  const storage = await Storage.deploy();
+
+  await storage.deployed();
+
+  console.log("Storage contract deployed to:", storage.address);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => { console.error(error); process.exit(1); });
+</code></pre></div>
+
+        <div class="mt-4 text-sm text-slate-700">After deployment, the contract's bytecode is on-chain. The ABI remains off-chain but can be published to allow clients to call the contract functions.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">VLAN Mismatch and Trunk Diagnostics</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">VLAN mismatch</h2>
+      <p class="text-sm text-slate-600 mt-2">A mismatch occurs when VLAN membership or allowed VLAN lists differ between connected switches, preventing frames from reaching the intended segment.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Checklist</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>Run show vlan brief on both switches to confirm VLAN exists.</li>
+          <li>Run show interface Gi0/1 switchport to see access VLAN or trunk allowed list.</li>
+          <li>Run show interfaces trunk to confirm native VLAN and allowed VLANs.</li>
+          <li>Prefer switchport mode trunk over dynamic DTP in production.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example CLI checks</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded-lg text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>SW1# show vlan brief
+VLAN Name                             Status    Ports
+10   SALES                            active    Gi0/3, Gi0/4
+
+SW2# show vlan brief
+VLAN Name                             Status    Ports
+1    default                          active    Gi0/1
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">If VLAN 10 is absent from SW2, traffic will not be forwarded even if the link is up.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always verify VLAN existence and trunk native/allowed VLANs on both ends before assuming connectivity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

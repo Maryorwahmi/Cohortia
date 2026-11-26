@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card { border:1px solid rgba(226,232,240,0.9); } pre code { display:block; padding:12px; background:#0f172a; color:#e6eef8; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }</style>
+  <div class="rounded-2xl bg-white p-5 shadow-sm h-full flex flex-col card">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+        <div class="text-2xl font-bold text-slate-900 mt-2">ASG Scaling Policies — Target Tracking</div>
+        <div class="text-sm text-slate-600 mt-1">CLI example you can adapt for your environment</div>
+      </div>
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3-3 3 3M8 15l3 3 3-3"/></svg>
+    </div>
+
+    <div class="mt-4 flex gap-4 flex-grow">
+      <div class="w-1/2 bg-slate-50 p-3 rounded-lg card">
+        <div class="text-xs font-bold text-slate-700">What this does</div>
+        <div class="text-sm text-slate-600 mt-2">Creates a launch template, an Auto Scaling Group with min/max/desired, and applies a CPU target tracking policy to keep average CPU at 60%.</div>
+        <div class="mt-3 text-xs text-slate-500">Remember to replace AMI, subnets, and security group IDs with your real values.</div>
+      </div>
+
+      <div class="w-1/2 bg-black rounded-lg p-3">
+        <div class="text-xs font-bold text-emerald-200 mb-2">Starter CLI (adapt values)</div>
+        <pre class="safe-pre"><code># Create a Launch Template (replace AMI and instance type)
+aws ec2 create-launch-template \
+  --launch-template-name MyWebLaunchTemplate \
+  --version-description "Initial version" \
+  --launch-template-data '{"ImageId":"ami-0abcdef1234567890", "InstanceType":"t3.medium", "SecurityGroupIds":["sg-0123456789abcdef0"], "UserData":"IyEvYmluL2Jhc2gNCnN1ZG8geXVtIHVwZGF0ZSAtIHkNCnN1ZG8geXVtIGluc3RhbGwgaHR0cGRkIC15DQpzdWRvIHN5c3RlbWN0bCBzdGFydCBodHRwZGQNClN1ZG8gc3lzdGVtY3RsIGVuYWJsZSBodHRwZGQNQ2hvICJoZWxsbyB3b3JsZCIgPiAvaW5kZXguaHRtbA=="}'
+
+# Create the Auto Scaling Group
+aws autoscaling create-auto-scaling-group \
+  --auto-scaling-group-name MyWebAppASG \
+  --launch-template LaunchTemplateName=MyWebLaunchTemplate,Version='$Latest' \
+  --min-size 2 \
+  --max-size 10 \
+  --desired-capacity 2 \
+  --vpc-zone-identifier "subnet-0abcdef1234567890,subnet-0fedcba9876543210" \
+  --target-group-arns "arn:aws:elasticloadbalancing:REGION:ACCOUNT_ID:targetgroup/MyWebAppTargetGroup/1234567890abcdef" \
+  --health-check-type ELB \
+  --health-check-grace-period 300 \
+  --tags Key=Name,Value=MyWebAppInstance,PropagateAtLaunch=true
+
+# Apply a Target Tracking Scaling Policy
+aws autoscaling put-scaling-policy \
+  --auto-scaling-group-name MyWebAppASG \
+  --policy-name CPU60TargetTrackingPolicy \
+  --policy-type TargetTrackingScaling \
+  --target-tracking-configuration '{"PredefinedMetricSpecification":{"PredefinedMetricType":"ASGAverageCPUUtilization"},"TargetValue":60.0}'</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="rounded-md p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Set the ASG to maintain 60% CPU to balance throughput and cost, then run a controlled load test to confirm scale-out timing.</div>
+      </div>
+      <div class="rounded-md p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Target tracking makes instant perfect scaling—no. It moves capacity to meet a metric and is subject to warm-up and cooldown delays.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

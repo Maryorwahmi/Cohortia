@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center justify-between">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-xs text-slate-500">contextlib</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-900 mb-2">@contextmanager example</h3>
+      <pre class="bg-white p-3 rounded-md text-sm text-slate-800 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>from contextlib import contextmanager
+
+@contextmanager
+def db_connection_generator(db_name):
+    conn = None
+    try:
+        print(f"Connecting to database: {db_name}...")
+        conn = f"Connection object for {db_name}"
+        yield conn
+    except Exception as e:
+        print(f"An error occurred in the with block: {e}")
+    finally:
+        if conn:
+            print(f"Closing connection to database: {db_name}...")
+            conn = None</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <h4 class="text-lg font-semibold text-slate-800 mb-2">When to choose this</h4>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Use for short setup/teardown that maps naturally to a single yield point.</li>
+        <li>Avoid for managers needing complex state between enter and exit that benefits from explicit methods.</li>
+        <li>Always wrap yield in try/finally to guarantee teardown.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">@contextmanager is just syntactic sugar. It is sugar, but it also changes how exceptions are propagated because they re-enter the generator at yield.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

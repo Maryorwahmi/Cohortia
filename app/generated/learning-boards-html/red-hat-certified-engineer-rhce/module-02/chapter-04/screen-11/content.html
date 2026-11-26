@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.safe-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-lg font-semibold text-slate-800">Dynamic Firewall Configuration</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Activity instructions</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>Define open_ports in vars and loop over them.</li>
+        <li>Use the firewalld module with permanent: yes and state: enabled.</li>
+        <li>Notify a Reload firewalld handler to reload when changes occur.</li>
+        <li>Run the playbook twice to observe changed then ok behavior.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter playbook template</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto">
+        <pre class="safe-pre"><code>---
+- name: Configure firewalld rules and reload
+  hosts: webservers
+  become: yes
+  vars:
+    open_ports:
+      - 80/tcp
+      - 443/tcp
+      - 22/tcp
+  tasks:
+    - name: Add firewall rules for open_ports
+      ansible.posix.firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: "{{ item }}"
+      notify: Reload firewalld
+      loop: "{{ open_ports }}"
+
+  handlers:
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Verification: run ansible-playbook twice and check firewall-cmd --list-ports on the target host.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

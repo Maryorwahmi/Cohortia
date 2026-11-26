@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Minimal inet ruleset</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-3">Example /etc/nftables.conf</div>
+      <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm"><code>#!/usr/sbin/nft -f
+
+flush ruleset
+
+# Define an 'inet' table (applies to both IPv4 and IPv6)
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        # Allow loopback interface traffic
+        iif "lo" accept
+
+        # Allow established and related connections
+        ct state {established, related} accept
+
+        # Allow SSH (port 22)
+        tcp dport 22 accept
+
+        # Allow HTTP (port 80)
+        tcp dport 80 accept
+
+        # Allow HTTPS (port 443)
+        tcp dport 443 accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation and checks</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5 mt-3 space-y-2">
+        <li>flush ruleset clears previous rules—use carefully on production systems.</li>
+        <li>iif "lo" accept preserves local traffic and prevents self-lockout.</li>
+        <li>ct state {established, related} accept must appear early to allow replies.</li>
+        <li>tcp dport rules open specific services; with policy drop everything else is denied.</li>
+      </ul>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">After loading, run sudo nft list ruleset and try ssh to confirm connectivity. If SSH fails, check if ct state is present and that the SSH rule exists before drop rules.</p>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Compose rules with loopback and connection tracking first, then add port permits; use policy drop to close unspecified paths.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

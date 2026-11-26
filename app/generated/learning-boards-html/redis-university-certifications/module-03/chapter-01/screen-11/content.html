@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Inventory lab</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Starter redis-cli steps</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># Initialize stock and cart
+SET item:product_A:stock 5
+DEL user:cart:john
+
+# Session A
+WATCH item:product_A:stock
+GET item:product_A:stock
+# if >0 then
+MULTI
+DECR item:product_A:stock
+LPUSH user:cart:john "product_A"
+EXEC</code></pre>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Simulate contention</div>
+      <div class="text-sm text-slate-600">Open Session B and change stock between Session A's GET and EXEC, for example DECR or SET. Observe EXEC in Session A returns nil. That signals you must re-read and retry the process or inform the user.</div>
+      <div class="mt-4 rounded-md p-3 bg-slate-50 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Try this</div>
+        <div class="text-sm text-slate-600">Implement a simple retry loop in your application: watch, read, decide, multi, exec, and repeat a limited number of times on nil responses.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

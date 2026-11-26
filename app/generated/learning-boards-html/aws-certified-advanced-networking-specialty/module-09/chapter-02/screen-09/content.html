@@ -1,0 +1,34 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on</span>
+      <span class="text-slate-700">Deploy Advanced VPC</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 leading-relaxed">
+        <li>Create advanced-vpc.yaml with the supplied template for VPC, subnets, NAT, EIP and security groups.</li>
+        <li>Validate the template: <span class="mono">aws cloudformation validate-template --template-body file://advanced-vpc.yaml</span></li>
+        <li>Deploy the stack: <span class="mono">aws cloudformation deploy --stack-name AdvancedNetworkingVPC --template-file advanced-vpc.yaml --capabilities CAPABILITY_IAM</span></li>
+        <li>Monitor with the console or <span class="mono">aws cloudformation describe-stacks --stack-name AdvancedNetworkingVPC</span>.</li>
+        <li>Cleanup: <span class="mono">aws cloudformation delete-stack --stack-name AdvancedNetworkingVPC</span></li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Notes & Common Mistakes</div>
+      <div class="text-sm text-slate-700 leading-relaxed">
+        Always validate before deploying. Include CAPABILITY_IAM when your template may create IAM resources; including it proactively avoids permission prompts during automation. Test in a sandbox region first and inspect exported Outputs to wire stacks together safely.
+      </div>
+
+      <div class="mt-4 rounded-md p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Try</div>
+        <div class="text-sm text-slate-700 mt-1">After deployment, inspect the stack Outputs for exported VPC and subnet IDs and verify connectivity from instances launched into the public and private subnets.</div>
+      </div>
+    </div>
+  </div>
+</div>

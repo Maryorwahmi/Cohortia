@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, Menlo, Monaco, monospace}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.4</span>
+      <span>›</span>
+      <span class="text-slate-700">std::shared_ptr</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card shadow-sm flex gap-6 h-[68vh]">
+      <div class="w-1/2 min-h-0 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-800 mt-2">Reference-counted ownership</h3>
+        <p class="text-sm text-slate-600 mt-3">A shared_ptr increments a reference counter on copy; destruction decrements it and deletes the object when it hits zero.</p>
+
+        <ul class="mt-4 list-disc ml-5 text-sm text-slate-600">
+          <li>Prefer std::make_shared for creation.</li>
+          <li>use_count shows current owner count (snapshot).</li>
+          <li>Be aware of overhead from reference counting.</li>
+        </ul>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">shared_ptr keeps objects alive while any owner exists, but shared ownership should be used intentionally.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 min-h-0 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Example</div>
+        <div class="mt-2 rounded-lg bg-slate-50 border border-slate-100 p-3 flex-1 overflow-auto">
+          <pre><code>#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+class MyOtherResource {
+public:
+  MyOtherResource(const std::string& name) : name_(name) { std::cout &lt;&lt; "MyOtherResource " &lt;&lt; name_ &lt;&lt; " created." &lt;&lt; std::endl; }
+  ~MyOtherResource(){ std::cout &lt;&lt; "MyOtherResource " &lt;&lt; name_ &lt;&lt; " destroyed." &lt;&lt; std::endl; }
+  void doSomething(){ std::cout &lt;&lt; "MyOtherResource " &lt;&lt; name_ &lt;&lt; " is doing something." &lt;&lt; std::endl; }
+private:
+  std::string name_;
+};
+
+int main() {
+  auto sharedRes1 = std::make_shared&lt;MyOtherResource&gt;("B");
+  std::cout &lt;&lt; "sharedRes1 ref count: " &lt;&lt; sharedRes1.use_count() &lt;&lt; std::endl;
+
+  auto sharedRes2 = sharedRes1; // copies increments ref count
+  std::cout &lt;&lt; "sharedRes1 ref count: " &lt;&lt; sharedRes1.use_count() &lt;&lt; std::endl;
+
+  std::vector&lt;std::shared_ptr&lt;MyOtherResource&gt;&gt; resources;
+  resources.push_back(sharedRes1); // ref count increments
+  std::cout &lt;&lt; "sharedRes1 ref count after vector push: " &lt;&lt; sharedRes1.use_count() &lt;&lt; std::endl;
+}
+</code></pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-white border border-slate-100">
+            <div class="font-semibold text-slate-800">Concrete example</div>
+            <div class="text-sm text-slate-600 mt-1">Copies and container pushes increase use_count; object destruction is delayed until the count reaches zero.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border border-slate-100">
+            <div class="font-semibold text-slate-800">Misconception</div>
+            <div class="text-sm text-slate-600 mt-1">use_count is not a synchronization tool. In concurrent code the count may change between calls.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

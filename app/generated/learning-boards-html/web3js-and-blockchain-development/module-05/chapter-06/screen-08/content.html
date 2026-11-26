@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Batch in React</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full">
+    <h4 class="text-xl font-bold text-slate-800">fetchData using BatchRequest</h4>
+    <p class="text-sm text-slate-600 mt-2">Use web3.BatchRequest inside a useCallback, include web3 and contract in dependencies, and update state once.</p>
+
+    <pre class="mt-4 p-3 bg-slate-900 text-white rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; tab-size:2; white-space:pre-wrap;"><code>const fetchData = useCallback(async () =&gt; {
+  if (contract && web3) {
+    try {
+      const batch = new web3.BatchRequest();
+      let fetchedCount = 0;
+      let fetchedOwner = '';
+
+      batch.add(contract.methods.getCount().call.request({}, (err, data) =&gt; {
+        if (err) console.error('Batch error fetching count:', err);
+        else fetchedCount = parseInt(data);
+      }));
+
+      batch.add(contract.methods.getOwner().call.request({}, (err, data) =&gt; {
+        if (err) console.error('Batch error fetching owner:', err);
+        else fetchedOwner = data;
+      }));
+
+      await batch.execute();
+
+      setCount(fetchedCount);
+      setOwner(fetchedOwner);
+      setError('');
+    } catch (err) {
+      setError(`Error fetching data: ${err.message}`);
+      console.error('Error fetching data:', err);
+    }
+  }
+}, [contract, web3]);</code></pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-1">Avoid setState in callbacks; update once after execute to minimize rerenders.</div>
+      </div>
+
+      <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Forgetting to include web3 in dependencies can cause stale batches or runtime errors when provider changes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

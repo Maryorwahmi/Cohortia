@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Credential Stuffing Rule</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Pseudocode (visual)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">// Stage 1: Multiple Failed Logins
+IF Okta_Event.Type = Login_Failure
+AGGREGATE COUNT BY Source_IP
+WHERE COUNT &gt; 10 WITHIN 5 minutes
+THEN FLAG Source_IP AS suspicious
+
+// Stage 2: Successful Login from Suspicious IP
+IF Okta_Event.Type = Login_Success
+AND Okta_Event.Source_IP = FLAGGED_SUSPICIOUS_IP
+THEN SET CONTEXT(User_ID, Source_IP)
+GENERATE ALERT "Suspicious Successful Login"
+
+// Stage 3: Sensitive Data Access After Suspicious Login
+IF PostgreSQL_Event.Query CONTAINS sensitive_table
+AND PostgreSQL_Event.Source_User = CONTEXT.User_ID
+AND PostgreSQL_Event.Source_IP = CONTEXT.Source_IP
+AND WITHIN 2 minutes OF CONTEXT_CREATION
+THEN GENERATE CRITICAL ALERT "Account Takeover & Data Access"</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Explanation & tuning</div>
+      <div class="mt-3 text-sm text-slate-600 space-y-2">
+        <div>Use conservative counts and windows to start, then validate against historical logs.</div>
+        <div>Enrich with user role and asset criticality to prioritize incidents.</div>
+        <div>Record context variables and expire them after the defined window to prevent stale matches.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+          <p class="text-xs font-medium text-slate-800">Stage rules increase confidence. Combine counts, success states, and sensitive-data access within windows for high-fidelity alerts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

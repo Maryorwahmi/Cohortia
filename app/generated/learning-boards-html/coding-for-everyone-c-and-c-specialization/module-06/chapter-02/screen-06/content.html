@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="h-full flex flex-col gap-4">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex items-center justify-between">
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+        <div class="text-xl font-bold text-slate-800">Vector reallocation lifecycle</div>
+        <div class="text-sm text-slate-600 mt-2">How vector grows and what it costs you.</div>
+      </div>
+      <div class="text-sm text-slate-500">Performance focus</div>
+    </div>
+
+    <div class="flex-1 grid grid-cols-3 gap-4">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="font-bold text-slate-800">Normal append</div>
+        <div class="text-sm text-slate-700 mt-2">push_back uses available capacity. Operation is constant time.</div>
+      </div>
+
+      <div class="rounded-lg bg-amber-50 p-3 card-border">
+        <div class="font-bold text-slate-800">Reallocation event</div>
+        <div class="text-sm text-slate-700 mt-2">When capacity is full, vector allocates a larger block and copies elements — an O(N) operation.</div>
+      </div>
+
+      <div class="rounded-lg bg-emerald-50 p-3 card-border">
+        <div class="font-bold text-slate-800">Avoid frequent reallocations</div>
+        <div class="text-sm text-slate-700 mt-2">Call reserve(expected_size) to pre-allocate buffer and keep push_back fast and predictable.</div>
+      </div>
+    </div>
+
+    <div class="rounded-lg bg-white p-3 card-border flex-1 mt-4">
+      <div class="font-bold text-slate-800 mb-2">Mid-vector modifications</div>
+      <div class="text-sm text-slate-700">Insertions or deletions away from the end require shifting subsequent elements, which costs O(N). If your workload performs these often, consider an alternative container like std::list or redesign to batch modifications.</div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded bg-white card-border">
+          <div class="font-bold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-2">Appending 10k sensor readings benefits from reserve to avoid multiple reallocations; inserting a reading at position 0 each time is expensive due to shifting.</div>
+        </div>
+        <div class="p-3 rounded bg-white card-border">
+          <div class="font-bold text-slate-800">Misconception check</div>
+          <div class="text-sm text-slate-700 mt-2">Vector is not always fastest: its cache friendliness helps, but many mid-list operations can undo that advantage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

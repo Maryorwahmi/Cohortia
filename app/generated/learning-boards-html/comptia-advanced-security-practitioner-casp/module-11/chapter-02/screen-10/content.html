@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <div class="mb-4"> 
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> 
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Breach Analysis</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6 min-h-0"> 
+    <div class="col-span-7 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col"> 
+      <div class="text-xs uppercase tracking-wider text-blue-700 font-bold">Scenario</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">S3 bucket public + unpatched EC2</h3>
+      <p class="text-sm text-slate-600 mt-2">Assign responsibilities and propose concrete mitigations for the customer's failures.</p>
+
+      <div class="mt-4"> 
+        <div class="rounded-lg bg-white p-3 border card-border"> 
+          <div class="text-sm font-semibold text-slate-800">Responsibility breakdown</div>
+          <ul class="text-xs text-slate-600 mt-2 list-disc ml-4">
+            <li>S3 public access: Customer — bucket policy and ACL configuration</li>
+            <li>Unpatched EC2 OS: Customer — guest OS patching and image management</li>
+            <li>Underlying S3/EC2 physical infrastructure: CSP</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4"> 
+        <div class="text-sm font-semibold text-slate-800">Recommended mitigations</div>
+        <ul class="text-xs text-slate-600 mt-2 list-disc ml-4">
+          <li>Apply account-level public access blocks and remediate bucket policies.</li>
+          <li>Automate patching for EC2 via a patch manager and use hardened AMIs.</li>
+          <li>Integrate SAST/DAST into pipelines and deploy a WAF in front of the app.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-6 shadow-sm card-border"> 
+      <div class="text-sm font-semibold text-slate-800">Command examples</div>
+      <pre class="text-xs bg-slate-50 p-3 mt-2 rounded" style="white-space:pre-wrap; tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">aws s3api put-public-access-block \
+  --bucket your-sensitive-data-bucket \
+  --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</pre>
+
+      <pre class="text-xs bg-slate-50 p-3 mt-3 rounded" style="white-space:pre-wrap; tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">aws ssm send-command \
+  --instance-ids "i-0abcdef1234567890" \
+  --document-name "AWS-RunPatchBaseline" \
+  --comment "Apply OS patches" \
+  --parameters 'Operation=Install'</pre>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Map each failing control to the customer or CSP and apply the correct remediation: account-level policy fixes and automation for customer duties.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

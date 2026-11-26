@@ -1,0 +1,45 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Circular References</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Problem</div>
+      <p class='text-sm text-slate-700 mb-3'>Two objects holding shared ownership of each other prevent reference counts from reaching zero, causing leaked resources.</p>
+
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-700 mb-1'>Contrast</div>
+      <p class='text-sm text-slate-700'>Owning link vs observing link: replace one owning link with a weak observer to allow destruction.</p>
+
+      <div class='mt-auto'>
+        <div class='text-xs font-bold uppercase tracking-wider text-rose-700 mb-1'>Misconception</div>
+        <p class='text-sm text-slate-700'>Simply clearing one shared_ptr field may not be sufficient; design ownership directionally and use weak_ptr for observers.</p>
+      </div>
+    </div>
+
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Solution example</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+class B; // forward
+
+class A {
+public:
+  std::shared_ptr&lt;B&gt; b_ptr;
+};
+
+class B {
+public:
+  std::weak_ptr&lt;A&gt; a_ptr; // non-owning to break cycle
+};
+
+// With weak_ptr, A and B are destroyed when the owning shared_ptrs go out of scope.
+</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Takeaway: use weak_ptr for back-references or observer patterns so RAII can run normally and destructors are invoked.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

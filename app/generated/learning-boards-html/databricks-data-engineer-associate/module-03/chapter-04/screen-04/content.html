@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">StructType</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 card p-4">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <div class="text-sm text-slate-700 mt-2">A StructType is a nested record containing named fields, each with its own type and nullability.</div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre class="mono mt-2 p-3 bg-slate-50 rounded text-sm overflow-auto border" style="white-space: pre-wrap; tab-size: 2;">from pyspark.sql.functions import col
+
+# Extract city from a struct column
+events_df = events_df.withColumn('user_city', col('location_info.city'))
+events_df.select('event_id', 'user_city').show()</pre>
+
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use dot-access to pull named fields for filtering, grouping, or joins; leaving struct intact preserves nested semantics.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-sm font-bold text-slate-800">Notes & common mistakes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Accessing sub-fields of a null struct returns null; guard with when(column.isNull(), ...)</li>
+        <li>Flattening every struct can increase wide-table overhead and hurt write compatibility with some sinks</li>
+        <li>Use explicit schema when reading JSON to get predictable field types and nullability</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Analogy</div>
+      <div class="mt-2 text-sm text-slate-700">Think of StructType as a contact card inside a spreadsheet cell. You can keep the card whole or extract a field like phone for a specific task.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CLI Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-8 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Commands</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm font-mono" style="white-space:pre-wrap; tab-size:2;">
+# 1. Add a static route for on-prem network
+aws ec2 create-route --route-table-id rtb-0fedcba9876543210 \
+  --destination-cidr-block 10.0.0.0/16 \
+  --vpn-gateway-id vgw-0abcdef1234567890
+
+# 2. Enable route propagation for the VGW on a route table
+aws ec2 enable-vpn-gateway-route-propagation \
+  --route-table-id rtb-0fedcba9876543210 \
+  --vpn-gateway-id vgw-0abcdef1234567890
+
+# 3. View routes in a route table
+aws ec2 describe-route-tables --route-table-ids rtb-0fedcba9876543210 --query 'RouteTables[].Routes[]'
+
+# 4. Allow inbound ICMP from on-prem 10.0.0.0/16 to EC2 SG
+aws ec2 authorize-security-group-ingress --group-id sg-0123456789abcdef0 --protocol icmp --port -1 --cidr 10.0.0.0/16
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">After running these commands, always use describe-route-tables and a live ping from an EC2 instance to an on-prem host to confirm end-to-end reachability.</div>
+    </div>
+    <div class="col-span-4 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification tips</div>
+      <ul class="mt-3 list-disc ml-4 text-sm text-slate-600">
+        <li>Look for DestinationCidrBlock '10.0.0.0/16' in describe output</li>
+        <li>Check for origin 'propagated' to confirm BGP learned it</li>
+        <li>Run a ping from EC2 to on-prem and check return path</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">CLI commands are reproducible; pair them with describe commands and pings to validate success.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,67 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#fbfdff;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">ansible.builtin.user deep dive</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xl font-bold text-slate-800">What the user module does</div>
+      <div class="text-sm text-slate-600 mt-2">Ensure an account exists with exact attributes and manage group membership.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-bold">Key attributes</div>
+        <ul class="list-disc pl-5 text-sm text-slate-700">
+          <li>name and state: present/absent</li>
+          <li>uid, home, shell, comment</li>
+          <li>password (use hashed) and authorized_key for SSH access</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold">Common misconceptions</div>
+        <div class="text-xs text-slate-600 mt-1">Some expect plain-text passwords are acceptable or that present won't change existing attributes — both are unsafe assumptions.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always declare exact attributes for predictable accounts and avoid plain-text credentials in playbooks.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Concrete example</div>
+      <div class="mt-2 rounded-lg bg-slate-50 p-3 card-border">
+        <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">- name: Create a new system user
+  ansible.builtin.user:
+    name: appuser
+    comment: "Application Service User"
+    uid: 1001
+    home: /opt/appuser
+    shell: /sbin/nologin
+    state: present
+    password: "$6$saltsalt$hashedpasswordhere"</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-700">Example explanation</div>
+        <ul class="pl-5 list-disc text-sm text-slate-700 mt-2">
+          <li>UID fixes numeric identity across hosts.</li>
+          <li>Non-login shell prevents interactive sessions for a service account.</li>
+          <li>Hashed password used to avoid exposing secrets in playbook text.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-rose-50 p-3 card-border">
+        <div class="text-sm font-bold text-rose-600">Misuse to avoid</div>
+        <div class="text-xs text-slate-700 mt-2">Storing plain text passwords in playbooks or assuming that present will never change an existing account's attributes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex flex-col gap-4 h-full">
+    <div class="rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-800 mt-1">Troubleshooting Target Group Health Check Failures</div>
+      <div class="text-sm text-slate-600 mt-2">Follow these steps to find why targets are marked unhealthy.</div>
+    </div>
+
+    <div class="flex-1 grid grid-cols-3 gap-4">
+      <div class="col-span-2 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+        <div class="font-bold text-slate-800">Step-by-step checks</div>
+        <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-3">
+          <li>Verify EC2 instance is running and reachable on the health-check port.</li>
+          <li>Confirm the application process (Nginx, Apache, Node) is listening on the configured port and path.</li>
+          <li>Check the target group's health check path and protocol actually return 200 OK.</li>
+          <li>Verify security group rules: allow inbound health checks from the load balancer source.</li>
+          <li>Inspect Network ACLs on the subnet for both inbound and outbound allow rules.</li>
+          <li>Review application logs for errors causing failed responses.</li>
+        </ol>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+          <div class="text-sm text-slate-600 mt-2">If health checks return connection refused, what two network elements should you verify before restarting the load balancer?</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-bold text-slate-800">Example</div>
+        <div class="text-sm text-slate-600 mt-2">Health checks fail with HTTP 502. Inspect application logs, find a misconfigured upstream, correct it, and watch the target return to healthy. Avoid changing health check path until you confirm the correct endpoint behavior.</div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-2">Allowing only inbound NACL rules and forgetting to permit outbound ephemeral ports, which blocks return traffic and causes failed checks.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

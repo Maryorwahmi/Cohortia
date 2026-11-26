@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Lucid Transaction Flow</span></div><div class="flex flex-col h-full"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Transaction Lifecycle</div><h1 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Completing, Signing, and Submitting with Lucid</h1><p class="text-md text-slate-600 mb-6">From draft to on-chain confirmation</p><div class="flex flex-col lg:flex-row gap-6 h-full"><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-2xl p-6 text-white font-mono text-sm overflow-auto flex-grow" style="tab-size: 2; white-space: pre-wrap;"><pre><code>import { Lucid } from 'lucid-cardano';
+
+const sendAda = async (recipientAddress, amountAda) => {
+  // ... transaction initiation ...
+
+  try {
+    const lovelaceAmount = BigInt(amountAda * 1_000_000);
+
+    const tx = await lucid
+      .newTx()
+      .payToAddress(recipientAddress, { lovelace: lovelaceAmount })
+      .complete(); // Handles UTXO selection, fees, change
+
+    const signedTx = await tx.sign().complete(); // Request wallet to sign
+    const txHash = await signedTx.submit(); // Submit to blockchain
+
+    console.log(`Transaction submitted! Tx Hash: ${txHash}`);
+    alert(`Transaction successful! Tx Hash: ${txHash}`);
+    return txHash;
+  } catch (error) {
+    console.error("Error sending ADA:", error);
+    alert("Transaction failed: " + error.message);
+    return null;
+  }
+};</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Lucid's `complete()`, `sign().complete()`, and `submit()` methods streamline the entire transaction lifecycle, from automatic UTXO management to secure wallet signing and blockchain broadcast.</p></div></div><div class="lg:w-1/2 flex flex-col gap-4"><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 flex-grow"><h3 class="text-lg font-semibold text-slate-900 mb-3">Lucid's Automated Steps</h3><ul class="list-none space-y-3"><li><div class="flex items-center gap-3"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">01</span><p class="text-sm text-slate-800"><strong><code>.complete()</code>:</strong> Automatically selects UTXOs, calculates fees, and creates change outputs.</p></div></li><li><div class="flex items-center gap-3"><span class="bg-violet-100 text-violet-700 text-xs font-bold px-3 py-1 rounded-full">02</span><p class="text-sm text-slate-800"><strong><code>.sign().complete()</code>:</strong> Prompts the user's connected wallet to sign the transaction securely.</p></div></li><li><div class="flex items-center gap-3"><span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">03</span><p class="text-sm text-slate-800"><strong><code>.submit()</code>:</strong> Broadcasts the fully signed transaction to the Cardano network.</p></div></li></ul></div><div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200"><h3 class="text-lg font-semibold text-slate-900 mb-3">Common Misconception</h3><p class="text-sm text-slate-700">Many developers assume they need to manually select UTXOs. Lucid's <code>.complete()</code> method handles this automatically, significantly reducing complexity and potential errors.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Add Organization</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Edit JSON</div>
+      <h4 class="text-xl font-bold text-slate-900 mt-2">Add Org4's MSP and AnchorPeers</h4>
+      <p class="text-sm text-slate-700 mt-2">Create an org4.json describing the MSP and anchor peer, then merge it into the Application group of config.json.</p>
+
+      <div class="mt-4 bg-slate-900 rounded-lg p-4 text-xs text-green-200 font-mono overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># Merge example (simplified)
+jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"Org4MSP": .[1]}}}}}' config.json ./org4.json &gt; modified_config.json</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-white card-border">
+        <div class="text-sm font-bold text-slate-800">Validation</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>Compare structure to an existing OrgMSP to ensure keys match.</li>
+          <li>Verify AnchorPeers value exists under values.AnchorPeers.</li>
+          <li>Keep backups of both original and modified JSON.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example AnchorPeers snippet</div>
+        <pre class="mt-2 text-sm font-mono text-slate-700 p-2 bg-slate-50 rounded">"AnchorPeers": { "mod_policy": "Admins", "value": { "anchor_peers": [ { "host": "peer0.org4.example.com", "port": 10051 } ] } }</pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common Error</div>
+        <p class="text-sm text-slate-700 mt-2">Accidentally changing the Application group's top-level version or policies can alter access control. Make minimal edits and validate the JSON hierarchy.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Edit only what is necessary: add the org entry and anchor peers to keep the update minimal and auditable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

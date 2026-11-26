@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Declarative Base</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border p-4 bg-white">
+      <div class="text-sm font-semibold text-slate-800">Core concept</div>
+      <p class="text-sm text-slate-600 mt-2">declarative_base creates a Base class that stores table mappings and metadata. Models that inherit from Base are registered automatically.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Model anatomy</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
+          <li>__tablename__: explicit table name string.</li>
+          <li>Column attributes: Column(Integer), Column(String(...)).</li>
+          <li>Optional __repr__ to aid debugging.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Defining a model does not modify the database until you run create_all or apply migrations. Model code alone is inert with respect to the DB schema.</p>
+      </div>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example model</div>
+      <pre class="mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String
+
+Base = declarative_base()
+
+class User(Base):
+  __tablename__ = 'users'
+  id = Column(Integer, primary_key=True)
+  name = Column(String(50), nullable=False)
+  email = Column(String(100), unique=True, nullable=False)
+
+  def __repr__(self):
+    return f"&lt;User(id={'{'}self.id{'}'}, name='{'{'}self.name{'}'}', email='{'{'}self.email{'}'}')&gt;"</code></pre>
+
+      <div class="mt-3 text-xs text-slate-600">Call Base.metadata.create_all(engine) to create tables for registered models.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">declarative_base is the registry for model mappings. Define Column attributes on classes and then explicitly create tables when ready.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

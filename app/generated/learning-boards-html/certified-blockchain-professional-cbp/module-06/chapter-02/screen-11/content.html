@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{display:block;padding:12px;background:#0f172a;color:#e6eef9;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;tab-size:2;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulating Traceability</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">What the code shows</div>
+      <div class="mt-3 text-sm text-slate-600">A Block class calculates a hash from its fields. A Blockchain class links blocks via previous_hash and validates integrity by recalculation.</div>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+        <div class="text-sm text-slate-800">Add an event, run validate_chain, then tamper with a middle block and re-run validation to see the failure mode.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Code template (conceptual)</div>
+      <pre><code>import hashlib
+import json
+import time
+
+class Block:
+  def __init__(self, index, timestamp, product_id, event_type, location, data, previous_hash):
+    self.index = index
+    self.timestamp = timestamp
+    self.product_id = product_id
+    self.event_type = event_type
+    self.location = location
+    self.data = data
+    self.previous_hash = previous_hash
+    self.hash = self.calculate_hash()
+
+  def calculate_hash(self):
+    block_string = json.dumps(self.__dict__, sort_keys=True)
+    return hashlib.sha256(block_string.encode()).hexdigest()
+
+class Blockchain:
+  def __init__(self):
+    self.chain = [self.create_genesis_block()]
+
+  def create_genesis_block(self):
+    return Block(0, time.time(), "GENESIS", "INIT", "N/A", "Genesis Block", "0")
+
+  def get_latest_block(self):
+    return self.chain[-1]
+
+  def add_block(self, product_id, event_type, location, data):
+    latest_block = self.get_latest_block()
+    new_block = Block(latest_block.index + 1, time.time(), product_id, event_type, location, data, latest_block.hash)
+    self.chain.append(new_block)
+
+  def validate_chain(self):
+    for i in range(1, len(self.chain)):
+      current = self.chain[i]
+      previous = self.chain[i-1]
+      if current.hash != current.calculate_hash():
+        return False
+      if current.previous_hash != previous.hash:
+        return False
+    return True</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

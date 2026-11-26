@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card {border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white;padding:14px;box-shadow:0 4px 8px rgba(15,23,42,0.04);} </style>
+  <div class="mb-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+    <h3 class="text-2xl font-bold text-slate-800 mt-2">Signer Spoofing vs. Ownership Checks</h3>
+    <div class="text-sm text-slate-600 mt-1">Both protect different axes of authority; you need both in program logic.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card flex flex-col">
+      <div class="flex items-center gap-3 mb-3">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M12 11c2.7 0 5-2.3 5-5S14.7 1 12 1 7 3.3 7 6s2.3 5 5 5z"></path><path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path></svg>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Signer Spoofing</div>
+          <div class="text-xs text-slate-600">When code assumes an account is authorized without verifying the signature or authority.</div>
+        </div>
+      </div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Symptoms: unexpected state changes after a transaction with unknown signers.</li>
+        <li>Mitigation: require is_signer checks and explicit authority fields in account data.</li>
+        <li>Example: check account.owner == expected_owner for role-based actions.</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-700">Relying on client-side checks is ineffective; signature and authority must be validated on-chain.</div>
+      </div>
+    </div>
+
+    <div class="card flex flex-col">
+      <div class="flex items-center gap-3 mb-3">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-600"><rect x="3" y="3" width="18" height="14" rx="2"></rect><path d="M7 21h10"></path></svg>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Ownership Checks</div>
+          <div class="text-xs text-slate-600">Ensuring an account's owner field matches the program that should control it.</div>
+        </div>
+      </div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Symptoms: program modifies data in accounts owned by other programs.</li>
+        <li>Mitigation: assert account.owner == program_id when required.</li>
+        <li>Example: verify token account owner or PDA owner before state mutation.</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro Tip</div>
+        <div class="text-sm text-slate-700">Combine owner checks with role fields stored inside the account for layered authorization.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex gap-4">
+    <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500 w-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example Check</div>
+      <pre class="text-sm code">// Rust check
+if account.owner != program_id { return Err(ProgramError::IncorrectProgramId); }
+// Anchor-style authority
+assert!(authority.key() == &profile.owner);</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

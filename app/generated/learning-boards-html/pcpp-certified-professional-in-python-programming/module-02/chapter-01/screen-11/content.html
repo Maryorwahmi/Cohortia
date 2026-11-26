@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Methods and Binding</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full grid grid-cols-2 gap-4">
+    <div>
+      <h3 class="text-2xl font-bold text-slate-800">Plain functions become bound methods</h3>
+      <p class="text-sm text-slate-600 mt-2">Place plain functions into the attrs mapping. When accessed via an instance, the function is bound so the instance becomes the first argument.</p>
+
+      <div class="mt-4 rounded-md bg-slate-50 p-3 card-border">
+        <pre class="p-3 code bg-white card-border rounded">def greet(self):
+  return f"hello {self.name}"
+
+C = type('C', (object,), {'greet': greet})
+inst = C()
+inst.name = 'Ana'
+print(inst.greet())  # greet bound to inst at call time
+</pre>
+      </div>
+    </div>
+
+    <div>
+      <h4 class="text-lg font-semibold text-slate-800">Gotchas</h4>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+        <li>Do not try to pre-bind functions to instances before placing them in attrs.</li>
+        <li>Inspect the class __dict__ to find the raw function objects; instances hold only state.</li>
+        <li>Wrapping functions may break descriptor binding if the wrapper is not a descriptor-aware callable.</li>
+      </ul>
+
+      <div class="mt-4 rounded-md bg-emerald-50 p-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Practical tip</div>
+        <div class="text-sm text-slate-800 mt-1">When creating classes programmatically, include methods as plain functions and rely on Python's binding to give instance methods the correct self parameter.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

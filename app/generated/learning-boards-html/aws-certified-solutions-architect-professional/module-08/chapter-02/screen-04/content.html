@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px;line-height:1.4;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Metrics</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <div class="text-xl font-bold text-slate-800 mt-2">Custom metrics are application KPIs you publish to CloudWatch</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Use them for domain signals like order latency, queue depth, or business transactions.</li>
+          <li>Include Dimensions to slice by application, environment, or endpoint.</li>
+          <li>Pick units and cadence so graphs and anomaly models have meaningful data.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 border border-amber-100 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Concrete example</div>
+        <div class="text-sm text-slate-800">A Python service measures order processing time and calls CloudWatch put_metric_data to send OrderProcessingTime in milliseconds to the Custom/ECommerce namespace.</div>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-3 card shadow-sm h-full overflow-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code walkthrough</div>
+        <pre class="code"><code>import boto3
+import time
+
+cloudwatch = boto3.client('cloudwatch')
+
+def process_order(order_id):
+  start_time = time.time()
+  # Simulate order processing logic
+  time.sleep(0.5)
+  end_time = time.time()
+  processing_time_ms = (end_time - start_time) * 1000
+
+  cloudwatch.put_metric_data(
+    MetricData=[
+      {
+        'MetricName': 'OrderProcessingTime',
+        'Dimensions': [
+          {'Name': 'Application', 'Value': 'ECommerceService'},
+        ],
+        'Unit': 'Milliseconds',
+        'Value': processing_time_ms
+      },
+    ],
+    Namespace='Custom/ECommerce'
+  )
+  print(f"Order {order_id} processed in {processing_time_ms:.2f} ms")
+
+# Example usage
+process_order("ORD12345")</code></pre>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 border border-rose-100 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common misconception</div>
+        <div class="text-sm text-slate-800">Custom metrics are not only for business metrics; they are equally valuable for internal performance signals. Design them to be actionable, not just informational.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Custom metrics let you instrument application behavior in domain terms so alerts and dashboards map to real service health.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

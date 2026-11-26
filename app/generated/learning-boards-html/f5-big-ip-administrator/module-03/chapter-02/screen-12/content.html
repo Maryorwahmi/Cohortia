@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@keyframes fadeInSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.animate-in{animation:fadeInSlideUp 0.6s ease-out forwards}.delay-100{animation-delay:0.1s}.delay-200{animation-delay:0.2s}.delay-300{animation-delay:0.3s}.delay-400{animation-delay:0.4s}.delay-500{animation-delay:0.5s}.delay-600{animation-delay:0.6s}.delay-700{animation-delay:0.7s}.delay-800{animation-delay:0.8s}.delay-900{animation-delay:0.9s}.delay-1000{animation-delay:1.0s}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 animate-in"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.2</span><span>›</span><span class="text-slate-700">Custom Monitoring</span></div><div class="flex flex-grow gap-6"><div class="w-3/5 flex flex-col"><div class="text-sm font-bold uppercase tracking-wider text-amber-700 mb-2 animate-in delay-100">Custom Monitoring</div><div class="text-3xl font-bold text-slate-900 mb-3 leading-tight animate-in delay-200">Developing Custom External Monitors: Script Structure</div><div class="text-base text-slate-600 mb-6 animate-in delay-300">A Bash example for combined HTTP and database checks.</div><div class="bg-slate-800 rounded-xl p-4 font-mono text-xs text-slate-200 overflow-x-auto shadow-lg animate-in delay-400" style="tab-size: 2; white-space: pre-wrap;"><pre><code>#!/bin/bash
+# External monitor for custom application health check
+# Checks HTTP response for a specific string and attempts a database connection
+
+IP=$1
+PORT=$2
+
+# --- HTTP Check ---
+HTTP_REQUEST="GET /app/healthz HTTP/1.1\r
+Host: myapp.example.com\r
+Connection: Close\r
+\r
+"
+EXPECTED_STRING="Service Operational"
+
+HTTP_RESPONSE=$(echo -e "$HTTP_REQUEST" | nc -w 5 $IP $PORT)
+
+if ! echo "$HTTP_RESPONSE" | grep -q "$EXPECTED_STRING"; then
+    echo "HTTP check failed: Expected string not found."
+    exit 1
+fi
+
+# --- Database Check (Example) ---
+DB_CHECK_STATUS=$(/usr/bin/some_db_client --host $IP --port 5432 --user health_user --password health_pass --command "SELECT 1" | grep -q "1 row" && echo "ok" || echo "fail")
+
+if [ "$DB_CHECK_STATUS" != "ok" ]; then
+    echo "Database check failed."
+    exit 1
+fi
+
+# If both checks pass
+echo "up"
+exit 0</code></pre></div></div><div class="w-2/5 flex flex-col justify-center"><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mb-4 animate-in delay-500"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg><span>Script Arguments</span></div><p class="text-sm text-slate-800">BIG-IP passes <code>IP</code> and <code>PORT</code> as <code>$1</code> and <code>$2</code> to the script.</p></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mb-4 animate-in delay-600"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9-8.418V4.755c0-1.01.921-1.82 1.942-1.82h5.416c1.02 0 1.942.81 1.942 1.82v5.659c0 1.01-.921 1.82-1.942 1.82h-5.416c-1.02 0-1.942-.81-1.942-1.82V7.5M14.25 12l-2.535 4.22c-.274.458-.9 1.187-1.82 1.187-.87 0-1.6-.56-2.011-1.26a1.157 1.157 0 01-.18-1.227l1.087-3.623m7.857-2.133L21 14.25m-2.25-4.5L15 21m-2.25-4.5l-4.5 4.5" /></svg><span>Return Status</span></div><p class="text-sm text-slate-800">Script must print <code>up</code> to <code>stdout</code> and exit <code>0</code> for healthy, or exit <code>1</code> for unhealthy.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4 animate-in delay-700"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Custom scripts allow for multi-layered health checks by combining various service validations within a single execution.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

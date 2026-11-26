@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hands-on</div>
+        <h3 class="text-lg font-bold text-slate-900 mt-2">Starter code concept</h3>
+        <div class="mt-3 text-sm text-slate-700">The producer enqueues messages and exits. Consumers run until a stop event is set. To ensure all messages are processed before shutdown, call the queue method that waits for all tasks to complete.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Concrete fix</div>
+        <div class="mt-2 text-sm text-slate-600">After producer_thread.join() add: <span class="font-mono text-xs bg-slate-100 px-2 py-1 rounded">message_queue.join()</span> so the main thread waits until consumers called task_done() for every message.</div>
+        <div class="mt-2 text-xs text-slate-500">Misconception: Checking queue.empty() is sufficient — it can lead to race conditions; use join for correctness.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use queue.join() combined with task_done() to coordinate producers and consumers for a reliable shutdown sequence.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Starter Code Excerpt</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm"># Wait for all messages to be processed
+producer_thread.join()
+message_queue.join()  # ← ensure all task_done() calls received
+# Signal consumers to stop
+stop_event.set()</pre>
+        <div class="mt-3 text-sm text-slate-600">Explanation: join blocks until every item put() into the queue has a matching task_done() call from consumers, ensuring no work is lost on shutdown.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

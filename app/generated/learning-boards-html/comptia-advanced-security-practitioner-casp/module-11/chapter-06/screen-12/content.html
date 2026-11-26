@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-900">Secure an AWS Lambda: Walkthrough</h3>
+    <p class="text-sm text-slate-600 mt-2">Follow these steps in your environment to see the security improvements in practice.</p>
+
+    <div class="mt-4 grid grid-cols-1 gap-3 flex-grow overflow-auto">
+      <div class="rounded-lg p-4 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Step 1 — Deploy insecure function</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded-lg p-3"><code>zip insecure_lambda.zip insecure_lambda.py
+aws lambda create-function --function-name InsecureLambdaFunction --runtime python3.9 --role <InsecureLambdaRole_ARN> --handler insecure_lambda.lambda_handler --zip-file fileb://insecure_lambda.zip</code></pre>
+      </div>
+
+      <div class="rounded-lg p-4 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Step 2 — Create secret</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded-lg p-3"><code>aws secretsmanager create-secret --name my-app-api-key --secret-string '{"api_key": "my-secure-api-key-456"}'</code></pre>
+      </div>
+
+      <div class="rounded-lg p-4 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Step 3 — Deploy secure function</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded-lg p-3"><code>zip secure_lambda.zip secure_lambda.py
+aws lambda create-function --function-name SecureLambdaFunction --runtime python3.9 --role <SecureLambdaRole_ARN> --handler secure_lambda.lambda_handler --zip-file fileb://secure_lambda.zip</code></pre>
+      </div>
+
+      <div class="rounded-lg p-4 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Validation</div>
+        <p class="text-sm text-slate-800 mt-2">Invoke the secure function with valid and invalid inputs and review CloudWatch logs to confirm the secret was retrieved securely and not logged in plain text.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex flex-col gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Draggable & Zoomable Image</h3>
+      <p class="text-sm text-slate-600 mt-2">Combine a DragGesture and MagnificationGesture so the image can move and scale while the user interacts.</p>
+    </div>
+
+    <div class="flex gap-4 h-full">
+      <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">Starter Code</div>
+        <div class="mt-3 p-3 rounded-lg bg-slate-50">
+          <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; margin:0;">import SwiftUI
+
+struct InteractiveImageView: View {
+  @State private var offset: CGSize = .zero // persistent position
+  @State private var dragTranslation: CGSize = .zero // transient during drag
+  @State private var currentScale: CGFloat = 1.0 // transient pinch
+  @State private var finalScale: CGFloat = 1.0 // persisted scale
+
+  var body: some View {
+    Image(systemName: "photo.fill")
+      .resizable()
+      .scaledToFit()
+      .frame(width:200, height:200)
+      .offset(x: offset.width + dragTranslation.width,
+              y: offset.height + dragTranslation.height)
+      .scaleEffect(currentScale * finalScale)
+      .gesture(
+        DragGesture()
+          .onChanged { value in
+            dragTranslation = value.translation
+          }
+          .onEnded { value in
+            offset.width += value.translation.width
+            offset.height += value.translation.height
+            dragTranslation = .zero
+          }
+      )
+      .simultaneousGesture(
+        MagnificationGesture()
+          .onChanged { value in
+            currentScale = value
+          }
+          .onEnded { value in
+            finalScale *= value
+            currentScale = 1.0
+          }
+      )
+  }
+}</pre>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">Test & Extend</div>
+        <ul class="mt-3 text-sm text-slate-600 list-disc ml-5 space-y-2">
+          <li>Run the view and drag the image; it should remain in its final position.</li>
+          <li>Pinch to zoom and verify finalScale persists between gestures.</li>
+          <li>Try removing simultaneousGesture to observe conflicts between drag and pinch.</li>
+          <li>Add range clamping to finalScale for a stable zoom limit.</li>
+        </ul>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Accessibility</div>
+          <p class="text-sm text-slate-600 mt-2">Provide zoom in/out buttons as an alternative for users who cannot use pinch gestures.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

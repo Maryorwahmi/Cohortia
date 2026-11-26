@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-700">Why single-area OSPF fails at scale</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">The issue: one large LSDB</div>
+      <div class="text-sm text-slate-600 mt-2">Every router holds the entire LSDB and runs SPF for every topology change, increasing memory and CPU usage and slowing convergence.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="p-3 rounded-xl bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">Consequence: widespread SPF events</div>
+          <div class="text-sm text-slate-600 mt-1">A single link change forces SPF across all routers in the area, causing delays and potential packet loss during recalculation.</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">Consequence: larger LSDBs</div>
+          <div class="text-sm text-slate-600 mt-1">Routers need more memory and CPU to store and process all LSAs for the whole AS.</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Segmenting into areas localizes changes and protects stability across the network.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Definition and analogy</div>
+      <div class="text-sm text-slate-600 mt-2">Think of a single area as one large mailing list where every update is sent to everyone; multi-area OSPF creates smaller lists so only interested routers process local changes.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="p-3 rounded-xl bg-white border card-border mono">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-1">A campus with 300 routers in one area sees frequent SPF runs when an access switch changes. Splitting access into areas reduces SPF per change to affected areas only.</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+          <div class="text-sm text-slate-600 mt-1">More areas are not always better; improper design can complicate summarization and increase management overhead.</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-emerald-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Check your understanding</div>
+          <div class="text-sm text-slate-800 mt-1">Which part of your network experiences the most change, and could isolating it into its own area improve overall stability?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

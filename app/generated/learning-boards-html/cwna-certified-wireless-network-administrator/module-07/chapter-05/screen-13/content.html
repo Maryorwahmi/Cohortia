@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace; white-space:pre-wrap; tab-size:2} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">Change Request Example</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-2">Draft: Implement New IoT SSID</div>
+    <div class="text-sm text-slate-600 mt-1">Use this as a template; replace vendor commands with your platform equivalents.</div>
+  </div>
+
+  <div class="flex gap-4 h-[72%]">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Change Request (text)</div>
+      <pre class="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
+--- Change Request Document ---
+
+Change Title: Implement New IoT SSID for Corporate WLAN
+
+Change Description:
+This change involves adding a new SSID, "IoT-Devices," to our existing wireless network infrastructure. The purpose is to segregate IoT traffic onto VLAN 100 using WPA3-Personal and firewall rules that limit access to necessary external services.
+
+Impact Analysis:
+Expected impact is minimal. There is a low risk of transient disruption during configuration. Schedule during off-peak hours.
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">
+        Implementation, verification, and rollback items should be enumerated in the ticket and referenced by engineers performing the change.
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Implementation Plan — Controller snippet</div>
+      <pre class="rounded-md bg-slate-50 p-3 text-sm text-slate-700">/* Conceptual commands for controller configuration */
+config wlan create 10 IoT-Devices IoT-Devices
+config wlan security wpa3 akm psk enable 10
+config wlan security wpa3 psk set-key ascii &lt;strong_passphrase&gt; 10
+config wlan interface 10 vlan 100
+config wlan enable 10
+
+/* Firewall: create rule to restrict VLAN 100 to necessary external services and block internal corporate subnets. */
+</pre>
+
+      <div class="mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Verification Plan</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4">
+          <li>Confirm SSID broadcasts and WPA3-Personal authentication.</li>
+          <li>Verify test device receives DHCP from VLAN 100 scope.</li>
+          <li>Confirm firewall rules allow required external services and block corporate resources.</li>
+          <li>Monitor existing SSIDs for degradation for one hour post-change.</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">
+        Rollback: disable SSID 10, revert VLAN 100 and firewall changes, and restore previous DHCP scope if needed.
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

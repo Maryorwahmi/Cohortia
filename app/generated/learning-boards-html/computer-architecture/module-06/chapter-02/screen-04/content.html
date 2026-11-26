@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Reservation Station Fields</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Per-field description</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-600">
+          <li><strong>Op:</strong> opcode encoding, small (3–5 bits) but must cover supported operations.</li>
+          <li><strong>Qj, Qk:</strong> producer tags (5–8 bits). Zero indicates the value is ready.</li>
+          <li><strong>Vj, Vk:</strong> operand values (32–64 bits) present only when Q=0.</li>
+          <li><strong>A:</strong> address offset for loads/stores (16–32 bits).</li>
+          <li><strong>Busy:</strong> 1 bit indicating the station is occupied.</li>
+          <li><strong>Dest:</strong> destination tag or register ID (5–8 bits).</li>
+        </ul>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Concrete sizing example</div>
+        <pre class="mt-3">// Example sizing (typical)
+Op: 4 bits
+Qj: 6 bits
+Qk: 6 bits
+Vj: 64 bits
+Vk: 64 bits
+A: 16 bits
+Busy: 1 bit
+Dest: 6 bits
+----
+Total ≈ 167 bits per station</pre>
+        <div class="text-xs text-slate-500 mt-2">Tip: Round sizes to simplify layout planning and wiring.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Common misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Although the storage size seems small relative to a cache, the distributed comparators and the wiring to the CDB create significant area, routing congestion, and power demands that must be considered in floorplanning.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card p-4 h-full">
+        <div class="text-sm font-semibold text-slate-800">Station file scaling</div>
+        <p class="text-sm text-slate-600 mt-2">Multiply per-station bits by the number of stations to get total storage. For 50 stations at ~200 bits each you get about 10,000 bits, roughly one to two kilobytes. That storage is modest, but wiring and per-station comparators multiply area and power costs.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-blue-50">
+            <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Key takeaway</div>
+            <div class="text-sm text-slate-800 mt-2">Bits are cheap; routing, comparators, and timing are expensive.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-emerald-50 mt-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Try this</div>
+            <div class="text-sm text-slate-800 mt-2">Estimate total station bits for 8, 16, and 50 stations using the example above and note how tag width grows with station count.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

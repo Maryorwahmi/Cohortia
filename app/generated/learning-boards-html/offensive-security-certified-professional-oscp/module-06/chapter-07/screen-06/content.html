@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6.7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Content Security Policy (CSP)</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-3/5 flex flex-col space-y-4">
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">What is CSP?</h3>
+        <p class="text-sm text-slate-700 mb-4">Content Security Policy is an HTTP response header that allows web developers to control resources the user agent is allowed to load for a given page. It's a powerful defense against XSS and data injection attacks.</p>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">How CSP Prevents Attacks</h3>
+        <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+          <li><strong>Blocks Inline Scripts:</strong> Prevents execution of scripts embedded directly in HTML, forcing all scripts to be loaded from external files.</li>
+          <li><strong>Whitelists Sources:</strong> Specifies trusted domains from which resources (scripts, images, styles) can be loaded, blocking untrusted sources.</li>
+          <li><strong>Disables Dangerous Functions:</strong> Can restrict the use of functions like <code>eval()</code>, which are often abused in XSS attacks.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">CSP acts as a strong gatekeeper for web content, significantly reducing the attack surface for client-side vulnerabilities like XSS by enforcing strict resource loading policies.</p>
+      </div>
+    </div>
+
+    <div class="w-2/5 flex flex-col space-y-4">
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">CSP Example: Blocking Inline Scripts</h3>
+        <div class="bg-slate-800 text-white p-4 rounded-lg font-mono text-xs mb-4" style="white-space: pre-wrap; tab-size: 2;">
+          <span class="text-blue-400">HTTP/1.1 200 OK</span>
+          <span class="text-green-400">Content-Security-Policy: script-src 'self'</span>
+          <span class="text-yellow-400">Content-Type: text/html</span>
+
+          <span class="text-gray-500">&lt;!-- This script will be blocked by CSP --&gt;</span>
+          <span class="text-red-400">&lt;script&gt;alert('XSS!');&lt;/script&gt;</span>
+
+          <span class="text-gray-500">&lt;!-- This script will be allowed --&gt;</span>
+          <span class="text-green-400">&lt;script src="/app.js"&gt;&lt;/script&gt;</span>
+        </div>
+        <p class="text-sm text-slate-700">In this example, the CSP header only allows scripts from the same origin ('self'). An inline script like <code>alert('XSS!')</code> would be blocked by the browser, preventing the attack.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Bypassing CSP: Common Approaches</h3>
+        <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+          <li><strong>Misconfigurations:</strong> Exploiting overly broad directives (e.g., `'unsafe-inline'`, `'unsafe-eval'`, `data:` URIs).</li>
+          <li><strong>Trusted Domains:</strong> Leveraging whitelisted domains that host vulnerable JSONP endpoints or outdated libraries.</li>
+          <li><strong>Browser Quirks:</strong> Finding specific browser rendering or parsing behaviors that bypass CSP rules.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

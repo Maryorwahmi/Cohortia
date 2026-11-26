@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Lab</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 border shadow-sm overflow-auto" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-lg font-bold text-slate-800">SQL template</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-xs font-mono" style="white-space: pre-wrap; tab-size: 2;">-- Step 2: Create the customer_data table
+CREATE TABLE customer_data (
+    customer_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    csr_id VARCHAR(50) NOT NULL
+);
+
+-- Insert sample data
+INSERT INTO customer_data (name, csr_id) VALUES
+('John Doe', 'csr_alice'),
+('Jane Smith', 'csr_bob');
+
+-- Step 4: Create CSR user roles
+CREATE ROLE csr_alice WITH LOGIN PASSWORD 'AliceSecurePass!';
+CREATE ROLE csr_bob WITH LOGIN PASSWORD 'BobSecurePass!';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON customer_data TO csr_alice;
+GRANT SELECT, INSERT, UPDATE, DELETE ON customer_data TO csr_bob;
+
+-- Enable RLS
+ALTER TABLE customer_data ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy
+CREATE POLICY csr_access_policy ON customer_data
+FOR ALL
+TO csr_alice, csr_bob
+USING (csr_id = current_user)
+WITH CHECK (csr_id = current_user);
+
+-- Optionally force RLS
+ALTER TABLE customer_data FORCE ROW LEVEL SECURITY;</pre>
+    </div>
+    <div class="bg-white rounded-2xl p-5 border shadow-sm" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Expected tests & outcomes</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>- Connect as csr_alice and run SELECT; only csr_alice rows should appear.</div>
+        <div>- INSERT with csr_id = 'csr_alice' should succeed; INSERT with csr_id = 'csr_bob' should fail due to WITH CHECK.</div>
+        <div>- Attempt to UPDATE csr_id to another user; the update should fail if it violates WITH CHECK.</div>
+        <div>- Connect as a role with BYPASSRLS (if granted) and observe full visibility, then remove BYPASSRLS and re-test.</div>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Hands-on tests that include failing writes are the most reliable way to validate RLS behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

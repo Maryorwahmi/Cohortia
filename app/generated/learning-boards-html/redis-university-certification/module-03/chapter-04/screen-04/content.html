@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.note{font-size:13px}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Backups and Restores for Redis</div>
+      <p class="text-sm text-slate-600 mt-3">Backups: copy dump.rdb and/or appendonly.aof to a secure location. Restores: stop Redis, replace files in the configured dir, and restart to load data.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Why it matters</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>Protects against accidental deletes, disk failures, or faulty deployments.</li>
+          <li>Ensures you can recover to a known point in time and resume operations.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Comparison</div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800">
+          <div class="text-xs font-bold">RDB Snapshot</div>
+          <div class="text-sm mt-2 text-slate-700">Point-in-time snapshot. Fast to load. Possible recent data loss between snapshots.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-800">
+          <div class="text-xs font-bold">AOF Log</div>
+          <div class="text-sm mt-2 text-slate-700">Append-only operations log. Replayed on startup. More precise recovery; can grow large.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <pre class="bg-slate-900 text-white rounded p-2 mt-2 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Trigger a snapshot
+BGSAVE
+# Compact AOF
+BGREWRITEAOF
+        </pre>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use RDB for fast restarts and AOF for finer-grained recovery; always test restores to confirm backups work.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on lab: audit, simulate, and recover</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-rows-4 gap-4">
+    <div class="row-span-1 rounded-xl bg-white p-3 card-border">
+      <div class="text-sm font-semibold text-slate-800">Step 1 — Generate activity</div>
+      <div class="text-sm text-slate-600 mt-2">Log in and run sample queries using different users or roles to populate LOGIN_HISTORY and QUERY_HISTORY.</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>-- Example commands to run in your worksheet
+USE ROLE SYSADMIN;
+SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE();
+SELECT COUNT(*) FROM SNOWFLAKE.ACCOUNT_USAGE.TABLES;
+USE ROLE PUBLIC;
+SELECT 1+1;
+</code></pre>
+    </div>
+
+    <div class="row-span-1 rounded-xl bg-white p-3 card-border">
+      <div class="text-sm font-semibold text-slate-800">Step 2 — Inspect logs</div>
+      <div class="text-sm text-slate-600 mt-2">Query LOGIN_HISTORY and QUERY_HISTORY to find recent events, focusing on timestamps and user names.</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>-- Last 10 successful logins
+SELECT event_timestamp, user_name, client_ip, reported_client_type, is_success
+FROM SNOWFLAKE.ACCOUNT_USAGE.LOGIN_HISTORY
+WHERE is_success = TRUE
+ORDER BY event_timestamp DESC
+LIMIT 10;
+</code></pre>
+    </div>
+
+    <div class="row-span-1 rounded-xl bg-white p-3 card-border">
+      <div class="text-sm font-semibold text-slate-800">Step 3 — Simulate incident and recover</div>
+      <div class="text-sm text-slate-600 mt-2">Create a table, insert rows, DROP it, then use UNDROP to restore. Alternatively, clone it at a timestamp.</div>
+      <pre class="mt-2 rounded-md bg-slate-50 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>CREATE TABLE important_data (id INT, value VARCHAR);
+INSERT INTO important_data VALUES (1, 'Alpha'), (2, 'Beta');
+SELECT * FROM important_data;
+
+-- Simulate accidental deletion
+DROP TABLE important_data;
+
+-- Recover
+UNDROP TABLE important_data;
+SELECT * FROM important_data;
+</code></pre>
+    </div>
+
+    <div class="row-span-1 rounded-xl bg-emerald-50 p-3 card-border">
+      <div class="text-sm font-semibold text-emerald-700">Deliverables</div>
+      <div class="text-sm text-slate-700 mt-1">Produce: a short incident timeline listing timestamps and query_ids, SQL scripts used, and a recovered table verification.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

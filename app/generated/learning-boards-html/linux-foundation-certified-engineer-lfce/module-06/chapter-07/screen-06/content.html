@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">SUID/SGID execution rules</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Rule examples</div>
+        <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-a always,exit -F arch=b64 -F perm=x -F sgid -S execve -k sgid_exec
+-a always,exit -F arch=b64 -F perm=x -F suid -S execve -k suid_exec
+</pre>
+        <div class="text-sm text-slate-600 mt-3">These rules log execve for SUID and SGID binaries on 64-bit systems. Replace arch if you are on 32-bit hosts.</div>
+      </div>
+      <div class="rounded-xl p-4 bg-white shadow-sm h-1/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Testing tip</div>
+        <div class="text-sm text-slate-600">Run a known SUID program under test and search for the suid_exec key. Consider testing in a staging environment to tune which binaries generate meaningful alerts.</div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Noise management</div>
+        <ul class="list-disc ml-5 text-sm text-slate-600">
+          <li>Limit to architectures in use to avoid irrelevant records.</li>
+          <li>Exclude known, benign admin binaries where appropriate.</li>
+          <li>Review and iterate: rule tuning is normal after initial deployment.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl p-4 bg-amber-50 border-l-4 border-l-amber-500 h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-700">Tag each rule with a unique key and keep a short inventory mapping keys to the monitored asset to simplify queries during investigations.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

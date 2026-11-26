@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">What is Route Filtering?</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Routing policy anatomy</div>
+      <div class="mt-3 text-sm text-slate-700">A policy-statement contains ordered terms. Each term has from statements to match attributes and then statements to accept, reject, set metrics, or tag routes. Use prefix-lists, protocol matches, and route tags as primary match tools.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="font-semibold text-slate-800">Prefix match</div>
+          <div class="text-sm text-slate-600 mt-1">Match particular prefixes with prefix-list or route-filter.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-emerald-50">
+          <div class="font-semibold text-slate-800">Protocol match</div>
+          <div class="text-sm text-slate-600 mt-1">Match by from protocol static, bgp, etc.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="font-semibold text-slate-800">Route tag</div>
+          <div class="text-sm text-slate-600 mt-1">Tag routes during redistribution and filter on the tag later.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Concrete example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Prefix list and export policy example
+set policy-options prefix-list ALLOWED_PREFIXES 172.16.10.0/24
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW from protocol static
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW from prefix-list ALLOWED_PREFIXES
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term ALLOW then accept
+set policy-options policy-statement FILTER_STATIC_TO_OSPF term DENY_ALL then reject
+set protocols ospf export FILTER_STATIC_TO_OSPF
+      </pre>
+      <div class="mt-3 p-3 rounded-lg bg-amber-50">
+        <div class="font-semibold">Key takeaway</div>
+        <div class="text-sm text-slate-700 mt-1">Explicitly match and accept desired routes; use a final reject for clarity and to avoid surprises from implicit deny.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

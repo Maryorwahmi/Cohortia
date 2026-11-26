@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .box{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px;} .node{border-radius:10px;padding:8px;background:#f8fafc;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Inheritance & Effective Permissions</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-2/3 box flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Inheritance explained with a layered model</div>
+      <div class="mt-4 grid grid-cols-3 gap-4 items-center">
+        <div class="node text-sm text-slate-700 text-center">Root SCP<br/><span class="text-xs text-slate-500">broad Denies</span></div>
+        <div class="text-center text-slate-500">⤵</div>
+        <div class="node text-sm text-slate-700 text-center">Parent OU SCP<br/><span class="text-xs text-slate-500">targeted Denies</span></div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 text-slate-700">Effective permissions are the intersection of what IAM allows and what SCPs permit after all denies are applied.</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-slate-800">Deny precedence: any Deny removes the action regardless of other Allows.</div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Use a mental model of transparent overlays. Each SCP adds darker blocked regions. If the same action is blocked on any overlay, the action is unreachable for identities in the account. Design your organization policy topology to place organization-wide safety rules at the top and narrower operational denies lower in the tree.</div>
+    </div>
+
+    <div class="w-1/3 box">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+      <div class="text-sm text-slate-700">If a root-level SCP denies access to a service, can a child OU attach an SCP to allow it again? No — a deny at root cannot be overridden by a child allow. Test this in a sandbox OU to see the effect.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Think in overlays: Deny at any level removes permission from the final effective set.</p>
+      </div>
+    </div>
+  </div>
+</div>

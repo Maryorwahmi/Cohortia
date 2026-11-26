@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:14px;border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.9</span>
+    <span>›</span>
+    <span class="text-slate-700">SQL Injection</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white card p-5">
+      <div class="text-sm font-semibold text-slate-800">Vulnerable pattern</div>
+      <pre class="mt-3 p-3 bg-rose-50 rounded text-sm text-rose-700">query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"</pre>
+      <div class="mt-3 text-sm text-slate-600">This pattern mixes data and structure. An attacker can inject SQL fragments into username to change the query logic.</div>
+    </div>
+
+    <div class="w-1/2 bg-white card p-5">
+      <div class="text-sm font-semibold text-slate-800">Safe parameterized form</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800">from sqlalchemy import text
+stmt = text("SELECT * FROM users WHERE username = :username AND password = :password")
+session.execute(stmt, {"username": username, "password": password})</pre>
+      <div class="mt-3 text-sm text-slate-600">Here the structure is fixed and values are bound separately, preventing data from being interpreted as SQL.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Prefer ORM query methods or parameterized raw SQL; never trust manual sanitization alone.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

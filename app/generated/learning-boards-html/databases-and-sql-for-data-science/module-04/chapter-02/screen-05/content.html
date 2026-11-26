@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 2</span>
+    <span>›</span>
+    <span class="text-slate-700">INNER JOIN syntax</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900">Example INNER JOIN</h3>
+      <p class="text-sm text-slate-600 mt-2">This query joins order items to products and uses aliases for clarity.</p>
+
+      <div class="mt-4">
+        <pre class="rounded-md bg-slate-900 text-white p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+SELECT
+  oi.order_item_id,
+  oi.order_id,
+  p.product_name,
+  oi.quantity,
+  p.price
+FROM
+  Order_Items AS oi
+INNER JOIN
+  Products AS p
+ON
+  oi.product_id = p.product_id;
+        </pre>
+      </div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="text-sm text-slate-700">• Aliases: oi and p shorten references and make the SELECT list readable.</div>
+        <div class="text-sm text-slate-700">• ON condition: oi.product_id = p.product_id matches order items to product definitions.</div>
+        <div class="text-sm text-slate-700">• Result: only order items that reference an existing product appear in the output.</div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Always qualify columns when names repeat and write ON conditions that clearly reference the intended keys.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Why ON is essential</div>
+      <div class="text-sm text-slate-700">If ON is omitted, you risk a Cartesian product that multiplies rows and hides the true relationships. Verifying the ON clause prevents data quality errors and keeps result sets meaningful for analysis.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.7)]">
+          <div class="text-sm font-semibold text-slate-800">Quick check</div>
+          <div class="text-xs text-slate-600 mt-2">Confirm that the columns on both sides of the equals operator represent the same conceptual key (e.g., FK to PK).</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.7)]">
+          <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+          <div class="text-xs text-slate-600 mt-2">Joining on unrelated columns will produce nonsense or empty results; double-check relationships before running expensive queries.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.5</span>
+      <span>›</span>
+      <span class="text-slate-700">iostat fundamentals</span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-6 shadow-sm card-border h-full flex flex-col">
+    <div class="text-lg font-semibold text-slate-800">iostat - device metrics explained</div>
+    <div class="text-sm text-slate-600 mt-2">Use extended stats to measure throughput, latency, and device utilization.</div>
+
+    <div class="mt-6 grid grid-cols-3 gap-4 flex-grow">
+      <div class="rounded-xl p-4 bg-white border card-border">
+        <div class="font-semibold text-slate-800">%util</div>
+        <div class="text-sm text-slate-700 mt-2">Shows the percentage of time the device was busy. Persistent near-100% indicates saturation.</div>
+      </div>
+      <div class="rounded-xl p-4 bg-white border card-border">
+        <div class="font-semibold text-slate-800">await</div>
+        <div class="text-sm text-slate-700 mt-2">Average time for I/O requests. High await means requests are taking long to complete.</div>
+      </div>
+      <div class="rounded-xl p-4 bg-white border card-border">
+        <div class="font-semibold text-slate-800">avgqu-sz</div>
+        <div class="text-sm text-slate-700 mt-2">Average queue length. High values mean requests are waiting and the device is a bottleneck.</div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div class="rounded-xl p-4 bg-slate-50 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example — dd write</div>
+        <pre class="mt-3 bg-white rounded-lg p-3 text-sm font-mono" style="white-space:pre-wrap; tab-size:2;">
+# Large sequential write to test device
+dd if=/dev/zero of=tempfile bs=1M count=1000 oflag=direct
+# Then run: iostat -x 1 5 and watch %util, await, avgqu-sz
+</pre>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Match high %util with increased await and avgqu-sz to confirm a true device bottleneck before planning mitigations.</p>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-rose-700 mt-1">Relying on %util alone without checking latency measures can hide intermittent queuing and latency problems.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Run iostat during the suspected incident and during a controlled test to compare normal versus stressed behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

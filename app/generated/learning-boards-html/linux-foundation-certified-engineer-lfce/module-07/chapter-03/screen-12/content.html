@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-xl bg-white p-4 border card-border shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Troubleshooting Steps</div>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div>
+        <div class="text-sm font-semibold text-slate-800 mb-2">Check logs</div>
+        <div class="text-sm text-slate-600">RHEL/CentOS: /var/log/secure. Debian/Ubuntu: /var/log/auth.log. Or use journalctl for PAM messages and context.</div>
+        <div class="mt-3 text-sm font-semibold text-slate-700">Inspect stack</div>
+        <div class="text-sm text-slate-600">Open the service file in /etc/pam.d/, read lines in type order, and note control flags for potential short-circuits.</div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold text-slate-700 mb-2">Common problems</div>
+        <ul class="text-sm text-slate-600 list-disc list-inside">
+          <li>Overly strict pam_pwquality parameters rejecting valid changes.</li>
+          <li>Using requisite on a flaky network module causing immediate failure.</li>
+          <li>Failing to include faillock in account stack so locks aren't enforced.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">First action</div>
+        <div class="text-sm text-slate-600">Revert to backup if a recent change caused the outage, then iterate edits more slowly.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Verify</div>
+        <div class="text-sm text-slate-600">After fixes, verify with passwd, ssh tests, and faillock queries to confirm expected behavior.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Logs plus careful review of order and flags will reveal most PAM issues; revert when needed and test incrementally.</div>
+      </div>
+    </div>
+  </div>
+</div>

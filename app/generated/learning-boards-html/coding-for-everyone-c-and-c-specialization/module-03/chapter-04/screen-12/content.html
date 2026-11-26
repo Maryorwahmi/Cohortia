@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Common Mistakes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Dangling pointer example</div>
+      <p class="text-sm text-slate-700">If you call free(current) and then attempt to read current->next, you are accessing freed memory. Always save current->next before free and then use the saved pointer.</p>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded">
+        <div class="text-xs font-bold text-slate-600">Pattern to avoid</div>
+        <pre class="mono text-sm mt-2" style="white-space:pre-wrap; tab-size:2;">free(current);
+current = current->next; // Unsafe: current has been freed</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Memory leak example</div>
+      <p class="text-sm text-slate-700">If you remove a node from the list but never call free on it, that memory remains allocated until the program ends. In long-running programs this leads to steadily increasing memory usage.</p>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded">
+        <div class="text-xs font-bold text-slate-600">Safe free pattern</div>
+        <pre class="mono text-sm mt-2" style="white-space:pre-wrap; tab-size:2;">Node* nextNode = current->next;
+free(current);
+current = nextNode;</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Why it matters</div>
+      <p class="text-xs font-medium text-slate-800">Avoiding dangling pointers and leaks is essential for correct, stable programs; these practices form the backbone of safe C programming.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">DocumentCreator — Code</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="col-span-1 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full overflow-hidden flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+from abc import ABC, abstractmethod
+
+class Document(ABC):
+  @abstractmethod
+  def open(self):
+    pass
+
+  @abstractmethod
+  def save(self):
+    pass
+
+class PdfDocument(Document):
+  def __init__(self, filename):
+    self.filename = filename
+    print(f"PDF Document '{filename}' created.")
+
+  def open(self):
+    print(f"Opening PDF: {self.filename}")
+
+  def save(self):
+    print(f"Saving PDF: {self.filename}")
+
+class DocumentCreator(ABC):
+  def create_document(self, filename):
+    document = self._create_document(filename)
+    document.open()
+    document.save()
+    return document
+
+  @abstractmethod
+  def _create_document(self, filename) -> Document:
+    pass
+
+class PdfCreator(DocumentCreator):
+  def _create_document(self, filename) -> Document:
+    return PdfDocument(filename)
+
+# Client usage
+pdf_creator = PdfCreator()
+my_pdf = pdf_creator.create_document('report.pdf')
+</pre>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <div class="mt-3 text-sm text-slate-700 flex-grow">
+        <p>The create_document workflow handles lifecycle calls such as open and save, while the factory method _create_document controls which concrete product is returned. This separation keeps orchestration code stable even when concrete products change.</p>
+
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-700">
+          <li>Test orchestration by replacing the creator with a test double that returns a mock product.</li>
+          <li>Keep constructors free of heavy side effects to keep testing predictable.</li>
+          <li>Adding a new product requires only a new concrete product and creator.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Factory Method moves the decision of which concrete product to subclasses while preserving a stable workflow in the creator.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

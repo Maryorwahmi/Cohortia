@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter → MVVM</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Model</div>
+      <pre class="mt-3 p-3 bg-slate-100 rounded"><code>// CounterModel
+class CounterModel {
+  constructor(initialCount = 0) {
+    this._count = initialCount;
+  }
+
+  getCount() {
+    return this._count;
+  }
+
+  increment() {
+    this._count++;
+    return this._count;
+  }
+}</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col justify-between">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">ViewModel</div>
+        <pre class="mt-3 p-3 bg-slate-100 rounded"><code>// CounterViewModel
+class CounterViewModel {
+  constructor(model) {
+    this.model = model;
+    this.displayCount = this.model.getCount();
+  }
+
+  incrementCommand() {
+    this.model.increment();
+    this.displayCount = this.model.getCount();
+  }
+}</code></pre>
+        <div class="text-sm text-slate-700 mt-3">In a real framework displayCount would be observable so the View updates automatically when it changes.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">Unit tests can mock the model, call incrementCommand, and assert displayCount changed without any UI code.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Pulsing Color with TIME</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code</div>
+      <div class="bg-slate-50 rounded p-3 overflow-auto text-xs font-mono text-slate-800" style="white-space: pre-wrap; tab-size:2">
+shader_type canvas_item;
+
+void fragment() {
+    vec4 original_color = texture(TEXTURE, UV);
+
+    float pulse = (sin(TIME * 2.0) + 1.0) / 2.0; // 0..1
+    vec4 target_color = vec4(0.0, 0.0, 1.0, 1.0);
+
+    COLOR = mix(original_color, target_color, pulse * 0.5);
+}
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Explanation & tips</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Pulse uses sin(TIME) mapped to 0..1 for smooth oscillation.</li>
+        <li>mix() blends original texture with a target color based on pulse strength.</li>
+        <li>Keep pulse math cheap; avoid multiple texture reads per fragment where possible.</li>
+      </ul>
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-500 mb-1">Misconception</div>
+      <div class="text-sm text-rose-600">TIME is continuous seconds, not frame count, so animations scale across machines; don't assume frame-based increments.</div>
+    </div>
+  </div>
+</div>

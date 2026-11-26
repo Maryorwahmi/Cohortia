@@ -1,0 +1,70 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>
+    :root{--card-border:rgba(226,232,240,0.9);}  
+  </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Key Naming Conventions</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-5/12'>
+      <div class='rounded-2xl bg-white border p-5 shadow-sm h-full' style='border-color:var(--card-border)'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Core Concept</div>
+        <h3 class='text-2xl font-bold text-slate-800'>Key Naming Conventions</h3>
+        <p class='text-sm text-slate-600 mt-3'>A naming scheme groups related keys and makes operations predictable. Choose short, meaningful segments and keep namespaces consistent across services.</p>
+
+        <div class='mt-4 space-y-3'>
+          <div class='rounded-lg bg-slate-50 p-3'>
+            <div class='text-sm font-semibold text-slate-800'>Common Pattern</div>
+            <div class='text-sm text-slate-600 mt-1'>object_type:id:field — e.g., user:123:profile or product:456:price.</div>
+          </div>
+
+          <div class='rounded-lg bg-white p-3 border' style='border-color:var(--card-border)'>
+            <div class='text-sm font-semibold text-slate-800'>Why it matters</div>
+            <ul class='list-disc pl-5 text-sm text-slate-600 mt-1'>
+              <li>Improves discoverability with SCAN and tooling.</li>
+              <li>Makes bulk deletes and migrations safer.</li>
+              <li>Clarifies lifecycle: which keys can expire.</li>
+            </ul>
+          </div>
+
+          <div class='rounded-lg bg-white p-3'>
+            <div class='text-sm font-semibold text-slate-800'>Common Mistake</div>
+            <div class='text-sm text-slate-600 mt-1'>Ad hoc keys created by different services with inconsistent segments; leads to debugging pain and accidental collisions.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class='w-7/12 flex flex-col gap-3'>
+      <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color:var(--card-border)'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Example</div>
+        <pre class='text-sm bg-slate-50 p-3 rounded' style='white-space:pre-wrap;tab-size:2'># Hash for user profile
+HSET user:123:profile name "Jane Doe" email "jane@example.com"
+
+# Session token with TTL
+SETEX session:user:123:token 3600 "TOKEN_VALUE"
+
+# Product price
+HSET product:456:meta price 19.99 stock 50</pre>
+      </div>
+
+      <div class='grid grid-cols-2 gap-3'>
+        <div class='rounded-lg bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+          <p class='text-sm text-slate-800 mt-1'>A compact, documented naming pattern reduces errors and speeds debugging.</p>
+        </div>
+        <div class='rounded-lg bg-white p-3 border' style='border-color:var(--card-border)'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500'>Check</div>
+          <p class='text-sm text-slate-600 mt-1'>Run SCAN 0 MATCH 'user:*' to inspect user keys and validate patterns.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">oc new-app Flow</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Command sequence</div>
+      <pre><code>oc new-app https://github.com/sclorg/nodejs-ex --name=nodejs-app
+# Monitor build
+oc logs -f bc/nodejs-app
+# Monitor rollout
+oc rollout status dc/nodejs-app
+# Expose route
+oc expose svc/nodejs-app
+oc get route nodejs-app -o jsonpath='{.spec.host}'</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">What to watch</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700">
+        <li>BuildConfig logs for build success or failure.</li>
+        <li>ImageStream tag update after build completion.</li>
+        <li>DeploymentConfig rollout triggered by imageChange.</li>
+        <li>Create the Route explicitly and validate the application URL.</li>
+      </ul>
+
+      <div class="mt-auto mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Common mistake</div>
+          <div class="text-sm text-slate-800">Assuming new-app leaves nothing to inspect. Instead, open oc describe on created resources to learn triggers and strategies.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

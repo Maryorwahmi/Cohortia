@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Lab Steps</div>
+      <ol class="list-decimal list-inside mt-3 text-sm text-slate-700 space-y-2">
+        <li>Create Secrets Manager secret named <span class="font-mono">my-app/db-api-key</span> with a dummy value.</li>
+        <li>Enable ECR image scanning or create a repository with scanning enabled.</li>
+        <li>Create a CodeBuild project and role with scoped secretsmanager:GetSecretValue and ecr permissions for the repo only.</li>
+        <li>Update buildspec to reference the secret ARN under env -> secrets-manager, then build, tag, and push the image.</li>
+        <li>Verify build success and inspect ECR scan results. Configure the pipeline to fail on critical findings.</li>
+      </ol>
+
+      <div class="mt-4 bg-slate-900 rounded-lg p-3 text-white text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code># Simplified buildspec snippet for lab
+version: 0.2
+env:
+  secrets-manager:
+    DB_API_KEY: "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:my-app/db-api-key-xxxxxx"
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+  build:
+    commands:
+      - docker build -t my-app-image .
+      - docker tag my-app-image:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/my-app-repo:latest
+  post_build:
+    commands:
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/my-app-repo:latest
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Safety notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Do not echo secrets or write them to logs or artifacts.</li>
+        <li>Scope role permissions to the minimal ARNs required.</li>
+        <li>Review ECR scan outputs and treat critical findings as blockers.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This lab demonstrates end-to-end secure retrieval of a secret during build and verifying image security before deployment.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

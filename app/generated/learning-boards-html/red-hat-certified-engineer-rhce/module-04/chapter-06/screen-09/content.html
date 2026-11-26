@@ -1,0 +1,88 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0b122042;padding:12px;border-radius:10px;color:#07102b}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-xl bg-white card-border p-5 shadow-sm overflow-auto">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Initiator Playbook</div>
+      <h4 class="text-lg font-bold text-slate-800">Discover and use iSCSI LUNs</h4>
+      <div class="mt-3 code">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;color:#07102b"><code>---
+- name: Configure iSCSI Initiator
+  hosts: iscsi_client_servers
+  become: yes
+  tasks:
+    - name: Ensure iscsi-initiator-utils package is installed
+      ansible.builtin.yum:
+        name: iscsi-initiator-utils
+        state: present
+
+    - name: Set iSCSI initiator name
+      ansible.builtin.lineinfile:
+        path: /etc/iscsi/initiatorname.iscsi
+        regexp: '^InitiatorName='
+        line: "InitiatorName=iqn.2023-01.com.example:client.initiator1"
+        state: present
+      notify: Restart iscsid
+
+    - name: Discover iSCSI targets
+      community.general.iscsi:
+        targetname: iqn.2023-01.com.example:storage.target1
+        portal: iscsi_target.example.com:3260
+        state: present
+
+    - name: Ensure iSCSI service is enabled and started
+      ansible.builtin.service:
+        name: iscsid
+        state: started
+        enabled: yes
+      notify: Restart iscsid
+
+    - name: Wait for iSCSI device to appear
+      ansible.builtin.wait_for:
+        path: /dev/disk/by-path/ip-iscsi_target.example.com:3260-iscsi-iqn.2023-01.com.example:storage.target1-lun-0
+        state: present
+        timeout: 60
+
+    - name: Format the new iSCSI disk (e.g., /dev/sdd, verify with lsblk first!)
+      community.general.filesystem:
+        dev: /dev/sdd
+        fstype: xfs
+        force: no
+
+    - name: Ensure mount point /iscsi_data exists
+      ansible.builtin.file:
+        path: /iscsi_data
+        state: directory
+        mode: '0755'
+
+    - name: Mount iSCSI disk to /iscsi_data
+      ansible.posix.mount:
+        path: /iscsi_data
+        src: /dev/sdd
+        fstype: xfs
+        opts: defaults,_netdev
+        state: mounted
+
+  handlers:
+    - name: Restart iscsid
+      ansible.builtin.service:
+        name: iscsid
+        state: restarted
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-xl bg-white card-border p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Checklist</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600">
+        <li>Install initiator utilities.</li>
+        <li>Set and verify your initiator IQN.</li>
+        <li>Discover and login to the target, and wait for by-path device nodes.</li>
+        <li>Verify the correct device with lsblk before formatting.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Formatting the wrong device name can destroy data. Always verify device identity before filesystem operations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

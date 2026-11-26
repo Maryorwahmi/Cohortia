@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Enhanced client: loop</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter client hint</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-xs" style="white-space: pre-wrap; tab-size: 2;"><code># tcp_client_enhanced.py
+import socket
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+def run_client_enhanced():
+  try:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+      s.connect((HOST, PORT))
+      print(f"Connected to server at {HOST}:{PORT}")
+      while True:
+        message = input("Enter message to send (type 'exit' to quit): ")
+        if message.lower() == 'exit':
+          break
+        s.sendall(message.encode())
+        data = s.recv(1024)
+        print(f"Received from server: {data.decode()}")
+    print("Client connection closed.")
+  except ConnectionRefusedError:
+    print(f"Error: Connection refused. Is the server running on {HOST}:{PORT}?")
+  except socket.error as e:
+    print(f"Socket error: {e}")
+  except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Behavior & checks</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Type messages to send; the server will echo each one back until you type exit.</li>
+        <li>If the server is not running, ConnectionRefusedError informs you immediately.</li>
+        <li>Use this loop to practice clean shutdown and to observe server prints for multiple client sessions.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Interactive loops let you test repeated exchanges without reconnecting, showing real session behavior and common network errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

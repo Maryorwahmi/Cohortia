@@ -1,0 +1,63 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> :root{--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9)} </style>
+  <div class='flex flex-col gap-4 h-full'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100'>Module 8</span>
+      <span>›</span>
+      <span>Backups & WAL</span>
+    </div>
+
+    <div class='flex gap-4 flex-1 min-h-0'>
+      <div class='w-1/2 rounded-2xl bg-white p-5 border' style='border-color:var(--slate-100)'>
+        <div class='text-lg font-bold text-slate-800'>Backup types</div>
+        <div class='text-sm text-slate-600 mt-2'>Choose the right backup forms for recovery objectives.</div>
+
+        <div class='mt-4 space-y-3 text-sm text-slate-700'>
+          <div>
+            <div class='font-semibold'>Physical backup (pg_basebackup)</div>
+            <div class='text-xs text-slate-600 mt-1'>Captures the data directory; used as a base for PITR when combined with WAL archives.</div>
+          </div>
+          <div>
+            <div class='font-semibold'>WAL archiving</div>
+            <div class='text-xs text-slate-600 mt-1'>Archive completed WAL segments using archive_command so you can replay changes during recovery.</div>
+          </div>
+          <div>
+            <div class='font-semibold'>Logical backups (pg_dump, pg_dumpall)</div>
+            <div class='text-xs text-slate-600 mt-1'>Produce SQL for schema/data export; good for migrations and selective restores but not sufficient for PITR alone.</div>
+          </div>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-sm font-semibold text-slate-800'>Backup testing</div>
+          <div class='text-xs text-slate-600 mt-1'>Regularly restore base backups and replay WAL in staging. Verify application connectivity and data integrity within your RTO target.</div>
+        </div>
+      </div>
+
+      <div class='w-1/2 rounded-2xl bg-white p-5 border flex flex-col' style='border-color:var(--slate-100)'>
+        <div class='text-sm font-semibold text-slate-800'>Restore flow (conceptual)</div>
+        <div class='text-xs text-slate-600 mt-2'>Steps to restore a base backup and replay WAL to a recovery point.</div>
+
+        <pre style='white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#f8fafc;padding:8px;border-radius:8px;margin-top:8px;'>
+# Take a base backup (primary)
+pg_basebackup -h localhost -D /var/lib/postgresql/12/backup/base_backup -U postgres -P -Xs -R
+
+# Ensure WAL archiving is working and archived WALs are available
+# To restore on a new server:
+# 1. Copy base backup into data directory
+# 2. Create recovery.signal and set restore_command to copy WAL from archive
+#    restore_command = 'cp /path/to/wal_archive/%f %p'
+# 3. Start PostgreSQL and monitor replay until target time
+</pre>
+
+        <div class='mt-3 text-xs text-slate-600'>Keep archives off-site and automate restore verification. Never test DR on production; use staging that mirrors production closely.</div>
+
+        <div class='mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+            <p class='text-xs font-medium text-slate-800'>Backups plus WAL archiving enable PITR. Test restores and store archives off-site to meet RPO and validate RTO targets.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

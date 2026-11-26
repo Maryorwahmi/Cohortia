@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.code{background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Read Request Handling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Read handling rules</div>
+      <ul class="mt-4 text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Uncached: directory → memory; set state to Shared; add requester as sharer.</li>
+        <li>Shared: forward to memory or a sharer; add requester to sharers.</li>
+        <li>Modified: forward to owner; owner sends data to requester and becomes Shared; update sharers.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Reads to modified blocks require contacting the owner, producing a three-hop path but enabling targeted transfers without broadcast.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-700">Sequence: P1 has Modified X. P2 issues RdReq(X).</div>
+      <div class="mt-3 code" style="white-space:pre-wrap;tab-size:2"><code># Message sequence (conceptual)
+P2 -> Dir : RdReq(X)
+Dir -> P1 : ForwardRdReq(X)
+P1 -> P2 : DReply(data)
+P1 : becomes Shared
+Dir : sharers = {P1,P2}, state = Shared
+</code></div>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Misconception</div>
+        <div>Do not assume owner always writes back to memory first; forwarding directly to the requester is common and reduces latency.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 6.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Multi-homed Case Study</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Stepwise diagnosis for multi-homing</h3>
+      <ol class="mt-4 list-decimal list-inside space-y-2 text-sm text-slate-700">
+        <li>Confirm sessions: show bgp summary for both ISP peers.</li>
+        <li>Verify received routes: show route receive-protocol bgp &lt;isp-ip&gt; for both peers.</li>
+        <li>Compare attributes: show route &lt;prefix&gt; detail to inspect LOCAL_PREF, AS_PATH, MED.</li>
+        <li>Check import policies and test with test policy.</li>
+        <li>Adjust import policy to set LOCAL_PREF for the preferred link; re-check selected path.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 card p-4 bg-white border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <pre class="mono bg-slate-50 p-3 mt-3 rounded-md" style="white-space: pre-wrap; tab-size: 2;">show bgp summary
+show route receive-protocol bgp 203.0.113.1
+show route receive-protocol bgp 203.0.113.2
+show route 0.0.0.0/0 detail
+show policy policy-statement IMPORT-ISP-A
+show policy policy-statement IMPORT-ISP-B
+</pre>
+      <div class="mt-3 p-3 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Example outcome</div>
+        <div class="text-sm text-slate-600 mt-2">Less-preferred link selected because its import policy assigned a higher LOCAL_PREF. Adjust policy to favor preferred ISP and verify path change with show route detail.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

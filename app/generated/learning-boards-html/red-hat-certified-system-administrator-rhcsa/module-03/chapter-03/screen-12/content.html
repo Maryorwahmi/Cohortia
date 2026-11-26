@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; font-family:ui-monospace, monospace; } .panel{ border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Terminal Demo</div>
+      <pre class="mt-3 mono"># Create a dummy config
+sudo bash -c 'echo "This is critical config data." > /etc/my_critical_config.conf'
+# Show it works
+sudo bash -c 'echo "New line" >> /etc/my_critical_config.conf'
+cat /etc/my_critical_config.conf
+# Make immutable
+sudo chattr +i /etc/my_critical_config.conf
+# Confirm attribute
+lsattr /etc/my_critical_config.conf
+# Attempt to modify (will fail)
+sudo bash -c 'echo "Another new line" >> /etc/my_critical_config.conf' 2>&1 | grep "Permission denied"
+# Attempt to delete (will fail)
+sudo rm /etc/my_critical_config.conf 2>&1 | grep "Permission denied"
+# Remove immutable
+sudo chattr -i /etc/my_critical_config.conf
+lsattr /etc/my_critical_config.conf</pre>
+      <div class="mt-3 text-sm text-slate-600">Note the permission denied lines after applying +i. Removing the attribute restores normal operations.</div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Key observations</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700">
+        <li>lsattr shows an i flag when immutable is set.</li>
+        <li>Even root receives permission denied until the attribute is removed.</li>
+        <li>Document immutable files to avoid blocking maintenance.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Apply +i to a controlled set of config files and keep a playbook for attribute removal during emergency maintenance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

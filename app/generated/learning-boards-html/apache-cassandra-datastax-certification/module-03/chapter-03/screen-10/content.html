@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Conditional UPDATEs</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-800">Safe state transitions with IF</div>
+    <div class="text-sm text-slate-600 mt-2">Use IF column = value to change state only when the current state matches the expected value.</div>
+
+    <div class="mt-4 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+      <pre style="white-space:pre-wrap; tab-size:2;">-- Conditional state transition
+UPDATE user_profiles.posts
+SET status = 'approved'
+WHERE post_id = /* post_id */
+IF status = 'pending';
+
+-- Ensure row exists before update
+UPDATE user_profiles.users
+SET last_seen = toTimestamp(now())
+WHERE user_id = /* user_id */
+IF EXISTS;</pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Benefit</div>
+        <div class="text-sm text-slate-600 mt-1">Prevents lost updates and enforces single-row atomic logic without an external coordinator.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Cost</div>
+        <div class="text-sm text-slate-600 mt-1">Higher latency and coordination overhead due to LWT; test under expected load.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Use conditional updates for correctness-sensitive state changes, and avoid them on high-frequency write paths to keep throughput high.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

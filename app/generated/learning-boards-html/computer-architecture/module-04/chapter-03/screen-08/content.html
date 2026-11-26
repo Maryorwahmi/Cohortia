@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Load-use hazard</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Timing explanation</div>
+      <p class="text-sm text-slate-600 mt-3">A load produces its data at the end of MEM. The following ALU instruction needs that data at the start of its EX stage. The mismatch requires a bubble.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example sequence</div>
+        <pre class="mt-2 bg-slate-100 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">LW R1, 0(R2)   # data available end of MEM
+ADD R3, R1, R4   # needs R1 in EX immediately</pre>
+        <div class="text-sm text-slate-600 mt-2">Insert a one-cycle bubble between the LW and ADD so the ADD's EX receives the data via forwarding from MEM/WB or directly from MEM.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Compiler and hardware options</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Compilers may fill the delay slot with an independent instruction to avoid the bubble.</li>
+        <li>Some microarchitectures support load-forwarding that can reduce the need for a stall, but typical 5-stage pipelines still need the bubble.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming MEM/WB → EX forwarding fixes the immediate successor. It does not for load-use; the dependent instruction is already in EX when data arrives.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

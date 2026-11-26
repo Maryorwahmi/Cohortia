@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-100">Comparison</span>
+      <span class="text-slate-700">Source vs Sink</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Which connector for your flow?</h3>
+    <p class="text-sm text-slate-600 mt-1">Direction matters: exporting from Cassandra has different constraints than ingesting into Cassandra.</p>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Sink Connector (Kafka → Cassandra)</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Common for ingesting real-time events into Cassandra tables.</li>
+        <li>Requires careful field mapping and write idempotency handling.</li>
+        <li>Good for event-driven architectures and dashboards.</li>
+      </ul>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Source Connector (Cassandra → Kafka)</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Used to stream changes from Cassandra to Kafka for downstream systems.</li>
+        <li>May require CDC or custom change detection logic.</li>
+        <li>Useful for audits, backups, or feeding analytics that prefer Kafka topics.</li>
+      </ul>
+    </div>
+    <div class="col-span-2 rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800">Design considerations</div>
+      <div class="mt-2 text-sm text-slate-600 space-y-2">
+        <div>Decide direction early and document primary keys and expected message order. Consider how out-of-order events and retries will affect Cassandra's state.</div>
+        <div>Test connectors with representative load and message shapes to find mapping or ordering issues before production.</div>
+      </div>
+    </div>
+  </div>
+</div>

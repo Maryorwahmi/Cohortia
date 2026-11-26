@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Damage & Heal</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 flex-1">
+    <div class="col-span-7 bg-white rounded-2xl border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">TakeDamage() and Heal()</h3>
+      <p class="text-sm text-slate-600 mt-3">These methods should guard negative inputs and pass all changes through the clamped setter so behavior remains consistent.</p>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-4 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">
+public void TakeDamage(int amount)
+{
+  if (amount &lt; 0) return; // Prevent healing from negative damage
+  currentHealth -= amount;
+  Debug.Log(gameObject.name + " took " + amount + " damage. Current health: " + currentHealth);
+}
+
+public void Heal(int amount)
+{
+  if (amount &lt; 0) return; // Prevent damage from negative heal
+  currentHealth += amount;
+  Debug.Log(gameObject.name + " healed " + amount + " health. Current health: " + currentHealth);
+}
+      </pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pro-tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use descriptive Debug.Log messages that include object names to speed up playtest debugging across multiple enemies.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-500">Watch out</div>
+          <div class="text-sm text-slate-700 mt-1">Negative damage or healing that isn't checked can invert behavior unexpectedly and bypass clamping logic.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example scenario</div>
+      <div class="mt-2 text-sm text-slate-700">A SpikeHazard deals 25 damage on collision. The player has 20 current health. TakeDamage reduces health to 0, triggers Die, and the GameManager handles game over. If the player then picks a 50-point health pack, Heal calls the setter and clamps result at maxHealth.</div>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Methods validate inputs and rely on a single clamped setter to keep state consistent and observable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

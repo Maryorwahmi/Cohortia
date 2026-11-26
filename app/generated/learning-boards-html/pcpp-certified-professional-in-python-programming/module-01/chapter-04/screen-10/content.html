@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Logging Activity</span>
+    </div>
+
+    <div class="flex h-[72vh] gap-6">
+      <div class="w-1/2 bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Starter code</div>
+        <pre class="rounded-lg bg-slate-900 text-slate-100 p-4 h-full"><code>import abc
+from typing import Protocol, runtime_checkable
+
+# Part 1: LogFormatter ABC
+class LogFormatter(abc.ABC):
+  @abc.abstractmethod
+  def format_record(self, record: dict) -> str:
+    pass
+
+class SimpleFormatter(LogFormatter):
+  # Implement format_record here
+  pass
+
+# Part 2: LogSender Protocol
+@runtime_checkable
+class LogSender(Protocol):
+  def send_log(self, formatted_message: str):
+    ...
+
+class ConsoleSender:
+  # Implement send_log here
+  pass
+
+class NetworkSender:
+  # Implement send_log here
+  pass
+</code></pre>
+      </div>
+
+      <div class="flex-1 bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Expected behaviors</div>
+        <ul class="list-disc ml-5 text-sm text-slate-700 space-y-2">
+          <li>SimpleFormatter.format_record returns a string like "INFO: User logged in @ 2023-...".</li>
+          <li>ConsoleSender.send_log prints a console prefix and the formatted message.</li>
+          <li>NetworkSender.send_log simulates sending by printing a network message with the formatted payload.</li>
+        </ul>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+            <p class="text-xs font-medium text-slate-800">Protocols that are runtime_checkable allow isinstance checks, but they do not add missing behavior. Implementations still must provide the required methods.</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+            <p class="text-xs font-medium text-slate-800">Implement the formatter and senders, run the test cases, and confirm isinstance checks for LogSender return True for your senders.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

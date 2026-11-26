@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre.code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-5 shadow-sm card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">PVLAN Configuration</h3>
+      <p class="text-sm text-slate-600 mt-3">Below is a concise, Cisco IOS-like configuration snippet you can adapt to a simulator. Use this as a template and change interface names and VLAN IDs for your lab.</p>
+
+      <pre class="code mt-3 rounded-md bg-slate-50 p-3">! Global Configuration
+vlan 100
+ private-vlan primary
+vlan 101
+ private-vlan isolated
+vlan 102
+ private-vlan isolated
+vlan 100
+ private-vlan association 101,102
+
+! Interface for Server A
+interface GigabitEthernet0/1
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 101
+
+! Interface for Server B
+interface GigabitEthernet0/2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 102
+
+! Interface for Firewall
+interface GigabitEthernet0/3
+ switchport mode private-vlan promiscuous
+ switchport private-vlan mapping 100 101,102</pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800">Verification steps</div>
+      <ol class="text-sm text-slate-600 mt-3 list-decimal ml-5">
+        <li>Show VLAN brief and confirm primary and secondary VLANs exist.</li>
+        <li>Show private-vlan mapping to confirm associations.</li>
+        <li>From Server A, ping firewall and Server B: expect firewall success, Server B fail.</li>
+        <li>Capture traffic on the firewall port to confirm only expected flows egress.</li>
+      </ol>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Not mapping secondary VLANs to the promiscuous port prevents firewall reachability or allows unintended peer connectivity. Always verify mappings and port modes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

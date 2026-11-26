@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Secrets Management</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Why not hardcode</div>
+      <p class="text-sm text-slate-600 mt-2">Hardcoded secrets are exposed if code or configuration is leaked and are difficult to rotate. Environment variables are also visible with the right permissions and are not a substitute for a secrets store.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Secure retrieval pattern</div>
+        <pre class="mt-2 bg-slate-900 text-white rounded-lg p-3 overflow-auto"><code>import boto3
+import json
+
+def get_secret(secret_name):
+  client = boto3.client('secretsmanager')
+  response = client.get_secret_value(SecretId=secret_name)
+  if 'SecretString' in response:
+    return json.loads(response['SecretString'])
+  else:
+    return response['SecretBinary']</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-sm text-slate-800">Cache secrets in-memory during the execution context to avoid repeated calls while still preventing storage in code or static config.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Operational controls</div>
+      <ul class="mt-2 list-disc list-inside text-sm text-slate-600">
+        <li>Use dedicated secrets service and enable rotation where possible</li>
+        <li>Grant functions GetSecretValue only on the specific secret ARN</li>
+        <li>Mask secret values in logs; log only masked length or status</li>
+        <li>Audit access to secrets and configure alerts for unusual retrieval patterns</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Move secrets out of code, retrieve them at runtime using least-privilege access, and monitor secret access for anomalies.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

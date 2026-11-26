@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Handling Nulls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 card p-4">
+      <div class="text-sm font-bold text-slate-800">Key functions</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>na.drop(how='any'|'all', subset=[...])</li>
+        <li>na.fill(value or dict)</li>
+        <li>when().otherwise() for complex types</li>
+      </ul>
+
+      <div class="mt-3 text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre class="mono mt-2 p-3 bg-slate-50 rounded text-sm overflow-auto border" style="white-space: pre-wrap; tab-size: 2;"># Drop rows with null contact or tags
+clean = complex_df.na.drop(how='any', subset=['contact_info','tags'])
+
+# Fill tags with a default list
+filled = complex_df.na.fill({'tags': ['no_tag']})
+
+# Fill null map with when
+from pyspark.sql.functions import when
+filled_map = complex_df.withColumn(
+  'contact_info',
+  when(col('contact_info').isNull(), {'email':'unknown','phone':'unknown'}).otherwise(col('contact_info'))
+)</pre>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-sm font-bold text-slate-800">Decision tips</div>
+      <div class="mt-3 text-sm text-slate-700">Dropping removes data — use when records are unusable. Filling keeps rows but add a flag column if you want to track imputed values. For complex types prefer conditional logic over na.fill to construct appropriate default structures.</div>
+
+      <div class="mt-4 p-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <div class="text-xs text-slate-800">Using na.fill on MapType expecting a scalar fill — instead, build the default map with when or a UDF.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

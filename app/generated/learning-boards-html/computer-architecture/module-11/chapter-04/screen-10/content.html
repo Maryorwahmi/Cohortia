@@ -1,0 +1,40 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class='text-slate-700'>Test-and-Test-and-Set</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Pattern</div>
+      <ol class='mt-2 space-y-2 text-sm text-slate-700'>
+        <li>Read lock variable in a tight loop without writing.</li>
+        <li>When the read shows free, attempt TAS once.</li>
+        <li>If TAS fails, apply a short randomized backoff before retrying.</li>
+      </ol>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-amber-700'>Backoff types</div>
+      <ul class='mt-2 space-y-2 text-sm text-slate-700'>
+        <li>Random fixed sleep between retries.</li>
+        <li>Exponential backoff increasing wait after each failure.</li>
+      </ul>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Concrete code sketch</div>
+      <pre class='mt-2 text-sm bg-slate-900 text-white p-3 rounded' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;'>
+while (true) {
+  while (*lock == 1) { /* read-only spin */ }
+  if (TAS(&lock) == 0) break; // acquired
+  backoff(); // randomized pause
+}
+// critical section
+*lock = 0;
+      </pre>
+      <div class='mt-3 text-sm text-slate-700'>Tune backoff so it reduces collisions without adding excessive latency.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

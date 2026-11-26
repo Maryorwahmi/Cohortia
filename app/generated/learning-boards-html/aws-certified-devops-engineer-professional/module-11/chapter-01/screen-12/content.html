@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Implement tagging</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-[calc(100%-48px)]">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Activity steps</div>
+      <div class="text-sm text-slate-600 mt-2">Follow these steps in a sandbox account or encode them into IaC for a dry-run.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code># Step 1: Launch instance with tags
+aws ec2 run-instances --image-id ami-053b0d53d2792c340 --instance-type t3.micro --count 1 --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=ProjectX},{Key=Environment,Value=Dev},{Key=Owner,Value=DevTeamA},{Key=CostCenter,Value=12345}]' --query 'Instances[0].InstanceId' --output text
+
+# Step 2: Verify
+aws ec2 describe-instances --instance-ids <YOUR_INSTANCE_ID> --query 'Reservations[0].Instances[0].Tags'
+
+# Step 3: Terminate
+aws ec2 terminate-instances --instance-ids <YOUR_INSTANCE_ID></code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">If using IaC: add tag parameters to your template and run a plan/dry-run to inspect the generated resource tags before apply.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Reflection prompts</div>
+      <ul class="text-sm text-slate-600 ml-4 mt-2 list-disc">
+        <li>Did the Owner and Project tags match a responsible person or team?</li>
+        <li>Would finance be able to allocate this cost to a project?</li>
+        <li>Was the resource terminated after verification?</li>
+      </ul>
+
+      <div class="mt-6 bg-emerald-50 rounded-lg p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="text-sm text-slate-700 mt-1">Small habits — tagging at launch and immediate verification — make cost allocation reliable and reduce reconciliation work.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

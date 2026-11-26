@@ -1,0 +1,101 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background: #f8fafc}
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Descriptors</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M12 2v6"></path><path d="M6 8v6"></path><path d="M18 8v10"></path><circle cx="12" cy="16" r="2"></circle></svg>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold leading-tight text-slate-900">Descriptors</h1>
+            <p class="text-sm text-slate-600 mt-2">Intercept attribute access to run custom logic on get, set, or delete.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <div class="rounded-xl bg-amber-50 p-3 border card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">In this lesson</div>
+            <p class="text-sm text-slate-800 mt-2">Why descriptors exist, the protocol methods, common pitfalls, and hands-on patterns.</p>
+          </div>
+          <div class="rounded-xl bg-violet-50 p-3 border card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Why it matters</div>
+            <p class="text-sm text-slate-800 mt-2">They give reusable control for validation, lazy loading, and framework integrations like ORMs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Explore key topics</div>
+        <div class="flex gap-3">
+          <div class="flex-1 rounded-lg bg-blue-50 p-3">
+            <div class="text-sm font-bold text-blue-700">Protocol Methods</div>
+            <div class="text-xs text-slate-700 mt-1">__get__, __set__, __delete__ are the interception points.</div>
+          </div>
+          <div class="flex-1 rounded-lg bg-emerald-50 p-3">
+            <div class="text-sm font-bold text-emerald-700">Use Cases</div>
+            <div class="text-xs text-slate-700 mt-1">Validation, lazy loading, ORMs, and read-only attributes.</div>
+          </div>
+          <div class="flex-1 rounded-lg bg-violet-50 p-3">
+            <div class="text-sm font-bold text-violet-700">Property</div>
+            <div class="text-xs text-slate-700 mt-1">@property is a built-in descriptor implementing get/set/deleter methods.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Concept map</div>
+        <div class="mt-4 grid grid-rows-3 gap-3 h-full">
+          <div class="rounded-xl bg-white p-3 border-l-4 border-l-blue-500">
+            <div class="text-xs font-bold text-slate-800">Descriptor Object</div>
+            <div class="text-sm text-slate-600 mt-1">Implements one or more of the special methods to manage attribute access.</div>
+          </div>
+          <div class="rounded-xl bg-white p-3 border-l-4 border-l-amber-500">
+            <div class="text-xs font-bold text-slate-800">Instance Storage</div>
+            <div class="text-sm text-slate-600 mt-1">Values should be stored in instance.__dict__ to avoid shared state across instances.</div>
+          </div>
+          <div class="rounded-xl bg-white p-3 border-l-4 border-l-violet-500">
+            <div class="text-xs font-bold text-slate-800">Data vs Non-Data</div>
+            <div class="text-sm text-slate-600 mt-1">Data descriptors implement __set__ and take precedence over instance attributes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Quick example</div>
+        <pre class="code text-sm bg-slate-50 p-3 rounded-md">class TypeChecked:
+  def __init__(self, expected_type):
+    self.expected_type = expected_type
+    self._name = None
+
+  def __set_name__(self, owner, name):
+    self._name = name
+
+  def __get__(self, instance, owner):
+    if instance is None:
+      return self
+    return instance.__dict__.get(self._name, None)
+
+  def __set__(self, instance, value):
+    if not isinstance(value, self.expected_type):
+      raise TypeError("Expected type mismatch")
+    instance.__dict__[self._name] = value</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

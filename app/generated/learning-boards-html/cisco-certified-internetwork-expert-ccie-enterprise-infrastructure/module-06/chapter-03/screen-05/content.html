@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring DPD</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">DPD configuration steps</div>
+
+    <div class="mt-4 flex gap-3 items-start">
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="rounded-full bg-blue-50 w-8 h-8 flex items-center justify-center text-blue-700 font-bold">1</div>
+          <div class="text-sm font-semibold text-slate-800">Decide interval and retries</div>
+        </div>
+        <p class="text-sm text-slate-700">Measure normal latency and packet loss. Choose an interval larger than transient spikes; three retries is common for a balance of sensitivity and stability.</p>
+
+        <div class="flex items-center gap-2 mt-4">
+          <div class="rounded-full bg-blue-50 w-8 h-8 flex items-center justify-center text-blue-700 font-bold">2</div>
+          <div class="text-sm font-semibold text-slate-800">Apply to IKEv2 profile</div>
+        </div>
+        <pre class="text-sm bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] mt-3" style="white-space:pre-wrap;tab-size:2"><code>crypto ikev2 profile COHORTIA_IKEV2_PROFILE
+ dpd 10 3 periodic
+</code></pre>
+
+        <div class="flex items-center gap-2 mt-4">
+          <div class="rounded-full bg-blue-50 w-8 h-8 flex items-center justify-center text-blue-700 font-bold">3</div>
+          <div class="text-sm font-semibold text-slate-800">Verify with show and debug</div>
+        </div>
+        <p class="text-sm text-slate-700 mt-2">Use show crypto ikev2 sa detail to confirm probes and debug crypto ikev2 for messages indicating DPD failures during tests.</p>
+      </div>
+
+      <div class="w-1/3">
+        <div class="rounded-lg bg-amber-50 p-3 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Example tradeoff</div>
+          <p class="text-sm text-slate-800 mt-1">With high-latency WAN links, increasing the interval reduces false teardowns; on low-latency links, shorter intervals speed recovery.</p>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)] mt-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+          <p class="text-sm text-slate-700 mt-1">DPD does not re-route traffic by itself; it simply clears an SA so routing or redundancy can take effect afterward.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Pick DPD values that align with link characteristics and verify during controlled failover tests to avoid surprises in production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

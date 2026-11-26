@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">LRU Implementation</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">LRU Cache — Starter Code</div>
+    <div class="text-sm text-slate-600 mt-2">A compact implementation using OrderedDict for access ordering.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white card-border p-3">
+        <div class="text-sm font-semibold text-slate-800">Code</div>
+        <pre class="mt-3 text-xs bg-slate-50 p-3 rounded"><code>from collections import OrderedDict
+
+class LRUCache:
+  def __init__(self, capacity: int):
+    self.cache = OrderedDict()
+    self.capacity = capacity
+
+  def get(self, key: int) -> int:
+    if key not in self.cache:
+      return -1
+    # Move the accessed item to the end to mark it as most recently used
+    value = self.cache.pop(key)
+    self.cache[key] = value
+    return value
+
+  def put(self, key: int, value: int) -> None:
+    if key in self.cache:
+      # If key exists, update its value and move to end
+      self.cache.pop(key)
+    elif len(self.cache) >= self.capacity:
+      # If cache is full, evict the least recently used item (first item)
+      self.cache.popitem(last=False)
+    # Add the new item (or updated item) to the end
+    self.cache[key] = value
+
+# Example Usage:
+cache = LRUCache(2)
+cache.put(1, 1)
+cache.put(2, 2)
+print(f"Get(1): {cache.get(1)}")    # returns 1
+cache.put(3, 3)                     # evicts key 2
+print(f"Get(2): {cache.get(2)}")    # returns -1 (not found)
+cache.put(4, 4)                     # evicts key 1
+print(f"Get(1): {cache.get(1)}")    # returns -1 (not found)
+print(f"Get(3): {cache.get(3)}")    # returns 3
+print(f"Get(4): {cache.get(4)}")    # returns 4</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-white card-border p-3 flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Explanation & Example</div>
+        <div class="text-xs text-slate-600 mt-2">The example usage shows the movement of items to the most-recently-used end and eviction of the least recently used entry when capacity is reached.</div>
+
+        <div class="mt-3 rounded-lg bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-xs text-slate-600 mt-1">Not updating recency on get will degrade LRU behavior and evict active items.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">LRU requires updating order on both get and put; for production add thread-safety or use a distributed cache for scale.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

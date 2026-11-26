@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-xl font-bold text-slate-900">virt-install anatomy</div>
+      <div class="text-sm text-slate-600 mt-2">A single virt-install command can define hardware, storage, network, and start installation immediately—ideal for automation.</div>
+
+      <div class="mt-4 flex-1 overflow-hidden">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Example command</div>
+        <div class="rounded-lg bg-slate-900 text-slate-100 p-3" style="min-height:170px;">
+          <pre><code>sudo virt-install \
+  --name rhel9-webserver \
+  --ram 4096 \
+  --vcpus 2 \
+  --disk path=/var/lib/libvirt/images/rhel9-webserver.qcow2,size=30,format=qcow2 \
+  --network bridge=br0 \
+  --os-variant rhel9.0 \
+  --cdrom /var/lib/libvirt/images/rhel-9.0-x86_64-dvd.iso \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole \
+  --boot cdrom,hd,network</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-bold text-slate-900">What each option means</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-1">
+          <li><strong>--name</strong>: unique VM identifier used by libvirt and virsh.</li>
+          <li><strong>--ram / --vcpus</strong>: resource allocation that should reflect host capacity.</li>
+          <li><strong>--disk</strong>: creates or points to a qcow2 image; size and format are explicit.</li>
+          <li><strong>--network</strong>: connect to a bridge like br0 for external access.</li>
+          <li><strong>--cdrom / --location</strong>: installation source; use network sources for automation.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700">Example</div>
+        <div class="text-sm text-slate-800 mt-1">Run the command, connect with a VNC client, complete installation, then shut down and verify the VM is defined in libvirt.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Virt-install provides a single, scriptable entry point to define VM hardware and start installs, enabling automation and consistency.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

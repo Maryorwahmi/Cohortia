@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.5</span><span>›</span><span class="text-slate-700">Strategy Pattern in Action</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="w-full lg:w-1/2 bg-slate-900 rounded-2xl shadow-xl p-6 flex flex-col"><h3 class="text-xl font-bold text-white mb-4">Refactoring Demo: Main Method</h3><pre class="text-sm text-slate-200 overflow-auto flex-grow" style="white-space: pre-wrap; tab-size: 2;"><code><span class="text-violet-400">public class</span> <span class="text-emerald-400">RefactoringDemo</span>
+{
+    <span class="text-violet-400">public static void</span> <span class="text-yellow-400">Main</span>(<span class="text-violet-400">string</span>[] args)
+    {
+        <span class="text-slate-500">// Setup DI container</span>
+        <span class="text-violet-400">var</span> services = <span class="text-violet-400">new</span> <span class="text-emerald-400">ServiceCollection</span>();
+        services.AddTransient&lt;<span class="text-emerald-400">UsaShippingStrategy</span>&gt;();
+        services.AddTransient&lt;<span class="text-emerald-400">CanadaShippingStrategy</span>&gt;();
+        services.AddTransient&lt;<span class="text-emerald-400">UkShippingStrategy</span>&gt;();
+        services.AddTransient&lt;<span class="text-emerald-400">DefaultShippingStrategy</span>&gt;();
+        services.AddTransient&lt;<span class="text-emerald-400">ShippingStrategyFactory</span>&gt;();
+        <span class="text-violet-400">var</span> serviceProvider = services.BuildServiceProvider();
+
+        <span class="text-slate-500">// Use the factory to get strategies</span>
+        <span class="text-violet-400">var</span> factory = serviceProvider.GetService&lt;<span class="text-emerald-400">ShippingStrategyFactory</span>&gt;();
+
+        <span class="text-violet-400">var</span> usaProcessor = <span class="text-violet-400">new</span> <span class="text-emerald-400">OrderProcessorRefactored</span>(factory.GetStrategy(<span class="text-green-400">"USA"</span>));
+        <span class="text-emerald-400">Console</span>.WriteLine($<span class="text-green-400">"USA Shipping Cost ($50): {usaProcessor.GetShippingCost(50m):C}"</span>); <span class="text-slate-500">// 2.50</span>
+        <span class="text-emerald-400">Console</span>.WriteLine($<span class="text-green-400">"USA Shipping Cost ($150): {usaProcessor.GetShippingCost(150m):C}"</span>); <span class="text-slate-500">// 0.00 (free)</span>
+
+        <span class="text-violet-400">var</span> canadaProcessor = <span class="text-violet-400">new</span> <span class="text-emerald-400">OrderProcessorRefactored</span>(factory.GetStrategy(<span class="text-green-400">"Canada"</span>));
+        <span class="text-emerald-400">Console</span>.WriteLine($<span class="text-green-400">"Canada Shipping Cost ($50): {canadaProcessor.GetShippingCost(50m):C}"</span>); <span class="text-slate-500">// 10.00</span>
+
+        <span class="text-violet-400">var</span> unknownProcessor = <span class="text-violet-400">new</span> <span class="text-emerald-400">OrderProcessorRefactored</span>(factory.GetStrategy(<span class="text-green-400">"Mexico"</span>));
+        <span class="text-emerald-400">Console</span>.WriteLine($<span class="text-green-400">"Mexico Shipping Cost ($50): {unknownProcessor.GetShippingCost(50m):C}"</span>); <span class="text-slate-500">// 20.00 (default)</span>
+    }
+}</code></pre></div><div class="flex flex-col w-full lg:w-1/2 gap-6"><div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow"><h3 class="text-xl font-bold text-slate-900 mb-4">Expected Console Output</h3><pre class="text-sm text-slate-700 bg-slate-50 p-4 rounded-lg overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>USA Shipping Cost ($50): $2.50
+USA Shipping Cost ($150): $0.00
+Canada Shipping Cost ($50): $10.00
+Mexico Shipping Cost ($50): $20.00</code></pre><div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The Strategy pattern, combined with a factory and DI, allows for highly flexible and extensible systems where algorithms can be swapped and extended with minimal impact on existing code.</p></div><div class="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Reflection Prompt</div><p class="text-xs font-medium text-blue-800">Consider how much easier it would be to add a new shipping strategy for 'Germany' now, compared to modifying the original <code>switch</code> statement. What are the specific steps you would take?</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

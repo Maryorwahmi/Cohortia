@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">GRES only vs GRES + NSR</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 h-full">
+      <div class="rounded-2xl bg-white p-5 border h-full" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario A</div>
+        <h4 class="text-lg font-bold text-slate-800 mt-2">GRES only</h4>
+        <div class="mt-3 text-sm text-slate-600">Kernel and interfaces restore quickly, but rpd restarts and adjacencies must be re-established by the new master. Expect protocol-level reconvergence.</div>
+        <div class="mt-4 space-y-2 text-sm text-slate-600">
+          <div>Example: BGP sessions may drop and re-open, causing brief route loss.</div>
+          <div>Verification: show chassis redundancy will report interface sync; show bgp summary will show session re-establishment after the event.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-6 h-full">
+      <div class="rounded-2xl bg-white p-5 border h-full" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Scenario B</div>
+        <h4 class="text-lg font-bold text-slate-800 mt-2">GRES + NSR</h4>
+        <div class="mt-3 text-sm text-slate-600">Backup has full rpd state and can become master without making neighbors wait for re-convergence. Adjacencies remain Full or Established.</div>
+        <div class="mt-4 space-y-2 text-sm text-slate-600">
+          <div>Example: OSPF neighbors remain Full and routing table entries persist with no noticeable traffic interruption.</div>
+          <div>Verification: show ospf neighbor and show route will show little or no churn across the switchover.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl bg-amber-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+    <div class="mt-2 text-sm text-slate-800">Enabling GRES alone is not enough to guarantee routing stability. NSR is required to preserve rpd state for routing continuity.</div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 2</span>
+      <span>›</span>
+      <span>Chapter 2.1</span>
+      <span>›</span>
+      <span class='text-slate-700'>app.py (refactored)</span>
+    </div>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='flex-1'>
+      <div class='rounded-2xl bg-white p-4 card-border shadow-sm h-full overflow-auto'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-3'>app.py (after refactor)</div>
+        <pre style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;' class='text-sm text-slate-700 bg-slate-50 p-3 rounded-md'>
+from flask import Flask, request, jsonify
+from validators import is_valid_email, is_valid_password
+
+app = Flask(__name__)
+
+@app.route('/register', methods=['POST'])
+def register_user():
+  data = request.get_json()
+  email = data.get('email')
+  password = data.get('password')
+
+  if not is_valid_email(email):
+    return jsonify({"error": "Invalid email format"}), 400
+
+  if not is_valid_password(password):
+    return jsonify({"error": "Password must be at least 8 characters and contain a digit"}), 400
+
+  print(f"Registering user: {email}")
+  return jsonify({"message": "User registered successfully"}), 201
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+  data = request.get_json()
+  email = data.get('email')
+  password = data.get('password')
+
+  if email and not is_valid_email(email):
+    return jsonify({"error": "Invalid email format"}), 400
+
+  if password and not is_valid_password(password):
+    return jsonify({"error": "Password must be at least 8 characters and contain a digit"}), 400
+
+  print(f"Updating profile for: {email if email else 'current user'}")
+  return jsonify({"message": "Profile updated successfully"}), 200
+
+if __name__ == '__main__':
+  app.run(debug=True)
+        </pre>
+      </div>
+    </div>
+
+    <div class='w-96 flex flex-col gap-4'>
+      <div class='rounded-xl p-4 bg-white card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Testing checklist</div>
+        <ul class='text-sm text-slate-700 mt-2 ml-4 list-disc'>
+          <li>Run unit tests for validators.</li>
+          <li>Run integration tests for register and update routes.</li>
+          <li>Verify error messages and status codes are unchanged.</li>
+        </ul>
+      </div>
+
+      <div class='rounded-xl p-3 bg-amber-50 border card-border'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Common pitfall</div>
+        <div class='text-sm text-slate-800'>Forgetting to change all callers or leaving slightly different implementations in other places will defeat the refactor. Use search tools to find duplicates.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Inspecting disk usage</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Definition</div>
+        <p class="text-sm text-slate-700 mt-2">pg_* size functions return on-disk sizes. Use them to separate table data, index size, and total relation footprint before taking action.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-900">Quick reference</div>
+        <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+          <li><strong>pg_database_size(name)</strong> — total bytes for a database.</li>
+          <li><strong>pg_relation_size(oid)</strong> — table data fork size (no indexes).</li>
+          <li><strong>pg_total_relation_size(oid)</strong> — table plus indexes and TOAST.</li>
+          <li><strong>pg_indexes_size(oid)</strong> — combined index size for a table.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always capture sizes before and after maintenance to prove the action you chose actually met the operational goal.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1 flex flex-col">
+        <div class="text-sm font-semibold text-slate-900 mb-2">Example query</div>
+        <div class="flex-1 overflow-hidden">
+          <pre class="rounded-md bg-slate-900 text-white p-3"><code>-- Check database sizes
+SELECT datname, pg_size_pretty(pg_database_size(datname))
+FROM pg_database
+ORDER BY pg_database_size(datname) DESC;
+
+-- Relation-level sizes
+SELECT relname,
+       pg_size_pretty(pg_total_relation_size(oid)) AS total_size,
+       pg_size_pretty(pg_relation_size(oid)) AS table_size,
+       pg_size_pretty(pg_indexes_size(oid)) AS indexes_size
+FROM pg_class
+WHERE relkind = 'r'
+ORDER BY pg_total_relation_size(oid) DESC
+LIMIT 20;</code></pre>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-700">
+          <div class="font-semibold text-slate-900">Common mistake</div>
+          <p class="text-sm mt-2">Expecting pg_total_relation_size to immediately shrink after a regular VACUUM. VACUUM frees space for reuse in the table file but does not reduce the on-disk file size unless you run VACUUM FULL.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

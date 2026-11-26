@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Editing crontabs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-semibold uppercase text-slate-500">Steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-3">
+        <li><span class="font-semibold">Write and test</span> the command manually as the target user until it runs non-interactively.</li>
+        <li><span class="font-semibold">Wrap</span> complex logic in a script and make it executable with absolute paths.</li>
+        <li><span class="font-semibold">Edit</span> using crontab -e for user jobs or drop scripts in /etc/cron.daily for system tasks.</li>
+        <li><span class="font-semibold">Redirect</span> stdout and stderr to log files to avoid mailbox flooding.</li>
+        <li><span class="font-semibold">Verify</span> outcomes by checking logs, mail, or the script's exit codes.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-semibold">Example wrapper script header</div>
+        <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm mt-2" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+#!/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+LOG=/var/log/myjob.log
+echo "$(date): starting" >> "$LOG"
+# ... rest of script ...
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-semibold uppercase text-slate-500">Troubleshooting</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Check the user's mail delivered by cron for stdout/stderr if not redirected.</li>
+        <li>Run the script manually and inspect exit status; add set -x or verbose logging during tests.</li>
+        <li>Confirm file permissions and that the executable bit is set on scripts placed in /etc/cron.daily.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold">Quick command checks</div>
+        <div class="mt-2 grid grid-cols-1 gap-2 text-xs text-slate-700">
+          <div class="rounded-md bg-slate-50 p-2">Edit user crontab: crontab -e</div>
+          <div class="rounded-md bg-slate-50 p-2">List system timers (later): systemctl list-timers</div>
+          <div class="rounded-md bg-slate-50 p-2">View journal: journalctl -u myservice</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Placing a relative path in a crontab line causes 'command not found' failures when cron's PATH does not include your expected locations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

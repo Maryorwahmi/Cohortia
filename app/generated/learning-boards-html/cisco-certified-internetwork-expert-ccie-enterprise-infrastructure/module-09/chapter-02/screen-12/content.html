@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace;font-size:13px;padding:12px;border-radius:8px;background:#0b1220;color:#e6eef8}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough: Configure and Verify SNMPv3</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Router steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>snmp-server view ALL-MIBs internet included.</li>
+        <li>snmp-server group SECURE-GROUP v3 auth priv read ALL-MIBs write ALL-MIBs notify ALL-MIBs.</li>
+        <li>snmp-server user NMS_USER SECURE-GROUP v3 auth sha MyAuthPass123 priv aes128 MyPrivPass456.</li>
+        <li>Create ACL permitting the NMS IP and bind as needed.</li>
+        <li>snmp-server host <NMS_IP> traps version 3 priv NMS_USER and enable traps you need.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">NMS verification</div>
+      <div class="mt-3 text-sm text-slate-700">From your NMS host, run an snmpwalk command with version 3, the user, the authentication algorithm, the auth password, the privacy algorithm, the priv password, and the authPriv security level. Confirm the system subtree returns expected values. If not, re-check ACLs, group membership, and algorithm support.</div>
+
+      <pre><code>snmpwalk -v 3 -u NMS_USER -a SHA -A MyAuthPass123 -x AES -X MyPrivPass456 -l authPriv &lt;ROUTER_IP&gt; 1.3.6.1.2.1.1</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Replace placeholders with your actual IPs and passwords before running the command.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

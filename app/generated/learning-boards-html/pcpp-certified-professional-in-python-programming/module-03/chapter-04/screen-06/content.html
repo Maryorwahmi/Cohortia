@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">OldPaymentGateway Adapter</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 h-full rounded-xl bg-white card-border p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Code</div>
+      <pre class="bg-slate-900 text-white rounded-md p-3 text-sm"><code>&lt;!-- Adapter example (escaped for HTML) --&gt;
+from abc import ABC, abstractmethod
+
+class OldPaymentGateway:
+  def process_payment_legacy(self, amount: float, card_number: str, expiry_date: str, cvv: str):
+    print(f"Old Gateway: Processing payment of ${amount} for card {card_number} (exp: {expiry_date}, CVV: {cvv}).")
+    if len(card_number) == 16:
+      return True
+    return False
+
+class PaymentProcessor(ABC):
+  @abstractmethod
+  def pay(self, order_amount: float, payment_details: dict) -> bool:
+    pass
+
+class OldGatewayAdapter(PaymentProcessor):
+  def __init__(self, old_gateway: OldPaymentGateway):
+    self._old_gateway = old_gateway
+
+  def pay(self, order_amount: float, payment_details: dict) -> bool:
+    print("Adapter: Translating new payment request to old gateway format...")
+    card_number = payment_details.get("card_number")
+    expiry_date = payment_details.get("expiry_date")
+    cvv = payment_details.get("cvv")
+
+    if not all([card_number, expiry_date, cvv]):
+      print("Adapter Error: Missing payment details for old gateway.")
+      return False
+
+    success = self._old_gateway.process_payment_legacy(order_amount, card_number, expiry_date, cvv)
+    print(f"Adapter: Payment processed by old gateway. Success: {success}")
+    return success
+
+# Client code examples follow in the chapter source.</code></pre>
+    </div>
+
+    <div class="w-1/3 h-full rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li>The adapter implements the expected interface and holds the adaptee instance.</li>
+        <li>It extracts and validates payment fields and translates them into the adaptee's call.</li>
+        <li>Client code calls pay and sees a consistent boolean result regardless of the gateway's API.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep translation logic in the adapter; preserve the legacy implementation unchanged.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

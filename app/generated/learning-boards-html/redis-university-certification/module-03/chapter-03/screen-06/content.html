@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span class="">›</span>
+    <span class="text-slate-700">Configuring RDB</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Save directive pattern</h3>
+      <p class="text-sm text-slate-600 mt-3">Each save line uses two numbers: seconds and number of changes that trigger a snapshot.</p>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border mono text-xs" style="white-space: pre-wrap; tab-size: 2;">
+# Example RDB configuration in redis.conf
+save 900 1    # Save if 1 key changed in 15 minutes
+save 300 10   # Save if 10 keys changed in 5 minutes
+save 60 10000 # Save if 10000 keys changed in 1 minute
+
+# Manual BGSAVE command in redis-cli
+BGSAVE
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Tips</div>
+        <ul class="list-disc pl-5 mt-2 text-slate-600 text-sm">
+          <li>Use BGSAVE to avoid blocking clients.</li>
+          <li>Short intervals for tests; longer for production workloads.</li>
+          <li>Confirm dump.rdb timestamp after saves.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l card-border flex flex-col">
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <p class="text-sm text-slate-700 mt-2">For a low-traffic cache you might accept save 900 1. For an admin dashboard with bursts, add a medium-frequency rule to capture changes faster.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Editing redis.conf but not starting Redis with that file or forgetting file paths so you cannot find dump.rdb.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+        <p class="text-sm text-slate-600 mt-2">Save rules determine how much recent data you risk losing. Tune rules to match acceptable risk and resource limits.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:12px; }
+    .terminal { background:#0b1220; color:#cfe8ff; padding:12px; border-radius:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; white-space:pre-wrap; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Bind & Firewall</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-2xl font-extrabold text-slate-800">Bind and Firewall Rules</h3>
+        <p class="text-sm text-slate-600 mt-1">Keep Redis reachable only by trusted hosts using bind plus networking controls.</p>
+      </div>
+      <div class="text-xs uppercase font-bold text-violet-700 bg-violet-50 px-2 py-1 rounded">Process</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Quick Steps</div>
+        <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+          <li>Set bind to 127.0.0.1 or specific internal IPs in redis.conf.</li>
+          <li>Configure firewall/security group to allow port 6379 only from your app servers.</li>
+          <li>Test connection from an untrusted host; it should be refused.</li>
+          <li>Monitor for connection attempts from unexpected IPs.</li>
+        </ol>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Example bind</div>
+        <pre class="terminal"># redis.conf
+bind 127.0.0.1 192.168.1.100</pre>
+        <div class="text-xs text-slate-600 mt-2">Pair this with a security group that allows 192.168.1.100 only.</div>
+      </div>
+
+      <div class="card p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Firewall example</div>
+        <pre class="terminal"># iptables (example)
+iptables -A INPUT -p tcp -s 192.168.1.100 --dport 6379 -j ACCEPT
+iptables -A INPUT -p tcp --dport 6379 -j DROP</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Why this matters</div>
+        <p class="text-sm text-slate-700">Exposed Redis instances are frequently scanned and attacked. Binding plus firewalling reduces the chance that a misconfigured password or unknown vulnerability is reachable from the internet. In cloud environments prefer security groups as the first line, and use host-level firewalling for defense in depth.</p>
+        <ul class="mt-3 text-sm text-slate-600 space-y-1">
+          <li>Validation: try connecting from a machine outside the allowlist; it should be refused.</li>
+          <li>Misconception: binding is not a replacement for firewall rules—use both.</li>
+        </ul>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Check</div>
+        <div class="text-sm text-slate-700">Use netstat or ss to confirm Redis listens only on the intended interfaces. Review cloud security group logs for denied attempts and add alerts for repeated failures.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step-dot{width:12px;height:12px;border-radius:999px;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Memtable & SSTable Timeline</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800 mb-2">Timeline</div>
+      <div class="flex flex-col gap-3">
+        <div class="flex items-start gap-3">
+          <div class="step-dot bg-blue-300 mt-1"></div>
+          <div>
+            <div class="font-semibold">Write arrives and commit log is appended</div>
+            <div class="text-sm text-slate-600">Durable append ensures the mutation is recoverable.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="step-dot bg-violet-300 mt-1"></div>
+          <div>
+            <div class="font-semibold">Memtable stores the update in memory</div>
+            <div class="text-sm text-slate-600">Fast reads of recent writes come from the memtable.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="step-dot bg-amber-300 mt-1"></div>
+          <div>
+            <div class="font-semibold">Memtable flush creates SSTable</div>
+            <div class="text-sm text-slate-600">An immutable on-disk file with sorted data and auxiliary indices.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="step-dot bg-emerald-300 mt-1"></div>
+          <div>
+            <div class="font-semibold">Compaction merges SSTables</div>
+            <div class="text-sm text-slate-600">Removes tombstones where safe and reduces read amplification.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800 mb-2">Example: force a flush</div>
+      <pre class="mono bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;">nodetool flush my_data sensor_readings</pre>
+      <div class="mt-3 text-sm text-slate-600">This forces the memtable for the table to be written to a new SSTable on disk. After the command, check the data directory to see new .db files.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Memtable flushes produce immutable SSTables; compaction later reduces file count and reclaims space.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

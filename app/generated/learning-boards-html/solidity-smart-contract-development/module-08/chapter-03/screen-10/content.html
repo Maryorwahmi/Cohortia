@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Event</div>
+      <div class="text-xl font-bold text-slate-800">disconnect</div>
+      <div class="text-sm text-slate-600 mt-2">When the wallet disconnects, clear account-specific state and show a reconnect path.</div>
+
+      <div class="mt-4">
+        <pre class="mono bg-slate-50 rounded-lg p-3 border border-slate-100"><code>const handleDisconnect = (error) =&gt; {
+  console.error('MetaMask disconnected:', error);
+  setAccount(null);
+  setSigner(null);
+  setError('MetaMask disconnected. Please reconnect.');
+};
+
+// In cleanup
+return () =&gt; {
+  window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+  window.ethereum.removeListener('chainChanged', handleChainChanged);
+  window.ethereum.removeListener('disconnect', handleDisconnect);
+};</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4">
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Concrete Example</div>
+        <div class="text-sm text-slate-700 mt-2">If the user locks their wallet or revokes permissions, show a clear state indicating the user is disconnected and provide steps to reconnect or refresh the page.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700 mb-2">Developer Pitfall</div>
+          <div class="text-sm text-rose-700 bg-rose-50 p-3 rounded-md border border-rose-100">Not removing listeners on unmount can cause multiple invocations of handlers if the component mounts again, leading to duplicated state updates.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Remove listeners and reset state on disconnect so your app remains predictable and secure.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

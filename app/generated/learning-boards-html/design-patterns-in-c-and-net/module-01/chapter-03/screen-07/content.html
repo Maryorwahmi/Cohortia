@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> .card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex h-full gap-4"> 
+    <div class="w-1/2 flex flex-col"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Interface Segregation Principle</div>
+      <div class="text-sm text-slate-600 mb-4">Clients should not depend on methods they don't use.</div>
+      <div class="p-4 bg-white card flex-1"> 
+        <div class="text-sm font-semibold text-slate-800 mb-2">Fat interface problem</div>
+        <pre class="bg-slate-50 p-3 rounded-md text-sm">public interface IMultiFunctionDevice
+{
+  void Print(string document);
+  void Scan(string document);
+  void Fax(string document);
+  void Copy(string document);
+  void Staple(string document);
+}</pre>
+        <div class="mt-3 text-sm text-slate-700">When a BasicPrinter implements this interface it is forced into NotSupportedException stubs for many methods it doesn't support. That is brittle and violates ISP.</div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col"> 
+      <div class="p-4 bg-white card flex-1"> 
+        <div class="text-sm font-semibold text-slate-800 mb-2">Segregated interfaces</div>
+        <pre class="bg-slate-50 p-3 rounded-md text-sm">public interface IPrinter { void Print(string document); }
+public interface IScanner { void Scan(string document); }
+public interface IFaxMachine { void Fax(string document); }
+public interface IStapler { void Staple(string document); }</pre>
+        <div class="mt-3 text-sm text-slate-700">Now BasicPrinter implements only IPrinter, and OfficeMultiFunctionDevice can implement the set it actually supports. This reduces coupling and accidental runtime errors.</div>
+        <div class="mt-4 grid grid-cols-2 gap-3"> 
+          <div class="p-3 bg-violet-50 rounded-xl"> 
+            <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Analogy</div>
+            <div class="text-sm text-slate-800 mt-1">Give clients the exact toolset they need, not a tool chest they will ignore.</div>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-xl"> 
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Warning</div>
+            <div class="text-sm text-slate-800 mt-1">Don't over-segregate: group methods that clients naturally use together.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

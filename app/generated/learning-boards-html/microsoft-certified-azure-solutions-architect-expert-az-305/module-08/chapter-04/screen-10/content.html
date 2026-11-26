@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');body{font-family:'Inter',sans-serif;}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module X</span><span>›</span><span>Chapter Y</span><span>›</span><span class="text-slate-700">CLI VM Backup</span></div><div class="flex flex-col h-[calc(100%-4rem)]"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Implementation Walkthrough</div><h2 class="text-3xl font-bold text-slate-900 mb-2">Configuring Azure VM Backup via Azure CLI</h2><p class="text-base text-slate-600">A Step-by-Step Conceptual Example</p></div><div class="flex-grow grid grid-cols-2 gap-6"><div class="flex flex-col rounded-xl bg-slate-800 p-6 shadow-lg border border-slate-700 text-white font-mono text-sm overflow-auto"><pre><code style="white-space: pre-wrap; tab-size: 2;"><span style="color:#8be9fd;"># Variables</span>
+RESOURCE_GROUP="MyWebAppRG"
+VM_NAME="WebAppVM"
+LOCATION="eastus"
+RS_VAULT_NAME="MyBackupVault"
+RS_VAULT_RG="BackupVaultRG"
+POLICY_NAME="DailyVMBackupPolicy"
+
+<span style="color:#8be9fd;"># 1. Create a Resource Group for the Recovery Services Vault (if not exists)</span>
+az group create --name <span style="color:#f1fa8c;">$RS_VAULT_RG</span> --location <span style="color:#f1fa8c;">$LOCATION</span>
+
+<span style="color:#8be9fd;"># 2. Create a Recovery Services Vault</span>
+az backup vault create --resource-group <span style="color:#f1fa8c;">$RS_VAULT_RG</span> --name <span style="color:#f1fa8c;">$RS_VAULT_NAME</span> --location <span style="color:#f1fa8c;">$LOCATION</span>
+
+<span style="color:#8be9fd;"># 3. Create a backup policy (daily backups at 23:00 UTC, 30-day retention)</span>
+az backup policy create \
+    --resource-group <span style="color:#f1fa8c;">$RS_VAULT_RG</span> \
+    --vault-name <span style="color:#f1fa8c;">$RS_VAULT_NAME</span> \
+    --name <span style="color:#f1fa8c;">$POLICY_NAME</span> \
+    --backup-management-type AzureIaasVM \
+    --policy '{"policyType":"V2","schedulePolicy":{"schedulePolicyType":"SimpleSchedulePolicy","scheduleRunFrequency":"Daily","scheduleRunTimes":["2023-01-01T23:00:00Z"]},"retentionPolicy":{"retentionPolicyType":"SimpleRetentionPolicy","retentionDuration":{"count":30,"durationType":"Days"}}}'
+
+<span style="color:#8be9fd;"># 4. Enable backup for the VM using the created policy</span>
+az backup protection enable-for-vm \
+    --resource-group <span style="color:#f1fa8c;">$RESOURCE_GROUP</span> \
+    --vault-name <span style="color:#f1fa8c;">$RS_VAULT_NAME</span> \
+    --vm <span style="color:#f1fa8c;">$VM_NAME</span> \
+    --policy-name <span style="color:#f1fa8c;">$POLICY_NAME</span> \
+    --resource-group-name <span style="color:#f1fa8c;">$RESOURCE_GROUP</span></code></pre></div><div class="flex flex-col gap-4"><div class="rounded-xl bg-white p-4 shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Step 1: Resource Group & Vault</div><p class="text-sm font-medium text-slate-800">Create a dedicated resource group and a Recovery Services Vault to centralize backup storage and management.</p></div><div class="rounded-xl bg-white p-4 shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Step 2: Define Backup Policy</div><p class="text-sm font-medium text-slate-800">Specify backup frequency (e.g., daily) and retention duration (e.g., 30 days) to meet RPO and compliance needs.</p></div><div class="rounded-xl bg-white p-4 shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Step 3: Enable VM Protection</div><p class="text-sm font-medium text-slate-800">Associate the target Azure VM with the created Recovery Services Vault and the defined backup policy.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The Azure CLI provides a powerful, scriptable way to automate the setup of VM backups, ensuring consistent and repeatable deployments.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

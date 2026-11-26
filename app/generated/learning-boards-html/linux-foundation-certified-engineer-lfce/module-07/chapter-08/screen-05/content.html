@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="flex flex-col gap-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-2xl font-bold text-slate-900">Designing effective auditd rules</div>
+      <div class="text-sm text-slate-600">Follow a small sequence to reduce noise and increase relevance.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="step">1. Identify the asset or action to protect (files, executables, or syscalls).</div>
+        <div class="step">2. Select the narrowest filter (exe path, uid, syscall) that still captures malicious behavior.</div>
+        <div class="step">3. Tag the rule with a descriptive key for easy searching later.</div>
+        <div class="step">4. Load the rule and test with a controlled change or command to confirm events appear.</div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common rule types</div>
+      <ul class="text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li><strong>File watch:</strong> -w path -p permissions -k key (watch files or directories)</li>
+        <li><strong>Syscall rule:</strong> -a always,exit -S syscall -F arch=... -k key (monitor specific system calls)</li>
+        <li><strong>Executable filter:</strong> -F exe=/usr/bin/sudo (limit events to a binary)</li>
+        <li><strong>UID/GID filter:</strong> -F uid=1001 (focus on a single user or service account)</li>
+      </ul>
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-800">Example rule set</div>
+        <pre class="code">-w /etc/passwd -p wa -k auth_config
+-w /etc/sudoers -p wa -k auth_config
+-a always,exit -F arch=b64 -S execve -F success=0 -F exe=/usr/bin/sudo -k sudo_fail</pre>
+      </div>
+      <div class="mt-auto rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Too-broad rules create noise and can cause disk exhaustion. Tune by adding exe, uid, or syscall filters.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

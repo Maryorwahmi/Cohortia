@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre {background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">PySpark ETL</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 bg-white rounded-2xl p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example PySpark ETL</div>
+      <div class="text-xs text-slate-600 mt-2">This pattern is compatible with Glue or EMR when configured to use the Glue Data Catalog as the metastore.</div>
+
+      <div class="mt-4 flex-1 overflow-auto">
+        <pre><code>&lt;!-- PySpark example: log_aggregator.py --&gt;
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, hour, from_unixtime, to_timestamp
+
+spark = SparkSession.builder \
+    .appName("LogAggregator") \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+# Read data from Glue Data Catalog table
+# table: log_analytics_db.raw_logs
+df = spark.read.table("log_analytics_db.raw_logs")
+
+# Convert unix timestamp to hour and aggregate
+df_processed = df.withColumn("event_timestamp", from_unixtime(col("timestamp"))) \
+                 .withColumn("event_hour", hour(to_timestamp(col("event_timestamp"))))
+
+hourly_counts = df_processed.groupBy("event_hour").count()
+
+# Write results back to S3 in parquet
+output_path = "s3://<YOUR_FIREHOSE_OUTPUT_BUCKET>/aggregated_logs/"
+hourly_counts.write.mode("overwrite").parquet(output_path)
+
+spark.stop()
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-700">
+        <div class="font-semibold">Notes</div>
+        <ul class="list-disc list-inside mt-2">
+          <li>Use the Glue Data Catalog DB and table names when reading via the catalog.</li>
+          <li>Test on small sample data in S3 before running full jobs to confirm schema and partitions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-2/5 h-full grid grid-rows-3 gap-4">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Glue vs EMR</div>
+        <div class="text-xs text-slate-700 mt-2">On Glue the job is serverless; on EMR you submit this script as a Spark step and manage cluster settings explicitly.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-2">Forgetting to escape or validate timestamp formats leads to incorrect hour extraction. Always sample and inspect a few rows.</div>
+      </div>
+
+      <div class="rounded-xl p-4 bg-emerald-50 text-emerald-800 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider">Key Takeaway</div>
+        <div class="text-sm mt-2">Write idempotent ETL: test transforms on small data, then scale. Use the catalog for discovery and consistent table names.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

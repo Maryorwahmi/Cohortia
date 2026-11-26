@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulated Login</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Starter Code</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">import React, { useState } from 'react';
+import { View, Text, Button, ActivityIndicator, StyleSheet } from 'react-native';
+
+const LoginScreen = () =&gt; {
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const simulateLogin = async () =&gt; {
+    setIsLoading(true);
+    setMessage('Logging in...');
+
+    try {
+      const response = await new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; {
+          const success = Math.random() &gt; 0.5; // 50% chance of success
+          if (success) {
+            resolve('Login successful!');
+          } else {
+            reject('Invalid credentials.');
+          }
+        }, 3000); // Simulate 3-second network request
+      });
+      setMessage(response); // Update message with success
+    } catch (error) {
+      setMessage(`Login Failed: ${error}`); // Update message with error
+    } finally {
+      setIsLoading(false); // Stop loading regardless of outcome
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Simulated Login</Text>
+    </View>
+  );
+};
+
+export default LoginScreen;</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Walkthrough</div>
+      <ol class="mt-2 text-sm text-slate-700 list-decimal ml-4">
+        <li>Set isLoading true and show a progress message before the await.</li>
+        <li>Await a Promise that simulates network latency.</li>
+        <li>On success, display the resolved message; on failure, display the error inside catch.</li>
+        <li>Always stop the loader in finally so the UI is consistent.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Challenge</div>
+        <p class="text-xs font-medium text-slate-800">Modify simulateLogin to accept username and password, and only resolve if username is 'admin' and password is 'password123'.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

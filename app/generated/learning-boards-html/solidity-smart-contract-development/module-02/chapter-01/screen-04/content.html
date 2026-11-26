@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-800">Value Types: direct storage and safe copies</div>
+    <div class="text-sm text-slate-600 mt-1">When you assign, Solidity makes independent copies for value types.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Examples and behavior</div>
+        <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li><strong>bool</strong>: stores true or false, ideal for guards and simple flags.</li>
+          <li><strong>uint / int</strong>: numeric values. Use uint256 default to avoid packing surprises.</li>
+          <li><strong>address</strong>: 20-byte account identifier; value type but not automatically payable.</li>
+          <li><strong>bytes1..bytes32</strong>: fixed-length raw bytes for hashes and compact IDs.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Code example</div>
+          <div class="rounded-md bg-slate-50 p-3 border card-border">
+            <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ValueExample {
+  uint256 public a = 100;
+  uint256 public b;
+
+  function copy() public {
+    b = a; // b receives a full copy of a
+    b = b + 1; // changes to b do not affect a
+  }
+}
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Value types are safe to copy; assignments produce independent values and avoid aliasing bugs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div>
+        <div class="text-sm font-semibold text-slate-800 mb-2">Gas & Safety notes</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Default integer checks in Solidity 0.8+ revert on overflow, preventing silent wrap-around.</li>
+          <li>Use fixed-size bytes for compact storage of hashes rather than dynamic strings when possible.</li>
+          <li>Addresses are compact value types but require payable casting to receive Ether.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+          <div class="text-sm text-rose-600 mt-1">Assuming assignment shares state — this is false for value types and can lead to unexpected test failures when mutability is expected.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl bg-white p-3 card-border mt-4">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-1">Choosing uint256 for token balances avoids packing bugs and ensures arithmetic follows the safe overflow rules in modern Solidity.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

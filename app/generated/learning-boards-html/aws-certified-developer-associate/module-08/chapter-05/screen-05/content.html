@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Stages & Actions</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Stage breakdown</div>
+      <div class="grid gap-3">
+        <div class="p-3 rounded-lg bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-600">Source</div>
+          <div class="text-sm text-slate-700 mt-1">Detects commits in CodeCommit, GitHub, or S3 and produces the source artifact placed in S3 for the next action to consume.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-600">Build</div>
+          <div class="text-sm text-slate-700 mt-1">Invokes CodeBuild to compile, run unit tests, and output a build artifact such as a zip or Docker image.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-600">Test</div>
+          <div class="text-sm text-slate-700 mt-1">Optional stage for integration or end-to-end tests. Failures here block deploys and protect production.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-slate-100">
+          <div class="text-xs font-semibold text-slate-600">Deploy</div>
+          <div class="text-sm text-slate-700 mt-1">Uses CodeDeploy or CloudFormation to apply the artifact to the target environment, such as EC2, Lambda, or ECS.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example & checklist</div>
+      <div class="p-3 rounded-lg bg-slate-50 border border-slate-100 mb-3">
+        <div class="text-xs font-semibold text-slate-600">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-1">Commit to CodeCommit → CodeBuild runs unit tests and produces build.zip → Test stage runs integration tests → CodeDeploy deploys build.zip to EC2.</div>
+      </div>
+      <div class="text-sm text-slate-700">Checklist to avoid artifact mismatch:</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 mt-2 space-y-2">
+        <li>Ensure the build action outputs an artifact with the name the deploy action expects.</li>
+        <li>Confirm artifact locations in S3 match the pipeline's artifact store settings.</li>
+        <li>Use separate stages for slow tests to avoid blocking faster validations.</li>
+      </ul>
+      <div class="mt-auto p-3 rounded-lg bg-amber-50 border border-slate-100">
+        <div class="text-xs font-semibold text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Parallelize independent tests in the Test stage to shorten pipeline run time while keeping logical separation.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">AVC Denials</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 card h-full shadow-sm flex">
+    <div class="w-1/2 pr-4 border-r border-slate-100 min-h-0">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold mt-2">Collect AVCs and interpret fields</h3>
+      <p class="text-sm text-slate-600 mt-2">Focus on subject context, target context, class, and the requested permission to determine the appropriate fix.</p>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-sm font-semibold">Useful commands</div>
+          <pre class="mono text-sm mt-2 bg-slate-50 p-3 rounded">ausearch -m AVC -ts today
+ausearch -c httpd -m AVC -ts today
+sealert -a /var/log/audit/audit.log</pre>
+        </div>
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-sm font-semibold">Interpretation</div>
+          <div class="text-xs text-slate-600 mt-1">Identify scontext (subject), tcontext (target), class (object type), and the permission set; use that to choose relabel or policy allow.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 pl-4 min-h-0 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card flex-1">
+        <div class="text-sm font-semibold">Example AVC entry breakdown</div>
+        <div class="mono text-sm mt-2">type=AVC msg=...: avc: denied { write } for pid=2345 comm="httpd" scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=file</div>
+        <div class="text-xs text-slate-600 mt-2">This shows httpd_t attempted a file write to a file labeled etc_t. Decide whether relabel or a minimal policy is appropriate.</div>
+      </div>
+      <div class="mt-4 rounded-xl bg-white p-4 card">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-2">Responding to many AVCs by disabling SELinux loses the protection SELinux provides. Triage and address root causes with targeted fixes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

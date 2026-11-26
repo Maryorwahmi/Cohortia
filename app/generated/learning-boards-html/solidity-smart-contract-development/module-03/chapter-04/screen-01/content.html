@@ -1,0 +1,114 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <style> .card { border:1px solid rgba(226,232,240,0.9); } .title { font-family:Inter,system-ui; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Upgradeable Contracts</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col justify-between">
+      <div>
+        <h1 class="title text-3xl font-bold text-slate-800">Upgradeable Contracts and Proxies</h1>
+        <p class="mt-2 text-sm text-slate-600 max-w-xl">Learn why immutability creates a maintenance challenge and how proxy patterns let you upgrade logic without losing state or changing the contract address.</p>
+
+        <div class="mt-6 grid grid-cols-2 gap-4">
+          <div class="rounded-2xl bg-white p-4 card shadow-sm">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7"></path>
+                <path d="M8 3v4"></path>
+                <path d="M16 3v4"></path>
+              </svg>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Problem</div>
+                <div class="mt-1 text-sm text-slate-700">Deployed code cannot change; bugs or feature needs require preserving state across upgrades.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-4 card shadow-sm">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M12 2l3 6 6 .5-4.5 3 1.5 6L12 14 4 18.5 5.5 12 1 9.5 7 9z"></path>
+              </svg>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Solution</div>
+                <div class="mt-1 text-sm text-slate-700">Proxy + implementation split. Proxy holds state at a fixed address and forwards calls to changeable logic contracts.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-4 card shadow-sm">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M12 20l9-5-9-5-9 5 9 5z"></path>
+                <path d="M12 12l9-5-9-5-9 5 9 5z"></path>
+              </svg>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Critical</div>
+                <div class="mt-1 text-sm text-slate-700">delegatecall executes implementation code in the proxy's storage and preserves msg.sender for calls.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-4 card shadow-sm">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M18 8a6 6 0 01-12 0"></path>
+                <path d="M6 19a6 6 0 0012 0"></path>
+              </svg>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Risks</div>
+                <div class="mt-1 text-sm text-slate-700">Storage collisions, initializer mistakes, and insecure upgrade control can break a contract irreparably.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-xl p-3 bg-white card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Explore Key Topics</div>
+        <div class="flex gap-3">
+          <div class="flex-1 rounded-lg p-3 bg-blue-50 text-blue-800">
+            <div class="text-sm font-bold">Proxy vs Implementation</div>
+            <div class="text-xs mt-1 text-slate-700">Distinguish which contract keeps state and which provides logic.</div>
+          </div>
+          <div class="flex-1 rounded-lg p-3 bg-violet-50 text-violet-800">
+            <div class="text-sm font-bold">The role of delegatecall</div>
+            <div class="text-xs mt-1 text-slate-700">Why delegatecall preserves storage and original caller context.</div>
+          </div>
+          <div class="flex-1 rounded-lg p-3 bg-amber-50 text-amber-800">
+            <div class="text-sm font-bold">Storage safety</div>
+            <div class="text-xs mt-1 text-slate-700">How mismatched layouts produce collisions and how to avoid them.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-1/2">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Visual Concept</div>
+            <div class="text-lg font-bold text-slate-800 mt-1">Proxy forwards to Implementation</div>
+            <p class="text-sm text-slate-600 mt-2">A stable proxy address holds storage slots. The implementation pointer changes to upgrade logic while stored data remains intact.</p>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="rounded-lg bg-blue-50 p-3 mb-2">
+              <svg class="w-8 h-8 text-blue-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7"/></svg>
+            </div>
+            <div class="text-xs text-slate-500">Proxy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-1/2 flex flex-col justify-center">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Quick Note</div>
+        <div class="text-sm text-slate-700 mt-2">Always plan storage layout and protect initializer and upgrade functions. Prefer audited libraries for production systems.</div>
+      </div>
+    </div>
+  </div>
+</div>

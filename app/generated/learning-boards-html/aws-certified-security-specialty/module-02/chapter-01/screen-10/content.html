@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Gateway Endpoint & Route Table</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What you configure</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">Create Gateway Endpoint and associate route tables</h3>
+      <div class="mt-3 text-sm text-slate-600">Select service: S3 (Gateway). Choose your VPC and pick the route tables used by private subnets. The route table receives an entry pointing S3 prefix list to the endpoint target.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Verification steps</div>
+        <ol class="text-xs text-slate-600 ml-4 mt-2 list-decimal">
+          <li>Confirm a new route exists for the S3 prefix list pointing to the endpoint.</li>
+          <li>Launch an EC2 in the private subnet with outbound HTTPS allowed.</li>
+          <li>From the instance, run a test like aws s3 ls to ensure access without IGW or NAT.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Command example</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm text-slate-700"># From a private instance with proper IAM role:
+aws s3 ls
+
+# Expected: list of buckets if endpoint and permissions are correct</pre>
+
+      <div class="mt-4 text-sm text-slate-600">If the command fails, check the route table for the S3 prefix list entry, the endpoint association, and the instance's IAM role and Security Group egress rules.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A Gateway Endpoint adds a route table target for S3; verify with route table inspection and an in-subnet S3 API call.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

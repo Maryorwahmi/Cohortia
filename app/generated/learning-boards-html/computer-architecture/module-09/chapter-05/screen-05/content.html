@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Detail</span>
+      <span>›</span>
+      <span class="text-slate-700">Tagged Tables & Useful Counters</span>
+    </div>
+
+    <div class="flex gap-4 h-[60%]">
+      <div class="w-1/2 bg-white rounded-xl p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Prediction process (step-by-step)</div>
+        <div class="mt-3 space-y-2 text-sm text-slate-700">
+          <div>1) Probe base predictor for a quick 2-bit prediction.</div>
+          <div>2) Probe all tagged tables in parallel using PC xor history hash keyed to each table length.</div>
+          <div>3) Find longest table with matching tag and check its useful counter.</div>
+          <div>4) If a useful match exists, use it; otherwise fall back to base predictor.</div>
+          <div>5) On allocation, prefer replacing entries with low usefulness.</div>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-xl p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Visual — role cards</div>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg p-3 bg-white card-border">
+            <div class="text-xs font-bold uppercase text-slate-700">Tag</div>
+            <div class="text-sm text-slate-800 mt-1">Small identifier to confirm an entry corresponds to this PC+history combination.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white card-border">
+            <div class="text-xs font-bold uppercase text-slate-700">Useful counter</div>
+            <div class="text-sm text-slate-800 mt-1">Marks entries that have improved predictions so they resist replacement.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white card-border">
+            <div class="text-xs font-bold uppercase text-slate-700">Replacement policy</div>
+            <div class="text-sm text-slate-800 mt-1">Prefer to replace entries with low usefulness to conserve helpful history matches.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase text-slate-700">Example</div>
+        <div class="text-sm text-slate-800 mt-1">A branch that becomes correlated with earlier branches will cause a matching tag to develop in a longer table and the useful counter will increase as accuracy improves.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase text-slate-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Expecting tags to make collisions impossible; tags reduce false matches but aliasing still happens due to compressed tags.</div>
+      </div>
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Useful counters steer replacement so storage benefits branches that actually gain accuracy from deeper history.</div>
+      </div>
+    </div>
+  </div>
+</div>

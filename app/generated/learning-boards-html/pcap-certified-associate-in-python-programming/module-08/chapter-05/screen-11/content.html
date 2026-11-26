@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex flex-col h-full">
+    <div class="mb-4">
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+        <span>›</span>
+        <span>OOP & Data Modeling</span>
+      </div>
+      <h3 class="text-2xl font-bold mt-3">Student: validation, average, and string representation</h3>
+      <p class="text-sm text-slate-600 mt-2">Design classes to make later report generation straightforward and safe.</p>
+    </div>
+
+    <div class="flex gap-4 h-full">
+      <div class="w-2/3 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Class Example</div>
+        <pre class="code bg-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;"><code>class Student:
+  def __init__(self, name, assignment_scores):
+    if not isinstance(name, str) or not name:
+      raise ValueError('Student name must be a non-empty string.')
+    if not isinstance(assignment_scores, list) or not all(isinstance(s, (int,float)) for s in assignment_scores):
+      raise ValueError('Assignment scores must be a list of numbers.')
+    self.name = name
+    self.assignment_scores = assignment_scores[:]
+    self._average_score = None
+
+  def calculate_average(self):
+    if not self.assignment_scores:
+      return 0.0
+    self._average_score = sum(self.assignment_scores) / len(self.assignment_scores)
+    return self._average_score
+
+  def get_average(self):
+    if self._average_score is None:
+      return self.calculate_average()
+    return self._average_score
+
+  def is_passing(self, passing_threshold=60):
+    return self.get_average() >= passing_threshold
+
+  def __str__(self):
+    return f"Student: {self.name}, Average: {self.get_average():.2f}, Passing: {'Yes' if self.is_passing() else 'No'}"
+</code></pre>
+      </div>
+
+      <div class="w-1/3 flex flex-col gap-3">
+        <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-blue-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Why validation matters</div>
+          <div class="text-sm text-slate-800">Catching malformed data early prevents cascading failures during report generation and makes errors easier to diagnose.</div>
+        </div>
+
+        <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Design note</div>
+          <div class="text-sm text-slate-800">Cache computed aggregates when they are expensive to compute and rarely change. Invalidate the cache when scores update.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Model domain entities with clear responsibilities: validation, computation, and presentation. That makes higher-level logic simpler and safer.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

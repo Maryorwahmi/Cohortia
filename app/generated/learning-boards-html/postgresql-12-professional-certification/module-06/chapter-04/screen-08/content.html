@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">pg_stat_statements analysis</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre class="text-sm mt-2 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">SELECT query, calls, total_time, mean_time, rows, stddev_time
+FROM pg_stat_statements
+ORDER BY total_time DESC
+LIMIT 5;</pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Interpretation guide</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc list-inside">
+            <li><strong>total_time:</strong> cumulative cost — target for large-impact savings.</li>
+            <li><strong>mean_time:</strong> slow per-call statements — target for plan or index fixes.</li>
+            <li><strong>calls:</strong> high-volume queries — consider caching, batching, or application-level changes.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical step</div>
+      <p class="text-sm text-slate-700 mt-2">After identifying candidates in pg_stat_statements, run EXPLAIN ANALYZE on the specific statement to inspect the plan and estimate the effect of possible changes.</p>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Choose your ordering based on what you want to improve: total cost, single-call latency, or frequency-driven load.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

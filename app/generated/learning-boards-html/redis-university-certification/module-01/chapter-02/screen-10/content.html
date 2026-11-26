@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">GETRANGE / SETRANGE</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Examples</div>
+      <div class="bg-slate-900 text-slate-50 rounded-lg p-3 term">
+<pre><code>SET mylongstring "This is a very long string."
+GETRANGE mylongstring 0 3    # -> "This"
+GETRANGE mylongstring 10 14  # -> "very "
+
+SET greeting "Hello World"
+SETRANGE greeting 6 "Redis"
+GET greeting                   # -> "Hello Redis"</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        Notice SETRANGE overwrites bytes starting at an offset. If the target offset is larger than the current length, Redis pads the value with null bytes. This behavior is important when manipulating binary chunks.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">When to prefer hashes</div>
+      <div class="text-sm text-slate-700">If you find yourself routinely replacing different fields inside a serialized value, a hash structure that stores each field separately may be easier to work with than repeated SETRANGE edits.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Check your understanding</div>
+          <div class="text-sm text-slate-700">Does SETRANGE insert or replace? It replaces at the offset and may extend the string with padding, it does not shift bytes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

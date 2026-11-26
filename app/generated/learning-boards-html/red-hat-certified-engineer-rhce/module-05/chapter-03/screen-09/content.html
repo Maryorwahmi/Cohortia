@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Playbook Walkthrough</span>
+  </div>
+
+  <div class="bg-white rounded-2xl border p-4 shadow-sm h-full overflow-hidden">
+    <div class="text-sm font-bold text-slate-800">Playbook snippet (abbreviated)</div>
+    <div class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded h-[62%] overflow-auto">
+      <pre style="white-space:pre-wrap;tab-size:2;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;">
+---
+- name: Configure Network Bonding (Active-Backup)
+  hosts: webservers
+  become: yes
+
+  vars:
+    bond_name: bond0
+    bond_mode: active-backup
+    slave_interfaces:
+      - enp0s8
+      - enp0s9
+    bond_ip: 192.168.2.10/24
+    bond_gw: 192.168.2.1
+    bond_dns:
+      - 8.8.8.8
+
+  tasks:
+    - name: Ensure slave connections are absent if they exist (cleanup)
+      loop: "{{ slave_interfaces }}"
+      community.general.nmcli:
+        conn_name: "{{ item }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Ensure bond master connection exists and is configured
+      community.general.nmcli:
+        conn_name: "{{ bond_name }}"
+        type: bond
+        ifname: "{{ bond_name }}"
+        ip4: "{{ bond_ip }}"
+        gw4: "{{ bond_gw }}"
+        dns4: "{{ bond_dns }}"
+        mode: "{{ bond_mode }}"
+        state: present
+        autoconnect: yes
+
+    - name: Add slave interfaces to the bond
+      loop: "{{ slave_interfaces }}"
+      community.general.nmcli:
+        conn_name: "{{ item }}-slave"
+        ifname: "{{ item }}"
+        type: ethernet
+        master: "{{ bond_name }}"
+        state: present
+        autoconnect: yes
+
+    - name: Ensure bond master connection is activated
+      community.general.nmcli:
+        conn_name: "{{ bond_name }}"
+        state: activated
+
+    - name: Verify bond status
+      ansible.builtin.command: "cat /proc/net/bonding/{{ bond_name }}"
+      register: bond_status
+      changed_when: false
+
+    - name: Display bond status
+      ansible.builtin.debug:
+        var: bond_status.stdout_lines
+      </pre>
+    </div>
+
+    <div class="mt-3 grid grid-cols-2 gap-3">
+      <div class="p-3 rounded-lg bg-white border text-sm text-slate-700">Example: Replace slave names with your host's unused interfaces. Always run in lab first.</div>
+      <div class="p-3 rounded-lg bg-slate-50 border text-sm text-slate-700">Check: If slaves still have IPs, they weren't removed or master wasn't assigned correctly.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

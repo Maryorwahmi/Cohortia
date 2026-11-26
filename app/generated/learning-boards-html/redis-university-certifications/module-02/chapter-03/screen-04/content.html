@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-700">Definition</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h2 class="text-xl font-bold text-slate-800">What is a Sorted Set?</h2>
+      <p class="text-sm text-slate-600 mt-2">A Sorted Set stores unique members with floating-point scores. Redis orders members by score and allows rank and score-based retrieval.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-800">Uniqueness: members are unique strings; adding updates score.</div>
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800">Ordering: queries like ZRANGE or ZRANGEBYSCORE return ordered slices efficiently.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800">Use cases: leaderboards, priority queues, ranked search.</div>
+      </div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Sorted Sets combine uniqueness with numeric ordering — pick them when numeric ranking matters.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-lg font-semibold text-slate-800">Concrete example</h3>
+      <pre class="mt-2 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;">ZADD leaderboard 1000 "player:alice" 1200 "player:bob"
+ZINCRBY leaderboard 20 "player:bob"
+ZREVRANGE leaderboard 0 2 WITHSCORES</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Explanation: ZADD adds or updates scores. ZINCRBY increments atomically so concurrent updates don't lose increments. ZREVRANGE returns highest scores first.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <div class="rounded-lg p-2 bg-white card-border text-xs">Misconception: "Lists provide ranking" — Lists keep insertion order, not score order.</div>
+        <div class="rounded-lg p-2 bg-white card-border text-xs">Pro tip: Store member IDs like player:123 to avoid collisions with other keys.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

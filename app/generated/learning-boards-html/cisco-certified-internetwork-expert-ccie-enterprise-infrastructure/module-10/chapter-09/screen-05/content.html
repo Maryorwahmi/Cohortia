@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Privilege & Commands</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Process: Verify and elevate</div>
+        <div class="mt-4 text-sm text-slate-600">Follow these numbered steps to confirm command execution capability and fix privilege issues.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3 flex-1 overflow-auto">
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-800">1. Confirm prompt and mode</div>
+            <div class="text-xs text-slate-600 mt-2">Print the session prompt to see if you are in user or enable mode. Example prompt differences are usually visible as '>' vs '#'.</div>
+          </div>
+
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-800">2. Escalate if necessary</div>
+            <div class="text-xs text-slate-600 mt-2">Use the enable command with the secret or Netmiko's enable method so privileged commands return expected outputs.</div>
+          </div>
+
+          <div class="rounded-md bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-800">3. Disable paging</div>
+            <div class="text-xs text-slate-600 mt-2">Send terminal length 0 or equivalent to avoid paged output breaking parsing logic.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl bg-amber-50 p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+            <div class="text-xs text-slate-800">Add a single line to print the prompt and the first 200 characters of output to quickly determine if privilege or paging caused the issue.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Example Output Signs</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Prompt ends with &gt; — likely user mode, not privileged.</li>
+          <li>Command returns &quot;Invalid input&quot; — syntax or wrong platform CLI.</li>
+          <li>Partial output with &quot;--More--&quot; — pagination is enabled.</li>
+        </ul>
+
+        <div class="mt-4 rounded-md bg-slate-100 p-3 mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre>prompt = net_connect.find_prompt()
+print("Prompt seen:", prompt)
+raw = net_connect.send_command('show running-config', expect_string=r'#')
+print(raw[:200])</pre>
+        </div>
+
+        <div class="mt-4 rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Check Your Understanding</div>
+          <div class="text-xs text-slate-600 mt-2">If a script returns no output for a show command but does not error, what is the most likely cause? (Hint: check the prompt.)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

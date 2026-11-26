@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Implementing the return command</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-[62vh]">
+    <div class="bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code walkthrough</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2; font-size: 13px;">
+// Save return value in temp
+@SP
+A=M-1
+D=M
+@R14
+M=D
+
+// Restore THAT, THIS, ARG, LCL
+@LCL
+D=M
+@R13
+M=D
+// ... (restore segment pointers from the saved frame)
+
+// Set SP = ARG + 1
+@ARG
+D=M+1
+@SP
+M=D
+
+// Push return value
+@R14
+D=M
+@SP
+A=M-1
+M=D
+
+// Jump to return address
+@R13
+A=M
+0;JMP
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">The pattern uses temporary registers for the frame and return value. Restoring pointers uses offsets from the saved frame address so each pointer returns to its caller value.</div>
+    </div>
+    <div class="bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation & checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>• Save return value before modifying SP or restoring pointers.</li>
+        <li>• Compute frame = LCL and use frame offsets to restore THAT, THIS, ARG, LCL.</li>
+        <li>• Set SP = ARG + 1 so the caller's stack layout is correct.</li>
+        <li>• Place return value at RAM[ARG] and jump to saved return address.</li>
+      </ul>
+      <div class="mt-4 rounded-xl p-3 bg-slate-50 border" style="border-color: rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Debug hint</div>
+        <p class="text-sm text-slate-700 mt-1">If returns land at the wrong place, verify the return-label generation and that the saved return address wasn't overwritten during the callee's execution.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

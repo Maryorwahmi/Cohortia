@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Core Entities</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="font-bold text-slate-800">Entity Cards</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-bold">User</div>
+          <div class="text-sm text-slate-700 mt-1">id, username, hashed credentials, profile metadata, privacy flags. Index by id and username.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-bold">Post</div>
+          <div class="text-sm text-slate-700 mt-1">id, author_id, timestamp, media_refs, text, like_count, comment_count. Index by author and time.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-bold">Follow</div>
+          <div class="text-sm text-slate-700 mt-1">follower_id, followee_id, created_at. Optimize reads for followee's followers and follower's followees.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-bold">Like / Comment</div>
+          <div class="text-sm text-slate-700 mt-1">interaction records and counters. Counters may be eventually consistent to avoid hotspots.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800">Design Decisions</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Estimate per-entity QPS/TPS to identify bottlenecks.</li>
+        <li>Plan sharding by author id or geographic region where necessary.</li>
+        <li>Use denormalized timelines for heavy-read users and on-demand aggregation for sparse users.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 text-amber-800">
+        <div class="text-[10px] font-bold uppercase tracking-wider">Common Mistake</div>
+        <div class="mt-2 text-sm text-slate-800">Designing a single table for all posts without considering hot rows for popular authors, which causes write contention and uneven load.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 h-full flex flex-col">
+    <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-900 mb-3">ERC-20 testing: transfer and transferFrom</div>
+    <div class="flex gap-4 flex-1 min-h-0">
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-xl bg-slate-50 p-4 border">
+          <div class="font-semibold text-slate-800 mb-2">Starter assertions</div>
+          <div class="text-sm text-slate-700">After deployment, assert totalSupply equals owner balance and that a Transfer from address(0) was emitted.</div>
+        </div>
+        <div class="rounded-xl bg-white p-4 border">
+          <div class="font-semibold text-slate-800 mb-2">Negative cases</div>
+          <ul class="text-sm text-slate-700 list-disc ml-5">
+            <li>Transfer more than balance reverts with specific message.</li>
+            <li>Transfer or approve to zero address reverts.</li>
+            <li>transferFrom without allowance reverts.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-xl bg-slate-900 text-white font-mono p-3" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>// transfer test example
+await expect(token.connect(owner).transfer(addr1.address, 100))
+  .to.emit(token, "Transfer")
+  .withArgs(owner.address, addr1.address, 100);
+
+await expect(token.connect(addr1).transfer(addr2.address, 1000000))
+  .to.be.revertedWith("ERC20: transfer amount exceeds balance");
+</code></pre>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example scenario</div>
+          <p class="text-sm text-slate-800">Approve owner→spender then have spender call transferFrom; assert allowance decreased and Transfer event emitted with correct args.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

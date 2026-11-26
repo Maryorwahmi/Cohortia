@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-100">Code Walkthrough</span>
+      <span class="text-slate-700">Spark Scala</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Read, aggregate, write</h3>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Scala example (conceptual)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>import org.apache.spark.sql.SparkSession
+
+val spark = SparkSession.builder()
+  .appName("CassandraSparkIntegration")
+  .config("spark.cassandra.connection.host", "cassandra-node1")
+  .config("spark.cassandra.connection.port", "9042")
+  .getOrCreate()
+
+val sensorReadingsDF = spark.read
+  .format("org.apache.spark.sql.cassandra")
+  .options(Map("table" -> "sensor_readings", "keyspace" -> "iot_data"))
+  .load()
+
+val avgTempPerSensor = sensorReadingsDF
+  .groupBy("sensor_id")
+  .avg("temperature")
+
+avgTempPerSensor.write
+  .format("org.apache.spark.sql.cassandra")
+  .options(Map("table" -> "avg_sensor_temps", "keyspace" -> "iot_data"))
+  .mode("append")
+  .save()
+</code></pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes & pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Use append to add results, overwrite to replace — choose based on desired behavior.</li>
+        <li>Ensure connector jar is available to Spark and network access to Cassandra is configured.</li>
+        <li>Test with small partitions and confirm pushdown is active to avoid full table reads.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">If sensor_readings included a location column, group by sensor_id and location to compute averages per location as needed.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

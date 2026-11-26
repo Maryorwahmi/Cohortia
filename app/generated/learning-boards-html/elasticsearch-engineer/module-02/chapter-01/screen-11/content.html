@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span><span>›</span><span>Chapter 2.1</span><span>›</span><span class="text-slate-700">Books Index Activity</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-between"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Hands-on Challenge</div><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">Designing a 'Books' Index Mapping</h2><p class="text-base text-slate-700">Applying explicit mapping to a real-world scenario.</p></div><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 mb-6 flex-grow"><div class="text-sm font-bold text-slate-800 mb-2">Activity: Create a 'books' index</div><p class="text-sm text-slate-600">Define an explicit mapping for the following fields in a new Elasticsearch index named <code>books</code>:</p><ul class="list-disc list-inside text-sm text-slate-600 mt-3"><li class="mb-1"><code>title</code>: Searchable as full text.</li><li class="mb-1"><code>author</code>: Full text search, also exact matching/aggregations (multi-fields).</li><li class="mb-1"><code>isbn</code>: Exact keyword for unique identification.</li><li class="mb-1"><code>publication_date</code>: A date field.</li><li class="mb-1"><code>price</code>: A floating-point number.</li><li class="mb-1"><code>genre</code>: A keyword field for categorization.</li><li><code>pages</code>: An integer number.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Successfully designing an explicit mapping for a complex dataset like 'books' demonstrates mastery of Elasticsearch data types and multi-field capabilities.</p></div></div><div class="w-1/2 flex flex-col justify-between"><div class="bg-slate-800 rounded-2xl p-6 shadow-lg flex-grow flex flex-col justify-center"><div class="text-sm font-mono text-emerald-400 mb-3">Starter code for 'books' index</div><pre class="text-xs text-slate-200 whitespace-pre-wrap" style="tab-size: 2;"><code>curl -X PUT "localhost:9200/books?pretty" -H 'Content-Type: application/json' -d'{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text"
+      },
+      "author": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "isbn": {
+        "type": "keyword"
+      },
+      "publication_date": {
+        "type": "date",
+        "format": "yyyy-MM-dd||yyyy/MM/dd"
+      },
+      "price": {
+        "type": "float"
+      },
+      "genre": {
+        "type": "keyword"
+      },
+      "pages": {
+        "type": "integer"
+      }
+    }
+  }
+}'</code></pre></div><div class="bg-violet-50 rounded-xl p-4 mt-6 border border-violet-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Pro-Tip: Multi-Fields</div><p class="text-xs text-slate-800">For fields like 'author' that need both full-text search and exact matching, use a multi-field approach. Define the main field as <code>text</code> and add a sub-field (e.g., <code>author.keyword</code>) as <code>keyword</code>.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

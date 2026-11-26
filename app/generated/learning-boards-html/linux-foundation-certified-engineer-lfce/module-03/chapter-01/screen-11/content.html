@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Access controls</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card p-4 shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Directive comparison</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-white border card">
+          <div class="text-sm font-semibold text-slate-800">allow-query</div>
+          <div class="text-sm text-slate-600 mt-2">Controls which clients can query records. Default can be restricted to trusted networks for internal zones.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-white border card">
+          <div class="text-sm font-semibold text-slate-800">allow-transfer</div>
+          <div class="text-sm text-slate-600 mt-2">Permits AXFR/IXFR to the listed IPs. Only slave servers should be included here.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-white border card">
+          <div class="text-sm font-semibold text-slate-800">allow-recursion</div>
+          <div class="text-sm text-slate-600 mt-2">Limits recursive queries. Leave recursion off or tightly scoped on authoritative servers to reduce misuse.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card p-4 shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Practical ACL pattern</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+acl "trusted" { 127.0.0.1; 192.168.10.0/24; };
+options {
+  allow-recursion { trusted; };
+};
+zone "example.com" {
+  type master;
+  allow-transfer { 192.168.10.200; };
+};
+      </pre>
+
+      <div class="mt-4 p-3 rounded-lg bg-rose-50 border card">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Using broad allowances like any or 0.0.0.0/0 for transfers or recursion exposes your server to misuse and data leakage.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 03</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 grow min-h-0">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Base Decorator</div>
+      <div class="text-sm text-slate-600 mt-2">The base decorator stores the wrapped component and delegates calls to it by default.</div>
+
+      <div class="mt-4">
+        <pre><code>class CoffeeDecorator(Coffee, ABC):
+  def __init__(self, decorated_coffee: Coffee):
+    self._decorated_coffee = decorated_coffee
+
+  def get_cost(self) -> float:
+    return self._decorated_coffee.get_cost()
+
+  def get_ingredients(self) -> str:
+    return self._decorated_coffee.get_ingredients()
+
+class MilkDecorator(CoffeeDecorator):
+  def __init__(self, decorated_coffee: Coffee):
+    super().__init__(decorated_coffee)
+    self.milk_cost = 0.5
+    self.milk_ingredient = ", Milk"
+
+  def get_cost(self) -> float:
+    return super().get_cost() + self.milk_cost
+
+  def get_ingredients(self) -> str:
+    return super().get_ingredients() + self.milk_ingredient
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Testing decorator composition</div>
+      <div class="text-sm text-slate-700 mt-2">Compose decorators like SugarDecorator(MilkDecorator(SimpleCoffee())) and print cost and ingredients to validate layering. The decorator order determines how strings and cost additions accumulate.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Not delegating to the wrapped component or failing to implement the component interface leads to runtime errors and missing behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

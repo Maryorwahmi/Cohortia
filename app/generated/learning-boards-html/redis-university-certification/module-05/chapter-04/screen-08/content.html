@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .note{background:#fffbeb;border:1px solid rgba(245,166,35,0.12);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Add Nodes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Architecture</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Add master or replica to cluster</h3>
+        <p class="text-sm text-slate-700 mt-3">Use add-node to join, then reshard slots to give the new master data. For replicas include --cluster-slave and the master's node id.</p>
+
+        <div class="mt-4">
+          <pre class="text-sm"># add a new master
+redis-cli --cluster add-node 10.0.0.10:7006 127.0.0.1:7000
+
+# add a replica for a specific master (escape angle brackets)
+redis-cli --cluster add-node 10.0.0.11:7007 127.0.0.1:7000 --cluster-slave --cluster-master-id &lt;master_node_id&gt;</pre>
+        </div>
+
+        <div class="mt-4 note p-3 rounded-md">
+          <div class="text-sm font-semibold text-amber-700">Practical note</div>
+          <p class="text-sm text-slate-700 mt-1">Obtain the master node id via CLUSTER NODES before adding a replica so you can point the replica to the right master.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example scenario</div>
+        <p class="text-sm text-slate-700 mt-3">You want to expand capacity. Add a new master process, then reshard roughly equal slot ranges from current masters to the new master to spread load.</p>
+
+        <div class="mt-3">
+          <div class="rounded-lg bg-white p-3 border">
+            <div class="text-sm font-semibold text-slate-800">Checkpoints</div>
+            <ul class="text-sm text-slate-700 mt-2 space-y-2">
+              <li>Run add-node and confirm CLUSTER NODES shows joined node.</li>
+              <li>Run redis-cli --cluster reshard to move slots to the new master.</li>
+              <li>Use redis-cli --cluster check to confirm balanced slots.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

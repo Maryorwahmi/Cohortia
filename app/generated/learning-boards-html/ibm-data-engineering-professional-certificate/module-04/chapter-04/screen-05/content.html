@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Full Refresh vs Incremental vs Upsert</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="grid gap-4">
+        <div class="rounded-lg p-4 bg-white border">
+          <div class="text-sm font-semibold text-slate-800">Full Refresh (Truncate & Load)</div>
+          <div class="text-xs text-slate-600 mt-2">Completely replace the target by truncating and inserting all rows. Simple but can lose history and be resource-intensive.</div>
+          <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"><code>-- SQL: Full Refresh Example
+TRUNCATE TABLE dim_products;
+INSERT INTO dim_products (product_key, product_name, category)
+SELECT product_id, name, category FROM staging_products;</code></pre>
+        </div>
+
+        <div class="rounded-lg p-4 bg-white border">
+          <div class="text-sm font-semibold text-slate-800">Incremental Load (Append Only)</div>
+          <div class="text-xs text-slate-600 mt-2">Append only new records. Efficient for growing fact tables but does not update existing rows.</div>
+          <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"><code>-- SQL: Incremental Load Example
+INSERT INTO fact_sales (order_id, customer_key, order_date_key, total_revenue)
+SELECT so.order_id, dc.customer_key, dd.date_key, so.total_amount
+FROM staging_orders so
+JOIN dim_customers dc ON so.customer_id = dc.customer_id
+JOIN dim_date dd ON so.order_date = dd.full_date;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l border-[rgba(226,232,240,0.9)]">
+      <div class="rounded-lg p-4 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Upsert (Update or Insert)</div>
+        <div class="text-xs text-slate-600 mt-2">Update rows when keys match, otherwise insert. Good for dimensions with changes over time.</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"><code>-- SQL: Upsert Example (PostgreSQL syntax)
+INSERT INTO dim_customers (customer_key, customer_name, email, registration_date)
+SELECT customer_id, name, email, registration_date
+FROM staging_new_customers
+ON CONFLICT (customer_key) DO UPDATE SET
+    customer_name = EXCLUDED.customer_name,
+    email = EXCLUDED.email,
+    registration_date = EXCLUDED.registration_date,
+    last_updated_at = NOW();</code></pre>
+
+        <div class="mt-4 text-sm text-slate-700">Common pitfall: incorrect key identification leads to unintended updates or duplicates. Confirm unique keys before relying on MERGE or ON CONFLICT.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Align strategy with table semantics: events → append, mutable references → upsert, small tables → full refresh when safe.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

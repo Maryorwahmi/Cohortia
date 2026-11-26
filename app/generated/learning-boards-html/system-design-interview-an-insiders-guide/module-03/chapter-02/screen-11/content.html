@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-600">Nginx Config</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800 mt-3">Hands-on: Nginx Reverse Proxy Configuration</div>
+    <div class="text-sm text-slate-600 mt-1">A practical starter configuration for Round Robin, Weighted Round Robin and simple failure handling.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Starter configuration</div>
+      <div class="mt-3 code" role="region" aria-label="nginx config">
+# Part 1: Basic Round Robin
+upstream backend_servers_round_robin {
+    server web1:8000;
+    server web2:8000;
+    server web3:8000;
+}
+
+server {
+    listen 80;
+    location / {
+        proxy_pass http://backend_servers_round_robin;
+    }
+}
+
+# Part 2: Weighted Round Robin
+upstream backend_servers_weighted {
+    server web1:8000 weight=2;
+    server web2:8000;
+    server web3:8000;
+}
+
+server {
+    listen 81;
+    location / {
+        proxy_pass http://backend_servers_weighted;
+    }
+}
+
+# Part 3: Health Check (passive)
+upstream backend_servers_health_check {
+    server web1:8000 weight=2 max_fails=3 fail_timeout=30s;
+    server web2:8000 max_fails=3 fail_timeout=30s;
+    server web3:8000 max_fails=3 fail_timeout=30s;
+}
+
+server {
+    listen 82;
+    location / {
+        proxy_pass http://backend_servers_health_check;
+    }
+}
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-2 list-disc ml-4 text-sm text-slate-600">
+        <li>Upstream blocks define a named pool of servers.</li>
+        <li>Weight controls relative traffic share in the weighted example.</li>
+        <li>max_fails and fail_timeout provide basic passive failure handling.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-600">Interview tip: describe what happens when web2 becomes unresponsive and how Nginx stops routing to it after configured failures.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

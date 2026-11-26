@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-800">Starter code: VulnerableWallet.sol</div>
+    <div class="text-sm text-slate-600 mt-2">Deploy locally, simulate an attacker, then apply the secure pattern.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-slate-50 p-3 border card-border">
+        <div class="font-semibold text-slate-800">Vulnerable withdraw (excerpt)</div>
+        <pre class="mt-2 text-sm">function withdraw() public {
+  uint256 amount = balances[msg.sender];
+  require(amount &gt; 0, "No balance to withdraw");
+
+  // Vulnerable point: Ether transfer BEFORE balance update
+  (bool success, ) = msg.sender.call{value: amount}("");
+  require(success, "Transfer failed");
+
+  balances[msg.sender] = 0; // Balance updated AFTER transfer
+}</pre>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-3 border card-border">
+        <div class="font-semibold text-slate-800">Secure fix (excerpt)</div>
+        <pre class="mt-2 text-sm">function withdraw() public {
+  uint256 amount = balances[msg.sender];
+  require(amount &gt; 0, "No balance to withdraw");
+
+  // Effects first: update state
+  balances[msg.sender] = 0;
+
+  // Interactions last
+  (bool success, ) = msg.sender.call{value: amount}("");
+  require(success, "Transfer failed");
+}</pre>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab checklist</div>
+      <div class="text-xs font-medium text-slate-800">Deploy VulnerableWallet, write an attacker contract using receive/fallback to re-enter, confirm the drain occurs, then deploy SecureWallet and confirm the attack fails. Add unit tests that assert final balances match expectations.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

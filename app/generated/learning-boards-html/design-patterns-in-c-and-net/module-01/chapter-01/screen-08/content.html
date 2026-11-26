@@ -1,0 +1,84 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Starter Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-hidden">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter Code</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// Program.cs
+using System;
+
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int StockLevel { get; set; }
+}
+
+public class ProductService
+{
+    private const int LowStockThreshold = 10;
+
+    public void CheckStock(Product product)
+    {
+        if (product.StockLevel &lt; LowStockThreshold)
+        {
+            NotifyLowStock(product);
+        }
+        else
+        {
+            Console.WriteLine($"Product '{product.Name}' (ID: {product.Id}) stock is healthy: {product.StockLevel}.");
+        }
+    }
+
+    private void NotifyLowStock(Product product)
+    {
+        // Current hardcoded notification mechanism
+        Console.WriteLine($"ALERT: Product '{product.Name}' (ID: {product.Id}) is critically low in stock! Current level: {product.StockLevel}.");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var laptop = new Product { Id = 101, Name = "Gaming Laptop", StockLevel = 5 };
+        var mouse = new Product { Id = 102, Name = "Wireless Mouse", StockLevel = 50 };
+        var keyboard = new Product { Id = 103, Name = "Mechanical Keyboard", StockLevel = 8 };
+
+        var productService = new ProductService();
+        productService.CheckStock(laptop);
+        productService.CheckStock(mouse);
+        productService.CheckStock(keyboard);
+
+        Console.WriteLine("
+Press any key to exit.");
+        Console.ReadKey();
+    }
+}
+      </pre>
+    </div>
+
+    <div class="w-96 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What to look for</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Where is the notify action implemented?</li>
+          <li>Which class owns the responsibility to send notifications?</li>
+          <li>Would a new destination require editing this method or many places?</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Reflection</div>
+        <p class="text-sm font-medium text-slate-800">Plan a single abstraction point for notifications and explain why it reduces future edits.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

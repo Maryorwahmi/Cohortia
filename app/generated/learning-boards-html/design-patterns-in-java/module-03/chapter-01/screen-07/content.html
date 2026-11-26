@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;line-height:1.4;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Deep Copy Implementation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h4 class="text-xl font-bold text-slate-900">DeepConfiguration.clone()</h4>
+      <p class="text-sm text-slate-600 mt-2">Use super.clone(), cast result, then clone mutable fields on the cloned instance.</p>
+
+      <pre class="code"><code>public class DeepConfiguration implements Cloneable {
+  private String theme;
+  private int fontSize;
+  private DatabaseConnection dbConnection; // reference
+
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    DeepConfiguration clonedConfig = (DeepConfiguration) super.clone();
+    if (this.dbConnection != null) {
+      clonedConfig.dbConnection = (DatabaseConnection) this.dbConnection.clone();
+    }
+    return clonedConfig;
+  }
+
+  public static class DatabaseConnection implements Cloneable {
+    private String url;
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+      return super.clone(); // clone nested fields here if needed
+    }
+  }
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Confirm deep copy with a test that mutates dbConnection in the clone but asserts the original's url is unchanged.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Checklist</div>
+      <ul class="list-disc ml-5 text-sm text-slate-700">
+        <li>Implement Cloneable on classes that must be cloned.</li>
+        <li>Override clone and call super.clone() to copy primitives and references.</li>
+        <li>Manually clone mutable reference fields on the cloned instance.</li>
+        <li>Write unit tests to validate independence of nested state.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-[rgba(245,166,35,0.06)]">
+        <div class="text-sm font-bold text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Assuming that cloning only top-level fields is sufficient when nested fields will be modified independently.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

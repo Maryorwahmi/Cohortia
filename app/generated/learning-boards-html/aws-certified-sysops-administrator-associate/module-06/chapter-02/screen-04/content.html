@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center justify-between mb-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Module 6 › Chapter 6.2 › Policy Evaluation</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Evaluation steps</div>
+      <div class="flex flex-col gap-3 mt-2">
+        <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Step 1 — Explicit Deny</div>
+          <div class="text-sm text-slate-700 mt-1">If any statement explicitly denies the action, the request is denied no matter what other policies say.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 border-l-4 border-l-blue-600">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Step 2 — Explicit Allow</div>
+          <div class="text-sm text-slate-700 mt-1">If no explicit deny, check for any Allow that matches action and resource. At least one Allow permits the request.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border-l-4 border-l-slate-300">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step 3 — Implicit Deny</div>
+          <div class="text-sm text-slate-700 mt-1">If no explicit Allow exists, the request is implicitly denied. This is the default safeguard.</div>
+        </div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always search for explicit denies first when debugging access. Denies override everything.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-7/12 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Process flow — trace example</div>
+      <div class="rounded-lg p-3 bg-white border card-border h-full flex flex-col">
+        <div class="text-sm text-slate-700">Scenario: A user has a broad Allow for S3:GetObject on the whole bucket, but a second policy denies GetObject on a confidential prefix.</div>
+        <div class="mt-3 flex-1 grid grid-cols-3 gap-3">
+          <div class="rounded-lg p-3 bg-blue-50">
+            <div class="text-xs font-bold text-blue-700">Identity policy</div>
+            <div class="text-sm text-slate-700 mt-2">Allow s3:GetObject on arn:aws:s3:::my-prod-bucket/*</div>
+          </div>
+          <div class="rounded-lg p-3 bg-rose-50">
+            <div class="text-xs font-bold text-rose-700">Resource policy</div>
+            <div class="text-sm text-slate-700 mt-2">Deny s3:GetObject on arn:aws:s3:::my-prod-bucket/confidential/*</div>
+          </div>
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-xs font-bold text-slate-600">Effective decision</div>
+            <div class="text-sm text-slate-700 mt-2">Denied — explicit Deny on the confidential prefix overrides the general Allow.</div>
+          </div>
+        </div>
+        <div class="mt-4 text-sm text-slate-600">Common mistake: assuming most-permissive merge. Correct mental model: search for denies first, then allows, else implicit deny. When an action is unexpectedly denied, inspect policies that specifically mention the resource or a matching condition before assuming an allow is missing.</div>
+      </div>
+    </div>
+  </div>
+</div>

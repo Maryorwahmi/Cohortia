@@ -1,0 +1,44 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);border-radius:14px;background:#fff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 11.10</span>
+    <span>›</span>
+    <span class="text-slate-700">Stale Content & Invalidation</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase text-slate-500 mb-2">Definition</div>
+      <div class="text-sm text-slate-700">Stale content occurs when CloudFront serves cached objects that no longer match the origin. Key controls are origin Cache-Control headers and CloudFront cache policy Minimum TTL. If Minimum TTL exceeds the origin max-age, CloudFront will ignore the newer origin object until the edge TTL expires.</div>
+
+      <div class="mt-4 text-xs uppercase text-slate-500 mb-2">Step-by-step remediation</div>
+      <ol class="list-decimal pl-5 space-y-2 text-sm text-slate-600">
+        <li>Confirm origin holds the updated object by requesting origin URL directly.</li>
+        <li>Check CloudFront cache policy Minimum TTL vs origin Cache-Control.</li>
+        <li>If policy enforces longer TTL, update cache policy or use invalidation for immediate fix.</li>
+        <li>Monitor CacheHitRatio and access logs to confirm recovery.</li>
+      </ol>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-xs uppercase text-slate-500 mb-2">Concrete example</div>
+      <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-sm text-slate-700 mt-2">Origin sets Cache-Control: max-age=3600 but CloudFront Minimum TTL is 86400. Users see old content for up to a day. Fix by lowering Minimum TTL to match or using create-invalidation to clear the object.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-white border border-gray-100">
+          <div class="text-xs uppercase text-slate-500">Command</div>
+          <div class="text-sm text-slate-700 mt-1">Use the invalidation API to force refresh: create-invalidation with the path of the stale object.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-gray-100">
+          <div class="text-xs uppercase text-slate-500">Key takeaway</div>
+          <div class="text-sm text-slate-700 mt-1">Prefer aligning headers and policy; invalidate only when immediate refresh is required.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

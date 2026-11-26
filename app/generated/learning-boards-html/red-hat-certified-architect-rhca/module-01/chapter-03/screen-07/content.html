@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">VDO</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">VDO Operations</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Management steps</div>
+      <div class="text-sm text-slate-600 mt-2">Create, format, mount, and monitor the VDO volume using vdo and vdostats.</div>
+
+      <div class="mt-4 text-sm text-slate-700 leading-relaxed">
+        <ol class="list-decimal list-inside space-y-3">
+          <li>Create: sudo vdo create --name=myvdo --device=/dev/sdb --vdoLogicalSize=10T</li>
+          <li>Format: sudo mkfs.xfs -K /dev/mapper/myvdo</li>
+          <li>Mount: sudo mount /dev/mapper/myvdo /mnt/vdo_storage</li>
+          <li>Verify: sudo vdostats --human-readable</li>
+        </ol>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Diagnostics</div>
+          <div class="text-sm text-slate-800 mt-1">If issues arise, run vdo status, vdostats, and check dmesg for kernel messages. Confirm the vdo service and device mapper mappings are present.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Troubleshooting checklist</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700 leading-relaxed">
+        <li>Is vdo service running and mapped? systemctl status vdo, vdo status</li>
+        <li>Is the underlying device healthy? Check smartctl or dmesg</li>
+        <li>Are CPU/memory adequate for dedupe/compression?</li>
+        <li>Are you using vdostats to measure savings rather than df?</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Stopping VDO without unmounting the mapped filesystem can corrupt the filesystem. Always unmount first.</p>
+      </div>
+    </div>
+  </div>
+</div>

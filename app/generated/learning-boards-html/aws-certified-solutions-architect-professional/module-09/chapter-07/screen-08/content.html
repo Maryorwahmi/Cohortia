@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">CI/CD Components</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Stage responsibilities</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Source: host Git repos in CodeCommit or external Git providers.</li>
+        <li>Build: CodeBuild compiles, tests, and builds container images.</li>
+        <li>Artifact: push image to ECR and emit imagedefinitions.json for deploy.</li>
+        <li>Orchestration: CodePipeline moves artifacts and triggers deploy stages.</li>
+        <li>Deploy: CodeDeploy or pipeline actions update ECS/EKS with chosen strategy.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-sm font-semibold text-slate-800">Concrete handoff</div>
+        <p class="mt-2 text-sm text-slate-600">CodeBuild pushes the Docker image to ECR and writes imagedefinitions.json. CodePipeline consumes this artifact and hands it to CodeDeploy which performs the deployment to ECS with traffic control via ALB target groups.</p>
+
+        <div class="mt-4 text-sm font-semibold text-slate-700">Common misconception</div>
+        <p class="mt-2 text-sm text-slate-600">Assuming build logs or artifacts alone are enough; you must produce explicit deployable artifacts that the pipeline expects, like imagedefinitions.json for CodeDeploy.</p>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <p class="text-sm font-medium text-slate-800">Name the artifact your deploy stage expects for containerized ECS services.</p>
+      </div>
+    </div>
+  </div>
+</div>

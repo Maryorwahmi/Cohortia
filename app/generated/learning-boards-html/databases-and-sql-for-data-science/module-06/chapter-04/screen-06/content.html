@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 flex flex-col">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Query planning and scan choice</h3>
+      <div class="text-sm text-slate-700 mt-3">The planner estimates costs and chooses index scan when it believes selective reads and pointer lookups are cheaper than reading most table pages.</div>
+      <div class="mt-4 space-y-2 text-sm text-slate-700">
+        <div>• Planner evaluates available indexes and join orders.</div>
+        <div>• If an index reduces the rows to fetch substantially, an Index Scan is likely.</div>
+        <div>• If the query touches a large fraction of rows, the planner may prefer a Seq Scan.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+          <div class="text-sm text-slate-800 mt-2">A composite index on (customer_id, order_date DESC) can both filter by customer_id and return rows already ordered by order_date, avoiding an extra sort step.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Visual: decision cards</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="font-semibold text-slate-700">Index Scan chosen</div>
+          <div class="text-sm text-slate-700 mt-1">When selectivity is high and index reduces I/O, planner follows index pointers and fetches matching rows.</div>
+        </div>
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="font-semibold text-slate-700">Seq Scan chosen</div>
+          <div class="text-sm text-slate-700 mt-1">When query must read most rows, a full table scan with sequential I/O is cheaper.</div>
+        </div>
+        <div class="rounded-md p-3 bg-slate-50 border border-slate-100">
+          <div class="font-semibold text-slate-700">Use EXPLAIN ANALYZE</div>
+          <div class="text-sm text-slate-700 mt-1">Compare Actual Time and execution nodes to confirm whether the index was used and whether a sort persisted.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Remember: planner decisions are estimates; measurement is the final judge.</div>
+    </div>
+  </div>
+</div>

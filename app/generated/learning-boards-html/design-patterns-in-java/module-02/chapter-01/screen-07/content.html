@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Synchronized getInstance</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Synchronized method</div>
+      <div class="text-sm text-slate-600 mt-2">Guarantees a single creator thread by synchronizing the access method.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 h-56 overflow-auto">
+        <pre><code>// SynchronizedSingleton.java
+public class SynchronizedSingleton {
+  private static SynchronizedSingleton instance;
+
+  private SynchronizedSingleton() {
+    System.out.println("SynchronizedSingleton instance created.");
+  }
+
+  public static synchronized SynchronizedSingleton getInstance() {
+    if (instance == null) {
+      instance = new SynchronizedSingleton();
+    }
+    return instance;
+  }
+
+  public void showMessage() {
+    System.out.println("Hello from SynchronizedSingleton!");
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tradeoffs & pro-tip</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+        <li>Correct and simple for concurrency, but locks on every call.</li>
+        <li>Good choice if getInstance is rare or cost of locking is negligible compared to work done inside the instance.</li>
+        <li>Pro-tip: measure. If locking overhead is a bottleneck, move to double-checked locking or enum-based solutions.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-2">If getInstance is called millions of times per second in a tight loop, synchronized may become a measurable cost—consider optimized approaches.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

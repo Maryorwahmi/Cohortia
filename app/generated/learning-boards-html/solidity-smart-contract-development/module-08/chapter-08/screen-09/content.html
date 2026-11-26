@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root { --accent-blue:#2563eb; --muted-slate:rgba(100,116,139,0.9);} .terminal {background:linear-gradient(180deg,#ffffff,#f8fafc); border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Access & Verification</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm h-1/2 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Process</div>
+        <div class="text-lg font-bold text-slate-800">Open the gateway URL</div>
+        <div class="text-sm text-slate-600 mt-2">Use an IPFS gateway URL to load your root CID and verify that the static bundle serves correctly and that wallet connections prompt as expected.</div>
+
+        <div class="mt-4 terminal rounded-md p-3 flex-1 overflow-auto">
+          <div class="text-xs text-slate-500 mb-2">Example gateway URLs</div>
+          <pre class="rounded-md bg-white p-3 border text-sm"><code>https://ipfs.io/ipfs/QmYourRootCid/
+https://gateway.pinata.cloud/ipfs/QmYourRootCid/
+
+Open one of these in your browser and verify the app loads.</code></pre>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-white p-3 shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Checklist</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 space-y-2">
+          <li>All assets (index.html, CSS, JS) return 200 via the gateway.</li>
+          <li>Wallet connection prompts and RPC endpoints are reachable from the site.</li>
+          <li>No 404s in the network tab and no mixed-content errors.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto grid grid-cols-2 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A successful gateway load plus wallet prompts means the frontend is reachable; runtime failures usually point to configuration, not IPFS itself.</p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Common Mistake</div>
+          <p class="text-sm text-slate-700">Using absolute dev-server paths in the build can break production assets when served from IPFS. Ensure the build uses correct base paths.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Example Verification Walkthrough</div>
+        <div class="text-sm text-slate-600">A quick manual flow to confirm behavior and isolate problems.</div>
+
+        <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>Open the gateway URL for the CID and watch the network tab for failed requests.</li>
+          <li>Attempt to connect your wallet; confirm the provider window appears.</li>
+          <li>Trigger a simple read-only contract call and observe the response or console errors.</li>
+          <li>If a request fails, compare the file paths in the built bundle to the IPFS directory listing returned by your pinning service.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Scenario</div>
+        <div class="text-sm text-slate-700">Imagine the app loads but wallet calls fail: often the frontend still points to a local RPC URL. Update environment variables in the build and redeploy to get a new CID, then retest.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

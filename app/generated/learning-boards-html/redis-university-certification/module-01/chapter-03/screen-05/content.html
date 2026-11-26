@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RDB Snapshot Flow</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-6/12 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Step-by-step</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Trigger: save rule matches or BGSAVE is run.</li>
+        <li>Fork: Redis forks a child process using copy-on-write memory sharing.</li>
+        <li>Write: Child writes the dataset to a temporary RDB file and fsyncs it.</li>
+        <li>Swap: On success, temporary file replaces the existing RDB atomically.</li>
+        <li>Finish: Child exits; parent continues serving requests throughout.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700 mb-1">Concrete example</div>
+        <div class="rounded-md bg-blue-50 p-3 text-sm text-slate-800">Run BGSAVE while traffic continues. The child writes an rdb file in the configured dir. When complete, the file is swapped in without blocking clients.</div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Operational notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>RDB files are compact and ideal for backups and fast restarts.</li>
+        <li>Because snapshots are periodic, recent writes since the last snapshot can be lost on crash.</li>
+        <li>If the disk fills during write, the snapshot may fail—monitor disk capacity.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <div class="text-sm text-slate-800">RDB is efficient for point-in-time backups; choose snapshot frequency with data-loss tolerance in mind.</div>
+      </div>
+    </div>
+  </div>
+</div>

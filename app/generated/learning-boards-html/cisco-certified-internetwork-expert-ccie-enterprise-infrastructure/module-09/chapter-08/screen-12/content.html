@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9);min-height:420px">
+      <div class="text-sm font-bold text-slate-800">Simulation Script (simplified)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;">
+import subprocess
+import os
+
+ROUTER_IP = "192.168.1.10"
+INTERFACE_TO_CLEAR = "GigabitEthernet0/1"
+
+def check_for_high_errors(interface):
+  print(f"Simulating check for high errors on {interface}...")
+  return True
+
+def trigger_ansible_remediation(interface):
+  print(f"Triggering Ansible remediation for {interface}...")
+  ansible_command = [
+    "ansible-playbook",
+    "clear_counters.yml",
+    "-i", "inventory.ini",
+    "--extra-vars", f"interface_name={interface}",
+    "--limit", "router1",
+  ]
+  os.environ['ANSIBLE_PASSWORD'] = 'cisco'
+  subprocess.run(ansible_command)
+
+if __name__ == "__main__":
+  if check_for_high_errors(INTERFACE_TO_CLEAR):
+    trigger_ansible_remediation(INTERFACE_TO_CLEAR)
+      </pre>
+      <div class="mt-3 text-xs text-slate-500">Replace hardcoded password with Vault or secrets manager for real deployments. Test in lab before production.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm flex flex-col" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Step-by-step Lab Tasks</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside">
+        <li>Enable SSH and confirm connectivity to the router.</li>
+        <li>Create inventory.ini and clear_counters.yml on the Ansible host.</li>
+        <li>Run the Python simulation and observe playbook output.</li>
+        <li>Verify on router with show interface that counters are cleared.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Common Mistake: forgetting to set ansible_user or ANSIBLE_PASSWORD. That causes authentication failures, so verify credentials before triggering the playbook.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

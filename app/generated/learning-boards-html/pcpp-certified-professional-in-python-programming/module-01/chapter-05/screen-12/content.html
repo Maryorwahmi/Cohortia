@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Notification Exercise</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Starter Code (excerpt)</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-lg overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2;"><code># Part 1: Notification Sender Strategy
+class NotificationStrategy:
+    def send(self, recipient: str, message: str):
+        raise NotImplementedError
+
+class EmailSender(NotificationStrategy):
+    def send(self, recipient: str, message: str):
+        print(f"Sending Email to {recipient}: {message}")
+
+class SMSSender(NotificationStrategy):
+    def send(self, recipient: str, message: str):
+        print(f"Sending SMS to {recipient}: {message}")
+
+# Part 2: Notification Sender Factory
+class NotificationSenderFactory:
+    def create_sender(self, sender_type: str) -> NotificationStrategy:
+        # Implement factory logic here
+        pass
+
+# Part 3: Notification Service (Context for Strategy)
+class NotificationService:
+    def __init__(self, sender_strategy: NotificationStrategy):
+        self._sender = sender_strategy
+
+    def set_sender(self, sender_strategy: NotificationStrategy):
+        self._sender = sender_strategy
+
+    def notify(self, recipient: str, message: str):
+        print(f"NotificationService: Preparing to send message to {recipient}...")
+        self._sender.send(recipient, message)</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-semibold text-slate-800">Expected Factory Implementation (concept)</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-lg overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2;"><code>class NotificationSenderFactory:
+    def create_sender(self, sender_type: str) -> NotificationStrategy:
+        if sender_type == "email":
+            return EmailSender()
+        elif sender_type == "sms":
+            return SMSSender()
+        else:
+            raise ValueError(f"Unknown sender type: {sender_type}")</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Test the service by creating an EmailSender through the factory, sending a message, then swapping to SMSSender and sending again. Also test that an invalid type raises ValueError.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This exercise practices decoupling creation and behavior: factory for creation, strategy for runtime behavior swap.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

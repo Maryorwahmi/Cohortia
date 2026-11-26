@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Lab Walkthrough</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Rotating Door Controller</h3>
+    <p class="text-sm text-slate-600 mt-1">Toggle door open/closed using target CFrames and a ClickDetector.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter Script (ServerScriptService/DoorController)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+local TweenService = game:GetService("TweenService")
+local Door = workspace:WaitForChild("Door")
+local ClickDetector = Door:WaitForChild("ClickDetector")
+
+Door.Anchored = true
+Door.CanCollide = true
+
+local isDoorOpen = false
+local openRotationAngle = math.rad(90)
+
+local closedCFrame = Door.CFrame
+local openCFrame = closedCFrame * CFrame.Angles(0, openRotationAngle, 0)
+
+local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+ClickDetector.MouseClick:Connect(function()
+    ClickDetector.MaxActivationDistance = 0
+    local targetCFrame = isDoorOpen and closedCFrame or openCFrame
+    local tween = TweenService:Create(Door, tweenInfo, {CFrame = targetCFrame})
+    tween:Play()
+    tween.Completed:Wait()
+    isDoorOpen = not isDoorOpen
+    ClickDetector.MaxActivationDistance = 32
+end)
+
+print("DoorController loaded.")
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Notes & Pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Compute open and closed CFrames once from the initial state to avoid cumulative rotation errors.</li>
+        <li>Temporarily disable the ClickDetector during animation to prevent spam and state conflicts.</li>
+        <li>Use server-side code for doors that affect gameplay; clients cannot enforce authoritative physics or collisions.</li>
+      </ul>
+
+      <div class="mt-4 text-sm bg-amber-50 rounded-lg p-3">If your door pivot is different, adjust the CFrame multiplication to rotate around the correct hinge by translating, rotating, and translating back as needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

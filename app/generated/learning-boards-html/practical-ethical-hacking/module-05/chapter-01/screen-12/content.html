@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.1</span><span>›</span><span class="text-slate-700">Windows Users & Processes</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col p-6 bg-white rounded-2xl shadow-lg border border-slate-200"><div class="flex items-center gap-3 mb-4"><span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">User & Process Enumeration</span><h3 class="text-2xl font-semibold text-slate-900">Discovering Windows Users and Running Processes</h3></div><p class="text-base text-slate-700 mb-6">Identifying local user accounts, group memberships, and active processes is crucial for understanding privilege levels and potential attack vectors on Windows.</p><ul class="list-disc list-inside text-sm text-slate-700 space-y-2 mb-6"><li class="flex items-start"><span class="mr-2 text-emerald-600">•</span><div><strong><code>net user</code>:</strong> Lists all local user accounts on the system.</div></li><li class="flex items-start"><span class="mr-2 text-emerald-600">•</span><div><strong><code>net localgroup administrators</code>:</strong> Shows members of the local 'Administrators' group.</div></li><li class="flex items-start"><span class="mr-2 text-emerald-600">•</span><div><strong><code>tasklist</code>:</strong> Displays all running processes, including their image name, PID, and memory usage.</div></li><li class="flex items-start"><span class="mr-2 text-emerald-600">•</span><div><strong>Privilege Escalation:</strong> Look for processes running with elevated privileges or vulnerable applications.</div></li></ul><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Enumerating users and processes on Windows helps identify high-privilege accounts and vulnerable services, paving the way for further exploitation.</p></div></div><div class="flex-1 flex flex-col p-6 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 text-slate-100"><div class="flex items-center gap-3 mb-4"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-violet-400"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9-8.418L9.75 7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg><h3 class="text-xl font-semibold text-violet-400">Terminal Demo: Windows Users & Processes</h3></div><div class="bg-slate-900 p-4 rounded-lg text-sm font-mono overflow-x-auto mb-4"><pre><code style="white-space: pre-wrap; tab-size: 2;"><span class="text-green-400">C:\Users\user></span> net user
+
+User accounts for \\WIN-SERVER
+
+---------------------------------------------------------------------
+Administrator            Guest                    user
+The command completed successfully.
+
+<span class="text-green-400">C:\Users\user></span> net localgroup administrators
+
+Alias name     administrators
+Comment        Administrators have complete and unrestricted access to the computer/domain
+
+Members
+
+---------------------------------------------------------------------
+Administrator
+user
+The command completed successfully.
+
+<span class="text-green-400">C:\Users\user></span> tasklist
+
+Image Name                     PID Session Name        Session#    Mem Usage
+========================= ======== ================ =========== ===========
+System Idle Process              0 Services                   0          24 KB
+System                           4 Services                   0       1,160 KB
+smss.exe                       300 Services                   0         808 KB
+csrss.exe                      480 Services                   0       4,800 KB
+wininit.exe                    540 Services                   0       5,000 KB
+services.exe                   588 Services                   0      10,000 KB
+lsass.exe                      600 Services                   0      25,000 KB
+...
+explorer.exe                  2000 Console                    1      50,000 KB
+notepad.exe                   3500 Console                    1       8,000 KB
+sqlservr.exe                  4000 Services                   0     200,000 KB  (SQL Server process)</code></pre></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-300 mb-1">Pro Tip</div><p class="text-xs font-medium text-slate-200">Identifying processes like <code>sqlservr.exe</code> (SQL Server) can point to databases that might contain sensitive credentials or data.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

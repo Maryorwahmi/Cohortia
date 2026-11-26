@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">fstream family and RAII</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">fstream family and RAII</h3>
+      <p class="text-sm text-slate-600 mt-3">ifstream for reading, ofstream for writing, fstream for both. Use scoped objects to ensure files close automatically.</p>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Behavior</div>
+          <p class="text-sm text-slate-700 mt-1">Construct with filename to open. Destructors close files on scope exit.</p>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">Practical tip</div>
+          <p class="text-sm text-slate-700 mt-1">Check is_open immediately after construction to handle errors early.</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example: typical pattern</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-slate-100 rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2;">
+#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+
+std::ofstream outFile("example.txt");
+if (!outFile.is_open()) {
+  std::cerr << "Could not open file for writing" << std::endl;
+} else {
+  outFile << "Hello" << std::endl;
+} // outFile closed when it goes out of scope
+        </pre>
+      </div>
+    </div>
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Analogy</div>
+        <p class="text-sm text-slate-700 mt-2">Think of the file object as a smart wrapper that opens the door at creation and locks it when it leaves the room.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Prefer scoped file objects and check is_open; explicit close is optional but useful for immediate error checks.</p>
+      </div>
+      <div class="rounded-lg bg-rose-50 p-3">
+        <div class="text-sm font-semibold text-rose-700">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-1">Relying on forgetting to close files in early returns. Use RAII to avoid this class of bugs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,18 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.2</span><span>›</span><span class="text-slate-700">Automating Diagnostic Settings with Azure CLI</span></div><div class="flex flex-col lg:flex-row flex-grow gap-6"><div class="lg:w-1/2 flex flex-col"><h2 class="text-2xl font-bold text-slate-900 mb-4">Azure CLI for Function App Diagnostics</h2><div class="bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-x-auto h-full" style="white-space: pre-wrap; tab-size: 2;"><pre><code># Assuming you have an existing Function App and Log Analytics Workspace
+# Replace placeholders with your actual resource names
+
+FUNCTION_APP_NAME="my-cohortia-functionapp"
+FUNCTION_APP_RG="MonitorDemoRG"
+WORKSPACE_ID=$(az monitor log-analytics workspace show \
+    --resource-group "MonitorDemoRG" \
+    --workspace-name "CohortiaLogWorkspace" \
+    --query id -o tsv)
+
+az monitor diagnostic-settings create \
+    --name "FunctionAppToLogAnalytics" \
+    --resource-group $FUNCTION_APP_RG \
+    --resource $FUNCTION_APP_NAME \
+    --resource-type Microsoft.Web/sites \
+    --workspace $WORKSPACE_ID \
+    --logs '[{"category": "FunctionAppLogs", "enabled": true, "retentionPolicy": {"enabled": false, "days": 0}}]' \
+    --metrics '[{"category": "AllMetrics", "enabled": true, "retentionPolicy": {"enabled": false, "days": 0}}]'</code></pre></div></div><div class="lg:w-1/2 flex flex-col justify-center"><h3 class="text-xl font-semibold text-slate-900 mb-4">Command Breakdown</h3><div class="grid grid-cols-1 gap-4"><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><div class="text-sm font-semibold text-slate-800 mb-1">Resource Identification</div><p class="text-xs text-slate-600">Define your Function App's name, resource group, and retrieve the Log Analytics Workspace ID for routing.</p></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><div class="text-sm font-semibold text-slate-800 mb-1"><code>az monitor diagnostic-settings create</code></div><p class="text-xs text-slate-600">The core command to create a new diagnostic setting. Specify a unique name for the setting.</p></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><div class="text-sm font-semibold text-slate-800 mb-1">Target Resource & Type</div><p class="text-xs text-slate-600">Point to your Function App using <code>--resource</code> and its resource type (<code>Microsoft.Web/sites</code>).</p></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"><div class="text-sm font-semibold text-slate-800 mb-1">Log & Metric Categories</div><p class="text-xs text-slate-600">Specify which log categories (e.g., <code>FunctionAppLogs</code>) and metrics (<code>AllMetrics</code>) to enable and route to the <code>--workspace</code>.</p></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Using Azure CLI for diagnostic settings ensures consistent, automated, and scalable monitoring configurations for your Azure Function Apps.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

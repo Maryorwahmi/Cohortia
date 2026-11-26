@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">CodeCommit</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-6/12 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Pipeline pull vs local Git pull</h3>
+      <div class="grid grid-cols-2 gap-4 mt-4">
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Pipeline pull</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+            <li>Uses CodePipeline service role permissions</li>
+            <li>Fails if codecommit:GitPull is missing</li>
+            <li>Check console links and execution role</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Local git pull</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+            <li>Depends on developer credentials or IAM user</li>
+            <li>Credential helper misconfiguration can block access</li>
+            <li>Useful to reproduce pipeline behavior locally</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">
+        <div class="text-sm font-semibold text-slate-800">Quick checklist</div>
+        <ol class="text-sm text-slate-600 list-decimal list-inside mt-2">
+          <li>Confirm repository URL and branch in pipeline configuration</li>
+          <li>Check CodePipeline service role includes codecommit:GitPull</li>
+          <li>Attempt a local clone with equivalent credentials to reproduce</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example scenario</div>
+        <h4 class="text-lg font-semibold text-slate-800 mt-2">Missing codecommit permission</h4>
+        <p class="text-sm text-slate-600 mt-2">If CodePipeline cannot pull, the action will show failed and the execution details may show an access denied. Fixing the service role policy to include codecommit:GitPull resolves the issue.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming network or CodePipeline bug; most of the time a permission or wrong repo/branch is the cause.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">
+        <div class="font-semibold text-slate-800 mb-2">Try this</div>
+        <p>Run a local git clone using the same credential method to confirm whether the issue is client-side or pipeline-side before changing IAM roles.</p>
+      </div>
+    </div>
+  </div>
+</div>

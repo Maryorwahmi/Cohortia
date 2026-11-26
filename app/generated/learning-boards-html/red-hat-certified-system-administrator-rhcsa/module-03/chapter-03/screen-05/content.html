@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-lg font-bold text-slate-900 mt-2">Swapping steps</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700">
+        <li>Kernel marks pages active or inactive based on access patterns.</li>
+        <li>When RAM is low, kernel selects inactive pages as swap candidates.</li>
+        <li>Selected pages are written to swap space, freeing physical RAM.</li>
+        <li>When the page is needed later, it is read back into RAM (page-in).</li>
+      </ol>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Why latency matters</div>
+        <p class="mt-2">Disk-backed pages take longer to access. If the system constantly swaps, interactive performance and throughput suffer.</p>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <p class="text-sm text-slate-600 mt-2">On a small VM with 1GB RAM, launching a memory-heavy process can trigger the kernel to move idle pages to swap. free -h will show swap usage rise while available memory increases. When the heavy process touches swapped pages, you'll notice I/O waits and slower response times.</p>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Assuming swap eliminates the need for more RAM. Swap is a buffer. If workloads require frequent access to swapped pages, plan to add RAM instead.</p>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Swapping trades speed for stability. Use it to avoid crashes, not as a primary memory solution.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

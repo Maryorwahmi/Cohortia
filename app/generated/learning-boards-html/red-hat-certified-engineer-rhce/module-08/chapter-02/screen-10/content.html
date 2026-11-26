@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-lg font-bold text-slate-800">Automate with Ansible</div>
+      <div class="text-sm text-slate-600 mt-2">Run the same commands on all relevant hosts and save outputs centrally with clear file names.</div>
+
+      <div class="mt-4 mono text-sm bg-slate-50 p-3 rounded">---
+- name: Monitor Database Server Performance
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: Get current timestamp
+      command: date +%Y%m%d%H%M%S
+      register: current_timestamp
+      changed_when: false
+
+    - name: Gather vmstat output
+      shell: vmstat 1 5
+      register: vmstat_output
+      changed_when: false
+
+    - name: Gather iostat output
+      shell: iostat -x 1 5
+      register: iostat_output
+      changed_when: false
+
+    - name: Create performance reports directory
+      delegate_to: localhost
+      file:
+        path: "./performance_reports/{{ inventory_hostname }}"
+        state: directory
+      run_once: true
+
+    - name: Save vmstat output to file
+      delegate_to: localhost
+      copy:
+        content: |
+          VMStat Output for {{ inventory_hostname }} at {{ current_timestamp.stdout }}:
+          ------------------------------------------------------------------
+          {{ vmstat_output.stdout }}
+        dest: "./performance_reports/{{ inventory_hostname }}/vmstat_{{ current_timestamp.stdout }}.log"
+      when: vmstat_output is defined
+</div>
+
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-700">Checklist for reliable automation</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Use changed_when: false for pure-collection tasks.</li>
+        <li>Delegate file writes to localhost and include host and timestamp in filenames.</li>
+        <li>Run collections during representative intervals and repeat them for trend analysis.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Automation saves time and produces consistent samples that form a baseline across your fleet.</div>
+      </div>
+    </div>
+  </div>
+</div>

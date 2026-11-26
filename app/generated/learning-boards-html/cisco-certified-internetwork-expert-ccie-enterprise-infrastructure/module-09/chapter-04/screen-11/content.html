@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;background:#0f172a;color:#e6eef9;padding:12px;border-radius:8px;display:block;} </style>
+  <div>
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Lab Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Configure IP SLA and Track-Based Failover</div>
+    <div class="text-sm text-slate-600 mt-2">Follow these steps on R1 to monitor a primary path and fail over to a backup.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Step-by-step (R1)</div>
+      <ol class="text-xs text-slate-600 mt-2 space-y-2 list-decimal list-inside">
+        <li>Enter global configuration mode.</li>
+        <li>Configure ip sla 1 with icmp-echo to the primary interface and schedule it.</li>
+        <li>Create track 1 ip sla 1 reachability and set optional delay up/down.</li>
+        <li>Configure primary static route referencing track 1 and a floating backup with higher AD.</li>
+        <li>Save the configuration and verify with show commands.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification & expected behavior</div>
+      <div class="text-xs text-slate-600 mt-2">After simulating a failure on the primary, the track should transition Down and the primary route should be withdrawn, allowing the floating route to be used. Restoring the primary should return the track to Up and reinstall the primary route.</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This lab demonstrates how IP SLA probes, track objects, and static routes work together to provide automated, performance-aware failover.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

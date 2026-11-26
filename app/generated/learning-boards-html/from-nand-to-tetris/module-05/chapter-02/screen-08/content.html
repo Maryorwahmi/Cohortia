@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">eq Implementation</span>
+  </div>
+  <div class="flex-grow grid grid-cols-12 gap-6">
+    <div class="col-span-8 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Assembly Example</div>
+      <div class="mt-3 bg-slate-50 rounded-lg p-3 code text-sm border border-[rgba(226,232,240,0.9)]">
+        // Compute x - y
+        @SP
+        AM=M-1
+        D=M
+        @SP
+        AM=M-1
+        D=M-D    // D = x - y
+
+        // If D == 0, jump to EQ_TRUE
+        @EQ_TRUE_1
+        D;JEQ
+
+        // Not equal: push 0
+        @SP
+        A=M
+        M=0
+        @EQ_END_1
+        0;JMP
+
+        (EQ_TRUE_1)
+        @SP
+        A=M
+        M=-1     // Push -1 (true)
+
+        (EQ_END_1)
+        @SP
+        M=M+1
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Why unique labels matter</div>
+        <p class="mt-2">Each eq generates its own EQ_TRUE_n and EQ_END_n so jumps refer to unambiguous targets. A global counter avoids duplicate label definitions and ambiguous jump destinations.</p>
+
+        <div class="mt-3 font-semibold">Testing tip</div>
+        <p class="mt-2 text-slate-600">Generate multiple comparisons in a single .asm and inspect label names. Ensure counters increment for each eq, gt, or lt.</p>
+      </div>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Supporting cards</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold text-violet-700">Label pattern</div>
+          <div class="text-sm text-slate-700 mt-1">Use a counter: EQ_TRUE_1, EQ_END_1, then EQ_TRUE_2, EQ_END_2, etc.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Common failure</div>
+          <div class="text-sm text-slate-700 mt-1">Reusing labels creates assembler errors or wrong control flow. Always increment the counter for each comparison.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-800">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Label generation is a translator concern as much as the instruction sequence itself.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

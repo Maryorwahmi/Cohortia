@@ -1,0 +1,21 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span><span>›</span><span>Chapter 10.3</span><span>›</span><span class="text-slate-700">Delayed Execution</span></div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Timing is Everything: Delayed Execution</h1><p class="text-md text-slate-700 mb-6">Evading sandboxes by waiting for the right moment to act.</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto flex-grow" style="white-space: pre-wrap; tab-size: 2;"><pre><code>#include &lt;windows.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Wait for 5 minutes (300 seconds)
+    std::cout &lt;&lt; "Sleeping for 5 minutes to evade sandbox..." &lt;&lt; std::endl;
+    Sleep(300 * 1000); // Sleep takes milliseconds
+
+    // After delay, check for user activity (conceptual)
+    std::cout &lt;&lt; "Woke up. Checking for user activity..." &lt;&lt; std::endl;
+    bool user_active = true; // In a real scenario, this would be determined by API calls
+
+    if (user_active) {
+        std::cout &lt;&lt; "User activity detected. Proceeding with malicious payload." &lt;&lt; std::endl;
+        // Execute actual malicious payload
+    } else {
+        std::cout &lt;&lt; "No user activity. Exiting." &lt;&lt; std::endl;
+    }
+
+    return 0;
+}</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4 flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Code Explanation</div><ul class="list-disc list-inside text-sm text-slate-800 space-y-2"><li><code>Sleep(300 * 1000)</code>: This function pauses the program's execution for 300,000 milliseconds, which is 5 minutes. During this time, the payload appears inactive.</li><li><strong>User Activity Check:</strong> After the delay, a real payload might check for user activity (e.g., mouse movement, keyboard input) using functions like <code>GetLastInputInfo</code>.</li><li><strong>Conditional Execution:</strong> If user activity is detected (implying a real user system), the payload proceeds. Otherwise, it might exit to avoid detection.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-sm font-medium text-slate-800">Delayed execution, often combined with user activity checks, is a simple yet powerful technique to evade time-limited sandbox analysis by appearing benign during initial scans.</p></div><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Consideration</div><p class="text-sm font-medium text-slate-800">While effective, excessive delays can make a payload impractical for engagements or raise suspicion if a user notices a program hanging for too long.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

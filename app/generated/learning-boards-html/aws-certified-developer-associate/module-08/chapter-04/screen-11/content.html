@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">Blue/Green with ELB</span>
+    </div>
+    <div class="text-lg font-bold text-slate-900 mt-2">Provision → Validate → Shift → Monitor → Rollback</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Step-by-step</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Provision green environment with the new revision and run ValidateService checks.</li>
+        <li>If validation passes, initiate traffic shifting via ELB using a chosen policy.</li>
+        <li>Monitor CloudWatch alarms for errors or latency during the shift.</li>
+        <li>If alarms trigger, CodeDeploy can automatically rollback by shifting traffic back to blue.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-xs font-semibold text-slate-500">Traffic policies</div>
+        <div class="text-sm text-slate-700 mt-1">AllAtOnce, Linear, and Canary control the pace of traffic migration and the validation windows between increments.</div>
+      </div>
+    </div>
+
+    <div class="w-2/5 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Design notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Make validation checks representative of real requests.</li>
+        <li>Plan for stateful migrations separately; blue/green favors stateless or backward-compatible changes.</li>
+        <li>Use alarms to automate rollback to the known-good environment.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Combine staged traffic shifting with deterministic validation and monitoring to achieve safe production cutovers and quick rollback when needed.</p>
+      </div>
+    </div>
+  </div>
+</div>

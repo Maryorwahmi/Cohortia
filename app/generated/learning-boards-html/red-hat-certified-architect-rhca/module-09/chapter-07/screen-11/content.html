@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">SSL Offloading</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[75%]">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Why offload TLS</div>
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc ml-4 space-y-2">
+          <li>Removes CPU cost of TLS from backend servers.</li>
+          <li>Centralizes certificate management at the load balancer.</li>
+          <li>Requires careful file permissions and SELinux rules for cert readability.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-sm">
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-700">Security note: protect the private key and consider re-encryption to backends if the internal network is not fully trusted.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm mono">
+      <div class="text-sm font-bold text-slate-800">Example bind for TLS</div>
+      <div class="mt-3 text-xs text-slate-600">Use a combined PEM containing certificate and private key.</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] text-sm">
+<pre><code>frontend https_front
+    bind *:443 ssl crt /etc/haproxy/certs/mycert.pem
+    default_backend web_servers</code></pre>
+      </div>
+
+      <div class="mt-3 p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Terminate TLS at HAProxy to lower backend CPU load, but secure cert files and evaluate whether internal traffic needs encryption.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

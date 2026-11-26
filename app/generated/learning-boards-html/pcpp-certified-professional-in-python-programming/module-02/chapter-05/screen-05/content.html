@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">eval() Namespaces</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 bg-slate-100 p-3 rounded-md text-sm flex-1 overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code># Basic eval with default namespaces
+x = 10
+y = 20
+res = eval("x * y - 5")
+print(res)  # 195
+
+# Restricted globals and locals
+my_globals = {'a': 10, 'b': 5, 'pow': pow}
+my_locals = {'c': 2}
+res2 = eval("a * b + c", my_globals, my_locals)
+print(res2)  # 52
+
+# Restrict built-ins
+safe = eval("pow(2,3)", {'pow': pow}, {})  # OK
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5">
+        <li>globals defines what top-level names are available during evaluation.</li>
+        <li>locals can provide temporary names and isolate side effects.</li>
+        <li>To remove built-in functions, supply a mapping with '__builtins__': {} or None carefully.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-xs text-slate-600 mt-2">Evaluate only a numeric expression using a restricted set of names, avoiding import and file access.</div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always pass minimal globals and locals to eval to control what an expression can access.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Referencing Example</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-7">
+      <div class="card p-4 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-700">Insert referenced specification and product</div>
+        <pre class="mt-3 p-3 rounded bg-white border border-slate-100 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>// specification inserted first
+db.detailedSpecifications.insertOne({
+    _id: ObjectId("60c72b2f9c1d440001a8b4c2"),
+    processor: "Intel i7-12700K",
+    ram: "32GB DDR5",
+    storage: "1TB NVMe SSD",
+    graphicsCard: "NVIDIA RTX 3080",
+    ports: ["USB-C", "HDMI 2.1", "DisplayPort"],
+    warranty: "2 years limited"
+});
+
+// product references the specification
+db.products.insertOne({
+    _id: ObjectId("60c72b2f9c1d440001a8b4c1"),
+    name: "High-End Gaming PC",
+    price: 2499.99,
+    category: "Desktops",
+    manufacturer: "GamingTech",
+    specificationId: ObjectId("60c72b2f9c1d440001a8b4c2")
+});
+
+// application retrieves both with two queries
+const product = db.products.findOne({ name: "High-End Gaming PC" });
+if (product) db.detailedSpecifications.findOne({ _id: product.specificationId });</code></pre>
+
+        <div class="mt-4 text-xs text-slate-600">Referencing is suitable when detailed fields are large or rarely needed in list queries, reducing transfer size for common reads.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-700">When to choose referencing</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+          <li>Child data is large, like long specs or documents.</li>
+          <li>Child is accessed independently or under different permissions.</li>
+          <li>You need to keep list queries fast by avoiding heavy payloads.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-700">Application responsibility</div>
+        <div class="text-xs text-slate-600 mt-2">Because MongoDB does not enforce foreign keys, implement deletes and updates so references do not become dangling. Consider cascade or soft-delete patterns in your code.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Reference heavy or independent one-to-one data to keep parent documents compact and performant for common queries.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

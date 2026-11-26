@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+      <span>›</span>
+      <span>Chapter 2.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="p-6 rounded-2xl border card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Terminal steps (illustrative)</div>
+      <pre class="bg-black text-white p-3 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># Start from operational mode:
+# user@router> configure
+
+# 1. Initial change
+set system description "Initial Config Change"
+commit
+
+# 2. Second change
+set system host-name MyJunosRouter-v2
+commit
+
+# 3. View commit history
+exit
+show system commit
+configure
+
+# 4. Risky change with safety
+set interfaces ge-0/0/0 description "Testing Rollback Interface"
+commit confirmed
+
+# 5. Recover
+rollback 0
+commit
+
+# 6. Verify
+exit
+show system description
+show system host-name</code></pre>
+    </div>
+    <div class="p-6 rounded-2xl border card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Guided checks</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>After each edit, run show | compare to catch removals.</li>
+        <li>Use display set when you want to extract lines for automation.</li>
+        <li>Confirm final state with operational show commands after rollback or commit.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Follow the sequence: save, change, compare, commit confirmed for risky edits, and rollback if tests fail. Validation is essential.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

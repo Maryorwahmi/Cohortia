@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Root Bridge & Priority</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Bridge Priority rules</div>
+      <div class="text-sm text-slate-700 mt-2">Priorities are configured in multiples of 4096; lower numerical priority has higher election preference.</div>
+      <div class="mt-4 p-3 bg-slate-50 rounded border">
+        <div class="text-sm font-bold">Command example</div>
+        <pre class="text-sm mt-2" style="white-space:pre-wrap; tab-size:2;"># To make this switch the Root Bridge
+set protocols rstp bridge-priority 4k
+commit</pre>
+      </div>
+      <div class="mt-4 space-y-2 text-sm text-slate-700">
+        <div>Default priority is 32768. Setting a lower value like 4096 ensures this switch wins unless another switch has an even lower priority.</div>
+        <div>Misconception check: The MAC address only breaks ties; do not rely on MAC ordering for predictable topology.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete scenario</div>
+      <div class="text-sm text-slate-700 mt-2">Imagine a core pair where you want a specific unit to be the Root to centralize forwarding. Set its priority to 4k, commit, and run show spanning-tree bridge on both switches. Confirm the chosen Root ID and that your planned uplinks are Root Ports on non-root switches.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Changing priority on one switch without checking other switches can cause unintended Root changes during failovers. Always verify across the domain.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

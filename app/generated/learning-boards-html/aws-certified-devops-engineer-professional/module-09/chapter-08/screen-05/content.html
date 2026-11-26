@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Build stage: sam build, packaging, and artifacts</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Build stage responsibilities</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>• Run sam build or cdk synth to assemble code and dependencies.</li>
+        <li>• Run unit tests to provide fast feedback and fail fast.</li>
+        <li>• Package artifacts with sam package into S3 and produce packaged.yaml.</li>
+        <li>• Produce build artifacts for deploy stage: packaged template and zipped function code.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-rose-600 mt-2">Packaging after tests fail wastes time. Run unit tests before packaging and uploading artifacts.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example buildspec.yaml</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-md border border-slate-100 mono text-xs" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - pip install aws-sam-cli
+  build:
+    commands:
+      - echo "Building SAM application..."
+      - sam build --template template.yaml --build-dir .aws-sam/build
+      - sam package --template-file .aws-sam/build/template.yaml --s3-bucket &lt;YOUR_ARTIFACT_BUCKET_NAME&gt; --output-template-file packaged.yaml
+  post_build:
+    commands:
+      - echo "Build and package complete."
+artifacts:
+  files:
+    - packaged.yaml</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep tests before packaging and ensure CodeBuild roles can write to the artifact S3 bucket so deploys reference correct artifacts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

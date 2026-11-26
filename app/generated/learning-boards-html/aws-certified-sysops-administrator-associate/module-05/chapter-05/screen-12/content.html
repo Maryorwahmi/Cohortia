@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono';font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">DataSync CLI Workflow</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Conceptual CLI sequence</div>
+      <div class="mt-3 code"><pre><code># 1. Create DataSync agent (on-premises) and activate it in the console
+# 2. Create Source Location (NFS example)
+aws datasync create-location-nfs --server-hostname &lt;NFS_SERVER_IP&gt; --subdirectory /data --on-prem-config AgentArns=&lt;AGENT_ARN&gt;
+
+# 3. Create Destination Location (S3 example)
+aws datasync create-location-s3 --s3-bucket-arn &lt;S3_BUCKET_ARN&gt; --s3-config BucketAccessRoleArn=&lt;IAM_ROLE_ARN&gt;
+
+# 4. Create Transfer Task
+aws datasync create-task --source-location-arn &lt;NFS_LOCATION_ARN&gt; --destination-location-arn &lt;S3_LOCATION_ARN&gt; --name "NFS-to-S3-Migration"
+
+# 5. Start Task
+aws datasync start-task-execution --task-arn &lt;TASK_ARN&gt;
+</code></pre></div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700">
+        <li>Verify agent activation and network reachability before starting large transfers.</li>
+        <li>Ensure IAM role grants write access to the destination S3 bucket or EFS file system.</li>
+        <li>Use task options to limit copies to changed files for incremental transfers.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow agent activation, location creation, task creation, and execution order; validate connectivity and permissions before large runs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-800">Understanding template.yaml</div>
+      <div class="text-sm text-slate-600 mt-2">The YAML file that declares SAM resources, events, and packaging details.</div>
+
+      <div class="mt-4 rounded-xl bg-white card-border p-4 flex-1">
+        <div class="text-sm font-semibold text-slate-800">Key fields explained</div>
+        <ul class="mt-2 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li><strong>Transform</strong>: Enables SAM shorthand processing.</li>
+          <li><strong>Resources</strong>: Contains AWS::Serverless::Function definitions.</li>
+          <li><strong>Properties</strong>: Handler, Runtime, CodeUri, MemorySize, Timeout.</li>
+          <li><strong>Events</strong>: Triggers such as Api with Path and Method.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white card-border p-4 h-full flex flex-col">
+        <div class="text-sm font-bold text-slate-800 mb-2">Sample fragment</div>
+        <pre class="code overflow-auto text-xs" style="white-space:pre-wrap;tab-size:2"><code>AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple serverless HTTP API with Python Lambda
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      CodeUri: hello_world/
+      MemorySize: 128
+      Timeout: 30
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Note: Keep Method casing consistent with SAM expectations; using Api as the Type maps to API Gateway integration.</div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+            <p class="text-xs font-medium text-slate-800">Incorrect event Type or forgetting sam build causes the deployed function to miss dependencies or fail to wire an API endpoint.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

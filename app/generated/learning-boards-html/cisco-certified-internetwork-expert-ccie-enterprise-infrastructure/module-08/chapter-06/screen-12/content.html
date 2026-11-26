@@ -1,0 +1,96 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> .cohortia-bg{background:#ffffff;} pre.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,Menlo,monospace;} </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Lab: Configure ZBFW on R1</span>
+  </div>
+
+  <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full flex flex-col'>
+    <div class='text-xl font-bold text-slate-800'>Complete CLI Example</div>
+    <div class='mt-3 text-sm text-slate-600'>Apply this configuration in a lab to meet the stated requirements and verify with the recommended commands.</div>
+
+    <pre class='code mt-4'>
+! R1 Configuration
+enable
+configure terminal
+
+! Step 1: Define Security Zones
+zone security WAN
+zone security LAN
+zone security DMZ
+
+! Step 2: Assign Interfaces to Zones
+interface GigabitEthernet0/0/0
+ description WAN_Interface
+ ip address 203.0.113.1 255.255.255.252
+ zone-member security WAN
+ no shutdown
+
+interface GigabitEthernet0/0/1
+ description LAN_Interface
+ ip address 192.168.1.1 255.255.255.0
+ zone-member security LAN
+ no shutdown
+
+interface GigabitEthernet0/0/2
+ description DMZ_Interface
+ ip address 172.16.1.1 255.255.255.0
+ zone-member security DMZ
+ no shutdown
+
+! Step 3: Define Class-Maps for Allowed Traffic
+class-map type inspect match-any LAN_TO_WAN_CM
+ match protocol http
+ match protocol https
+ match protocol dns
+!
+class-map type inspect match-any LAN_TO_DMZ_CM
+ match protocol http
+ match protocol https
+!
+class-map type inspect match-any WAN_TO_DMZ_CM
+ match protocol http
+ match protocol https
+
+! Step 4: Define Policy-Maps
+policy-map type inspect LAN_TO_WAN_PM
+ class type inspect LAN_TO_WAN_CM
+  inspect
+!
+policy-map type inspect LAN_TO_DMZ_PM
+ class type inspect LAN_TO_DMZ_CM
+  inspect
+!
+policy-map type inspect WAN_TO_DMZ_PM
+ class type inspect WAN_TO_DMZ_CM
+  inspect
+
+! Step 5: Define Zone-Pairs and Apply Policy-Maps
+zone-pair security LAN_TO_WAN source LAN destination WAN
+ service-policy type inspect LAN_TO_WAN_PM
+!
+zone-pair security LAN_TO_DMZ source LAN destination DMZ
+ service-policy type inspect LAN_TO_DMZ_PM
+!
+zone-pair security WAN_TO_DMZ source WAN destination DMZ
+ service-policy type inspect WAN_TO_DMZ_PM
+
+end
+write memory
+</pre>
+
+    <div class='mt-4 grid grid-cols-2 gap-3'>
+      <div class='rounded-lg p-3 bg-emerald-50 border'>
+        <div class='font-medium'>Test plan</div>
+        <div class='text-xs text-slate-600 mt-1'>From LAN: browse Internet and access DMZ web server. From WAN: access DMZ web server. From WAN: attempt to reach LAN should fail.</div>
+      </div>
+      <div class='rounded-lg p-3 bg-rose-50 border text-rose-700'>
+        <div class='font-medium'>Pitfall</div>
+        <div class='text-xs text-slate-600 mt-1'>If show ip inspect sessions remains empty after testing, re-check class-maps, policy attachment, and that traffic matched the expected protocols.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

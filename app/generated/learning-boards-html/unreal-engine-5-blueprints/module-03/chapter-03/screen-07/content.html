@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Core Concept</span>
+      <span class="text-slate-600">Definition</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800 mt-2">Maps — key-value associations</div>
+    <div class="text-sm text-slate-600 mt-1">Fast, keyed lookup and storage for heterogenous data.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-700">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Each key in a Map must be unique and maps to a single value.</li>
+        <li>Find returns a value and an IsValid boolean. Always branch on IsValid.</li>
+        <li>Add or Set will insert or update a key-value pair.</li>
+        <li>Use Keys and Values to extract arrays of keys or values when needed.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete example</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-sm text-emerald-800">PlayerStats : Map(String -> Float). On BeginPlay Add "Strength":10.0, "Intelligence":8.0, "Agility":12.0. Use Find with IsValid to query safely.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Blueprint pattern: Safe Find</div>
+      <pre class="rounded-lg p-3 bg-slate-900 text-white text-sm">// Pseudo-Blueprint flow
+FoundValue, IsValid = Find(PlayerStats, StatName)
+if (IsValid) {
+  StatValue = FoundValue
+  PrintString(StatName + ": " + StatValue)
+} else {
+  // Initialize with default
+  Add(PlayerStats, StatName, 0.0)
+  PrintString(StatName + " not found!")
+}
+</pre>
+      <div class="mt-3 text-xs text-slate-500">Use this branch to either use the found value or add a sensible default to keep state consistent.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Maps are for keyed lookups. Use Find and check IsValid before using values, and initialize defaults when keys are missing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class='text-slate-700'>Lab: Registration Saga</span>
+    </div>
+  </div>
+
+  <div class='card p-4 h-full flex flex-col'>
+    <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Hands-on activity</div>
+    <div class='text-lg font-bold text-slate-900 mb-2'>Saga Design — User Registration</div>
+    <div class='text-sm text-slate-600 mb-4'>Outline forward flow, compensations, and events for a registration that spans UserService and ProfileService.</div>
+
+    <div class='flex-1 grid grid-cols-2 gap-4'>
+      <div class='p-3 rounded-lg bg-slate-50'>
+        <div class='text-sm font-semibold text-slate-800'>Successful flow</div>
+        <ol class='ml-4 mt-2 text-sm text-slate-600 list-decimal space-y-2'>
+          <li>UserService: create provisional user, publish UserCreated{userId, email, correlationId}.</li>
+          <li>ProfileService: on UserCreated, create profile, publish ProfileCreated{profileId, userId, correlationId}.</li>
+          <li>UserService: on ProfileCreated, mark registration complete.</li>
+        </ol>
+      </div>
+
+      <div class='p-3 rounded-lg bg-rose-50'>
+        <div class='text-sm font-semibold text-slate-800'>Failure & compensation</div>
+        <ol class='ml-4 mt-2 text-sm text-slate-600 list-decimal space-y-2'>
+          <li>ProfileService fails and publishes ProfileCreationFailed{userId, reason, correlationId}.</li>
+          <li>UserService consumes failure and executes compensating action: mark user as failed or remove provisional user depending on audit needs.</li>
+          <li>Record the correlationId so retries do not duplicate work.</li>
+        </ol>
+      </div>
+
+      <div class='p-3 rounded-lg bg-amber-50'>
+        <div class='text-sm font-semibold text-slate-800'>Event fields checklist</div>
+        <ul class='ml-4 mt-2 text-sm text-slate-600 list-disc space-y-1'>
+          <li>correlationId, userId, timestamp, minimal payload for next consumer.</li>
+          <li>Include failure reason codes to guide compensations.</li>
+        </ul>
+      </div>
+
+      <div class='p-3 rounded-lg bg-emerald-50'>
+        <div class='text-sm font-semibold text-slate-800'>Pro tip</div>
+        <div class='text-sm text-slate-700 mt-2'>Prefer soft-failure markers and background cleanup over immediate hard deletes to preserve auditability and simplify recovery.</div>
+      </div>
+    </div>
+
+    <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+      <p class='text-xs font-medium text-slate-800'>Practice designing forward and compensating steps, making handlers idempotent, and preserving observability through correlation ids and timestamps.</p>
+    </div>
+  </div>
+</div>

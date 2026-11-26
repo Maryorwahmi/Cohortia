@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <h3 class="text-xl font-bold text-slate-800">Safe proof-of-concept steps</h3>
+    <p class="text-sm text-slate-600 mt-2">Follow these controlled steps to implement or analyze a Spectre-like POC. Only test on hardware you own and never target others' data.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="font-semibold text-slate-800">Setup</div>
+        <ul class="list-disc pl-5 text-sm text-slate-600 mt-2">
+          <li>Allocate array1 (small) and array2 (large probe array with 256-step spacing).</li>
+          <li>Ensure probe entries map to distinct cache lines.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="font-semibold text-slate-800">Trigger</div>
+        <ul class="list-disc pl-5 text-sm text-slate-600 mt-2">
+          <li>Train branch predictor with valid inputs.</li>
+          <li>Call the vulnerable code with an out-of-bounds index to cause speculative read and probe touch.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="font-semibold text-slate-800">Probe & measure</div>
+        <p class="text-sm text-slate-600 mt-2">Flush or evict probe array, trigger speculation, then time reads across probe entries to find the fast cached line and reconstruct the secret.</p>
+      </div>
+
+      <div class="rounded-lg bg-rose-50 p-3 card-border">
+        <div class="font-semibold text-rose-700">Safety & ethics</div>
+        <p class="text-sm text-slate-700 mt-2">Only use your machine and data you own. Do not attempt to access other users' memory or systems. Use VMs or isolated hardware where appropriate.</p>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Mitigation check</div>
+      <p class="text-xs font-medium text-slate-800">Inspect /proc/cpuinfo for flags like kpti, ibrs, ibpb, ssbd. Reason whether each flag blocks your POC and which attack step it interrupts.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Configure, generate, analyze</div>
+      <div class="text-sm text-slate-600 mt-2">A terminal-first walkthrough to validate your logging changes.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">Step 1 — Configure</div>
+          <div class="text-xs text-slate-600 mt-1">Set logging_collector = on, a timestamped log_filename, and log_min_duration_statement = 100. Restart PostgreSQL to apply changes.</div>
+        </div>
+
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">Step 2 — Generate activity</div>
+          <div class="text-xs text-slate-600 mt-1">Create a large table, insert many rows, then run SELECT pg_sleep(0.2) and full table scans to produce slow entries.</div>
+        </div>
+
+        <div class="rounded-md bg-slate-50 p-3">
+          <div class="font-semibold">Step 3 — Inspect logs</div>
+          <div class="text-xs text-slate-600 mt-1">Tail the latest postgresql-*.log and confirm entries show timestamp, PID, user, and the slow SQL text.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Starter commands</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-- Sample config lines for postgresql.conf
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_min_duration_statement = 100
+log_connections = on
+log_disconnections = on
+
+-- Sample SQL to generate slow logs
+CREATE TABLE large_data (id SERIAL PRIMARY KEY, value TEXT, created_at TIMESTAMP DEFAULT NOW());
+INSERT INTO large_data (value)
+SELECT md5(random()::text) FROM generate_series(1, 100000);
+SELECT pg_sleep(0.2);
+SELECT count(*) FROM large_data WHERE value LIKE '%abc%';
+      </pre>
+
+      <div class="mt-4 text-xs text-slate-600">After the exercise, revert thresholds if needed and archive the generated logs for later study.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">useContext</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Consuming context with useContext</h3>
+    <p class="text-sm text-slate-600 mt-2">An example consumer demonstrates style selection and toggling behavior.</p>
+    <div class="mt-4 grid grid-cols-2 gap-4 h-[68%]">
+      <div class="bg-white card-border rounded-xl p-4 shadow-sm overflow-auto">
+        <div class="text-sm font-bold text-slate-800">ThemeToggler.js (consumer)</div>
+        <pre class="mt-3 p-3 rounded bg-slate-50 text-sm" style="white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// ThemeToggler.js
+import React, { useContext } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import ThemeContext from './ThemeContext';
+
+const ThemeToggler = () =&gt; {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const containerStyle = theme === 'light' ? styles.lightContainer : styles.darkContainer;
+  const textStyle = theme === 'light' ? styles.lightText : styles.darkText;
+
+  return (
+    &lt;View style={[styles.container, containerStyle]}&gt;
+      &lt;Text style={textStyle}&gt;Current Theme: {theme.toUpperCase()}&lt;/Text&gt;
+      &lt;Button title="Toggle Theme" onPress={toggleTheme} /&gt;
+    &lt;/View&gt;
+  );
+};
+        </pre>
+      </div>
+      <div class="bg-white card-border rounded-xl p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Notes on re-rendering</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>Consumers re-render when the Provider's value reference changes.</li>
+          <li>Memoize value or split contexts if unrelated data causes unnecessary updates.</li>
+          <li>useContext reads the current value from the nearest Provider; no prop chains needed.</li>
+        </ul>
+        <div class="mt-4 rounded-xl p-3 border-l-4 border-l-amber-500 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+          <div class="text-sm text-slate-700">useContext does not magically prevent re-renders; it simply avoids prop forwarding. Provider value design matters for performance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

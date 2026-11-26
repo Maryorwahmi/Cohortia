@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Python Translator</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter code (conceptual)</div>
+      <pre class="p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+PAGE_SIZE = 4096  # 12-bit offset
+TLB_SIZE = 4
+page_table = {1:10, 2:20, 3:30, 4:40, 5:50}
+
+# Example translator function
+def translate(virtual_address, tlb, page_table):
+  vpn = virtual_address // PAGE_SIZE
+  offset = virtual_address % PAGE_SIZE
+  if vpn in tlb:
+    pfn = tlb[vpn]
+    # update LRU
+    return (pfn << 12) | offset, True  # hit
+  if vpn in page_table:
+    pfn = page_table[vpn]
+    # insert into TLB with LRU eviction
+    return (pfn << 12) | offset, False  # miss, but present
+  raise Exception('page fault')
+</pre>
+      <div class="mt-3 text-sm text-slate-700">Run the sequence 0x1000, 0x2000, 0x3000, 0x1000, 0x4000, 0x2000, 0x5000 to observe TLB hits and misses, and compute the final hit rate.</div>
+    </div>
+    <div class="col-span-5 bg-white rounded-2xl p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800 mb-2">What to observe</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>How the TLB state changes after each access.</li>
+        <li>Where hits occur because of temporal locality.</li>
+        <li>How LRU eviction removes the least recently used VPN when capacity exceeds 4 entries.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A working translator shows the mechanics: extraction, lookup, TLB caching, misses, and page-fault detection.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

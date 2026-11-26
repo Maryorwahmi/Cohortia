@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Perfect Forward Secrecy</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">What is PFS?</h3>
+      <p class="text-sm text-slate-600 mt-2">A cryptographic practice that forces each Phase 2 SA to use a fresh DH exchange so keys are independent across sessions.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="text-sm text-slate-700">• Prevents a single compromised key from decrypting other SAs negotiated under the same Phase 1 material.</div>
+        <div class="text-sm text-slate-700">• Configured per IPsec profile with set pfs group &lt;group&gt;; both peers must match the group.</div>
+        <div class="text-sm text-slate-700">• Choose higher groups for stronger security (balance with CPU impact).</div>
+      </div>
+
+      <div class="mt-6 rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+        <p class="text-sm text-slate-800 mt-1">Use set pfs group 14 in the crypto ipsec profile to require group 14 for Phase 2 exchanges.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">PFS is a small runtime cost for a major security improvement: it isolates the impact of any single key compromise.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <h4 class="text-lg font-semibold text-slate-800">Configuration snippet</h4>
+      <pre class="text-sm bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)] mt-3" style="white-space:pre-wrap;tab-size:2"><code>crypto ipsec profile COHORTIA_IPSEC_PROFILE
+ set pfs group 14
+</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+          <p class="text-sm text-slate-700 mt-1">PFS does not change how routing or ACLs behave; it only changes key derivation for Phase 2 SAs.</p>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="rounded-lg bg-violet-50 p-3 border border-violet-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Why enable PFS</div>
+          <p class="text-sm text-slate-800 mt-1">In high‑security deployments, PFS should be enabled to minimize the blast radius of key exposure.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

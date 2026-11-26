@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-500">Chapter 3.2</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">GPG Verification</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-40px)]">
+    <div class="w-6/12 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Common cause of failures</div>
+      <div class="mt-3 text-sm text-slate-700">If the repository key is not imported, dnf will fail package installs. Import the key into the RPM database or configure gpgkey in the .repo file.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Temporary bypass (not recommended)</div>
+      <div class="mt-2 bg-slate-800 text-white rounded-md p-3 font-mono text-sm">
+<pre><code>- name: Install package from custom repo (temporarily disabling GPG check)
+  ansible.builtin.dnf:
+    name: my_custom_package
+    state: present
+    enablerepo: my_custom_repo
+    disable_gpg_check: yes # WARNING: security risk
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Proper solution</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700">
+        <li>Obtain and import the legitimate GPG key with rpm --import.</li>
+        <li>Configure gpgkey and set gpgcheck=1 in the .repo file to enable verification automatically.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-rose-700 font-semibold">Warning</div>
+      <div class="mt-2 text-sm text-slate-700">Disabling checks makes systems vulnerable to malicious or corrupted packages and should be avoided in production.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

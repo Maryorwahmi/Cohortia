@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Service states</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <h3 class="text-2xl font-bold text-slate-800">State meanings and when to use them</h3>
+      <p class="text-sm text-slate-600 mt-2">Pick the state that matches the operational objective to avoid unnecessary downtime.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">started</div>
+          <div class="text-sm text-slate-600 mt-1">Ensure the service is running. Idempotent — does nothing if already running.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">stopped</div>
+          <div class="text-sm text-slate-600 mt-1">Ensure the service is not running. Use carefully for maintenance windows.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">restarted</div>
+          <div class="text-sm text-slate-600 mt-1">Force stop then start; use when a full reinitialization is needed or after upgrades.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">reloaded</div>
+          <div class="text-sm text-slate-600 mt-1">Ask the service to re-read config without full restart; preferred for minimal disruption when supported.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-white p-4 card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Scenario examples</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+          <li>After editing nginx virtual hosts → use reloaded to avoid dropping connections.</li>
+          <li>After upgrading libraries used by httpd → use restarted to load new binaries.</li>
+          <li>To stop an unneeded service during maintenance → use stopped carefully and plan re-enablement.</li>
+        </ul>
+
+        <div class="mt-4 text-sm text-slate-600">Misconception check: reload might be unsupported by some units; if so, confirm behavior in systemd unit documentation or test in staging before applying broadly.</div>
+      </div>
+    </div>
+  </div>
+</div>

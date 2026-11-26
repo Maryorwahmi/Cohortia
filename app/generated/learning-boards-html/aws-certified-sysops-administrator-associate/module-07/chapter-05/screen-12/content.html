@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 pr-4 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Critical Consideration</div>
+      <h3 class='text-2xl font-extrabold text-slate-900'>DNS Caching and TTL</h3>
+      <p class='mt-3 text-sm text-slate-700'>TTL controls how long resolvers cache DNS answers. Lower TTLs make failover visible faster but increase DNS traffic.</p>
+      <div class='mt-4 grid gap-3'>
+        <div class='p-3 rounded-lg bg-white card-border'>
+          <div class='text-sm font-semibold text-slate-800'>Effect on RTO</div>
+          <div class='text-sm text-slate-600 mt-1'>TTL is a primary limiter of how quickly clients see a new DNS answer after failover.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 border'>
+          <div class='text-sm font-semibold text-slate-800'>Recommended values</div>
+          <div class='text-sm text-slate-600 mt-1'>For failover testing use lower TTLs like 60 or 30 seconds; balance against increased query volume.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-rose-50 border'>
+          <div class='text-sm font-semibold text-rose-700'>Resolver behavior</div>
+          <div class='text-sm text-slate-700 mt-1'>Resolvers and intermediary caches can affect propagation. Always test along the user path.</div>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 pl-4 flex flex-col'>
+      <div class='rounded-xl bg-white card-border shadow-sm p-4 flex-1'>
+        <div class='text-sm font-bold text-slate-800'>Practical test actions</div>
+        <ul class='mt-3 text-sm text-slate-600 list-disc list-inside space-y-2'>
+          <li>Set TTL to 60 seconds and observe behavior during a simulated outage.</li>
+          <li>Use dig or nslookup from different resolvers to measure propagation.</li>
+          <li>Monitor Route 53 query volume and costs if you lower TTL globally.</li>
+        </ul>
+        <div class='mt-4'>
+          <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+            <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+            <p class='text-xs font-medium text-slate-800'>TTL is the gate between Route 53's routing decisions and what clients actually do. Choose TTL with your RTO and resolver behavior in mind.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

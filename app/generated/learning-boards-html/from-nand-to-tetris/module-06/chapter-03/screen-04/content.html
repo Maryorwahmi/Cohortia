@@ -1,0 +1,88 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">VM Translator Requirements</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 h-full min-h-0 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <h3 class="text-lg font-semibold text-slate-800">Definition & checklist</h3>
+        <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Arithmetic commands: add, sub, neg, eq, gt, lt, and, or, not.</li>
+          <li>Memory access: push/pop across local, argument, this, that, constant, static, pointer, temp.</li>
+          <li>Program flow: label, goto, if-goto with function-scoped labels.</li>
+          <li>Function commands: function, call, return—correct call-frame handling.</li>
+          <li>Bootstrap code: initialize SP and call Sys.init when required.</li>
+          <li>Multi-file: translate multiple .vm files into a single .asm output with proper scoping.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 border bg-white" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Common misconception</div>
+        <p class="text-sm text-slate-600">The VM is not a one-to-one mapping to assembly. Expect each VM command to expand into several assembly instructions; the translator's job is to produce correct sequences, not minimal ones.</p>
+      </div>
+
+      <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Treat Project 7 as a checklist of behaviors to implement and verify. Each feature maps to observable runtime behavior in tests.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 h-full min-h-0 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm h-full flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+        <h3 class="text-lg font-semibold text-slate-800 mb-3">Annotated examples</h3>
+        <div class="grid grid-cols-2 gap-3 flex-1 min-h-0 overflow-hidden">
+          <div class="rounded-lg p-3 bg-blue-50">
+            <div class="text-xs font-semibold text-blue-700">VM snippet</div>
+            <pre class="mt-2 text-sm text-slate-800 bg-blue-50" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;">
+push constant 5
+push constant 3
+add
+</pre>
+          </div>
+          <div class="rounded-lg p-3 bg-amber-50">
+            <div class="text-xs font-semibold text-amber-700">Generated assembly (conceptual)</div>
+            <pre class="mt-2 text-sm text-slate-800 bg-amber-50" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;">
+// push constant 5
+@5
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// push constant 3
+@3
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// add
+@SP
+AM=M-1
+D=M
+A=A-1
+M=M+D
+</pre>
+          </div>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded p-2 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+            <div class="text-xs font-bold text-slate-600">Example scenario</div>
+            <div class="text-sm font-semibold text-slate-800 mt-1">Constant arithmetic maps to stack ops</div>
+            <p class="text-sm text-slate-600 mt-1">A single add requires popping two values, adding, and pushing the result. Mistakenly leaving SP incorrect breaks later code.</p>
+          </div>
+
+          <div class="rounded p-2 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+            <div class="text-xs font-bold text-slate-600">Check your understanding</div>
+            <p class="text-sm text-slate-600">Why must labels be unique per function? What happens to return addresses when call frames are nested?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

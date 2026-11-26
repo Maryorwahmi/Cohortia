@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-xl p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <h2 class="text-2xl font-bold text-slate-900 mt-2">Lab scenario: Configure R1 and R2</h2>
+      <p class="mt-2 text-sm text-slate-700">Starter configurations for R1 and R2 covering HSRP, VRRP and GLBP according to the lab instructions.</p>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-3">
+        <div class="rounded-md bg-slate-900 text-slate-50 p-3"><pre><code>R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip address 192.168.1.10 255.255.255.0
+R1(config-if)# standby 1 ip 192.168.1.254
+R1(config-if)# standby 1 priority 110
+R1(config-if)# standby 1 preempt
+R1(config-if)# vrrp 2 ip 192.168.1.253
+R1(config-if)# vrrp 2 priority 90
+R1(config-if)# vrrp 2 preempt
+R1(config-if)# glbp 3 ip 192.168.1.252
+R1(config-if)# glbp 3 priority 110
+R1(config-if)# glbp 3 preempt
+R1(config-if)# glbp 3 load-balancing round-robin</code></pre></div>
+
+        <div class="rounded-md bg-slate-900 text-slate-50 p-3"><pre><code>R2(config)# interface GigabitEthernet0/1
+R2(config-if)# ip address 192.168.1.20 255.255.255.0
+R2(config-if)# standby 1 ip 192.168.1.254
+R2(config-if)# standby 1 priority 100
+R2(config-if)# standby 1 preempt
+R2(config-if)# vrrp 2 ip 192.168.1.253
+R2(config-if)# vrrp 2 priority 110
+R2(config-if)# vrrp 2 preempt
+R2(config-if)# glbp 3 ip 192.168.1.252
+R2(config-if)# glbp 3 priority 100
+R2(config-if)# glbp 3 preempt
+R2(config-if)# glbp 3 load-balancing round-robin</code></pre></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Run show standby brief on R1 and R2 to confirm HSRP group 1 active/standby and virtual IP 192.168.1.254.</li>
+        <li>Run show vrrp brief to confirm VRRP group 2 master/backup for virtual IP 192.168.1.253.</li>
+        <li>Run show glbp brief and show glbp 3 detail to observe AVG, AVFs and virtual MAC assignments for 192.168.1.252.</li>
+        <li>Simulate failures by shutting the client interface on R1 and observe failover and then recovery with preemption enabled.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Why this matters</div>
+        <p class="text-xs font-medium text-slate-800">Combining HSRP, VRRP, and GLBP knowledge prepares you to design resilient gateways and validate their operation via practical lab steps.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Common pitfalls and troubleshooting</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-5 shadow-sm border card">
+      <div class="text-sm font-semibold text-slate-800">Quick checklist</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Run ansible-playbook --syntax-check and ansible-lint early.</li>
+        <li>Use debug tasks to inspect item and rendered templates in a dry-run.</li>
+        <li>Precompute complex expressions in vars to make when clauses readable.</li>
+        <li>Vault or hash secrets; never render raw secrets into logs or public files.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Troubleshooting snippet</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">- name: Debug item shape
+  debug:
+    var: item
+  loop: '{{ managed_users }}'
+
+- name: Render template to temporary file for inspection
+  ansible.builtin.template:
+    src: motd.j2
+    dest: '/tmp/motd.rendered.{{ inventory_hostname }}'
+    mode: '0644'
+  check_mode: yes</pre>
+      <div class="mt-3 text-sm text-slate-700">Render to a temporary file first or run in check mode to inspect output before changing system files.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Store Misses</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-[64vh] flex gap-4">
+    <div class="w-1/2 flex flex-col">
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Store misses and merging</h3>
+      <p class="text-sm text-slate-600 mt-3">Stores require storing data and masks in the MSHR so the returned block can be updated correctly before waking dependents.</p>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">What the MSHR must hold</div>
+          <p class="text-sm text-slate-600 mt-1">Store data, a byte mask, address, and waiting list so the store can be applied upon arrival of the block.</p>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Ordering and correctness</div>
+          <p class="text-sm text-slate-600 mt-1">Buffered stores must preserve memory ordering relative to other operations; care is required to avoid visibility anomalies.</p>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Practical note</div>
+          <p class="text-xs font-medium text-slate-800">Plan per-MSHR store buffer size so common store widths fit without overflow and merging remains efficient.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card-border flex-1">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <div class="mt-3">
+          <div class="rounded-md bg-white p-3 card-border">
+            <div class="text-sm font-bold text-slate-800">Store miss at bytes [4..7]</div>
+            <p class="text-sm text-slate-600 mt-1">MSHR stores the 4 bytes and mask. When the block returns, the bytes are merged before loads waiting on that block proceed.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Checkpoint: How will you handle multiple stores to different subsets of the same block queued before return?</div>
+    </div>
+  </div>
+</div>

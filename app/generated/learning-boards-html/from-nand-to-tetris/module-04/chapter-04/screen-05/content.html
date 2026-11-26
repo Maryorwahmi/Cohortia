@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .step{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:14px;} .num{background:#eef2ff;color:#2563eb;padding:8px;border-radius:999px;font-weight:800;width:36px;height:36px;display:flex;align-items:center;justify-content:center;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Two-pass architecture</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-3">Two-pass pipeline</h3>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="step flex items-start gap-3">
+        <div class="num">1</div>
+        <div>
+          <div class="text-sm font-semibold text-slate-800">First pass — symbol discovery</div>
+          <div class="mt-1 text-sm text-slate-700">Scan lines, increment ROM address for instructions, and add labels to the symbol table with their ROM addresses. Initialize predefined symbols.</div>
+        </div>
+      </div>
+
+      <div class="step flex items-start gap-3">
+        <div class="num">2</div>
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Second pass — translation</div>
+          <div class="mt-1 text-sm text-slate-700">Resolve symbols and numeric addresses, allocate variables beginning at RAM address 16, translate A- and C-instructions to 16-bit binaries, and write the .hack file.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-semibold text-slate-800">Variable allocation rule</div>
+        <div class="mt-1 text-sm text-slate-700">When a new symbol appears in the second pass that is not predefined or a label, assign it the next free RAM address starting at 16, then use that address for the current and subsequent references.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 step">
+      <div class="text-sm font-semibold text-slate-800">Example walkthrough</div>
+      <div class="mt-3 text-sm text-slate-700">Given lines: (LOOP) followed by three instructions. During the first pass, if the ROM address of the first instruction after the label is 4, we record LOOP → 4. Later, if we see @LOOP we replace it with 4 in the second pass and emit a binary A-instruction with 0 + the 15-bit binary of 4.</div>
+
+      <div class="mt-3">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Misconception check</div>
+        <div class="text-sm text-slate-600">A single pass can work but requires storing unresolved references and patching addresses later. The two-pass approach avoids that complexity and is easier to reason about in an educational setting.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why this process</div>
+        <p class="text-xs font-medium text-slate-800">The first pass guarantees all label addresses are known so the second pass can produce correct binary without deferred fixes.</p>
+      </div>
+    </div>
+  </div>
+</div>

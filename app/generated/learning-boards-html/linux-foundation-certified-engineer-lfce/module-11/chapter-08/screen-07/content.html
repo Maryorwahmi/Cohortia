@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">VM Storage</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Checks for virtual disks</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Run qemu-img info &lt;image_path&gt; to view format, virtual size, and backing file.</li>
+        <li>Confirm the host filesystem has sufficient free space where images reside.</li>
+        <li>Use iostat or similar to detect high disk latency from competing VMs.</li>
+      </ul>
+      <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;">qemu-img info /var/lib/libvirt/images/webserver.qcow2
+df -h /var/lib/libvirt/images
+iostat -x 1 5</pre>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+      <p class="mt-3 text-sm text-slate-600">A VM experiences frequent timeouts accessing disk-backed databases. qemu-img shows a backing file on shared storage and iostat indicates high await times. The correct fix is to move high-I/O guests to less contended storage or add IOPS, rather than spending time tuning guest filesystem caches alone.</p>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">If an image has a backing file, never delete the backing without rebasing; that causes immediate corruption for derived images.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

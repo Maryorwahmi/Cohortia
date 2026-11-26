@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor — Interfaces & Injection</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-7 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Interfaces</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">Define contracts</div>
+        <div class="text-sm text-slate-700 mt-3">Use language abstractions — in Python, abstract base classes — to describe required behavior without implementation details.</div>
+
+        <div class="mt-4">
+          <div class="text-xs font-semibold text-slate-700">interfaces.py (visual)</div>
+          <pre class="mt-2 mono"><code>import abc
+
+class IDataLoader(abc.ABC):
+  @abc.abstractmethod
+  def load_data(self, source: str) -> list:
+    pass
+
+class IReporter(abc.ABC):
+  @abc.abstractmethod
+  def generate_report(self, data: list):
+    pass</code></pre>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-xs font-semibold text-slate-700">main.py (refactored)</div>
+          <pre class="mt-2 mono"><code>from interfaces import IDataLoader, IReporter
+
+class CSVDataLoader(IDataLoader):
+  def load_data(self, filepath: str) -> list:
+    print(f"Loading data from CSV: {filepath}")
+    return [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
+
+class ConsoleReporter(IReporter):
+  def generate_report(self, data: list):
+    print("--- Console Report ---")
+    for item in data:
+      print(f"ID: {item['id']}, Name: {item['name']}")
+    print("----------------------")
+
+class ReportGenerator:
+  def __init__(self, data_loader: IDataLoader, reporter: IReporter):
+    self.data_loader = data_loader
+    self.reporter = reporter
+
+  def generate(self, source_path: str):
+    data = self.data_loader.load_data(source_path)
+    self.reporter.generate_report(data)
+</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Composition</div>
+        <div class="text-sm text-slate-700 mt-2">Create concrete instances at program start and pass them into ReportGenerator. The orchestration never constructs concrete implementations itself.</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-3 shadow-sm card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">Write a unit test that constructs ReportGenerator with a fake loader returning deterministic data to validate orchestration behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

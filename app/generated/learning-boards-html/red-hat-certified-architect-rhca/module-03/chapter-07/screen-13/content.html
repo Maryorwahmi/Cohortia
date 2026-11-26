@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Code Walkthrough</span>
+      <span>›</span>
+      <span class='text-slate-700'>Failing deployment</span>
+    </div>
+  </div>
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='card rounded-2xl p-4 h-full'>
+      <div class='text-sm font-bold mb-2'>failing-app.yaml</div>
+      <pre class='bg-slate-900 text-slate-100 rounded-lg p-3 text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;'>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: failing-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: failing-webapp
+  template:
+    metadata:
+      labels:
+        app: failing-webapp
+    spec:
+      containers:
+      - name: failing-container
+        image: registry.access.redhat.com/ubi8/nodejs-16
+        command: ["sh", "-c", "echo 'Simulating a crash...' && exit 1"]
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"</pre>
+    </div>
+    <div class='card rounded-2xl p-4 h-full'>
+      <div class='text-sm font-bold mb-2'>Recovery commands</div>
+      <pre class='bg-slate-900 text-slate-100 rounded-lg p-3 text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;'>oc get pods -n troubleshooting-project
+POD_NAME=$(oc get pod -l app=failing-webapp -o jsonpath='{.items[0].metadata.name}' -n troubleshooting-project)
+oc describe pod $POD_NAME -n troubleshooting-project
+oc logs $POD_NAME -n troubleshooting-project
+oc set image deployment/failing-webapp failing-container=registry.access.redhat.com/ubi8/nginx-120 -n troubleshooting-project
+oc patch deployment failing-webapp --type='json' -p='[{"op":"remove","path":"/spec/template/spec/containers/0/command"}]' -n troubleshooting-project</pre>
+      <div class='mt-3 text-xs text-slate-600'>After patching, verify the pod becomes Running and check logs and dashboards for normal behavior.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

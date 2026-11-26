@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .col{background:#fff;padding:14px;border-radius:12px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.1</span>
+      <span>›</span>
+      <span class="text-slate-700">SG vs NACL</span>
+    </div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 col card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Security Groups</div>
+      <h4 class="text-lg font-bold text-slate-800 mt-2">Stateful, instance-level</h4>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Allow-only rules; return traffic is automatic.</li>
+        <li>Attach to ENIs/instances; reference other SGs as sources.</li>
+        <li>Best for precise application-level controls.</li>
+      </ul>
+      <div class="mt-3 text-sm text-slate-600">Example: sg-db inbound TCP 3306 from sg-app.</div>
+    </div>
+
+    <div class="w-1/2 col card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Network ACLs</div>
+      <h4 class="text-lg font-bold text-slate-800 mt-2">Stateless, subnet-level</h4>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Allow and deny rules, evaluated by rule number.</li>
+        <li>Stateless: you must allow return traffic explicitly.</li>
+        <li>Good for broad deny lists and pre-filtering at network edge.</li>
+      </ul>
+      <div class="mt-3 text-sm text-slate-600">Example: NACL rule 100 deny TCP port 22 from 10.0.0.0/16.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl bg-white card-border p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Concrete use</div>
+      <p class="text-sm text-slate-600 mt-2">NACL denies block known bad ranges; SGs allow only required peers.</p>
+    </div>
+    <div class="rounded-xl bg-white card-border p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+      <p class="text-sm text-slate-600 mt-2">Relying only on SGs and forgetting NACL deny rules can let malicious ranges reach instances before SG evaluation.</p>
+    </div>
+    <div class="rounded-xl bg-white card-border p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Key Takeaway</div>
+      <p class="text-sm text-slate-600 mt-2">Combine both: NACLs for coarse deny, SGs for precise allow — that layering reduces risk and simplifies audits.</p>
+    </div>
+  </div>
+</div>

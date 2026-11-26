@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Secure Connections</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-lg font-bold text-slate-800">Connection steps</div>
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">1</div><div><strong>Define URI:</strong> Use neo4j://host:port or bolt://host:port depending on driver and deployment.</div></div>
+        <div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center text-violet-700">2</div><div><strong>Fetch credentials:</strong> Read username and password from environment variables or a secret manager.</div></div>
+        <div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700">3</div><div><strong>Create driver once:</strong> Instantiate a single driver at startup to let pooling work.</div></div>
+        <div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">4</div><div><strong>Close driver:</strong> Call driver.close at shutdown to release pooled connections.</div></div>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example</div>
+        <div class="text-sm text-slate-800">In Python: call GraphDatabase.driver(uri, auth=(user, pwd)) once and reuse it across requests.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Common pitfalls & fixes</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-1">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Creating driver instances per request leads to high latency and socket exhaustion.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Fix</div>
+          <div class="text-sm text-slate-700 mt-1">Create one driver per process and reuse it. Configure pool size to match expected concurrency.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Hardcoding passwords in source code.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Fix</div>
+          <div class="text-sm text-slate-700 mt-1">Use environment variables or a secret manager and rotate credentials without updating code.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 border-l-4 border-l-amber-500 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Reflection</div>
+          <p class="text-sm text-slate-800">If driver creation is expensive, design your deployment to create drivers during process startup and reuse across threads or request handlers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Process Flow</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-900">TLS hybrid flow</div>
+      <div class="text-sm text-slate-600 mt-2">Step-by-step: authenticate, agree ephemeral secret, derive session keys, encrypt traffic.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-blue-700">1.</div>
+          <div>
+            <div class="font-semibold text-slate-800">Server proves identity</div>
+            <div class="text-sm text-slate-600 mt-1">Client validates the server certificate and public key to confirm authenticity.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-violet-700">2.</div>
+          <div>
+            <div class="font-semibold text-slate-800">Ephemeral key agreement</div>
+            <div class="text-sm text-slate-600 mt-1">Client and server use ECDHE or DHE to derive an ephemeral shared secret supporting PFS.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-amber-700">3.</div>
+          <div>
+            <div class="font-semibold text-slate-800">Derive symmetric session keys</div>
+            <div class="text-sm text-slate-600 mt-1">A key derivation function turns the shared secret into symmetric keys used for encryption and integrity.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-emerald-700">4.</div>
+          <div>
+            <div class="font-semibold text-slate-800">Encrypt bulk data</div>
+            <div class="text-sm text-slate-600 mt-1">Symmetric authenticated encryption like AES-GCM secures the ongoing session efficiently.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">A modern web server prefers ECDHE-ECDSA with AES-GCM. ECDHE ensures ephemeral keys and PFS; AES-GCM provides authenticated encryption to protect both confidentiality and integrity.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Assuming the presence of TLS implies PFS. Many older cipher suites do not provide PFS; check that ephemeral key exchange is configured.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check</div>
+          <div class="text-sm text-slate-800 mt-2">Audit your server cipher preferences for ECDHE or DHE and for authenticated encryption modes like GCM.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Hybrid cryptography provides secure key exchange and efficient encryption together; ensure your handshake and cipher suite choices enable both.</p>
+      </div>
+    </div>
+  </div>
+</div>

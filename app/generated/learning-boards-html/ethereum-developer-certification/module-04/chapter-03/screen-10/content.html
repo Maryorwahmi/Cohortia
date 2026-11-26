@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">VulnerableToken bug</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Buggy transfer function</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm"><code>// contracts/VulnerableToken.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "hardhat/console.sol";
+
+contract VulnerableToken {
+  string public name = "BuggyToken";
+  string public symbol = "BGT";
+  uint public totalSupply;
+  mapping(address =&gt; uint) public balanceOf;
+
+  constructor(uint _initialSupply) {
+    totalSupply = _initialSupply;
+    balanceOf[msg.sender] = _initialSupply;
+  }
+
+  function transfer(address _to, uint _value) public returns (bool success) {
+    // THE BUG IS HERE!
+    require(balanceOf[_to] &gt;= _value, "Insufficient sender balance"); // This is the bug!
+
+    balanceOf[msg.sender] -= _value;
+    balanceOf[_to] += _value;
+
+    emit Transfer(msg.sender, _to, _value);
+    return true;
+  }
+
+  event Transfer(address indexed from, address indexed to, uint value);
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">What to print</div>
+      <div class="text-xs text-slate-700 mt-2">Add prints for msg.sender, _to, _value, and balanceOf[msg.sender] to observe real values during the failing test.</div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border border-amber-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Hint</div>
+        <div class="text-xs text-slate-700 mt-1">The require checks the recipient's balance instead of the sender's. Correct the mapping index to msg.sender.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Targeted prints reveal the wrong variable quickly; fixes should be verified by re-running tests and checking gas impact.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

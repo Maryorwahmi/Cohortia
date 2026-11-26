@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Basic Tween Example</h3>
+    <p class="text-sm text-slate-600 mt-1">A complete tween that moves, recolors, and partially fades a part.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Starter Lua</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+local TweenService = game:GetService("TweenService")
+local part = workspace:WaitForChild("MyMovingPart")
+
+part.Anchored = true
+
+local targetCFrame = CFrame.new(part.Position + Vector3.new(0, 5, 10)) * CFrame.Angles(0, math.rad(90), 0)
+
+local tweenInfo = TweenInfo.new(
+  3, -- seconds
+  Enum.EasingStyle.Quad,
+  Enum.EasingDirection.InOut,
+  -1,
+  true,
+  0
+)
+
+local propertiesToTween = {
+  CFrame = targetCFrame,
+  Color = Color3.fromRGB(0, 255, 0),
+  Transparency = 0.5
+}
+
+local tween = TweenService:Create(part, tweenInfo, propertiesToTween)
+tween:Play()
+
+tween.Completed:Connect(function(playbackState)
+  if playbackState == Enum.PlaybackState.Completed then
+    print("Tween completed!")
+  elseif playbackState == Enum.PlaybackState.Cancelled then
+    print("Tween cancelled!")
+  end
+end)
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & Notes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Use WaitForChild to safely reference parts in Workspace.</li>
+        <li>Make the part Anchored when controlled by scripts to prevent physics from interfering.</li>
+        <li>Grouping multiple properties into one tween ensures they animate together.</li>
+        <li>Listen to Completed to chain behavior or clean up after animation.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="mt-2 text-sm text-slate-700 bg-emerald-50 rounded-lg p-3">For models, tween the PrimaryPart's CFrame or create twen targets per part to avoid inconsistent transforms across children.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

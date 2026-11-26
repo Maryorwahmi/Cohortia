@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Terminal demo steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Edit redis.conf: save 5 1, appendonly yes, appendfsync everysec, dir ./testdir</li>
+        <li>Start Redis with the custom config and connect using redis-cli</li>
+        <li>Run: SET mykey "hello"; LPUSH mylist "item1" "item2"</li>
+        <li>Run BGSAVE and observe dump.rdb timestamp; open appendonly.aof to inspect commands</li>
+        <li>Simulate crash with a forced stop and restart Redis with the same config</li>
+        <li>Verify recovery: GET mykey and LRANGE mylist 0 -1</li>
+      </ol>
+
+      <div class="mt-auto text-sm text-slate-600">These steps let you verify whether AOF or RDB preserved your changes and how quickly recovery completes.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example redis.conf snippet</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+# RDB configuration
+save 5 1
+dbfilename dump.rdb
+dir ./testdir
+
+# AOF configuration
+appendonly yes
+appendfilename appendonly.aof
+appendfsync everysec
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">After restart, redis-cli commands will show whether the writes survived. Practice this to make persistence decisions for your systems.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

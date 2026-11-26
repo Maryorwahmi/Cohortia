@@ -1,0 +1,15 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.6</span><span>›</span><span class="text-slate-700">Peering Routing</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-center"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Routing Configuration</div><h2 class="text-3xl font-extrabold text-slate-900 leading-tight mb-3">Updating Route Tables for Peered VPCs</h2><p class="text-lg text-slate-600 mb-6">Manually configure route tables in both peered VPCs to direct traffic to the peer VPC's CIDR block via the peering connection.</p><ul class="list-disc list-inside space-y-2 text-sm text-slate-700 mb-6"><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>Each VPC's route table needs an entry for the peer VPC's CIDR block.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>The target for this route must be the `VpcPeeringConnectionId`.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>Manual updates are required for both VPCs; a common source of connectivity issues.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>Changes to VPC CIDRs or subnets necessitate route table re-configuration.</span></li></ul></div><div class="w-1/2 flex flex-col justify-center bg-slate-900 rounded-xl shadow-lg overflow-hidden"><div class="p-4 text-xs font-mono text-slate-300 bg-slate-800">Terminal Demo: Update Route Tables</div><pre class="flex-grow p-4 text-sm text-emerald-300 overflow-auto whitespace-pre-wrap" style="tab-size: 2;"><code># 3. Update Route Tables (in us-east-1 for VPC-A)
+# Assuming rt-0abcdef1234567890 is the route table ID for VPC-A
+aws ec2 create-route 
+    --route-table-id rt-0abcdef1234567890 
+    --destination-cidr-block 10.2.0.0/16 
+    --vpc-peering-connection-id pcx-0123456789abcdef0 
+    --region us-east-1
+
+# 4. Update Route Tables (in us-west-2 for VPC-B)
+# Assuming rt-0fedcba9876543210 is the route table ID for VPC-B
+aws ec2 create-route 
+    --route-table-id rt-0fedcba9876543210 
+    --destination-cidr-block 10.1.0.0/16 
+    --vpc-peering-connection-id pcx-0123456789abcdef0 
+    --region us-west-2</code></pre></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Correctly configuring route tables in both peered VPCs is essential for enabling traffic flow; misconfigurations are a common cause of connectivity failures.</p></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

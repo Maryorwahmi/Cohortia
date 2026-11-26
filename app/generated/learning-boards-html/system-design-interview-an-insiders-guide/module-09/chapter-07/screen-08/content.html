@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">Raft: Leader Election Overview</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">State transitions</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700 flex-1">
+        <li><strong>Follower:</strong> passive, responds to RPCs and resets election timer on heartbeats.</li>
+        <li><strong>Candidate:</strong> starts election, requests votes, and increments term.</li>
+        <li><strong>Leader:</strong> sends heartbeats and handles client requests.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Randomized timeouts</div>
+        <div class="text-sm text-slate-700 mt-2">Random delays reduce split votes by making it likely one candidate's timer expires first, gaining majority quickly.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Election RPC</div>
+      <div class="mt-3 text-sm text-slate-700">RequestVote(term, candidateId, lastLogIndex, lastLogTerm) is used so voters can compare logs and only vote for sufficiently up-to-date candidates. This prevents leaders without the latest committed entries from being elected.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example: 5-node cluster</div>
+          <div class="text-sm text-slate-800 mt-1">Leader fails, candidate increments term, requests votes, gets majority, becomes leader and sends heartbeats to stabilize the cluster.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check your understanding</div>
+          <div class="text-sm text-slate-800 mt-1">What metric would you monitor to detect split votes or frequent elections in production?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

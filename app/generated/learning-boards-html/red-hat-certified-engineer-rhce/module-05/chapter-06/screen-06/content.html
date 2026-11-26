@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .card-border{border-color:rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h2 class="text-2xl font-bold text-slate-900 mt-2">Registering Output and Using debug</h2>
+    <div class="text-sm text-slate-600 mt-1">Capture stdout_lines and return codes for conditional decisions</div>
+  </div>
+
+  <div class="flex gap-4 mt-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white border p-4" style="border-color:var(--card-border);">
+      <div class="text-sm font-semibold text-slate-800">Pattern</div>
+      <pre class="mono mt-3 p-3 bg-slate-100 rounded text-sm">- name: Ping external IP
+  ansible.builtin.command: "ping -c 3 8.8.8.8"
+  register: ping_result
+  ignore_errors: yes
+  changed_when: false
+
+- name: Debug ping output
+  ansible.builtin.debug:
+    var: ping_result.stdout_lines</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Use ignore_errors when you expect failures and inspect rc to branch logic later.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white border p-4" style="border-color:var(--card-border); display:flex; flex-direction:column;">
+      <div class="text-sm font-semibold text-slate-800">Best practices</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Set changed_when: false for diagnostic tasks to avoid false-positive changes.</li>
+        <li>Inspect rc to detect silent failures; rc != 0 usually indicates a problem.</li>
+        <li>Prefer stdout_lines when parsing output line-by-line.</li>
+      </ul>
+
+      <div class="mt-4 text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-2">Assuming registered output always exists; guard dependent tasks with when checks to avoid undefined-variable errors.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Register results, debug them while developing, and use rc and stdout_lines to drive reliable, conditional playbook flows.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

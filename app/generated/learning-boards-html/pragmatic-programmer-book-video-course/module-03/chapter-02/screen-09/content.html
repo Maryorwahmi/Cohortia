@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor OrderProcessor</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">Starter pattern and steps</div>
+    <div class="text-sm text-slate-600 mt-2">Follow these steps: create NotificationSender, adapt SMSSender, inject into OrderProcessor, write a test with a fake.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">Interface</div>
+        <pre class="mt-2 bg-slate-900 text-white p-3 rounded"><code>class NotificationSender:
+  def send_notification(self, recipient, message):
+    raise NotImplementedError</code></pre>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">OrderProcessor after refactor</div>
+        <pre class="mt-2 bg-slate-900 text-white p-3 rounded"><code>class OrderProcessor:
+  def __init__(self, notification_sender: NotificationSender):
+    self.notification_sender = notification_sender
+
+  def process_order(self, order_id, customer_phone, items):
+    total_amount = sum(item['price'] * item['quantity'] for item in items)
+    confirmation = f"Your order {order_id} for ${total_amount:.2f} has been processed!"
+    self.notification_sender.send_notification(customer_phone, confirmation)
+    return True</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 rounded-lg bg-white card-border flex gap-3">
+      <div class="flex-1 text-sm text-slate-700">Test tip: create a FakeNotificationSender that stores messages in a list. Inject the fake, run process_order, and assert the fake received the expected message. This proves the order logic is orthogonal to notification transport.</div>
+      <div class="w-1/3 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Dependency injection makes business logic independently testable from side-effecting systems.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

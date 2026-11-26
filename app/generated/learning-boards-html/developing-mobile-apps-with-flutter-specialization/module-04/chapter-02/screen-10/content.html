@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Migrations</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full grid grid-rows-3 gap-4">
+    <div>
+      <div class="text-lg font-bold text-slate-800">onUpgrade pattern</div>
+      <div class="text-sm text-slate-600 mt-1">Run conditional SQL to evolve your schema when the version increases.</div>
+    </div>
+
+    <div class="row-span-2 rounded-md bg-slate-50 p-3 card-border mono">
+      <pre><code>onUpgrade: (db, oldVersion, newVersion) async {
+  if (oldVersion < 2) {
+    await db.execute("ALTER TABLE todos ADD COLUMN dueDate TEXT");
+  }
+  if (oldVersion < 3) {
+    await db.execute("CREATE TABLE tags(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)");
+  }
+}
+</code></pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        Steps to follow:
+        <ol class="list-decimal pl-5 mt-2 space-y-2">
+          <li>Increment database version when you release schema changes.</li>
+          <li>Write conditional migration code for each version step.</li>
+          <li>Test migrations against real sample databases before shipping.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

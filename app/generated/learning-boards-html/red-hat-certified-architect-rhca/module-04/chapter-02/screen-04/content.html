@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Zones</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0 flex flex-col gap-4"> 
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Zones group rules by trust</h3>
+        <p class="text-sm text-slate-600 mt-2">Zones are named profiles applied to interfaces or sources to enforce a consistent default policy per network segment.</p>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-md bg-blue-50 p-3">
+            <div class="font-bold text-blue-800">public</div>
+            <div class="text-xs text-slate-700 mt-1">Untrusted external networks</div>
+          </div>
+          <div class="rounded-md bg-emerald-50 p-3">
+            <div class="font-bold text-emerald-800">internal</div>
+            <div class="text-xs text-slate-700 mt-1">Trusted LANs and management</div>
+          </div>
+          <div class="rounded-md bg-amber-50 p-3">
+            <div class="font-bold text-amber-800">dmz</div>
+            <div class="text-xs text-slate-700 mt-1">Internet-facing servers with limited access</div>
+          </div>
+          <div class="rounded-md bg-violet-50 p-3">
+            <div class="font-bold text-violet-800">trusted</div>
+            <div class="text-xs text-slate-700 mt-1">Accept all connections (use sparingly)</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checks</div>
+          <pre class="mt-2 text-xs text-slate-700">sudo firewall-cmd --get-active-zones
+sudo firewall-cmd --list-all --zone=public</pre>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Assigning an external interface to an internal or trusted zone can inadvertently expose services. Always verify assignments and test connectivity from expected networks.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col gap-4"> 
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm h-full">
+        <div class="font-bold text-slate-800">Example: bind eth0 to internal</div>
+        <pre class="mt-2 text-xs text-slate-700">sudo firewall-cmd --zone=internal --change-interface=eth0 --permanent
+sudo firewall-cmd --reload</pre>
+        <div class="mt-3 text-sm text-slate-600">After reloading, inspect the internal zone to confirm the allowed services and ports. Use source-based mapping when interfaces carry multiple networks or VPN clients.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Zones are the first line of defense: design them to reflect trust and verify bindings before adding rules.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

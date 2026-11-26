@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">LIST and HASH examples</h3>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800">LIST partitioning</div>
+        <pre class="mono p-3 bg-slate-50">CREATE TABLE customers (
+  customer_id SERIAL,
+  customer_name VARCHAR(255),
+  country_code CHAR(2) NOT NULL
+) PARTITION BY LIST (country_code);
+
+CREATE TABLE customers_us PARTITION OF customers FOR VALUES IN ('US');
+CREATE TABLE customers_ca PARTITION OF customers FOR VALUES IN ('CA');</pre>
+      </div>
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800">HASH partitioning</div>
+        <pre class="mono p-3 bg-slate-50">CREATE TABLE events (
+  event_id BIGSERIAL,
+  event_time TIMESTAMP,
+  event_data JSONB
+) PARTITION BY HASH (event_id);
+
+CREATE TABLE events_0 PARTITION OF events FOR VALUES WITH (MODULUS 4, REMAINDER 0);</pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">When to use</div>
+        <p class="text-xs text-slate-700">LIST when values are known; HASH when you want even spread across partitions.</p>
+      </div>
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <p class="text-xs text-slate-700">Not indexing each partition for common lookups reduces the benefit of partitioning.</p>
+      </div>
+      <div class="p-3 card bg-emerald-50 text-emerald-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Try this</div>
+        <p class="text-xs">Pick a categorical column or a steadily increasing numeric key and map it to LIST or HASH to compare query times.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

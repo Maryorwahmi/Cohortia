@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="h-full flex gap-4">
+    <div class="w-1/2 rounded-xl bg-white border border-slate-100 p-4 shadow-sm flex flex-col">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Definition → Assembly</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">Translating VM label</div>
+      <div class="text-sm text-slate-600 mt-2">Make label declarations the assembler understands while preserving uniqueness.</div>
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Pattern</div>
+        <pre class="mt-2 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">VM: label LOOP
+Assembly: (FunctionName$LOOP)</pre>
+        <div class="mt-3 text-sm text-slate-700">Example: label LOOP inside Main.main becomes (Main.main$LOOP) so goto Main.main$LOOP and if-goto Main.main$LOOP match the symbol.</div>
+      </div>
+      <div class="mt-4 p-3 rounded-lg bg-white border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Validation</div>
+        <div class="text-sm text-slate-700 mt-1">Translate two functions that both declare label LOOP. The assembler should accept the output because names are distinct after prefixing.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white border border-slate-100 p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Common mistakes</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Emitting the VM label verbatim so duplicate names collide at assembly time.</li>
+        <li>Using inconsistent separators so goto targets don't match label declarations.</li>
+        <li>Forgetting to update current-function context while translating nested code fragments.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always mangle VM labels with the current function name when emitting assembly declarations to avoid global name collisions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

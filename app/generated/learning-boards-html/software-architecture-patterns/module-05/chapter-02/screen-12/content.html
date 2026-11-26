@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Toy Registry Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-900">Starter code</div>
+      <div class="mt-3 text-xs text-slate-600">A conceptual, in-memory registry that supports register and discover operations.</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+import random
+
+class ServiceRegistry:
+  def __init__(self):
+    self.services = {}  # {'service_name': [{'ip': '...', 'port': '...'}, ...]}
+
+  def register(self, service_name, ip, port):
+    if service_name not in self.services:
+      self.services[service_name] = []
+    self.services[service_name].append({'ip': ip, 'port': port})
+    print(f"Registered {service_name} instance: {ip}:{port}")
+
+  def discover(self, service_name):
+    instances = self.services.get(service_name, [])
+    if not instances:
+      print(f"No instances found for {service_name}")
+      return None
+    chosen_instance = random.choice(instances)
+    print(f"Discovered {service_name} instance: {chosen_instance['ip']}:{chosen_instance['port']}")
+    return chosen_instance
+
+# Simulate usage:
+registry = ServiceRegistry()
+registry.register('ProductService', '192.168.1.100', '8081')
+registry.register('ProductService', '192.168.1.101', '8081')
+for _ in range(3):
+  registry.discover('ProductService')
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Run this locally to see registration prints and different discovery choices. Expand it by adding heartbeats and TTLs for more realism.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Limitations to note</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>No persistence—state lost on restart.</li>
+        <li>No health checks or TTL-based removal.</li>
+        <li>No authentication or access controls for registration calls.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this next</div>
+        <div class="text-xs text-slate-800">Add a heartbeat method that updates timestamps and a cleanup routine that removes instances whose timestamps are older than a threshold.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

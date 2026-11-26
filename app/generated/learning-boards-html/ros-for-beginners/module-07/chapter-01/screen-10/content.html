@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Controlling the Robot</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-sm font-semibold text-slate-800 mb-2">cmd_vel → plugin → wheels → odom</div>
+      <ol class="text-sm text-slate-600 space-y-2 pl-4">
+        <li>Publish geometry_msgs/Twist to /cmd_vel with linear.x and angular.z.</li>
+        <li>Plugin computes wheel velocities from robot geometry and commanded twist.</li>
+        <li>Plugin applies torques to joints and publishes odometry on /odom.</li>
+        <li>robot_state_publisher and TF broadcast the odom→base_link transform for consumers.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Test Publisher Example</div>
+        <pre class="text-xs bg-slate-100 rounded-md p-2 text-slate-700" style="white-space:pre-wrap; tab-size:2;">rostopic pub /cmd_vel geometry_msgs/Twist "linear:
+  x: 0.5
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.2"</pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 mb-1">Verify</div>
+        <ul class="text-sm text-slate-600">
+          <li>rostopic echo /odom to watch position updates.</li>
+          <li>Use TF viewers to confirm odom→base_link transform updates.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 mb-1">Pitfall</div>
+        <div class="text-sm text-slate-600">Publishing at an irregular or too-low rate can lead to jerky motion; controllers expect steady update frequency.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

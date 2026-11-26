@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">CoS Basics</span>
+    </div>
+
+    <div class="flex gap-6 h-[72vh]">
+      <div class="w-1/2 bg-white rounded-2xl p-5 card">
+        <div class="text-sm font-bold text-slate-800">CoS Components</div>
+        <div class="mt-3 grid gap-3">
+          <div class="p-3 rounded-lg bg-violet-50 text-violet-800">Classifier — identifies and marks traffic (802.1p or DSCP)</div>
+          <div class="p-3 rounded-lg bg-white card">Forwarding Class — grouping for queues, e.g., expedited-forwarding, best-effort</div>
+          <div class="p-3 rounded-lg bg-white card">Scheduler — allocates bandwidth and priority among forwarding classes</div>
+          <div class="p-3 rounded-lg bg-white card">Rewrite Rules — modify CoS bits on egress to preserve marking</div>
+        </div>
+
+        <div class="mt-4 rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why it matters</div>
+          <p class="text-xs text-slate-700">Without CoS, delay-sensitive traffic competes equally with bulky transfers and user experience degrades during congestion.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-2xl p-5 card flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Concrete example</div>
+        <div class="mt-3 text-sm text-slate-700">Define a classifier that maps VoIP DSCP values to expedited-forwarding. Configure scheduler to give that forwarding class priority and minimum bandwidth so calls remain clear even when other traffic peaks.</div>
+
+        <div class="mt-4 rounded-lg p-3 bg-slate-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example config snippet (conceptual)</div>
+          <pre class="text-sm text-slate-700 whitespace-pre-wrap" style="tab-size:2">set class-of-service classifiers ieee-802.1p default forwarding-class best-effort loss-priority low code-points [ 000 ]
+set class-of-service classifiers ieee-802.1p default forwarding-class expedited-forwarding loss-priority low code-points [ 101 ]
+set class-of-service classifiers ieee-802.1p default forwarding-class assured-forwarding loss-priority low code-points [ 010 011 100 ]
+set class-of-service classifiers ieee-802.1p default forwarding-class network-control loss-priority low code-points [ 110 111 ]</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

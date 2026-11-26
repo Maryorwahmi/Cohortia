@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:#fff} pre{white-space:pre-wrap;tab-size:2} </style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-900">trap for cleanup and signal handling</div>
+    <div class="text-sm text-slate-600 mt-1">Guarantee resource cleanup and respond to signals predictably.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 panel p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Pattern</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>TEMP_REPORT="/tmp/log_report_$$"
+trap "rm -f $TEMP_REPORT" EXIT
+
+# create and use the temp file
+echo "Generating report" > "$TEMP_REPORT"
+# ... more operations ...
+</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Note: $$ expands to the current shell's PID to avoid collisions between parallel runs.</div>
+    </div>
+
+    <div class="w-1/2 panel p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Best practices</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+        <li>Set the trap immediately after creating the resource to ensure cleanup even on early failures.</li>
+        <li>Keep trap handlers simple and idempotent; avoid complex logic inside the handler.</li>
+        <li>Test traps by simulating errors and interrupts to confirm cleanup occurs.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Declaring a trap after the point where an early failure can occur leaves a window where resources are not cleaned up.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

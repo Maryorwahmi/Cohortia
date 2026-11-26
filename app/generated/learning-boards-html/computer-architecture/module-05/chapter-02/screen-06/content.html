@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">Predecoding for variable-length ISAs</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Predecode: how it works and why it helps</h3>
+  </div>
+
+  <div class="flex gap-4 flex-1">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="font-semibold text-slate-800 mb-2">Step-by-step</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-3">
+        <li>Fetch a window of bytes from L1I using the predicted PC.</li>
+        <li>Predecoder scans in parallel and marks likely instruction starts inside the window.</li>
+        <li>Fetcher uses those start points to form candidate instruction sequences and sends them to decode or the instruction queue.</li>
+        <li>Decoder validates true instruction lengths; misguesses are discarded and the fetch unit corrects the stream.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-blue-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Example</div>
+        <div class="text-sm text-slate-700">If the predecoder finds boundaries at bytes 0, 5, 9, and 14, the fetcher can attempt to deliver four instructions even though full decoding later confirms exact lengths.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Misguess cost & mitigation</div>
+      <div class="text-sm text-slate-700">A wrong guess wastes fetch bandwidth because fetch data for that speculative path is thrown away. Designers mitigate this by making predecoders conservative in uncommon patterns and using the instruction queue to amortize occasional wasted fetches.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Predecoding shortens the path to multi-instruction delivery but works together with queueing and validation to preserve correctness and throughput.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

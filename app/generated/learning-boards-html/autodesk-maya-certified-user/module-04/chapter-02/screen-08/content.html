@@ -1,0 +1,87 @@
+<div data-theme='light' class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>Camera Automation</span>
+  </div>
+
+  <div class='rounded-2xl bg-white border p-6 h-full card-border grid grid-cols-2 gap-6'>
+    <div class='flex flex-col'>
+      <div class='text-sm uppercase text-slate-500 font-bold tracking-wider'>Code Walkthrough</div>
+      <h2 class='text-2xl font-bold text-slate-900 mt-2 safe-title'>Automate camera setup</h2>
+      <p class='text-sm text-slate-600 mt-3'>This example creates primitives, a camera with aim, sets focal length and DOF, and keyframes transforms for a simple animation.</p>
+
+      <div class='mt-4 rounded-lg p-3 bg-white card-border flex-1 overflow-auto'>
+        <div class='text-sm font-semibold text-slate-800'>Code (Maya Python)</div>
+        <pre style='white-space:pre-wrap;tab-size:2' class='mt-2 text-sm bg-slate-50 p-3 rounded text-slate-800'><code>import maya.cmds as cmds
+
+# Create primitives
+cmds.polySphere(name='sphere_obj', r=1)
+cmds.move(0, 0, 0, 'sphere_obj')
+cmds.polyCube(name='cube_obj', w=2, h=2, d=2)
+cmds.move(0, 0, -3, 'cube_obj')
+cmds.polyCylinder(name='cylinder_obj', r=1, h=3)
+cmds.move(0, 0, -6, 'cylinder_obj')
+
+# Create a camera with aim
+cam_transform, cam_shape, aim_transform = cmds.camera(name='myAnimatedCamera', sa=True)
+
+# Position camera and aim
+cmds.move(0, 2, 5, cam_transform)
+cmds.move(0, 0, -3, aim_transform)  # Aim at the cube
+
+# Set focal length
+cmds.setAttr(f'{cam_shape}.focalLength', 50)
+
+# Set up Depth of Field (Arnold specific)
+cmds.setAttr(f'{cam_shape}.aiEnableDOF', 1)
+cmds.setAttr(f'{cam_shape}.aiFocusDistance', 5)  # Adjust based on scene
+cmds.setAttr(f'{cam_shape}.aiApertureSize', 0.2)
+
+# Keyframe camera position and rotation
+cmds.currentTime(1)
+cmds.setKeyframe(cam_transform, attribute='translateX')
+cmds.setKeyframe(cam_transform, attribute='translateY')
+cmds.setKeyframe(cam_transform, attribute='translateZ')
+cmds.setKeyframe(cam_transform, attribute='rotateX')
+cmds.setKeyframe(cam_transform, attribute='rotateY')
+cmds.setKeyframe(cam_transform, attribute='rotateZ')
+
+cmds.currentTime(120)
+cmds.move(0.5, 1.5, 1, cam_transform, absolute=True)
+cmds.rotate(5, -10, 0, cam_transform, relative=True)
+cmds.setKeyframe(cam_transform, attribute='translateX')
+cmds.setKeyframe(cam_transform, attribute='translateY')
+cmds.setKeyframe(cam_transform, attribute='translateZ')
+cmds.setKeyframe(cam_transform, attribute='rotateX')
+cmds.setKeyframe(cam_transform, attribute='rotateY')
+cmds.setKeyframe(cam_transform, attribute='rotateZ')
+
+cmds.playbackOptions(minTime=1, maxTime=120)</code></pre>
+      </div>
+    </div>
+
+    <div class='flex flex-col'>
+      <div class='rounded-lg p-4 bg-white card-border flex-1'>
+        <div class='text-sm font-semibold text-slate-800'>Notes</div>
+        <ul class='mt-2 text-sm text-slate-600 ml-4 list-disc'>
+          <li>Script sets transform and shape attributes separately.</li>
+          <li>Verify Focus Distance based on actual scene measurements.</li>
+          <li>Keyframe transforms for motion and shape attributes for lens/DOF changes.</li>
+        </ul>
+
+        <div class='mt-4'>
+          <div class='text-sm font-semibold text-slate-700'>Practice</div>
+          <p class='text-sm text-slate-600 mt-2'>Run the snippet in a fresh scene, then open the Outliner and Look Through Selected to validate the created camera before rendering frames.</p>
+        </div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Automation speeds iteration, but always check camera view and DOF visually after running scripts.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

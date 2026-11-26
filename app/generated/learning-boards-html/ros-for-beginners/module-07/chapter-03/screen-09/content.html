@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Actions</span>
+      <span class="text-slate-700">Preemption</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Problematic pattern</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+for (int i = 0; i < goal->count; ++i) {
+  my_pkg::MyActionFeedback feedback;
+  feedback.percentage = float(i) / goal->count;
+  _as.publishFeedback(feedback);
+}
+_as.setSucceeded(result);
+      </pre>
+      <div class="text-xs text-slate-600 mt-2">Issue: no preemption checks and no rate limiting.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Robust fix</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+for (int i = 0; i < goal->count; ++i) {
+  if (_as.isPreemptRequested()) {
+    _as.setPreempted();
+    return;
+  }
+  // publish feedback
+  ros::Duration(0.1).sleep();
+}
+_as.setSucceeded(result);
+      </pre>
+      <div class="text-xs text-slate-600 mt-2">Add preemption checks and a sleep to yield CPU and allow cancellations to take effect.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

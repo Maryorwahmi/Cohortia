@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.3</span><span>›</span><span class="text-slate-700">Evaluate Transaction</span></div><div class="flex flex-col h-full"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Read Operations</div><h2 class="text-3xl font-bold text-slate-900 mb-2">`evaluateTransaction` for Queries</h2><p class="text-lg text-slate-700">Reading ledger state without modification.</p></div><div class="flex-1 grid grid-cols-2 gap-6"><div class="flex flex-col bg-slate-900 rounded-2xl p-6 font-mono text-sm text-slate-200 shadow-xl"><pre><code class="language-javascript" style="white-space: pre-wrap; tab-size: 2;">// Example: Query all assets
+async function queryAllAssets(contract) {
+    try {
+        console.log('
+--> Evaluate Transaction: GetAllAssets');
+        const resultBytes = await contract.evaluateTransaction('GetAllAssets');
+        const result = JSON.parse(resultBytes.toString());
+        console.log(`*** Result: ${JSON.stringify(result, null, 2)}`);
+        return result;
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        throw error;
+    }
+}
+
+// Example: Query a specific asset by ID
+async function queryAssetById(contract, assetId) {
+    try {
+        console.log(`
+--> Evaluate Transaction: ReadAsset, ID ${assetId}`);
+        const resultBytes = await contract.evaluateTransaction('ReadAsset', assetId);
+        const result = JSON.parse(resultBytes.toString());
+        console.log(`*** Result: ${JSON.stringify(result, null, 2)}`);
+        return result;
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        throw error;
+    }
+}</code></pre></div><div class="flex flex-col justify-between"><div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 mb-4"><h3 class="text-lg font-semibold text-slate-900 mb-2">Explanation</h3><ul class="list-disc list-inside text-base text-slate-700 space-y-2"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Read-Only:** Designed for fetching data without altering the ledger.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Efficiency:** Bypasses ordering service and full transaction commitment.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Direct Peer Interaction:** Sends proposal to a single endorsing peer for immediate response.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>**Result Handling:** Returns a `Buffer` that needs to be converted to a string and parsed (e.g., `JSON.parse(resultBytes.toString())`).</span></li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">`evaluateTransaction` is your tool for fast, efficient, and safe data retrieval from the ledger.</p></div><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Attempting to use `evaluateTransaction` for functions that modify ledger state will result in errors or non-persistent changes.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

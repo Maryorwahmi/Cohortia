@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">AccessControl Lab</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter code (partial)</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded-md">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract AccessControl {
+  enum Role { Admin, Editor, Viewer, None }
+  mapping(address => Role) private userRoles;
+
+  constructor() { userRoles[msg.sender] = Role.Admin; }
+
+  modifier onlyRole(Role _role) {
+    require(userRoles[msg.sender] == _role, "AccessControl: Caller does not have the required role");
+    _;
+  }
+
+  function grantRole(address _user, Role _role) public virtual onlyRole(Role.Admin) {
+    require(_user != address(0), "AccessControl: Cannot grant role to zero address");
+    userRoles[_user] = _role;
+  }
+
+  function revokeRole(address _user) public virtual onlyRole(Role.Admin) {
+    require(_user != address(0), "AccessControl: Cannot revoke role from zero address");
+    userRoles[_user] = Role.None;
+  }
+
+  function getRole(address _user) public view returns (Role) { return userRoles[_user]; }
+}
+
+contract ContentManager is AccessControl {
+  string public content;
+  // TODO: Implement publishContent and viewContent
+  // TODO: Override grantRole to emit RoleGranted after calling super.grantRole()
+}</pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800 mb-2">Lab checklist</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Implement publishContent as onlyRole(Role.Editor).</li>
+        <li>Implement viewContent as onlyRole(Role.Viewer).</li>
+        <li>Override grantRole, call super.grantRole and emit RoleGranted.</li>
+        <li>Write tests: role assignment, publish success/fail, event emission.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

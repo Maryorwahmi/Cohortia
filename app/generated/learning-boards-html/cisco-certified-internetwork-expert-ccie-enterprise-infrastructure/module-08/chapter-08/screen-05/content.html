@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">FNF Components: Record, Exporter, Monitor</div>
+    <div class="text-sm text-slate-600 mt-1">Three distinct layers let you control what to collect, where to send it, and how it runs on the device.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white rounded-xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Component Overview</div>
+      <div class="space-y-3 text-sm text-slate-600">
+        <div><span class="font-semibold text-slate-800">Flow Record:</span> Defines keys (e.g., IPv4 source/destination, ports) and non-keys (counters, TCP flags).</div>
+        <div><span class="font-semibold text-slate-800">Flow Exporter:</span> Destination IP, transport UDP port, and source interface for NetFlow packets.</div>
+        <div><span class="font-semibold text-slate-800">Flow Monitor:</span> Associates a record and exporter and manages the flow cache for export.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3 border border-slate-border">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700">Operational tip</div>
+          <div class="text-sm text-slate-800">Apply monitors to only the interfaces you need and use short cache timeouts for security-focused export rates.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Combined configuration pattern</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>flow record FNF_SECURITY_RECORD
+ record FNF_SECURITY_RECORD
+  match ipv4 protocol
+  match ipv4 source address
+  match ipv4 destination address
+  match transport source-port
+  match transport destination-port
+  collect transport tcp flags
+  collect counter bytes long
+  collect counter packets long
+!
+flow exporter FNF_EXPORTER
+ destination 192.168.10.30
+ transport udp 2055
+ source GigabitEthernet0/0/0
+!
+flow monitor FNF_MONITOR
+ record FNF_SECURITY_RECORD
+ exporter FNF_EXPORTER
+ cache timeout active 60
+!
+interface GigabitEthernet0/0/1
+ ip flow monitor FNF_MONITOR input
+ ip flow monitor FNF_MONITOR output</code></pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3 border border-slate-border">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700">Verify</div>
+          <div class="text-sm text-slate-800">Use show flow monitor &lt;name&gt; cache and statistics to validate collection and export.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3 border border-slate-border">
+          <div class="text-[10px] uppercase tracking-wider text-rose-600">Watchout</div>
+          <div class="text-sm text-slate-800">Avoid wide application on many interfaces; monitor device CPU and memory after enabling.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

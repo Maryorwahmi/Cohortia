@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Structs with Arrays</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pattern</div>
+      <div class="font-semibold text-slate-800">Structs inside mappings or arrays</div>
+      <p class="text-sm text-slate-600 mt-3">Structs let you keep related fields together. When paired with mappings, they provide efficient keyed storage with organized fields accessible in one expression.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+        <pre class="bg-slate-50 p-3 rounded"><code>struct UserProfile {
+  string name;
+  uint256 lastLogin;
+  address[] ownedNFTs;
+}
+mapping(address =&gt; UserProfile) public userProfiles;
+// Access: userProfiles[msg.sender].name
+</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Gas note</div>
+        <div class="text-sm text-rose-600">Appending to ownedNFTs modifies storage and incurs gas. Consider alternatives when updates are frequent.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Keep arrays that change rarely inside structs; for frequent changes, use mappings or event logs instead of storing large mutable arrays.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Scenario & Alternatives</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border">
+          <div class="font-semibold text-slate-700">Keep small references</div>
+          <div class="text-sm text-slate-600 mt-1">Store token IDs or indexes instead of full objects to reduce bytes written.</div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="font-semibold text-slate-700">Events for off-chain lists</div>
+          <div class="text-sm text-slate-600 mt-1">Emit ownership transfers and let an indexer maintain the full list off-chain.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="font-semibold text-slate-700">Mapping references</div>
+          <div class="text-sm text-slate-600 mt-1">Use mapping(id =&gt; bool) for existence checks rather than scanning an array.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

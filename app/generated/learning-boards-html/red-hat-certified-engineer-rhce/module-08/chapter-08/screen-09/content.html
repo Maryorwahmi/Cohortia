@@ -1,0 +1,96 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)}
+    .code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, "Roboto Mono", "Noto Mono", monospace; white-space: pre-wrap; tab-size:2}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter Final Lab</span>
+      <span>›</span>
+      <span class="text-slate-700">User & Sudo</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <!-- Left column: explanation cards -->
+    <div class="w-5/12 flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-amber-100 text-amber-700 p-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/><path d="M6 20v-1c0-2.21 3.58-4 6-4s6 1.79 6 4v1"/></svg>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-700">Idempotent user creation</div>
+            <div class="text-xs text-slate-500">Use ansible.builtin.user with hashed passwords to avoid plaintext.</div>
+          </div>
+        </div>
+        <div class="mt-3 text-sm text-slate-700">
+          - Always hash a password before placing it in the user task. Ansible supports password_hash filters and vault for secrets.
+          <br>- Use state: present so repeated runs do not recreate or change unrelated attributes.
+        </div>
+      </div>
+
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-emerald-50 text-emerald-700 p-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z"/></svg>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-slate-700">Safe sudo rules</div>
+            <div class="text-xs text-slate-500">Place a validated file in /etc/sudoers.d with mode 0440.</div>
+          </div>
+        </div>
+        <div class="mt-3 text-sm text-slate-700">
+          - Use lineinfile or template with validate: 'visudo -cf %s' to avoid locking out sudo. 
+          <br>- Limit commands to the absolute executable path for predictability. 
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Make user tasks repeatable and validate any sudoer content. Scoped NOPASSWD entries are exam-friendly and safer than broad sudo access.</p>
+      </div>
+    </div>
+
+    <!-- Right column: code panel and example -->
+    <div class="w-7/12 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+        <div class="flex items-center justify-between">
+          <div class="text-lg font-bold text-slate-800">Example playbook tasks</div>
+          <div class="text-xs uppercase tracking-wider text-slate-500">Code snippet</div>
+        </div>
+        <div class="mt-3 overflow-auto code bg-slate-50 p-3 rounded-lg flex-1">
+          <pre><code>&#45; name: Create webadmin user on webserver1
+  ansible.builtin.user:
+    name: webadmin
+    password: "{{ 'redhat' | password_hash('sha512') }}"
+    state: present
+  when: inventory_hostname == 'webserver1'
+
+&#45; name: Allow webadmin to restart httpd without password on webserver1
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/webadmin_sudo
+    create: yes
+    mode: '0440'
+    line: 'webadmin ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart httpd'
+    validate: 'visudo -cf %s'
+  when: inventory_hostname == 'webserver1'
+</code></pre>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Scenario</div>
+            <div class="text-sm text-slate-800 mt-1">Confirm webadmin can restart httpd without password by running the sudo command as that user in verification steps.</div>
+          </div>
+          <div class="rounded-lg bg-rose-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+            <div class="text-sm text-slate-800 mt-1">Putting raw sudoers content without validate or wrong file mode can make sudo unusable; use validate and mode 0440.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

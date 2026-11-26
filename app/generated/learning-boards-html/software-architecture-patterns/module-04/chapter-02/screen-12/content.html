@@ -1,0 +1,43 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border overflow-auto">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Model change</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code># models.py (add this method)
+class Product:
+  # ... existing code ...
+  @classmethod
+  def get_by_id(cls, product_id):
+    for product in cls._products:
+      if product.id == product_id:
+        return product
+    return None</code></pre>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border overflow-auto">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Controller route</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code># app.py (add this route)
+@app.route('/product/&lt;int:product_id&gt;')
+def product_detail(product_id):
+  product = Product.get_by_id(product_id)
+  if product is None:
+    return "Product not found", 404
+  return render_template('product_detail.html', product=product)</code></pre>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border overflow-auto">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">View template</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>&lt;!-- templates/product_detail.html --&gt;
+&lt;h1&gt;{{ product.name }}&lt;/h1&gt;
+&lt;p&gt;Price: ${{ "{:.2f}".format(product.price) }}&lt;/p&gt;
+&lt;p&gt;&lt;a href="{{ url_for('index') }}"&gt;Back to Product List&lt;/a&gt;&lt;/p&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

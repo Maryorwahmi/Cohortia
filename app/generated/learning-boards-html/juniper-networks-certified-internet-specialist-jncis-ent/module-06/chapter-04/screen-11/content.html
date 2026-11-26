@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Three-router Lab</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter Junos snippets (R1, R2, R3)</div>
+      <pre class="mt-3"><code># R1 (RR) Lo0: 10.0.0.1
+set routing-options autonomous-system 65000
+set interfaces lo0 unit 0 family inet address 10.0.0.1/32
+set protocols bgp group IBGP_RR type internal
+set protocols bgp group IBGP_RR local-address 10.0.0.1
+set protocols bgp group IBGP_RR neighbor 10.0.0.2 family inet unicast route-reflector-client
+set protocols bgp group IBGP_RR neighbor 10.0.0.3 family inet unicast route-reflector-client
+set protocols bgp group IBGP_RR cluster 10.0.0.1
+
+# R2 Lo0: 10.0.0.2
+set interfaces lo0 unit 0 family inet address 10.0.0.2/32
+set routing-options autonomous-system 65000
+set protocols bgp group IBGP_TO_RR type internal
+set protocols bgp group IBGP_TO_RR local-address 10.0.0.2
+set protocols bgp group IBGP_TO_RR neighbor 10.0.0.1
+
+# R3 Lo0: 10.0.0.3 (similar to R2)
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Verification: run show bgp summary, show bgp group IBGP_RR on R1, and show route protocol bgp on clients to observe reflected routes. If you succeed, R3 will see prefixes advertised by R2 without a direct R2-R3 BGP session.</div>
+    </div>
+
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">The lab demonstrates how an RR reduces session count while preserving route visibility. Always verify IGP reachability before troubleshooting BGP sessions.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

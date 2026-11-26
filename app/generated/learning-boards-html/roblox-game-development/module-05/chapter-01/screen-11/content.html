@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Problem Case</div>
+      <div class="text-sm text-slate-700 mb-3">Avoid loops that run every frame without yielding. If many parts or players are involved, this quickly uses CPU for every tick.</div>
+      <pre class="rounded-lg bg-black text-white p-3"><code>-- Example: find nearest player (costly if called every frame)
+local function findNearestPlayer(targetPart)
+  local nearestPlayer = nil
+  local minDistance = math.huge
+
+  for _, player in ipairs(game.Players:GetPlayers()) do
+    local character = player.Character
+    if character then
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if humanoidRootPart then
+        local distance = (targetPart.Position - humanoidRootPart.Position).Magnitude
+        if distance < minDistance then
+          minDistance = distance
+          nearestPlayer = player
+        end
+      end
+    end
+  end
+  return nearestPlayer, minDistance
+end</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Better Patterns</div>
+      <ul class="text-sm text-slate-700 list-disc ml-5 mb-3">
+        <li>Use events (Touched, RemoteEvent handlers) instead of per-frame polling.</li>
+        <li>Batch or rate-limit expensive calculations, e.g., run every 0.1s with task.wait(0.1).</li>
+        <li>Use spatial queries like FindPartsInRegion3 when appropriate.</li>
+      </ul>
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700">Assuming frequent small computations are harmless; many small costs add up quickly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

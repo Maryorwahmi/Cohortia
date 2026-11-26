@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Calling from JavaScript</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl card p-4 overflow-auto">
+      <div class="text-lg font-bold text-slate-900">NativeModules usage example</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">import React from 'react';
+import { Button, View, StyleSheet, NativeModules, Platform, Text, Alert } from 'react-native';
+
+const ToastExample = NativeModules.ToastExample;
+
+export default function NativeModuleComponent() {
+  const showNativeToast = () => {
+    if (ToastExample) {
+      const duration = Platform.OS === 'android' ? ToastExample.SHORT : ToastExample.DURATION_SHORT;
+      ToastExample.show('Hello from Native!', duration);
+    } else {
+      Alert.alert('Error', 'Native Toast module not found. Are you running on a device/emulator with native code?');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Native Module Integration</Text>
+      <Text style={styles.platformText}>This triggers a platform-specific native UI element.</Text>
+    </View>
+  );
+}
+      </pre>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Important patterns</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>• Check module presence: NativeModules.ModuleName may be undefined in non-native contexts.</li>
+        <li>• Choose constants by Platform.OS for platform-specific values.</li>
+        <li>• Use Alert or graceful fallback when native modules are unavailable.</li>
+        <li>• For returned results, prefer promises and async/await in JS.</li>
+      </ul>
+
+      <div class="mt-4 bg-amber-50 rounded-xl p-3 text-sm text-slate-800">Scenario: call show from a debug screen to confirm the native module is registered and observe Toast on Android or Alert on iOS.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Key takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Always validate module availability and design JS to handle async native results; rebuild the app after native code changes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Network Security</span>
+    <span>›</span>
+    <span>Chapter Network Troubleshooting</span>
+    <span>›</span>
+    <span class="text-slate-700">Direct rules</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Direct rule example</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <pre class="text-sm text-slate-700"># Block outgoing ICMP echo requests (ping) from Server A
+sudo firewall-cmd --direct --add-rule ipv4 filter OUTPUT 0 -p icmp --icmp-type echo-request -j DROP --permanent
+sudo firewall-cmd --reload
+
+# Verify direct rules
+sudo firewall-cmd --direct --get-all-rules</pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-700">When to use</div>
+            <div class="text-sm text-slate-600 mt-2">When rich rules cannot express a needed match or action, or when you need to add a backend-specific tweak to nftables/iptables behavior.</div>
+          </div>
+
+          <div class="rounded-lg bg-[rgba(239,102,117,0.05)] p-3 border border-[rgba(239,102,117,0.08)]">
+            <div class="text-xs uppercase tracking-wider text-rose-700 font-bold">Pitfall</div>
+            <div class="text-sm text-slate-600 mt-2">Direct rules can be overlooked because they live outside the higher-level rule model; forgetting them causes puzzling connectivity issues later.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Reserve direct rules for special cases, record them, and verify with direct rule listings to avoid silent, hard-to-find behavior.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Scenario card</div>
+      <div class="mt-3 flex-1">
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Use-case</div>
+          <div class="text-sm text-slate-600 mt-2">You require a specialized NAT or connection tracking tweak that firewalld cannot represent. A direct rule lets you add the exact nftables command while keeping other rules managed by firewalld.</div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Verify</div>
+            <div class="text-sm text-slate-600 mt-2">Use firewall-cmd --direct --get-all-rules and then nft list ruleset to compare behaviors in the backend.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Pro tip</div>
+            <div class="text-sm text-slate-600 mt-2">Tag direct rules in your runbook and include the reasoning so future responders do not remove or duplicate the rule inadvertently.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

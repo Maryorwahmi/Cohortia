@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card p-4">
+      <div class="text-lg font-bold text-slate-900 mb-2">Activity steps</div>
+      <ol class="text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Create an Application Load Balancer across at least two public subnets in different AZs.</li>
+        <li>Create a target group for HTTP:80 and set health check path to /index.html.</li>
+        <li>Create a launch template with user data to install and start Apache.</li>
+        <li>Create an Auto Scaling Group, attach it to the target group, and set health-check-type to ELB.</li>
+        <li>Verify the ALB DNS returns the index page, then terminate one instance to watch ASG replace it.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl bg-white card p-4">
+      <div class="text-sm font-bold text-slate-800 mb-2">CLI snippet (create ASG)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"># Create Auto Scaling Group using existing launch template and target group
+aws autoscaling create-auto-scaling-group \
+  --auto-scaling-group-name MyWebServerASG \
+  --launch-template LaunchTemplateName=MyWebServerLaunchTemplate,Version='$Latest' \
+  --min-size 2 \
+  --max-size 5 \
+  --desired-capacity 2 \
+  --vpc-zone-identifier "subnet-0abcdef...,subnet-0fedcba..." \
+  --health-check-type ELB \
+  --health-check-grace-period 300 \
+  --target-group-arns "arn:aws:elasticloadbalancing:...:targetgroup/MyTargetGroup/..."</pre>
+      <div class="mt-2 text-sm text-slate-600">This command shows how the ASG uses a launch template, spans subnets, and relies on ELB health checks to maintain desired capacity.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

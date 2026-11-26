@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 bg-white card p-5">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-lg font-bold text-slate-900">Recipient Restrictions</h3>
+      <p class="text-sm text-slate-600 mt-2">A simple, effective sequence prevents open relay while allowing trusted traffic.</p>
+      <div class="mt-4 bg-slate-50 p-3 rounded-md mono text-sm"># /etc/postfix/main.cf
+smtpd_recipient_restrictions =
+    permit_mynetworks
+    permit_sasl_authenticated
+    reject_unauth_destination</div>
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-md bg-emerald-50">
+          <div class="font-bold text-emerald-700">Why reject_unauth_destination</div>
+          <div class="text-sm text-slate-700">It blocks any recipient not listed in mydestination, relay_domains, or virtual_alias_domains unless the sender is trusted or authenticated.</div>
+        </div>
+        <div class="p-3 rounded-md bg-rose-50">
+          <div class="font-bold text-rose-600">Order matters</div>
+          <div class="text-sm text-slate-700">An allow rule placed after a reject can be skipped. Always place permit rules first for expected behavior.</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white card p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete test</div>
+      <div class="text-sm text-slate-600 mt-2">From a trusted client in mynetworks send mail to external recipient; from an untrusted host repeat the test and observe rejection.</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded-md mt-3"># internal test
+echo "Test" | mail -s "Internal" user@example.com
+# external test should show 'Relay access denied' in logs</pre>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Build recipient restrictions in a clear order: allow trusted networks and authenticated users first, then reject unauthorised destinations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

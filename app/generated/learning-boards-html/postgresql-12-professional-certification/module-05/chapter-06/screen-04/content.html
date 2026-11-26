@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">What is PITR</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+        <h2 class="mt-2 text-xl font-semibold text-slate-800">Base backup plus WAL replay</h2>
+        <p class="mt-3 text-sm text-slate-600">A base backup provides a consistent data snapshot, and WAL archives supply the ordered sequence of changes applied after that snapshot. Recovery replays those changes to reach the desired point.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+            <div class="text-sm font-semibold text-slate-800">Analogy</div>
+            <div class="text-sm text-slate-700 mt-1">Photo plus video: photo is the base backup; video frames are the WALs you play forward to reach a specific frame.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-white border card-border mt-3">
+            <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-1">Some assume snapshots alone are sufficient. Without continuous WAL archives, you cannot restore to times after the base backup.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Both components are required: a consistent base backup and a complete chain of WALs up to the recovery point.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Teaching visual</div>
+        <div class="mt-3 grid grid-cols-1 gap-3 h-full">
+          <div class="p-3 rounded-lg bg-white card-border">
+            <div class="text-sm font-semibold text-slate-800">Visual sequence</div>
+            <div class="mt-2 text-sm text-slate-700">Base backup (consistent snapshot) → WAL segments archived continuously → Recovery replays WALs until recovery target.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-white card-border mt-2">
+            <div class="text-sm font-semibold text-slate-800">Example constraint</div>
+            <div class="mt-2 text-sm text-slate-700">If WAL segment X is missing between the backup and your target time, recovery cannot proceed past that point and will stop with an error.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+        <ol class="mt-2 text-sm text-slate-600 list-decimal list-inside">
+          <li>Why is a base backup alone insufficient for later times?</li>
+          <li>What must you verify in your WAL archive before starting recovery?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f1724;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Live Coding</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">AES-256-CBC: Encrypt & Decrypt</div>
+      <div class="text-sm text-slate-600 mt-2">Reproducible OpenSSL commands to encrypt a text file and then decrypt it.</div>
+
+      <div class="mt-4">
+        <pre class="code" style="white-space:pre-wrap; tab-size:2"><code># --- Setup: Create a test file
+echo "This is a secret message for encryption testing." &gt; secret_message.txt
+
+# Encrypt with AES-256-CBC, using salt and PBKDF2 for key derivation
+openssl enc -aes-256-cbc -salt -pbkdf2 -in secret_message.txt -out secret_message.enc -k "MyStrongPassword123!"
+
+# Decrypt to recover the original
+openssl enc -d -aes-256-cbc -pbkdf2 -in secret_message.enc -out decrypted_message.txt -k "MyStrongPassword123!"
+
+# View decrypted content
+cat decrypted_message.txt</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Observation</div>
+          <div class="text-sm text-slate-700 mt-1">The encrypted file contains salt metadata. Different salts yield different ciphertexts for identical plaintexts.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Practice tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use strong passphrases or better yet, securely manage keys rather than relying on typed passwords in production.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example card</div>
+      <div class="text-xs text-slate-600 mt-2">This small workflow demonstrates the cryptographic lifecycle: key derivation, encryption, storage of ciphertext, and successful decryption with the same keying material.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">For reproducible testing use OpenSSL, but for production use robust key management rather than passphrase-derived keys.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

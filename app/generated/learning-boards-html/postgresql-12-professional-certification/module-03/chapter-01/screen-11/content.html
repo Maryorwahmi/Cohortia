@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 p-4 rounded-xl bg-white border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold mt-2 text-slate-900">Reassign, drop, then remove</h3>
+      <p class="text-sm text-slate-700 mt-3">Plan ownership transfer and privilege removal before dropping the role to keep schema consistent.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Commands</div>
+        <div class="mt-2 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2">
+<pre><code>-- Transfer ownership to new_owner
+REASSIGN OWNED BY old_role TO new_owner;
+
+-- Remove privileges owned by old_role
+DROP OWNED BY old_role;
+
+-- Finally remove the role
+DROP ROLE old_role;</code></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 p-4 rounded-xl bg-white border flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-900">Checklist</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step 1</div>
+          <div class="text-sm text-slate-700 mt-1">Decide where to move owned objects to avoid losing access to critical schema objects.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Dropping the role first and then discovering orphaned objects that create maintenance overhead.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-1">Always reassign or drop owned objects before DROP ROLE and verify ownership after each command.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

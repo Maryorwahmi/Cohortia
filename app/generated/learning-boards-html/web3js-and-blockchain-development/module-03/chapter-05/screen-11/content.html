@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">SimpleToken Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-lg font-semibold text-slate-800">Starter contract</div>
+      <div class="text-sm text-slate-600 mt-2">Paste this into SimpleToken.sol in Remix and follow the steps below.</div>
+
+      <pre class="mt-3 text-sm font-mono text-slate-800" style="white-space:pre-wrap; tab-size:2">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleToken {
+    string public name = "Simple Token";
+    string public symbol = "STK";
+    uint256 public totalSupply;
+    mapping(address => uint256) public balances;
+
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+    constructor(uint225 _initialSupply) {
+        require(_initialSupply > 0, "Initial supply must be positive.");
+        totalSupply = _initialSupply;
+        balances[msg.sender] = _initialSupply;
+    }
+
+    function transfer(address _to, uint256 _amount) public returns (bool success) {
+        require(balances[msg.sender] >= _amount, "Insufficient balance.");
+        require(_to != address(0), "Cannot transfer to zero address.");
+
+        balances[msg.sender] -= _amount;
+        balances[_to] += _amount;
+        emit Transfer(msg.sender, _to, _amount);
+        return true;
+    }
+
+    function balanceOf(address _owner) public view returns (uint256) {
+        return balances[_owner];
+    }
+}</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Lab steps</div>
+      <ol class="text-sm text-slate-600 mt-2 list-decimal list-inside">
+        <li>Compile SimpleToken and switch to JavaScript VM.</li>
+        <li>Enter an initial supply (e.g., 1000 followed by 18 zeros) and Deploy.</li>
+        <li>Call name, symbol, and totalSupply (view calls).</li>
+        <li>Call balanceOf for deployer, transfer to another account, then re-check balances and events.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Safety note</div>
+        <p class="text-xs font-medium text-slate-800">When moving to public testnets, never expose private keys. Use wallets or environment-managed keys for deployments.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

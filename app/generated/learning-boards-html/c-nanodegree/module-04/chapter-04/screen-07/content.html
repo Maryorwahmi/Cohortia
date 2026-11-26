@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">constexpr vs Templates</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">constexpr example</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm text-slate-800">constexpr long long factorial_constexpr(int n) {
+  return (n == 0) ? 1 : n * factorial_constexpr(n - 1);
+}
+
+// Called with a compile-time constant, the compiler may evaluate this at compile time.
+</pre>
+      <div class="text-sm text-slate-700 mt-3">A constexpr function is clearer and often preferable when you want both readability and optional compile-time evaluation. Use it when arguments can be constant or when you prefer fewer template instantiations.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Template struct example</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm text-slate-800">template &lt;int N&gt;
+struct Factorial {
+  static const long long value = N * Factorial&lt;N - 1&gt;::value;
+};
+
+template &lt;&gt;
+struct Factorial&lt;0&gt; { static const long long value = 1; };
+
+// Factorial&lt;5&gt;::value is always a compile-time constant
+</pre>
+      <div class="text-sm text-slate-700 mt-3">Use template structs when you need the value at the type level or require unconditional compile-time availability, such as template parameters or static asserts that need constants.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-lg bg-amber-50 p-3">
+      <div class="text-xs font-semibold text-amber-800">Misconception</div>
+      <div class="text-sm text-slate-700 mt-1">Not every constexpr call is evaluated at compile time; the argument must be a compile-time constant for that to happen.</div>
+    </div>
+
+    <div class="rounded-lg bg-emerald-50 p-3">
+      <div class="text-xs font-semibold text-emerald-700">When to prefer which</div>
+      <div class="text-sm text-slate-700 mt-1">Prefer constexpr for readability and optional compile-time evaluation; prefer template structs when type-level constants are required.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

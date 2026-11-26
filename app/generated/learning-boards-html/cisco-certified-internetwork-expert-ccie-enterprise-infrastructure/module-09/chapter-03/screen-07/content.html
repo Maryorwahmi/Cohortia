@@ -1,0 +1,22 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span><span>›</span><span>Chapter 9.3</span><span>›</span><span class="text-slate-700">Remote Syslog Config</span></div><div class="flex flex-col h-full"><div class="mb-6"><div class="text-sm font-bold uppercase tracking-wider text-blue-600 mb-2">Configuration Guide</div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Sending Syslog Messages to a Remote Server</h2><p class="text-lg text-slate-700">Centralizing logs for long-term storage and correlation across devices</p></div><div class="grid grid-cols-2 gap-6 flex-grow"><div class="flex flex-col bg-slate-800 rounded-2xl shadow-xl p-6 font-mono text-sm text-slate-200"><div class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-3">Cisco IOS XE Syslog Configuration</div><pre><code style="white-space: pre-wrap; tab-size: 2;">! Syslog Configuration Example
+
+! Set the logging buffer size
+logging buffered 8192
+
+! Set the logging console level
+logging console warnings
+
+! Set the logging monitor level
+logging monitor informational
+
+! Specify the remote syslog server IP
+logging host 192.168.1.20
+
+! Specify the logging facility (optional)
+logging facility local7
+
+! Set min severity for remote host (informational and above)
+logging trap informational
+
+! Enable timestamps for log messages
+service timestamps log datetime localtime</code></pre></div><div class="flex flex-col space-y-4"><div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Explanation</div><ul class="list-disc list-inside text-xs text-slate-700 space-y-1"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`logging buffered`: Local buffer for temporary storage.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`logging console/monitor`: Controls local display levels.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`logging host`: **Crucial** for specifying the remote collector's IP.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`logging facility`: Categorizes logs on the server.</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`logging trap`: Filters messages sent to the remote host by severity (lower number = higher severity).</span></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span><span>`service timestamps`: Ensures accurate time for event correlation.</span></li></ul></div><div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro-Tip</div><p class="text-xs font-medium text-slate-800">Always synchronize device clocks with NTP (`ntp server <IP>`) to ensure accurate timestamps across all logs, which is vital for correlating events.</p></div><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Forgetting `logging host` means logs stay local, making centralized analysis impossible.</p></div></div></div><div class="mt-6 w-full"><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Proper syslog configuration, especially `logging host` and `service timestamps`, is fundamental for centralizing event data, enabling effective monitoring, troubleshooting, and security analysis.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

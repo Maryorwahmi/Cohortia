@@ -1,0 +1,58 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Core Concept</span>
+      <span>›</span>
+      <span class='text-slate-700'>Multi-task Jobs & DAGs</span>
+    </div>
+    <div class='flex gap-6 h-[68%]'>
+      <div class='w-5/12 bg-white rounded-xl p-4 card h-full'>
+        <div class='text-xl font-bold text-slate-900 mb-2'>Why use multi-task jobs?</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Isolate failures so only the failing task needs a rerun.</li>
+          <li>Improve readability and ownership by assigning single responsibilities.</li>
+          <li>Visualize execution order with a DAG to quickly spot bottlenecks.</li>
+        </ul>
+        <div class='mt-4'>
+          <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-1'>Common mistake</div>
+          <div class='text-sm text-rose-700'>Packing many steps into one notebook makes debugging and selective reruns difficult.</div>
+        </div>
+      </div>
+      <div class='w-7/12 bg-white rounded-xl p-4 card h-full'>
+        <div class='text-sm font-bold text-slate-800 mb-3'>Example DAG (annotated task cards)</div>
+        <div class='grid grid-cols-3 gap-3 h-full'>
+          <div class='rounded-lg bg-indigo-50 p-3 flex flex-col justify-between'>
+            <div class='text-sm font-bold text-indigo-700'>Raw_Ingestion</div>
+            <div class='text-xs text-slate-600 mt-2'>Reads CSV, writes bronze.raw_customers</div>
+            <div class='text-[11px] mt-3 text-slate-700'>Cluster: new job cluster</div>
+          </div>
+          <div class='rounded-lg bg-amber-50 p-3 flex flex-col justify-between'>
+            <div class='text-sm font-bold text-amber-800'>Clean_Transform</div>
+            <div class='text-xs text-slate-600 mt-2'>Depends on Raw_Ingestion; writes silver.cleaned_customers</div>
+            <div class='text-[11px] mt-3 text-slate-700'>Parameter: processing_date</div>
+          </div>
+          <div class='rounded-lg bg-emerald-50 p-3 flex flex-col justify-between'>
+            <div class='text-sm font-bold text-emerald-800'>Aggregate_Data</div>
+            <div class='text-xs text-slate-600 mt-2'>Depends on Clean_Transform; writes gold.aggregated_customers</div>
+            <div class='text-[11px] mt-3 text-slate-700'>Outputs: aggregated metrics</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class='mt-4 grid grid-cols-3 gap-3'>
+      <div class='rounded-xl p-3 bg-white card'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <div class='text-sm font-medium text-slate-800'>Model your pipeline as small tasks with explicit dependencies so errors are contained and runs are efficient.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white card'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Analogy</div>
+        <div class='text-sm text-slate-700'>Think of tasks as assembly-line stations: each station does one job before handing to the next.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white card'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Check</div>
+        <div class='text-sm text-slate-700'>Ask: can this step be rerun independently if it fails?</div>
+      </div>
+    </div>
+  </div>
+</div>

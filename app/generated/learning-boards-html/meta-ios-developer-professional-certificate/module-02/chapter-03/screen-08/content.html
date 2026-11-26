@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+    <span>›</span>
+    <span class="text-slate-700">@ObservedObject vs @StateObject</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm h-full">
+      <div class="text-lg font-bold text-slate-900">@StateObject (Owner)</div>
+      <div class="text-sm text-slate-600 mt-2">The view creates and owns the ObservableObject and it persists across view re-creations.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-semibold text-emerald-700">When to use</div>
+          <div class="text-sm text-slate-700">When the view is responsible for creating and maintaining the lifecycle of the model.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-700">Concrete Example</div>
+          <div class="text-sm text-slate-700">TaskListView that instantiates TaskStore should declare it as @StateObject to prevent recreation.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm h-full">
+      <div class="text-lg font-bold text-slate-900">@ObservedObject (Observer)</div>
+      <div class="text-sm text-slate-600 mt-2">The view observes an object created by someone else; it responds to changes but does not own lifecycle.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-sm font-semibold text-amber-700">When to use</div>
+          <div class="text-sm text-slate-700">For child views that display or react to a model passed by a parent or injected container.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-700">Common Error</div>
+          <div class="text-sm text-slate-700">Defining a model with @ObservedObject in a view that creates it will allow the model to be recreated, losing state.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Decide model ownership first. If you create it, use @StateObject; if you receive it, use @ObservedObject.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

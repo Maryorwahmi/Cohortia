@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;}</style>
+  <div class="flex flex-col h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Troubleshooting</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 h-full">
+      <div class="col-span-7 rounded-2xl bg-white border p-5">
+        <div class="text-sm font-bold">Quick checklist</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Use ip route get <destination> from <source> to see the chosen route.</li>
+          <li>Run ip rule show to inspect any PBR entries that change lookups.</li>
+          <li>Review nft list ruleset to confirm NAT and filter rules exist as intended.</li>
+          <li>Capture traffic on both interfaces with tcpdump to observe translation and direction.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Troubleshooting Tip</div>
+            <p class="text-xs font-medium text-slate-800">If ip route get shows a different path than expected, re-check ip rule priorities and custom table contents before changing firewall rules.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-5 rounded-2xl bg-white border p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification commands (examples)</div>
+        <pre class="rounded bg-slate-900 text-white p-3 mt-3"><code># Inspect rules and routes
+sudo ip rule show
+sudo ip route show table custom_route
+sudo ip route get 8.8.8.8 from 192.168.100.100
+
+# Verify nftables and capture
+sudo nft list ruleset
+sudo tcpdump -nni eth0 host 203.0.113.10 or host 192.168.100.100
+</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

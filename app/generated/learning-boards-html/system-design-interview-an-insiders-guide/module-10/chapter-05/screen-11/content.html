@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Cardinality & approximation</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex gap-6">
+    <div class="w-1/2 min-w-0">
+      <div class="text-sm font-semibold text-slate-800">Why approximation?</div>
+      <p class="mt-3 text-sm text-slate-600">Exact distinct tracking requires storing potentially huge sets of identifiers. When memory is limited, sketches like HyperLogLog give an estimate with controlled error while using much less memory.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-violet-50 card-border">
+          <div class="text-sm font-semibold text-violet-700">HyperLogLog</div>
+          <div class="text-sm text-slate-700 mt-1">Keep an HLL sketch per key, add identifiers as events arrive, and extract an estimated unique count periodically.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Trade-offs</div>
+          <div class="text-sm text-slate-700 mt-1">Small, bounded error versus large memory footprint for exact sets.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 card-border">
+          <div class="text-sm font-semibold text-emerald-700">When to use</div>
+          <div class="text-sm text-slate-700 mt-1">When dashboards accept approximate uniques and you need to scale to high throughput.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">HyperLogLog is a practical compromise for distinct counts when exactness is too expensive.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-3 rounded-lg bg-white card-border p-4 flex-1">
+        <p class="text-sm text-slate-600">For a daily unique users view, maintain an HLL per (date, country). As login events arrive, add the user_id to the HLL. Every minute compute the HLL's estimate and upsert that estimate into the materialized view table. This gives near-real-time approximate uniques with low memory usage.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Composite Alarm: CloudFormation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">CloudFormation example</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 mt-2"><code>Resources:
+  MyCompositeAlarm:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: MyApplicationCriticalHealthCompositeAlarm
+      AlarmDescription: "Triggers if both CPU and Memory are critically high."
+      AlarmActions:
+        - !ImportValue MySnsTopicArnForCriticalAlerts
+      AlarmRule: "ALARM(\"arn:aws:cloudwatch:us-east-1:123456789012:alarm:MyCpuAlarm\") AND ALARM(\"arn:aws:cloudwatch:us-east-1:123456789012:alarm:MyMemoryAlarm\")"
+      ActionsEnabled: true</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Verify child alarm ARNs and region/account context.</li>
+        <li>Use exported SNS ARNs or parameters to keep templates portable.</li>
+        <li>Test composite behavior by simulating child alarm states in staging.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use AlarmRule to encode logical combinations of child alarm states and test thoroughly before production use.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

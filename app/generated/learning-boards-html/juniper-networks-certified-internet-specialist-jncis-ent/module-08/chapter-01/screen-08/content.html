@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);} .step{background:#fff;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">How GRES Works Internally</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800">Continuous synchronization</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Primary pushes configuration and kernel state to backup continuously.</li>
+        <li>Backup maintains protocol adjacencies and table snapshots where possible.</li>
+        <li>System reports synchronization status as Done when aligned.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">These steps ensure the backup is pre-warmed and ready to assume control without rebuilding state from scratch.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800">Switchover sequence</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Trigger or detect RE failure.</li>
+        <li>Backup promotes to master using synchronized state.</li>
+        <li>Control-plane functions resume with minimal reconvergence.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">GRES reduces the time to restore control-plane functionality by relying on an up-to-date backup that can take over immediately.</p>
+        </div>
+
+        <div class="mt-3 p-3 rounded-lg bg-rose-50 text-rose-700 text-sm">Pitfall: a broken synchronization path causes the backup to perform a cold start and forces full reconvergence.</div>
+      </div>
+    </div>
+  </div>
+</div>

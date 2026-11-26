@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--blue:#2563eb;--violet:#7b42e8;--slate-border:rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">What the transaction hash represents</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <!-- Left: Explanation (45%) -->
+    <div class="w-5/12 h-full flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm" style="border-color:var(--slate-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Core Concept</div>
+        <div class="text-xl font-bold leading-tight text-slate-800">Transaction hash is the signed summary</div>
+        <p class="text-sm text-slate-600 mt-2">The hash is a fixed-length fingerprint of every field that matters for authorization. Any modification produces a different hash, invalidating the original signature.</p>
+      </div>
+
+      <div class="rounded-xl bg-blue-50 p-3 border" style="border-color:var(--slate-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">What the hash includes</div>
+        <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+          <li>Inputs: references to the UTXOs being spent.</li>
+          <li>Outputs: recipients, change outputs, and amounts.</li>
+          <li>Fee and basic metadata used in consensus rules.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Concrete example</div>
+        <p class="text-sm text-slate-800">Alice’s transaction bundles an input from a prior output, a 1 BTC output to Bob, a change output back to Alice, and a fee. The wallet hashes that bundle and signs the hash. Nodes repeat this exact hashing step to verify the signature.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Signing the transaction hash ties your authorization to every detail in the transaction; change any detail and verification fails.</p>
+      </div>
+    </div>
+
+    <!-- Right: Large code-like transaction sample (55%) -->
+    <div class="w-7/12 h-full flex flex-col gap-4">
+
+      <div class="rounded-2xl bg-white p-4 shadow-sm h-full overflow-hidden" style="border:1px solid var(--slate-border)">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Annotated Example</div>
+            <div class="text-2xl font-bold text-slate-800">Simplified transaction digest</div>
+            <p class="text-sm text-slate-600 mt-1">A readable, conceptual view of the fields that are hashed and signed.</p>
+          </div>
+          <div class="text-sm uppercase text-slate-500 tracking-wider">In this lesson</div>
+        </div>
+
+        <div class="mt-4 h-full flex flex-col gap-3">
+          <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2; max-height: 60%;">
+{
+  "inputs": [{"txid": "previous-txid", "vout": 0}],
+  "outputs": [{"address": "BobAddress", "amount": 1.0}, {"address": "AliceChange", "amount": 0.499}],
+  "fee": 0.001
+}
+          </pre>
+
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div class="rounded-lg bg-white p-3 border" style="border-color:var(--slate-border)">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Why hash this?</div>
+              <p class="text-sm text-slate-700">A single digest is efficient and deterministic for signing and verification across all nodes.</p>
+            </div>
+            <div class="rounded-lg bg-white p-3 border" style="border-color:var(--slate-border)">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Misconception</div>
+              <p class="text-sm text-slate-700">Signing the hash does not hide amounts or recipients; it only proves they were authorized by the private key holder.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

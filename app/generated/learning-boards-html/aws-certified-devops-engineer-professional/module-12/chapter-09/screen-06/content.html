@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px}</style>
+  <div class='h-full flex gap-6'>
+    <div class='w-1/2 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500 font-bold mb-2'>IaC Integration</div>
+      <div class='text-2xl font-bold text-slate-900 mb-2'>Incorporate fixes into templates so deployments are consistent</div>
+      <div class='text-sm text-slate-600 mb-4'>Change the code that defines infrastructure rather than editing live resources.</div>
+
+      <div class='rounded-xl p-4 bg-white card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Why this matters</div>
+        <div class='text-sm text-slate-600 mt-2'>IaC keeps fixes durable across rebuilds and scaling events. One‑off changes reintroduce drift and future failures.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl p-4 bg-emerald-50 card-border'>
+        <div class='font-semibold text-slate-800'>Safety note</div>
+        <div class='text-sm text-slate-600 mt-2'>Treat IaC like application code: feature branch, tests, review, and staged verification to avoid introducing regressions.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col'>
+      <div class='rounded-2xl bg-white p-4 card-border shadow-sm'>
+        <div class='font-semibold text-slate-800'>Example — CloudFormation index</div>
+        <pre><code>{
+  "Resources": {
+    "MyDatabaseTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "MyProducts",
+        "AttributeDefinitions": [
+          {"AttributeName": "productId", "AttributeType": "S"},
+          {"AttributeName": "category", "AttributeType": "S"}
+        ],
+        "KeySchema": [{"AttributeName": "productId", "KeyType": "HASH"}],
+        "GlobalSecondaryIndexes": [{
+          "IndexName": "CategoryIndex",
+          "KeySchema": [{"AttributeName": "category", "KeyType": "HASH"}],
+          "Projection": {"ProjectionType": "ALL"}
+        }]
+      }
+    }
+  }
+}</code></pre>
+        <div class='text-xs text-slate-600 mt-2'>Add this change to IaC, run template validation in CI, and verify the index exists in a staging deployment.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl p-3 bg-white card-border'>
+        <div class='font-semibold text-slate-800'>Key takeaway</div>
+        <div class='text-sm text-slate-700 mt-2'>IaC updates are the reliable way to prevent regressions caused by manual fixes; pair them with tests and code reviews.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

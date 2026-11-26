@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-xl p-4 card-border">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Lab snippet</div>
+      <pre class="mt-3 mono bg-slate-50 p-3 rounded-md text-sm">! Basic setup
+hostname Router1
+ip domain name cohortia.local
+username admin privilege 15 secret StrongSecret!
+!
+! SSH
+crypto key generate rsa modulus 2048
+ip ssh version 2
+line vty 0 4
+ transport input ssh
+ login local
+!
+! SNMPv3
+snmp-server view SECUREVIEW iso included
+snmp-server group SECUREGROUP v3 auth priv read SECUREVIEW
+snmp-server user COHORTIAUSER SECUREGROUP v3 auth sha COHORTIAPASS priv aes 128 COHORTIAENC
+!
+! CoPP
+ip access-list extended COPP_ACL
+ permit tcp any any eq 22
+ permit udp any any eq 161
+class-map match-all COPP_CLASS
+ match access-group name COPP_ACL
+policy-map COPP_POLICY
+ class COPP_CLASS
+  police 8000 1500 conform-action transmit exceed-action drop
+control-plane
+ service-policy input COPP_POLICY
+      </pre>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold">Test plan</div>
+      <ol class="list-decimal pl-4 mt-2 text-sm text-slate-600">
+        <li>Confirm SSHv2 key-based login from lab client.</li>
+        <li>Run SNMPv3 queries scoped to SECUREVIEW and verify output.</li>
+        <li>Simulate a flood and check CoPP counters and policy hits.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold">Common mistake</div>
+        <p class="mt-2">Applying CoPP without validating ACL matches can block legitimate admin traffic. Validate ACLs in a lab and monitor counters after deployment.</p>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Build and validate a hardened baseline in lab, then automate its deployment with configuration management tools.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Architecture</div>
+    <div class="text-2xl font-bold text-slate-800">LUKS Key Slots and Header Structure</div>
+    <div class="text-sm text-slate-600 mt-1">Key slots wrap the master key, enabling multiple credentials and safe rotation.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Header breakdown</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><b>Master key:</b> single symmetric key that encrypts the data area.</li>
+        <li><b>Key slots:</b> up to eight independent slots storing encrypted wrappers of the master key.</li>
+        <li><b>Metadata:</b> algorithm identifiers, salt, and versioning for portability.</li>
+      </ul>
+
+      <div class="mt-4 font-bold text-slate-800">Management pattern</div>
+      <div class="mt-2 text-sm text-slate-600">To rotate keys: add a new slot, verify unlock works, then remove the old slot. This avoids re-encrypting the entire volume and preserves access continuity.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-600">An operator adds a second passphrase for backup on slot two. Later, if the second passphrase is compromised, they can kill slot two without affecting slot one.</div>
+
+      <div class="mt-4 font-bold text-slate-800">Danger point</div>
+      <div class="mt-2 text-sm text-rose-600">Losing the LUKS header makes all slots unusable. Back up the header and keep backups offline.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use key slots for redundancy and rotation, and back up the header to prevent irrecoverable data loss.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

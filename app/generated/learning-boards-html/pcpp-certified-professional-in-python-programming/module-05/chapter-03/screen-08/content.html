@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">TCP client example explained</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Reference code</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-xs" style="white-space: pre-wrap; tab-size: 2;"><code># tcp_client.py
+import socket
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+def run_client():
+  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    message = "Hello, Cohortia!"
+    s.sendall(message.encode())
+    print(f"Sent: {message}")
+    data = s.recv(1024)
+    print(f"Received: {data.decode()}")
+  print("Client connection closed.")
+
+if __name__ == "__main__":
+  run_client()</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Explanation & pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>message.encode():</strong> converts text to bytes before sending.</li>
+        <li><strong>recv(1024):</strong> blocks and returns up to 1024 bytes; may need looping for larger messages.</li>
+        <li><strong>ConnectionRefusedError:</strong> commonly raised if the server is not running or is on a different host/port.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Forgetting to encode strings results in a type error; always convert text to bytes for socket send operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

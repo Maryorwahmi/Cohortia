@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#f8fafc;color:#0f172a;padding:12px;border-radius:10px;overflow:auto;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Seq Scan vs Index Scan</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-48px)]">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Sequential Scan</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Reads every row in the table. Low startup cost, high overall I/O for large tables.</li>
+        <li>Often chosen when many rows match or when no useful index exists.</li>
+        <li>Good for returning most rows from a table efficiently.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">When it's a problem</div>
+        <div class="text-xs text-slate-800 mt-1">Seq Scan over a large table for a selective query is a sign to add an index or re-evaluate stats.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Index Scan</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Uses an index to find matching rows; good when few rows match.</li>
+        <li>Higher startup cost but can reduce total I/O if selective.</li>
+        <li>May degrade when many rows match; bitmap scans combine index and heap access for many rows.</li>
+      </ul>
+
+      <div class="mt-4">
+        <pre class="code">-- Example: index helps selective filter
+EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'Books' AND price &gt; 500;</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

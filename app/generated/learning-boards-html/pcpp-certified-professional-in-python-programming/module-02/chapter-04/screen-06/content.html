@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .step { border: 1px solid rgba(226,232,240,0.9); } pre { white-space: pre-wrap; tab-size: 2; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Constructing attrs dictionary</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 step">
+      <div class="text-sm font-bold text-slate-700">Step-by-step</div>
+      <div class="mt-3 space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded bg-slate-50">1. Collect schema or config that lists fields and defaults.</div>
+        <div class="p-3 rounded bg-slate-50">2. Define helper functions with def so names and docstrings are preserved.</div>
+        <div class="p-3 rounded bg-slate-50">3. Assemble attrs mapping names to values, descriptors, or functions.</div>
+        <div class="p-3 rounded bg-slate-50">4. Create the class with type(name, (bases,), attrs) and run small validations.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 border">
+      <div class="text-sm font-bold text-slate-700">Example: add a readable repr</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>def __repr__(self):
+  fields = ', '.join(f"{k}={getattr(self, k, None)!r}" for k in ('name','age'))
+  return f"User({fields})"
+
+attrs = {'__init__': real_init, '__repr__': __repr__}
+User = type('User', (object,), attrs)
+
+print(User('Ana', 30))  # uses the custom repr
+</code></pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <p class="text-sm text-slate-800 mt-1">Name classes clearly and add __repr__ to help logs and REPL inspection; it greatly eases debugging dynamically generated classes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

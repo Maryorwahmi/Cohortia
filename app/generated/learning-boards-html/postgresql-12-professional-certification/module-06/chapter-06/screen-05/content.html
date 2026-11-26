@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">RANGE • LIST • HASH</h3>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="p-4 rounded-xl border bg-white">
+        <div class="font-semibold text-slate-800">RANGE</div>
+        <p class="text-sm text-slate-600 mt-2">Use for date or numeric intervals. Example: monthly sales partitions. Good for retention and pruning on date filters.</p>
+      </div>
+      <div class="p-4 rounded-xl border bg-white">
+        <div class="font-semibold text-slate-800">LIST</div>
+        <p class="text-sm text-slate-600 mt-2">Use for discrete categories like country_code or transaction_type. Example: customers partitioned by country.</p>
+      </div>
+      <div class="p-4 rounded-xl border bg-white">
+        <div class="font-semibold text-slate-800">HASH</div>
+        <p class="text-sm text-slate-600 mt-2">Use to evenly distribute rows across partitions when no natural range exists. Example: events hashed by event_id.</p>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">Misconceptions</div>
+      <ul class="text-sm text-slate-600 list-disc list-inside mt-2 space-y-1">
+        <li>Partitioning always improves all queries — false; only queries filtering on the partition key gain pruning.</li>
+        <li>HASH removes need to choose keys — false; HASH is best when you want even distribution but still need key-based pruning for targeted queries.</li>
+      </ul>
+    </div>
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">Example snippets</div>
+      <pre class="mono p-3 bg-slate-50 text-slate-800 rounded">-- RANGE
+PARTITION BY RANGE (sale_date);
+
+-- LIST
+PARTITION BY LIST (country_code);
+
+-- HASH
+PARTITION BY HASH (event_id);</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

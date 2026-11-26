@@ -1,0 +1,53 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f9fcff]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Fix: Header Move</span>
+  </div>
+
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="flex flex-col">
+      <div class="text-2xl font-bold text-slate-800">Move definition to header</div>
+      <div class="text-sm text-slate-600 mt-2">Make the definition visible so instantiation runs where usage appears.</div>
+
+      <div class="mt-4 card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Corrected my_template.h</div>
+        <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>// my_template.h
+#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+void printValue(const T&amp; value) { // definition in header
+  std::cout &lt;&lt; "Value: " &lt;&lt; value &lt;&lt; std::endl;
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border border-slate-100">
+        <div class="font-semibold text-slate-800">Why this fixes it</div>
+        <div class="text-sm text-slate-600 mt-2">When compiling main.cpp, phase two sees the definition and can generate printValue&lt;int&gt; in that compilation unit.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Alternate: Explicit instantiation</div>
+      <div class="text-sm text-slate-600 mt-2">Add explicit instantiations in my_template.cpp for each type you want the .o file to provide.</div>
+
+      <div class="mt-3 card p-3">
+        <pre class="mono bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>// my_template.cpp
+#include "my_template.h"
+
+// explicitly instantiate for int and std::string
+template void printValue&lt;int&gt;(const int&amp;);
+template void printValue&lt;std::string&gt;(const std::string&amp;);
+</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Use header definitions for flexibility. Use explicit instantiation only when you can enumerate all needed types and accept reduced flexibility.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

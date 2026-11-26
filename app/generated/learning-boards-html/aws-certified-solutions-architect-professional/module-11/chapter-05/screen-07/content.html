@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-3'>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.5</span>
+      <span>›</span>
+      <span class='text-slate-700'>Weighted Routing</span>
+    </div>
+    <div class='text-xl font-bold text-slate-800'>Weighted Routing — Traffic Shifts</div>
+    <div class='text-sm text-slate-600'>Use weights to proportionally distribute DNS responses for staged rollouts.</div>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700 mb-2'>Concept and usage</div>
+      <div class='text-sm text-slate-600 space-y-2'>
+        <div>• Assign integer weights to record sets; higher weight means more responses.</div>
+        <div>• Combine with health checks so Route 53 skips unhealthy endpoints.</div>
+        <div>• Use short TTLs during rollouts to speed changes, but watch DNS load.</div>
+      </div>
+
+      <div class='mt-4'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-1'>CLI Example (abridged)</div>
+        <pre class='p-3 rounded-md bg-slate-900 text-slate-100 text-sm' style='white-space:pre-wrap; tab-size:2;'>aws route53 change-resource-record-sets \
+  --hosted-zone-id &quot;Z1A2BCDEFG3456&quot; \
+  --change-batch '{
+    &quot;Comment&quot;: &quot;Create weighted record for us-east-1 ALB&quot;,
+    &quot;Changes&quot;: [ { "Action": "CREATE", "ResourceRecordSet": { "Name": "www.example.com", "Type": "A", "SetIdentifier": "us-east-1-alb", "Weight": 80, "AliasTarget": { "HostedZoneId": "Z35SXDOTRL7KUF", "DNSName": "dualstack.my-alb-1234567890.us-east-1.elb.amazonaws.com", "EvaluateTargetHealth": true } } } ] }'
+</pre>
+      </div>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-700 mb-2'>Considerations and example</div>
+      <div class='grid gap-3'>
+        <div class='p-3 rounded-lg bg-white border border-slate-100 text-sm text-slate-700'>Example: 80% to Blue ALB, 20% to Green ALB for gradual exposure of a new version.</div>
+        <div class='p-3 rounded-lg bg-amber-50 border border-amber-100 text-sm text-slate-700'>Misconception: DNS weights do not ensure precise client-side ratios due to caching and client resolver behavior.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-sm font-medium text-slate-800'>Use weighted routing for controlled traffic shifts, but validate distribution empirically and pair with health checks.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.codebox{background:#0f172a;color:#e6eef8;border-radius:8px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold">User data script (bash)</div>
+    <div class="mt-3">
+      <pre class="codebox" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size: 13px; line-height:1.4;">
+#!/bin/bash
+yum update -y
+yum install -y nginx
+systemctl start nginx
+systemctl enable nginx
+echo "&lt;h1&gt;Hello from WebInstanceWithSG!&lt;/h1&gt;" &gt; /usr/share/nginx/html/index.html
+      </pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg p-3 bg-slate-50">
+        <div class="text-sm font-bold">Verification commands (SSH)</div>
+        <pre class="text-xs text-slate-700 mt-2" style="white-space: pre-wrap; tab-size: 2;"># Check nginx status
+sudo systemctl status nginx
+
+# Confirm port listening
+sudo ss -tuln | grep :80</pre>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-sm font-bold">Troubleshooting hints</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Confirm Security Group inbound allows port 80 from the client source.</li>
+          <li>Check NACL inbound for port 80 and NACL outbound for ephemeral 1024-65535.</li>
+          <li>Verify instance has a public IP and auto-assign is enabled on the subnet.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-lg p-3 bg-emerald-50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">Bootstrapping with user data speeds validation, but always verify both SG and NACL rules when connectivity fails.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

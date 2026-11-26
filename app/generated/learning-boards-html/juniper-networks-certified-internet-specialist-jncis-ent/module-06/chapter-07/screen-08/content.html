@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 6.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Routes Not Received</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Was the route sent or dropped locally?</h3>
+      <p class="text-sm text-slate-600 mt-2">show route receive-protocol bgp &lt;neighbor&gt; lists what the peer sent before import policies. Compare that to show route protocol bgp to see what was accepted.</p>
+
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li>If in receive-protocol but not accepted: inspect import policy or next-hop reachability.</li>
+        <li>Check next-hop with show route &lt;next-hop-ip&gt; for iBGP scenarios.</li>
+        <li>Watch for AS_PATH loops: if local AS present, route is discarded.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 card p-4 bg-white border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <pre class="mono bg-slate-50 p-3 mt-3 rounded-md" style="white-space: pre-wrap; tab-size: 2;">show route receive-protocol bgp 10.0.0.2
+show route protocol bgp
+show route 192.0.2.1
+show policy policy-statement IMPORT-FROM-ISP
+test policy IMPORT-FROM-ISP 203.0.113.0/24
+</pre>
+      <div class="mt-3 p-3 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Route present in receive-protocol but absent from protocol. test policy shows import policy denies the prefix. Update import policy to accept the prefix and re-check that the BGP table contains the route.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

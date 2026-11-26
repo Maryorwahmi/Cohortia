@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Glue Catalog & ETL</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Glue Data Catalog & Crawlers</div>
+      <div class="text-xs text-slate-600 mt-1">Crawlers infer schema from S3 and populate the Catalog for discoverability.</div>
+      <div class="mt-3 text-sm text-slate-700">Verify crawled schemas, adjust column types if needed, and ensure partitions are recognized properly before querying from Athena or Spectrum.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code># Example: create a Glue crawler (CLI pattern)
+aws glue create-crawler \
+  --name clickstream-data-crawler \
+  --role arn:aws:iam::123456789012:role/GlueServiceRole \
+  --database-name clickstream_db \
+  --targets '{"S3Targets":[{"Path":"s3://&lt;YOUR_CLICKSTREAM_BUCKET&gt;/year=2023/"}]}' \
+  --schedule "cron(0 0 * * ? *)"
+
+# Then start the crawler
+aws glue start-crawler --name clickstream-data-crawler
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Glue ETL</div>
+      <div class="text-xs text-slate-600 mt-1">Use Glue ETL jobs to convert, clean, and partition data into Parquet for efficient analytics.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-[rgba(16,185,129,0.12)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Practical Tip</div>
+        <p class="text-xs font-medium text-slate-800">Run crawlers after ingest, then use ETL jobs to standardize formats and push curated data into sinks or partitioned folders.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

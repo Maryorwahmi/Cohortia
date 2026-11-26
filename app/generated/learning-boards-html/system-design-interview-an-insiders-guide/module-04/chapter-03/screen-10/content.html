@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0b1220; color:#e6eef8; padding:12px; border-radius:8px; overflow:auto; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, monospace; font-size:13px; }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Cypher Demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white p-4 rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Create nodes and relationships</div>
+      <pre><code>// Create nodes for users
+CREATE (alice:User {name: 'Alice'})
+CREATE (bob:User {name: 'Bob'})
+CREATE (charlie:User {name: 'Charlie'})
+
+// Create relationships
+CREATE (alice)-[:FRIENDS_WITH]->(bob)
+CREATE (bob)-[:FRIENDS_WITH]->(charlie)
+CREATE (charlie)-[:WORKS_AT {company: 'Acme Corp'}]->(alice)</code></pre>
+    </div>
+
+    <div class="bg-white p-4 rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Friends-of-friends query</div>
+      <pre><code>// Find recommended friends for Alice
+MATCH (alice:User {name: 'Alice'})-[:FRIENDS_WITH]->(friend)-[:FRIENDS_WITH]->(recommended_friend)
+WHERE NOT (alice)-[:FRIENDS_WITH]->(recommended_friend) AND alice <> recommended_friend
+RETURN DISTINCT recommended_friend.name</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Why it matters</div>
+      <p class="text-xs font-medium text-slate-800">Multi-hop traversals are expressed naturally and executed efficiently by graph engines.</p>
+    </div>
+    <div class="rounded-xl p-3 bg-rose-50 text-rose-700 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Common mistake</div>
+      <p class="text-xs font-medium">Using a graph when relationships are shallow and rare adds unnecessary complexity.</p>
+    </div>
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Express relationship patterns with Cypher and justify graph choice by required traversal depth and frequency.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

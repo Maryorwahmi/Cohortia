@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 h-full">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">When to create an index</h3>
+    <div class="mt-3 grid grid-cols-3 gap-3 h-full">
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Filter columns</div>
+        <div class="text-sm text-slate-700 mt-2">Columns used in WHERE clauses are prime index candidates.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Join keys</div>
+        <div class="text-sm text-slate-700 mt-2">Columns used in joins often benefit from indexes to speed the join operation.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Order and group</div>
+        <div class="text-sm text-slate-700 mt-2">Indexes can avoid costly sorts when ORDER BY or GROUP BY match the index order.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">High cardinality</div>
+        <div class="text-sm text-slate-700 mt-2">Prefer columns with many distinct values for better selectivity.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Composite choice</div>
+        <div class="text-sm text-slate-700 mt-2">Design composite indexes to match frequent multi-column filters in left-to-right order.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Test first</div>
+        <div class="text-sm text-slate-700 mt-2">Build and measure in dev/staging; use EXPLAIN ANALYZE to confirm planner usage before production rollout.</div>
+      </div>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete scenario</div>
+        <div class="text-sm text-slate-800 mt-1">A slow query filtering customer_id and ordering by order_date benefits from an index on (customer_id, order_date DESC) to both filter and avoid sorting.</div>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-800">Indexing every column 'just in case' increases storage and slows inserts—prefer targeted indexes for frequent and selective queries.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Parameterized Queries with psycopg2</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-full rounded-2xl bg-white p-6 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-900">Correct pattern using driver parameter binding</div>
+
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;">
+import psycopg2
+
+conn = psycopg2.connect("dbname=datascidb user=your_username password=your_password")
+cur = conn.cursor()
+
+user_input_username = "admin' OR '1'='1"  # malicious input
+user_input_password = "any_password"
+
+# Correct way: use a parameterized query with placeholders handled by the driver
+cur.execute("SELECT * FROM users WHERE username = %s AND password = %s;",
+            (user_input_username, user_input_password))
+
+results = cur.fetchall()
+print(results)
+
+cur.close()
+conn.close()
+</pre>
+      <div class="mt-4 text-sm text-slate-700">Because values are passed separately, the driver treats the malicious sequence as a literal username value and the query structure is preserved. This is the recommended fix for injection vulnerabilities.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

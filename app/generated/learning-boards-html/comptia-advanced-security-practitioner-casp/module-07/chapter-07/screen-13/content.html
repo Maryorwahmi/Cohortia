@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre.code{background:#0f1724;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Conceptual Lab</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-4 h-2/3'>
+        <div class='text-sm font-semibold text-slate-900'>Acquisition Steps (Checklist)</div>
+        <ol class='mt-3 text-sm text-slate-600 space-y-2'>
+          <li>Verify acquisition tool integrity and prepare write-protected media.</li>
+          <li>Run the memory capture from trusted media and save the .raw file to secure storage.</li>
+          <li>Compute and record SHA256 on the memory image; record tool and timestamps.</li>
+          <li>Transfer image to forensic workstation for Volatility analysis.</li>
+        </ol>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600'>Volatility Triage</div>
+        <div class='mt-2 text-sm text-slate-600'>Run a focused set of commands: process listing, network scan, and malfind to extract immediate indicators of compromise for further analysis.</div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600'>Illustrative Commands</div>
+        <pre class='code' style='white-space:pre-wrap;tab-size:2'><code># Memory acquisition (conceptual)
+E:\winpmem.exe -o C:  emp\SRV-WEB-001_memory.raw
+
+# Volatility triage
+vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 pslist
+vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 netscan
+vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 malfind</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Run these commands on your forensic workstation after transferring and hashing the image.</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Reflection</div>
+        <div class='text-sm text-slate-700 mt-2'>After running triage, ask: Which processes show suspicious parentage? What remote endpoints appear? Do malfind results contain extractable code?</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-600'>Safety Note</div>
+        <div class='text-sm text-rose-700 mt-2'>Minimize changes to the live system, record everything, and avoid actions that are not directly related to acquisition.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,96 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">GUIFactory — Code</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="col-span-1 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+from abc import ABC, abstractmethod
+
+class Button(ABC):
+  @abstractmethod
+  def paint(self):
+    pass
+
+class WindowsButton(Button):
+  def paint(self):
+    print("Rendering a button in Windows style.")
+
+class MacOSButton(Button):
+  def paint(self):
+    print("Rendering a button in macOS style.")
+
+class Checkbox(ABC):
+  @abstractmethod
+  def paint(self):
+    pass
+
+class WindowsCheckbox(Checkbox):
+  def paint(self):
+    print("Rendering a checkbox in Windows style.")
+
+class MacOSCheckbox(Checkbox):
+  def paint(self):
+    print("Rendering a checkbox in macOS style.")
+
+class GUIFactory(ABC):
+  @abstractmethod
+  def create_button(self) -> Button:
+    pass
+
+  @abstractmethod
+  def create_checkbox(self) -> Checkbox:
+    pass
+
+class WindowsGUIFactory(GUIFactory):
+  def create_button(self) -> Button:
+    return WindowsButton()
+
+  def create_checkbox(self) -> Checkbox:
+    return WindowsCheckbox()
+
+class MacOSGUIFactory(GUIFactory):
+  def create_button(self) -> Button:
+    return MacOSButton()
+
+  def create_checkbox(self) -> Checkbox:
+    return MacOSCheckbox()
+
+def application(factory: GUIFactory):
+  button = factory.create_button()
+  checkbox = factory.create_checkbox()
+  button.paint()
+  checkbox.paint()
+
+application(WindowsGUIFactory())
+application(MacOSGUIFactory())
+</pre>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <div class="mt-3 text-sm text-slate-700 flex-grow">
+        <p>The client function expects only a GUIFactory. Each concrete factory supplies a set of products that match in style. Swapping the factory swaps the whole family and keeps client code unchanged.</p>
+
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-700">
+          <li>Ensure each concrete factory implements every abstract factory method.</li>
+          <li>When adding a new product type, you must update all concrete factories — consider design costs before expanding the abstract interface.</li>
+          <li>Mock factories in tests to verify application behavior without rendering real UI.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Abstract Factory bundles creation methods so clients receive a consistent family of products; use when product sets must remain coherent.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

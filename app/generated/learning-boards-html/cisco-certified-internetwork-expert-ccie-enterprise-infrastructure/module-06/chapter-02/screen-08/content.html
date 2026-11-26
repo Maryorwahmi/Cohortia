@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Interesting Traffic</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-8 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Create and mirror the ACL that triggers Phase 2</div>
+      <div class="text-sm text-slate-600 mt-2">The ACL needs to match the traffic you want to protect; use extended ACLs that explicitly permit local-to-remote IP subnets.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Orientation matters</div>
+          <div class="text-sm text-slate-600 mt-2">On each router, the ACL must use the router's local network as the source and the remote network as the destination.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Troubleshooting hint</div>
+          <div class="text-sm text-slate-600 mt-2">If IKEv2 is READY but no IPsec SAs exist, review the ACLs first before diving into deeper debug outputs.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl p-6 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example ACLs</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded-lg" style="white-space: pre-wrap; tab-size:2; font-family:Menlo,Monaco,monospace; font-size:13px;">
+ip access-list extended VPN_TRAFFIC
+ permit ip 192.168.1.0 0.0.0.255 10.0.0.0 0.0.0.255
+
+! On the branch
+ip access-list extended VPN_TRAFFIC
+ permit ip 10.0.0.0 0.0.0.255 192.168.1.0 0.0.0.255
+      </pre>
+
+      <div class="mt-4 bg-amber-50 rounded-lg p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Using wildcard or reversed networks in the ACL so intended traffic never matches and Phase 2 never begins.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

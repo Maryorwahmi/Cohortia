@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2 }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example Script</div>
+      <pre class="mono"><code>-- Script placed inside "LightSwitch"
+local lightSwitch = script.Parent
+local clickDetector = lightSwitch:FindFirstChildOfClass("ClickDetector")
+
+if not clickDetector then
+  warn("LightSwitch is missing a ClickDetector!")
+  return
+end
+
+local roomLightPart = game.Workspace:FindFirstChild("RoomLight")
+local pointLight = roomLightPart and roomLightPart:FindFirstChildOfClass("PointLight")
+
+if not roomLightPart or not pointLight then
+  warn("RoomLight or PointLight not found! Light switch will not work.")
+  return
+end
+
+local isLightOn = false -- Initial state
+
+local function onLightSwitchClicked(player)
+  isLightOn = not isLightOn
+  pointLight.Enabled = isLightOn
+  roomLightPart.BrickColor = isLightOn and BrickColor.new("White") or BrickColor.new("Dark grey")
+  print(player.Name .. " toggled the light. Light is now " .. (isLightOn and "ON" or "OFF") .. ".")
+end
+
+clickDetector.MouseClick:Connect(onLightSwitchClicked)
+print("LightSwitch script initialized!")</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Notes</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2">
+        <li>Validate that the RoomLight and PointLight exist to avoid runtime errors.</li>
+        <li>Change Part color and PointLight.Enabled to make feedback obvious.</li>
+        <li>Printing status helps verify behavior during live testing.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Simple toggles provide immediate visual feedback, and validating references prevents common script errors.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

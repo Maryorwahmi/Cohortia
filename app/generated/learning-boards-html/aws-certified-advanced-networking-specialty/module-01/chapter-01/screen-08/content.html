@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .rule{background:#fff;padding:12px;border-radius:10px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.1</span>
+      <span>›</span>
+      <span class="text-slate-700">NACL Rules</span>
+    </div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">How evaluation works</div>
+      <p class="text-sm text-slate-600 mt-2">NACLs test packets against ordered rules. The first matching rule determines allow or deny. If no rule matches, the default is deny.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rule">
+          <div class="text-sm font-semibold text-slate-800">Example rules</div>
+          <pre style="background:#0f172a;color:#e6eef8;padding:10px;border-radius:8px;margin-top:6px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;white-space:pre-wrap;tab-size:2">Rule 100: Deny TCP 22 from 10.0.0.0/16
+Rule 200: Allow ALL from 0.0.0.0/0
+
+# Inbound TCP 80 allowed only if outbound is allowed too.</pre>
+        </div>
+
+        <div class="rule">
+          <div class="text-sm font-semibold text-slate-800">Testing return traffic</div>
+          <p class="text-sm text-slate-600 mt-1">When you add an inbound allow, verify a matching outbound rule exists; otherwise, connection establishment will fail due to stateless behavior.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Placing a broad allow at a low precedence number below a specific deny can accidentally open traffic. Always order denies before general allows if you want to block specific ranges.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Number rules deliberately and test both directions. Use NACLs to stop bad traffic quickly, then fine-tune with Security Groups.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

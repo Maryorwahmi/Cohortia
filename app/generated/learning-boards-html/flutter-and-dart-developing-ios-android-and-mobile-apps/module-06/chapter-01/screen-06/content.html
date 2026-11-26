@@ -1,0 +1,97 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.1</span>
+      <span>›</span>
+      <span class='text-slate-700'>Counter Walkthrough</span>
+    </div>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Core pattern</div>
+      <ol class='list-decimal ml-5 text-sm text-slate-600 space-y-2'>
+        <li>Obtain and await the preferences instance in an async init helper.</li>
+        <li>Read the saved int or use a default if null.</li>
+        <li>On increment, update state and call setInt, awaiting if next actions depend on completion.</li>
+      </ol>
+
+      <div class='mt-4 p-3 rounded-lg border bg-white'>
+        <div class='font-semibold text-slate-800'>Analogy</div>
+        <div class='text-sm text-slate-600 mt-1'>Treat the device store like a small notebook: write updates you want to survive restarts and read them at the next launch.</div>
+      </div>
+    </div>
+
+    <div class='flex-1 card p-4 overflow-auto'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Example code</div>
+      <pre style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; font-size: 13px; background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; line-height:1.45;'><code>import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Persistent Counter',
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+  late SharedPreferences _prefs; // Will be initialized
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCounter();
+  }
+
+  Future&lt;void&gt; _loadCounter() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _counter = _prefs.getInt('counter') ?? 0;
+    });
+  }
+
+  Future&lt;void&gt; _incrementCounter() async {
+    setState(() {
+      _counter++;
+    });
+    await _prefs.setInt('counter', _counter);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Count: $_counter', style: const TextStyle(fontSize: 24)),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+</code></pre>
+
+      <div class='mt-3 text-xs text-slate-500'>Tip: place the load helper in initState so UI starts with persisted values when ready.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

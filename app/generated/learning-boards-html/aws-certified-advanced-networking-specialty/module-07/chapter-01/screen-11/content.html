@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">CLI demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What to capture</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Topic name and ARN for SNS.</li>
+        <li>Metric name, namespace, statistic, period.</li>
+        <li>Dimensions to scope the alarm to a specific instance.</li>
+        <li>Alarm-actions that reference the SNS TopicArn.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Visual CLI block</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code># Create SNS topic
+aws sns create-topic --name NetworkPerformanceAlerts
+
+# Create CloudWatch alarm for NetworkOut
+aws cloudwatch put-metric-alarm \
+  --alarm-name "HighNetworkOutAlarm" \
+  --alarm-description "Alarm when EC2 NetworkOut exceeds 50 MB/second for 5 minutes" \
+  --metric-name NetworkOut \
+  --namespace AWS/EC2 \
+  --statistic Sum \
+  --period 300 \
+  --threshold 52428800 \
+  --comparison-operator GreaterThanThreshold \
+  --dimensions Name=InstanceId,Value=i-0abcdef1234567890 \
+  --evaluation-periods 1 \
+  --alarm-actions arn:aws:sns:us-east-1:123456789012:NetworkPerformanceAlerts \
+  --unit Bytes</code></pre>
+      <div class="text-xs text-slate-500 mt-2">This visual block is a template; replace instance ID and TopicArn when you run it.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

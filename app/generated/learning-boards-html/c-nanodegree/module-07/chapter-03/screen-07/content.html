@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Spurious Wakeups</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">What is a spurious wakeup?</div>
+        <p class="text-sm text-slate-700">A spurious wakeup is when a thread waiting on a condition variable wakes without a matching notify. Because these can occur, code must re-check the condition it cares about before proceeding. That is the role of a predicate in wait().</p>
+
+        <div class="mt-4 p-3 rounded-lg bg-violet-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Best practice</div>
+          <div class="text-sm text-slate-700 mt-2">Use wait(lock, predicate) or while(!predicate) cv.wait(lock) so the condition is always verified after wake.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Concrete predicate example</div>
+        <div class="text-sm text-slate-700">A consumer's predicate often looks like: []{ return !queue.empty() || finished; } This ensures the consumer only continues when there is data or when production is done.</div>
+      </div>
+
+      <div class="mt-4 p-5 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Misconception check</div>
+        <p class="text-sm text-slate-700">Spurious wakeups are not caused by incorrect notify usage. They are an allowed behavior. Defensive predicates make your code portable and correct.</p>
+      </div>
+    </div>
+  </div>
+</div>

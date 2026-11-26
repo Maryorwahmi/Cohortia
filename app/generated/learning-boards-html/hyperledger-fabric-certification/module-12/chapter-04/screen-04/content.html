@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Monitoring & Logging</span>
+  </div>
+
+  <div class="flex gap-6 flex-1">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">What to collect</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>• Transaction throughput and block commit latency to detect performance regressions.</li>
+        <li>• Peer and orderer CPU, memory, disk, and network I/O for capacity planning.</li>
+        <li>• Application-level error rates and end-to-end transaction failures.</li>
+        <li>• Structured logs from peers, orderers, CAs, and clients aggregated centrally.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Log levels</div>
+          <div class="text-sm text-slate-700 mt-2">INFO for normal ops, DEBUG for deep troubleshooting, ERROR for critical conditions. Rotate and retain logs based on compliance needs.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Combine time-series metrics with centralized logs and alerting to detect and diagnose issues quickly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 flex-1">
+        <div class="text-sm font-bold text-slate-800">Enable metrics on a peer</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 text-xs"><code># Docker Compose snippet (excerpt)
+services:
+  peer0.org1.example.com:
+    image: hyperledger/fabric-peer:latest
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_METRICS_PROVIDER=prometheus
+      - CORE_PEER_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
+    ports:
+      - 7051:7051
+      - 9443:9443  # metrics endpoint
+</code></pre>
+        <div class="text-xs text-slate-400 mt-2">This makes the peer scrapeable by Prometheus and provides operational metrics endpoints.</div>
+      </div>
+
+      <div class="rounded-lg bg-white border border-[rgba(226,232,240,0.9)] p-4">
+        <div class="text-sm font-bold text-slate-800">Example alert rules</div>
+        <ul class="text-sm text-slate-700 mt-2">
+          <li>• Alert on sustained high CPU or full disk to prevent node outages.</li>
+          <li>• Alert on elevated block commit latency or transaction failure rates.</li>
+          <li>• Alert on repeated authentication failures or CA errors.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

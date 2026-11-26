@@ -1,0 +1,82 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">BST insert & search</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card p-6 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code walkthrough</div>
+      <h3 class="text-xl font-semibold text-slate-800 mt-2">Node, insert, and search</h3>
+      <div class="mt-4 flex-1 bg-slate-50 rounded p-4 border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <pre><code>&lt;!-- Python code example (escaped for HTML) --&gt;
+class BSTNode:
+  def __init__(self, key):
+    self.key = key
+    self.left = None
+    self.right = None
+
+class BinarySearchTree:
+  def __init__(self):
+    self.root = None
+
+  def insert(self, key):
+    if self.root is None:
+      self.root = BSTNode(key)
+    else:
+      self._insert_recursive(self.root, key)
+
+  def _insert_recursive(self, node, key):
+    if key &lt; node.key:
+      if node.left is None:
+        node.left = BSTNode(key)
+      else:
+        self._insert_recursive(node.left, key)
+    elif key &gt; node.key:
+      if node.right is None:
+        node.right = BSTNode(key)
+      else:
+        self._insert_recursive(node.right, key)
+    # duplicates ignored
+
+  def search(self, key):
+    return self._search_recursive(self.root, key)
+
+  def _search_recursive(self, node, key):
+    if node is None or node.key == key:
+      return node
+    if key &lt; node.key:
+      return self._search_recursive(node.left, key)
+    else:
+      return self._search_recursive(node.right, key)
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card p-6 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation & examples</div>
+      <div class="mt-3 text-sm text-slate-700">Key points to test and verify:</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700">
+        <li>Always check if the root is None before recursing.</li>
+        <li>Ensure left or right child pointers get assigned when an empty spot is found.</li>
+        <li>Decide and document duplicate key behavior: ignore, count, or store duplicates in a subtree.</li>
+      </ul>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete example</div>
+          <p class="text-xs font-medium text-slate-800">Insert 50, 30, 70 then search 40 results in a short traversal: 50 → 30 → (right child) 40 or not found.</p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Forgetting base case node is None in recursion causes immediate failure or infinite recursion in some edge paths.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

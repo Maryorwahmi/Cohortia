@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Module 6 › Chapter 6.2 › IAM Conditions</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Common condition keys</div>
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold text-blue-700">aws:SourceIp</div>
+          <div class="text-sm text-slate-700 mt-1">Restrict by client IP range so actions work only from known networks.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold text-amber-700">aws:CurrentTime</div>
+          <div class="text-sm text-slate-700 mt-1">Allow only during business hours or maintenance windows using time conditions.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold text-emerald-700">aws:MultiFactorAuthPresent</div>
+          <div class="text-sm text-slate-700 mt-1">Require MFA for sensitive actions to add a second factor to the policy evaluation.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-xs font-bold text-violet-700">Resource tags</div>
+          <div class="text-sm text-slate-700 mt-1">Limit access to resources that have specific tags, enabling attribute-based access control.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">Misconception: conditions are not client-side filters but part of the server-side evaluation. An attacker with credentials still needs to match conditions to succeed.</div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Concrete policy example</div>
+      <div class="rounded-lg bg-white border card-border p-3 overflow-auto">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size: 13px;"><code>{
+  "Effect": "Allow",
+  "Action": "s3:PutObject",
+  "Resource": "arn:aws:s3:::my-secure-bucket/*",
+  "Condition": {
+    "IpAddress": {
+      "aws:SourceIp": "203.0.113.0/24"
+    }
+  }
+}</code></pre>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">Try this: test the PutObject action from an allowed IP and from an outside IP to confirm the Condition behaves as intended. Conditions pair well with least privilege to limit exposure when keys are leaked.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

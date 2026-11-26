@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Mappings</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition & usage</div>
+      <p class="text-sm text-slate-600 mt-2">Mappings are static key-value tables. Use them to map a deployment context like region to values such as AMI IDs or configuration parameters.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-800">
+          <div class="text-sm font-semibold">Example mapping</div>
+          <pre class="mt-2 p-2 bg-white rounded text-sm">Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-12345678
+    eu-west-1:
+      AMI: ami-87654321</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border mt-3">
+          <div class="text-sm font-semibold">Retrieval</div>
+          <div class="text-xs text-slate-700 mt-1">Use Fn::FindInMap with the map name, key, and attribute. For region-based lookups, use the AWS::Region pseudo parameter as the key.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use Mappings for explicit, auditable value selection across deployment contexts; update them when values change or automate regeneration.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example and caveats</div>
+      <div class="mt-3 text-sm text-slate-700">To pick a regional AMI at deploy time, a template combines a mapping and a FindInMap call. If your AMIs rotate often, consider a lightweight automation job that updates the mapping before deployments. Do not rely on mappings for frequently changing secrets or ephemeral values—mappings are best for stable, region- or environment-specific configuration.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold">Usage snippet</div>
+          <pre class="mt-2 p-2 bg-slate-50 rounded text-sm">ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">
+          <div class="text-sm font-semibold">Common mistake</div>
+          <div class="text-xs text-slate-700 mt-1">Treating mappings as dynamic: if your values change often, update the template or use parameters with automation instead.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

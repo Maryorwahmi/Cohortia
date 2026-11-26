@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Problem</div>
+      <h3 class="text-xl font-bold text-slate-800">OSPF stuck in INIT</h3>
+      <p class="text-sm text-slate-600 mt-2">Start with show ip ospf neighbor and show ip ospf interface GigabitEthernet0/1 on both R1 and R2 to identify parameter mismatches.</p>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm overflow-auto mt-3" style="white-space:pre-wrap;tab-size:2;"><code>! R1 initial configuration
+R1(config)# router ospf 1
+R1(config-router)# network 10.0.12.0 0.0.0.255 area 0
+R1(config-router)# interface GigabitEthernet0/1
+R1(config-if)# ip address 10.0.12.1 255.255.255.0
+R1(config-if)# no shutdown
+
+! R2 initial configuration (problematic)
+R2(config)# router ospf 1
+R2(config-router)# network 10.0.12.0 0.0.0.255 area 0
+R2(config-router)# interface GigabitEthernet0/1
+R2(config-if)# ip address 10.0.12.2 255.255.255.0
+R2(config-if)# ip ospf hello-interval 5
+R2(config-if)# no shutdown</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Fix & Redistribution</div>
+      <h3 class="text-xl font-bold text-slate-800">Commands to apply</h3>
+      <div class="text-sm text-slate-600 mt-2">Correct the hello interval on R2, then configure EIGRP and mutual redistribution with a seed metric and the subnets keyword.</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm overflow-auto mt-3" style="white-space:pre-wrap;tab-size:2;"><code>! Fix OSPF hello mismatch on R2
+R2(config-if)# no ip ospf hello-interval 5
+
+! Configure EIGRP and redistribute on R2
+R2(config)# router eigrp 100
+R2(config-router)# network 10.0.20.0 0.0.0.255
+R2(config-router)# redistribute ospf 1 metric 10000 100 255 1 1500
+R2(config-router)# exit
+
+R2(config)# router ospf 1
+R2(config-router)# redistribute eigrp 100 subnets metric 100
+R2(config-router)# exit</code></pre>
+      <div class="mt-3 rounded-lg bg-white p-3 border card-border">
+        <div class="font-semibold text-slate-800">Verification</div>
+        <div class="text-xs text-slate-600 mt-2">Use show ip ospf neighbor, show ip route on both R1 and R2 to confirm OSPF reaches FULL and routes are exchanged. Remember to use show ip protocols to review redistribution settings.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

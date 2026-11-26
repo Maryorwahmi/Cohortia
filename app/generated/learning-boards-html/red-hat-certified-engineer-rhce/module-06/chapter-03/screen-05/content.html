@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Authentication flow in practice</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-lg font-bold">Sequence</div>
+      <div class="text-sm text-slate-600 mt-2">A step-by-step flow to accept an SSH key.</div>
+
+      <ol class="mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-3">
+        <li>Create or verify the target user exists.</li>
+        <li>Ensure /home/user/.ssh directory is present with mode 0700.</li>
+        <li>Place the public key line in ~/.ssh/authorized_keys with mode 0600.</li>
+        <li>SSH server checks the file and challenges the client; successful proof grants access.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the create-user → set-permissions → deploy-key → verify sequence to avoid permission-related failures.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-semibold">Common failure example</div>
+      <div class="text-sm text-slate-600 mt-2">If ~/.ssh is world-writable, SSH ignores authorized_keys and logs a permission error. The authorized_key module typically fixes permissions for you, but manual edits can break expectations.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-slate-50 p-3 border card-border">
+          <div class="text-sm font-semibold">Check commands</div>
+          <pre class="mt-2 p-3 bg-black/5 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+stat -c '%a %n' /home/devops_user/.ssh
+ls -l /home/devops_user/.ssh/authorized_keys
+          </pre>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold">Misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Assuming a key is usable immediately after copying can fail if ownership or permissions are wrong. Always verify modes and owner:group.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

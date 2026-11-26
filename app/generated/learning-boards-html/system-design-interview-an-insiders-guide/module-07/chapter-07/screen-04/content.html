@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">BOLA / IDOR</span>
+  </div>
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+        <div class="text-xl font-bold text-slate-800">Broken Object Level Authorization</div>
+        <div class="text-sm text-slate-600 mt-2">Definition, example, and why checks must be service-local.</div>
+        <div class="mt-4 flex-1 text-sm text-slate-700 space-y-3">
+          <p>BOLA occurs when the API accepts an object id from the client and does not verify that the requester is authorized for that specific object instance.</p>
+          <ul class="list-disc ml-4 space-y-1">
+            <li>Example exploit: swapping user id in GET or PATCH requests to access another user's data.</li>
+            <li>Mitigation: inside the owning service, compare authenticated user id and roles to the resource's owner id and visibility rules.</li>
+            <li>Gateway role: apply coarse checks such as role-based policies and rate limits, but do not replace fine-grained service checks.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-800 mt-2">A valid token is used with a different user id in the path. Service returns data because it never checks ownership.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-2">Relying only on gateway authentication and skipping per-resource authorization inside services.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-6 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800 mb-3">Service-level Authorization Pattern</div>
+        <div class="flex-1 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-xs text-slate-600">Step 1</div>
+            <div class="text-sm font-medium text-slate-800 mt-1">Authenticate request and extract user id and roles from token.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-xs text-slate-600">Step 2</div>
+            <div class="text-sm font-medium text-slate-800 mt-1">Fetch the resource by id from the service datastore.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-xs text-slate-600">Step 3</div>
+            <div class="text-sm font-medium text-slate-800 mt-1">Evaluate whether the authenticated principal is allowed to access that instance. Return 403 on deny.</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs text-slate-800">Authorization must be applied per resource instance within the owning service to prevent ID-based access by others.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

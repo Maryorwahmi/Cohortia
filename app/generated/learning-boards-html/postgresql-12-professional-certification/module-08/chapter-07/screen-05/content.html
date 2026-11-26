@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Monitoring queries</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-[calc(100%-28px)]">
+    <div class="rounded-2xl bg-white border p-5 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Primary</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">Monitor physical replication</h3>
+      <div class="mt-3 text-sm text-slate-600">Run this on the primary to see sender lags.</div>
+
+      <div class="mt-4 bg-slate-900 rounded-lg p-3 text-xs text-slate-50 font-mono overflow-hidden" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>-- On Primary: Monitor physical replication status
+SELECT pid, usename, application_name, client_addr, state, sync_state,
+       pg_wal_lsn_diff(pg_current_wal_lsn(), sent_lsn) AS sent_lag,
+       pg_wal_lsn_diff(pg_current_wal_lsn(), write_lsn) AS write_lag,
+       pg_wal_lsn_diff(pg_current_wal_lsn(), flush_lsn) AS flush_lag,
+       pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) AS replay_lag
+FROM pg_stat_replication;
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes</div>
+        <ul class="list-disc ml-4 mt-2 text-slate-700">
+          <li>sent_lsn vs replay_lsn shows WAL sent but not applied.</li>
+          <li>Large replay_lag indicates apply or standby I/O/CPU problems.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-5 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Standby / Slots</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">Standby and slot checks</h3>
+      <div class="mt-3 text-sm text-slate-600">Queries for the standby and to inspect slots safely.</div>
+
+      <div class="mt-4 bg-slate-900 rounded-lg p-3 text-xs text-slate-50 font-mono overflow-hidden" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>-- On Standby: WAL receiver status
+SELECT status, receive_start_lsn, latest_end_lsn, conninfo
+FROM pg_stat_wal_receiver;
+
+-- On Primary: Monitor replication slots
+SELECT slot_name, slot_type, active, wal_status, restart_lsn,
+       pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_lag_bytes
+FROM pg_replication_slots;
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes</div>
+        <ul class="list-disc ml-4 mt-2 text-slate-700">
+          <li>Inactive slots with large wal_lag_bytes can fill pg_wal.</li>
+          <li>Investigate slot owner before pg_drop_replication_slot.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

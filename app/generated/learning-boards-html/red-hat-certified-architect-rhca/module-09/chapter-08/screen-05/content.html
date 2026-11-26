@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cmd{background:#0b1220;color:#dbeafe;border-radius:8px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 9.8</span>
+      <span>›</span>
+      <span class="text-slate-700">Install & Start</span>
+    </div>
+  </div>
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 h-full grid grid-rows-[auto_1fr] gap-4">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Install and enable Keepalived</h3>
+      <p class="text-sm text-slate-600 mt-2">Follow these exact commands to prepare each HAProxy node.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-6 h-full">
+      <div class="flex flex-col gap-3">
+        <div class="cmd">
+          <pre style="white-space:pre-wrap;tab-size:2;margin:0">sudo dnf install -y keepalived
+sudo systemctl enable --now keepalived
+sudo systemctl status keepalived</pre>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">Why enable now</div>
+          <div class="text-sm text-slate-600 mt-2">Enabling the service immediately ensures Keepalived participates in the VRRP elections and survives reboots.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 border">
+          <div class="text-sm font-semibold text-slate-800">Check</div>
+          <div class="text-sm text-slate-600 mt-2">Use ip addr show &lt;interface&gt; to confirm the VIP appears after Keepalived becomes master.</div>
+        </div>
+      </div>
+      <div class="rounded-lg p-4 bg-white border">
+        <div class="text-sm font-semibold text-slate-700">Common mistakes</div>
+        <ul class="text-sm text-slate-600 mt-3 list-disc list-inside">
+          <li>Installing only on one node — both must run Keepalived.</li>
+          <li>Not opening VRRP protocol 112 in the firewall.</li>
+          <li>Forgetting to match virtual_router_id and auth on all nodes.</li>
+        </ul>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Install and start Keepalived on every HAProxy node and verify service and network state before configuring VRRP instances.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

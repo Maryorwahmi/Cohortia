@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Class Decorators</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">register_class decorator (from chapter)</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-lg overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2;"><code>def register_class(registry):
+    def decorator(cls):
+        registry[cls.__name__] = cls
+        print(f"Registered class: {cls.__name__}")
+        return cls
+    return decorator
+
+my_registry = {}
+
+@register_class(my_registry)
+class MyComponent:
+    def __init__(self, name):
+        self.name = name
+
+@register_class(my_registry)
+class AnotherComponent:
+    def __init__(self, id):
+        self.id = id
+
+print(my_registry)</code></pre>
+        <div class="mt-3 text-sm text-slate-600">The registry now holds class objects keyed by name, which a factory can consult to construct instances dynamically.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div class="grid gap-3">
+        <div class="rounded-xl bg-amber-50 p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">When to use</div>
+          <div class="text-sm text-slate-600 mt-1">Plugin systems, component registries, or reducing repetitive registration code.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">Caveat</div>
+          <div class="text-sm text-slate-600 mt-1">Decorators run at import time. Be aware of import order and side-effects during module initialization.</div>
+        </div>
+
+        <div class="rounded-xl bg-emerald-50 p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">Integration idea</div>
+          <div class="text-sm text-slate-600 mt-1">Combine decorators with factories so new classes register automatically and factories consult the registry.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Class decorators are a clean way to attach registration or metadata logic at class creation time; use them when they reduce repetition.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

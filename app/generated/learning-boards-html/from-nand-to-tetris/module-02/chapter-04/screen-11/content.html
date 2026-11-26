@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Testing & Pitfalls</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+    <h3 class="text-xl font-bold text-slate-800">Testing strategy</h3>
+    <p class="text-sm text-slate-600 mt-2">Systematically exercise functions, flags, and address isolation with clear sentinel values and a debugging log.</p>
+    <div class="mt-4 grid grid-cols-3 gap-4 flex-grow">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-semibold text-slate-600 mb-2">ALU tests</div>
+        <div class="text-sm text-slate-700">Cover all 18 control combinations and check both output and zr/ng flags, including zero and negative edge cases.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-semibold text-slate-600 mb-2">RAM tests</div>
+        <div class="text-sm text-slate-700">Check uninitialized reads, write-then-read, and cross-address isolation with sentinel values across sub-blocks.</div>
+      </div>
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-semibold text-slate-600 mb-2">PC tests</div>
+        <div class="text-sm text-slate-700">Verify increment sequences, load-to-value behavior, and reset during sequences for deterministic control flow.</div>
+      </div>
+      <div class="col-span-3 rounded-xl bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Debugging log sample</div>
+        <pre class="bg-white p-3 card-border">// Example log entry
+Test: RAM64 write isolation
+Failure: address 8 changed when writing to address 9
+Hypothesis: decoder incorrectly gating load across blocks
+Fix: adjust address bit split and gate load with high select
+Result: pass</pre>
+      </div>
+    </div>
+    <div class="mt-4 flex gap-3">
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common error</div>
+        <p class="text-xs font-medium text-slate-800">Not isolating load signals during composition causes writes to propagate to multiple registers. Ensure decoders gate the load to a single unit.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A short, well-structured test suite and a clear log reduce debugging time dramatically when composing larger chips.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

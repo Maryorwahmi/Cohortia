@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Fixtures and loadFixture</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Fixture code (concept)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-slate-700 text-sm" style="white-space:pre-wrap; tab-size:2;">async function deployMyContractFixture() {
+  [owner, addr1, addr2] = await ethers.getSigners();
+  MyContract = await ethers.getContractFactory("MyContract");
+  myContract = await MyContract.deploy("Initial Greeting");
+  await myContract.deployed();
+  return { myContract, owner, addr1, addr2 };
+}
+
+// In beforeEach:
+({ myContract, owner, addr1, addr2 } = await loadFixture(deployMyContractFixture));</pre>
+    </div>
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Notes & pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Run the fixture once per suite; loadFixture will reuse a saved snapshot.</li>
+        <li>Always reassign returned objects in beforeEach to avoid stale references.</li>
+        <li>Do not mutate global shared state outside the fixture; keep state local to the returned objects.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

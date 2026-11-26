@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-xl font-bold text-slate-800 mt-1">From DAU to QPS</div>
+    <div class="text-sm text-slate-600 mt-1">A reproducible sequence for average and peak rates</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="flex items-center gap-3">
+        <div class="rounded-full bg-blue-50 w-10 h-10 flex items-center justify-center text-blue-700 font-bold">1</div>
+        <div class="text-sm font-semibold">Estimate DAU</div>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Convert total users to Daily Active Users using an interview assumption. State the percentage you use and why.</div>
+      <div class="mt-4 flex items-start gap-3">
+        <div class="rounded-full bg-violet-50 w-10 h-10 flex items-center justify-center text-violet-700 font-bold">2</div>
+        <div>
+          <div class="text-sm font-semibold">Multiply actions per DAU</div>
+          <div class="text-sm text-slate-600 mt-1">Actions per DAU per day gives you daily request volume for the feature in question.</div>
+        </div>
+      </div>
+      <div class="mt-4 flex items-start gap-3">
+        <div class="rounded-full bg-amber-50 w-10 h-10 flex items-center justify-center text-amber-700 font-bold">3</div>
+        <div>
+          <div class="text-sm font-semibold">Convert to QPS</div>
+          <div class="text-sm text-slate-600 mt-1">Divide daily requests by 86,400 seconds to get average QPS, then compute peak QPS using window scaling and fraction of traffic.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold">Worked Example — photo upload</div>
+      <div class="mt-3 text-sm text-slate-600">Assume 1B users, 10% DAU = 100M. One upload per DAU → 100M uploads/day. Average QPS = 100M / 86,400 ≈ 1,157. If 20% of uploads happen in a 4-hour peak window, peak QPS = average × (24/4) × 0.20 ≈ 1,388. That peak number is the operational target for the upload path.</div>
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <p class="text-xs font-medium text-slate-800">Applying the traffic fraction without scaling for the shorter window underestimates peak QPS. Always expand to the short window first, then apply the fraction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

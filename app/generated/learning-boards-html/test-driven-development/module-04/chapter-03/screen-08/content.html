@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Green Phase — Minimal Code</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Minimal implementation</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 mt-3"><code># order_processor.py
+class OrderProcessor:
+    def __init__(self, payment_gateway, inventory_service):
+        self._payment_gateway = payment_gateway
+        self._inventory_service = inventory_service
+
+    def process_order(self, order_details: dict) -> dict:
+        # Minimal code to pass the test
+        self._payment_gateway.charge(order_details["total_amount"])
+        for item in order_details["items"]:
+            self._inventory_service.deduct_stock(item["product_id"], item["quantity"])
+        return {"status": "confirmed", "order_id": order_details["order_id"]}</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Teaching notes</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Minimal implementations reduce risk and keep focus on specified behavior.</li>
+        <li>Avoid adding exception handling or abstractions until tests require them.</li>
+        <li>After green, plan refactors that improve clarity without changing behavior.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Reflection</div>
+          <p class="text-xs font-medium text-slate-800">Which lines in your minimal implementation are likely candidates for extraction once several tests need similar logic?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

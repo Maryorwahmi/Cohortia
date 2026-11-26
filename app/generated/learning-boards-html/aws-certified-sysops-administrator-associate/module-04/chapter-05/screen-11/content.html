@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Parameter Store Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Create a SecureString</div>
+      <div class="text-sm text-slate-600 mt-1">Use a hierarchical name and choose KMS encryption.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <ol class="list-decimal pl-5">
+          <li>Open Systems Manager → Parameter Store → Create parameter.</li>
+          <li>Name: /my-app/db-connection-string; Type: SecureString.</li>
+          <li>Choose KMS key source and enter the connection string value.</li>
+          <li>Click Create parameter and note the name for retrieval.</li>
+        </ol>
+      </div>
+
+      <div class="mt-auto text-xs text-slate-600">Remember: plan for rotation and least-privilege access to decrypted values.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase text-slate-600">Retrieve with AWS CLI</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+aws ssm get-parameter --name /my-app/db-connection-string --with-decryption
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Common error</div>
+        <div class="mt-1">If you see an access denied error, check that the caller's role has KMS decrypt permissions for the key used by SecureString.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

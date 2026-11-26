@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Task 1 — SPAN</div>
+      <pre class="bg-slate-900 text-white p-3 rounded mt-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+Switch(config)# monitor session 1 source interface GigabitEthernet0/1 both
+Switch(config)# monitor session 1 destination interface GigabitEthernet0/2
+Switch(config)# end
+Switch# show monitor session 1
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">Verify the mapping and keep the destination port dedicated to the analyzer.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Task 2 — IOS‑XE capture</div>
+      <pre class="bg-slate-900 text-white p-3 rounded mt-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+Router(config)# ip access-list extended WEB_TRAFFIC
+Router(config-ext-nacl)# permit ip any host 192.168.20.50
+Router(config-ext-nacl)# exit
+Router(config)# monitor capture WEB_TROUBLE interface GigabitEthernet0/0 ingress
+Router(config)# monitor capture WEB_TROUBLE match ip access-list WEB_TRAFFIC
+Router(config)# monitor capture WEB_TROUBLE start
+! Simulate traffic
+Router(config)# monitor capture WEB_TROUBLE stop
+Router(config)# monitor capture WEB_TROUBLE export tftp://192.168.1.10/web_capture.pcap
+Router(config)# monitor capture WEB_TROUBLE clear
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">After export, open the PCAP in Wireshark and apply filters like ip.addr == 192.168.20.50 and http.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

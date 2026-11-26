@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hardware & Sizing</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Hardware and node sizing basics</div>
+      <div class="text-sm text-slate-600 mt-2">CPU, RAM, disks, and network guidance for OSD and admin nodes.</div>
+
+      <div class="mt-4 flex-1">
+        <ul class="space-y-3 text-sm text-slate-700">
+          <li>CPU: Aim for 4–8 cores per node for general roles; OSD-heavy nodes may need more processing for I/O load.</li>
+          <li>RAM: 16–32GB minimum for typical nodes; increase RAM for metadata or heavier OSD usage.</li>
+          <li>Disks: Use enterprise HDDs for capacity; prefer NVMe/SSD for WAL and RocksDB when mixing with HDDs.</li>
+          <li>Networks: Use at least two NICs — public for client traffic and cluster for inter-OSD replication and recovery.</li>
+          <li>Verification: Check firmware, run smartctl where appropriate, and ensure disks do not contain host partitions before provisioning.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Separate capacity and performance roles, and isolate cluster traffic to maintain performance during recovery and rebalancing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-5 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Analogy: Shipping containers</div>
+      <div class="text-sm text-slate-600 mt-2">Think of capacity drives as large cargo ships and NVMe as the fast delivery vans that handle metadata and urgent transactions. If both use the same road, traffic jams appear during busy times.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-rose-600 mt-2">Using a single network interface for both public and cluster traffic can cause severe performance degradation during recovery events.</div>
+
+        <div class="mt-4 text-sm font-semibold text-slate-800">Check your inventory</div>
+        <div class="mt-2 text-sm text-slate-600">Commands to run on each node: <span class="font-mono text-xs">lsblk -f</span> and <span class="font-mono text-xs">fdisk -l</span> to validate device state before cephadm provisions OSDs.</div>
+      </div>
+    </div>
+  </div>
+</div>

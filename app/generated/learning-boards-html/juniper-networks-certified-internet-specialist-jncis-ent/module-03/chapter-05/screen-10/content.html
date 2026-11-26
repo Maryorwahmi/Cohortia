@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, Menlo, monospace;font-size:13px;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: VLAN 10</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Starter Code</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Secure VLAN 10</h3>
+      <p class="text-sm text-slate-600 mt-2">Apply these commands in your lab Junos shell; then run verification steps below.</p>
+
+      <div class="mt-4">
+        <pre class="code"><code># Configure VLAN 10
+set vlans USERS vlan-id 10
+
+# Configure ge-0/0/0 as access port for VLAN 10 (user port)
+set interfaces ge-0/0/0 unit 0 family ethernet-switching vlan members USERS
+
+# Configure ge-0/0/1 as access port for VLAN 10 (DHCP server port)
+set interfaces ge-0/0/1 unit 0 family ethernet-switching vlan members USERS
+
+# Enable DHCP snooping for VLAN 10
+set ethernet-switching-options secure-access-port dhcp-snooping vlan USERS
+
+# Mark ge-0/0/1 as a trusted DHCP snooping port
+set ethernet-switching-options secure-access-port interface ge-0/0/1 dhcp-snooping trusted
+
+# Enable Dynamic ARP Inspection (DAI) for VLAN 10
+set ethernet-switching-options secure-access-port arp-inspection vlan USERS
+
+# Configure MAC limiting on ge-0/0/0
+set ethernet-switching-options secure-access-port interface ge-0/0/0 mac-limit 1 action drop
+
+commit and-quit</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification Commands</div>
+      <div class="text-sm text-slate-800 mt-2">Run these commands to confirm behavior after commit:</div>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg bg-slate-50 p-3 card-border"><div class="text-sm kbd">show ethernet-switching-options secure-access-port</div></div>
+        <div class="rounded-lg bg-slate-50 p-3 card-border"><div class="text-sm kbd">show dhcp-security binding</div></div>
+        <div class="rounded-lg bg-slate-50 p-3 card-border"><div class="text-sm kbd">show arp</div></div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab checks</div>
+        <p class="text-xs font-medium text-slate-800">Confirm PC gets IP, add another device to the same port and observe dropped traffic, and simulate a rogue DHCP attempt conceptually to see why snooping blocks it.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

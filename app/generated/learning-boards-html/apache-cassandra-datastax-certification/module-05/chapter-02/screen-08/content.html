@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable JMX (lab)</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-xl font-bold text-slate-900">Prepare cassandra-env.sh</div>
+      <div class="text-sm text-slate-600 mt-2">Create a small custom cassandra-env.sh to set JMX JVM options used for the lab container.</div>
+
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded text-slate-700" style="white-space:pre-wrap;tab-size:2;">#!/bin/bash
+# Add JMX remote configuration
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1"
+</pre>
+
+      <div class="text-xs text-slate-500 mt-2">This example disables auth and SSL for a local lab only. Do not use in production.</div>
+    </div>
+
+    <div>
+      <div class="text-xl font-bold text-slate-900">Docker run command</div>
+      <div class="text-sm text-slate-600 mt-2">Mount the custom file and expose the JMX port so JConsole can connect from your host.</div>
+
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded text-slate-700" style="white-space:pre-wrap;tab-size:2;">docker run --name cassandra-jmx -p 9042:9042 -p 7199:7199 -v $(pwd)/custom-cassandra-env.sh:/etc/cassandra/cassandra-env.sh -d cassandra:latest
+</pre>
+
+      <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)] mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Lab tip</div>
+        <div class="text-sm text-slate-800">Use 127.0.0.1 binding so the JMX listener is reachable only from the host machine for the lab.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

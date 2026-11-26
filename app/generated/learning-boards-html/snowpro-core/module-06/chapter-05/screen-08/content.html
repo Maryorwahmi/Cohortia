@@ -1,0 +1,99 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { border: 1px solid rgba(226,232,240,0.9); background: #ffffff; border-radius: 14px; box-shadow: 0 4px 10px rgba(2,6,23,0.04); }
+    pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+  </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Performance Tuning</span>
+    </div>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-5/12 h-full flex flex-col gap-4">
+      <div class="card p-4 h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Core Concept</div>
+        <div class="text-lg font-bold text-slate-800">Diagnose with Query Profile</div>
+        <p class="text-sm text-slate-600 mt-2">Identify hotspots: compilation, scanning, or skew. Look for long-running operators and large bytes scanned.</p>
+      </div>
+
+      <div class="card p-4 h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Tuning Options</div>
+        <ul class="text-sm text-slate-600 list-disc pl-4 space-y-1">
+          <li>Adjust warehouse size for compute-bound workloads.</li>
+          <li>Use clustering keys for columns used frequently in filters.</li>
+          <li>Consider materialized views for heavy repeated aggregations.</li>
+          <li>Review joins and broadcast vs. partition strategies.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4 h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">Example Check</div>
+        <div class="text-sm text-slate-700">Compare before/after metrics for a single query change. Measure bytes scanned and execution time.</div>
+        <div class="mt-3 text-xs font-bold text-slate-500">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-2 mt-1">
+          <p class="text-xs font-medium text-slate-800">Diagnose first. Apply the smallest targeted change and validate gains.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 h-full card p-5 flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+          <div class="text-2xl font-bold text-slate-800">Stepwise tuning workflow</div>
+        </div>
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" class="text-blue-600"><path d="M12 2v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <div class="flex gap-3 h-full">
+        <div class="w-1/2 flex flex-col gap-3">
+          <div class="p-3 rounded-lg border border-slate-100 bg-blue-50">
+            <div class="text-sm font-semibold text-blue-700">1. Capture Query Profile</div>
+            <div class="text-sm text-slate-600 mt-1">Open the Query Profile to find long operators and bytes scanned. Export metrics for comparison.</div>
+          </div>
+
+          <div class="p-3 rounded-lg border border-slate-100 bg-amber-50">
+            <div class="text-sm font-semibold text-amber-700">2. Apply Targeted Change</div>
+            <div class="text-sm text-slate-600 mt-1">Try a clustering key, a warehouse size change, or a materialized view for a single hotspot.</div>
+          </div>
+
+          <div class="p-3 rounded-lg border border-slate-100 bg-rose-50">
+            <div class="text-sm font-semibold text-rose-700">3. Re-measure & Validate</div>
+            <div class="text-sm text-slate-600 mt-1">Compare execution time, bytes scanned, and concurrency impact before adopting change.</div>
+          </div>
+        </div>
+
+        <div class="w-1/2 flex flex-col gap-3">
+          <div class="flex-1 p-3 rounded-lg border border-slate-100 bg-white overflow-auto">
+            <div class="text-sm font-semibold text-slate-700">Concrete Example (SQL)</div>
+            <pre class="mt-2"><code>-- Create a materialized view for frequent aggregation
+CREATE MATERIALIZED VIEW mv_sales_hourly AS
+SELECT store_id, date_trunc('hour', sale_ts) AS hour,
+       count(*) AS cnt, sum(amount) AS total
+FROM sales
+GROUP BY 1, 2;
+
+-- Use it in reports to reduce repeated work
+SELECT store_id, hour, total
+FROM mv_sales_hourly
+WHERE store_id = 42
+ORDER BY hour;
+</code></pre>
+          </div>
+
+          <div class="mt-auto">
+            <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+              <p class="text-xs font-medium text-slate-800">Performance tuning is iterative: measure, change one thing, and measure again to confirm improvement.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

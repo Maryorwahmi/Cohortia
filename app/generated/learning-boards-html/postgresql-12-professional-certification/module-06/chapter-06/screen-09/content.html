@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="card p-4 h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Add, attach, detach</h3>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800 mb-2">Add partition</div>
+        <pre class="mono p-3 bg-slate-50">CREATE TABLE daily_sales_2023_04 PARTITION OF daily_sales
+FOR VALUES FROM ('2023-04-01') TO ('2023-05-01');</pre>
+      </div>
+      <div class="p-3 bg-white rounded border">
+        <div class="font-semibold text-slate-800 mb-2">Detach for archive</div>
+        <pre class="mono p-3 bg-slate-50">ALTER TABLE daily_sales DETACH PARTITION daily_sales_2023_01;
+-- daily_sales_2023_01 is now a standalone table</pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="p-3 card bg-emerald-50 text-emerald-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Why it matters</div>
+        <p class="text-xs">DETACH is fast, enabling efficient archiving without expensive row deletes.</p>
+      </div>
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Caveat</div>
+        <p class="text-xs text-slate-700">Ensure the detached table has the indexes and constraints you need before dropping it.</p>
+      </div>
+      <div class="p-3 card bg-amber-50 text-amber-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Pro-tip</div>
+        <p class="text-xs">Automate creation of future partitions and monthly detaches in staging first to validate behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

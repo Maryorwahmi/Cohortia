@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;background:#f8fafc;padding:10px;border-radius:8px;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Check Your Understanding</span>
+      <span>›</span>
+      <span class="text-slate-700">Assessment Scenario</span>
+    </div>
+    <div class="grid grid-cols-2 gap-6">
+      <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+        <div class="text-sm font-semibold text-slate-800">Assessment example</div>
+        <div class="text-sm text-slate-600 mt-2">Create a monthly monitor for ETL_WH with 100 credit quota, notify at 80% to data_ops, and suspend immediately at 100%.</div>
+        <pre><code>CREATE RESOURCE MONITOR etl_monthly_monitor
+  WITH CREDIT_QUOTA = 100
+  FREQUENCY = MONTHLY
+  TRIGGERS
+    ON 80 PERCENT DO NOTIFY EMAIL 'data_ops@company.com'
+    ON 100 PERCENT DO SUSPEND_IMMEDIATE;
+ALTER WAREHOUSE ETL_WH SET RESOURCE_MONITOR = etl_monthly_monitor;
+</code></pre>
+      </div>
+      <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+        <div class="text-sm font-semibold text-slate-800">Interpretation tip</div>
+        <div class="text-sm text-slate-600 mt-2">Confirm frequency matches requirement, use NOTIFY EMAIL syntax for email alerts, and prefer SUSPEND_IMMEDIATE if immediate stop is required. Use WAREHOUSE_METERING_HISTORY to validate whether 100 credits suffice.</div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Assessments focus on accurate SQL, correct trigger selection, and using ACCOUNT_USAGE to justify thresholds.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

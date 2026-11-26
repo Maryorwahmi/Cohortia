@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code-panel{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,"Roboto Mono",monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Events & balances</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border bg-white p-5">
+      <div class="text-sm font-bold text-slate-800 mb-2">Event assertion example</div>
+      <div class="code-panel rounded-lg p-3 bg-slate-50 border text-sm text-slate-800">
+        <pre><code>await expect(token.transfer(addr1.address, 100))
+  .to.emit(token, "Transfer")
+  .withArgs(owner.address, addr1.address, 100);</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">This test ensures the Transfer event was emitted with the correct arguments, which off-chain indexers depend on.</div>
+    </div>
+
+    <div class="rounded-xl border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Balance change example</div>
+      <div class="code-panel rounded-lg p-3 bg-slate-50 border text-sm text-slate-800">
+        <pre><code>await myContract.deposit({ value: ethers.utils.parseEther("1.0") });
+await expect(() => myContract.withdraw(ethers.utils.parseEther("0.5")))
+  .to.changeEtherBalance(owner, ethers.utils.parseEther("0.5"));</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">Use changeEtherBalance to assert net changes while letting the matcher account for gas costs. Pair this with an event assertion for completeness.</div>
+
+      <div class="mt-auto p-3 rounded-lg border bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Combine event and balance assertions to fully validate side effects that matter to users and integrations.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

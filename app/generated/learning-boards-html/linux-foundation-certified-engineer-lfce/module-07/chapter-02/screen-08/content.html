@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class="text-slate-700">SGID on directories</span>
+    </div>
+
+    <div class="flex gap-6 h-[68%]">
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Architecture</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Group inheritance flow</h3>
+        <div class="mt-3 text-sm text-slate-700">
+          When SGID is applied to a directory the kernel marks new child objects with the parent directory's group. This preserves group ownership across collaborative contributions without manual chown calls.
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-lg p-3 bg-slate-50 border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">Example setup</div>
+            <div class="text-sm text-slate-600 mt-2">Create /srv/project_alpha, set owner root:dev_team, and chmod 2770 so all new items inherit dev_team group ownership and remain private to the group.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Commands & verification</div>
+        <pre class="p-3" style="background:#0b1220;color:#e6eef8;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;">
+# Setup
+sudo mkdir -p /srv/project_alpha
+sudo chown root:dev_team /srv/project_alpha
+sudo chmod 2770 /srv/project_alpha
+
+# Verify
+ls -ld /srv/project_alpha   # drwxrws--- shows the 's' in group position
+# Create a file as alice (in dev_team) and check group ownership
+sudo -u alice touch /srv/project_alpha/example.txt
+ls -l /srv/project_alpha/example.txt  # group should be dev_team
+</pre>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use SGID on shared project directories to preserve group ownership and simplify collaboration; remember to manage group membership.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;} .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px;background:white}</style>
+  <div class="flex flex-col h-full">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Gateway Scenario</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 h-full">
+      <div class="col-span-7 panel">
+        <div class="text-sm font-bold">Scenario summary</div>
+        <div class="text-sm text-slate-600 mt-2">Gateway: eth0 public 203.0.113.10, eth1 private 192.168.100.1. Internal webserver: 192.168.100.100. Objectives: enable IP forwarding, DNAT port 80 to webserver, masquerade outbound, and PBR for webserver-originated traffic.</div>
+
+        <div class="mt-4 text-sm">
+          <div class="font-bold">Starter commands</div>
+          <pre class="rounded bg-slate-900 text-white p-3 mt-3"><code># 1. Enable IP forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ip-forward.conf
+
+# 2. nftables excerpt: DNAT and masquerade
+# see chapter for full file content
+</code></pre>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-bold">Verification steps</div>
+          <ul class="mt-2 text-sm text-slate-600 space-y-2">
+            <li>sudo nft list ruleset — check nat rules in prerouting and postrouting.</li>
+            <li>sudo ip rule show — confirm webserver_pbr entry exists.</li>
+            <li>sudo ip route show table webserver_pbr — verify default via 192.168.100.254.</li>
+            <li>tcpdump on eth0 and eth1 to confirm DNAT and masquerade behavior.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-span-5 panel">
+        <div class="text-sm font-bold">Configuration excerpt</div>
+        <pre class="rounded bg-slate-900 text-white p-3 mt-3"><code>table inet filter {
+    chain forward { type filter hook forward priority 0; policy drop;
+        iifname "eth1" oifname "eth0" accept
+        iifname "eth0" oifname "eth1" ct state new tcp dport 80 accept
+    }
+}
+
+table ip nat {
+    chain prerouting { type nat hook prerouting priority -100; policy accept;
+        iifname "eth0" tcp dport 80 dnat to 192.168.100.100:80
+    }
+    chain postrouting { type nat hook postrouting priority 100; policy accept;
+        oifname "eth0" ip saddr 192.168.100.0/24 masquerade
+    }
+}
+</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

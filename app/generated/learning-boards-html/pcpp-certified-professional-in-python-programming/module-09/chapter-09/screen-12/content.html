@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:14px;border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: N+1 & UUID</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white card p-5">
+      <div class="text-sm font-semibold text-slate-800">Part 1 — Observe and Fix N+1</div>
+      <ol class="list-decimal ml-5 mt-3 text-sm text-slate-600">
+        <li>Run starter code with engine echo=True and note repeated SELECTs.</li>
+        <li>Refactor: authors_optimized = session.query(Author).options(joinedload(Author.posts)).all()</li>
+        <li>Rerun with echo=True and confirm fewer queries.</li>
+      </ol>
+      <div class="mt-3 text-xs text-slate-500">Check: SQL logs show one joined query or one IN query instead of N per parent.</div>
+    </div>
+
+    <div class="bg-white card p-5">
+      <div class="text-sm font-semibold text-slate-800">Part 2 — Implement UUIDType</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800">class UUIDType(TypeDecorator):
+  impl = String(36)
+  cache_ok = True
+  def process_bind_param(self, value, dialect):
+    if value is None: return value
+    return str(value)
+  def process_result_value(self, value, dialect):
+    if value is None: return value
+    return uuid.UUID(value)
+
+# Add to Post: uuid = Column(UUIDType, default=uuid.uuid4, unique=True, nullable=False)</pre>
+      <div class="mt-3 text-sm text-slate-600">Recreate tables in a fresh engine for the modified schema and verify posts return uuid.UUID objects.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

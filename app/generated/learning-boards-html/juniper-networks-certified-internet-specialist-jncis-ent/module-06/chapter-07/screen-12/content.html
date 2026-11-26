@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 6.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Introduce, diagnose, correct, verify</h3>
+      <ol class="mt-4 list-decimal list-inside space-y-2 text-sm text-slate-700">
+        <li>Set wrong peer-as on R1 and commit to simulate Open mismatch.</li>
+        <li>Run run show bgp summary and run show bgp neighbor to find errors.</li>
+        <li>Fix peer-as, commit, and verify Established state.</li>
+        <li>Deactivate family inet unicast on R1 to simulate no advertisement.</li>
+        <li>Use run show route advertising-protocol and run show route receive-protocol to confirm missing routes.</li>
+        <li>Reactivate family, commit, and verify routes exchange.</li>
+        <li>Enable traceoptions with small file, reproduce, view log, then deactivate traceoptions and commit clean-up.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 card p-4 bg-white border flex flex-col overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Commands (on R1)</div>
+      <pre class="mono bg-slate-50 p-3 mt-3 rounded-md" style="white-space: pre-wrap; tab-size: 2;">edit
+set protocols bgp group EBGP_PEER neighbor 10.0.0.2 peer-as 65003
+commit
+run show bgp summary
+run show bgp neighbor 10.0.0.2
+set protocols bgp group EBGP_PEER neighbor 10.0.0.2 peer-as 65002
+commit
+# Simulate advertising issue
+deactivate protocols bgp group EBGP_PEER family inet unicast
+commit
+run show route advertising-protocol bgp 10.0.0.2
+# Restore
+activate protocols bgp group EBGP_PEER family inet unicast
+commit
+# Traceoptions
+set protocols bgp traceoptions file bgp-debug size 1m files 2
+set protocols bgp traceoptions flag state
+set protocols bgp traceoptions flag open
+commit
+run clear bgp neighbor 10.0.0.2
+run show log bgp-debug
+deactivate protocols bgp traceoptions
+commit
+</pre>
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use these reproducible steps in a lab before applying fixes in production to build confidence and reduce risk.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

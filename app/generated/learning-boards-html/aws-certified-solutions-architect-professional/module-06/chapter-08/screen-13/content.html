@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Task steps (conceptual)</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Identify web, app, and db placeholders and their ports.</li>
+        <li>Create WebTierSG, AppTierSG, DBTierSG with scoped rules referencing SG IDs.</li>
+        <li>Attach SGs to instances and run connectivity tests to confirm enforcement.</li>
+        <li>Review CloudTrail and VPC Flow Logs for recorded traffic paths.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Verification prompts</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li>Internet → App Port: should be blocked.</li>
+        <li>Web → App Port: should succeed.</li>
+        <li>App → DB Port: should succeed.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Conceptual rules preview</div>
+        <pre class="mt-2 text-sm text-slate-700 bg-slate-50 p-3 rounded"># Conceptual security group relationships
+WebTierSG: Inbound HTTP/HTTPS from 0.0.0.0/0
+WebTierSG: Outbound TCP 8080 to AppTierSG
+AppTierSG: Inbound TCP 8080 from WebTierSG
+AppTierSG: Outbound TCP 3306 to DBTierSG
+DBTierSG: Inbound TCP 3306 from AppTierSG</pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use security group references, restrict outbound, and validate with logs so segmentation is enforced and observable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

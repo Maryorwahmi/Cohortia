@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.code-panel{background:#0b1220;color:#dbeafe;border-radius:12px;padding:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Cloud Function Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-cols-3 gap-4">
+    <div class="col-span-2">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code example</div>
+      <div class="code-panel">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;color:#e6f0ff;line-height:1.4;margin:0;">
+# main.py
+import functions_framework
+import json
+import os
+from google.cloud import compute_v1
+
+@functions_framework.cloud_event
+def vm_diagnostic_runbook(cloud_event):
+  message_data = cloud_event.data.message.data
+  if not message_data:
+    print("No message data found.")
+    return
+
+  payload = json.loads(message_data)
+  incident = payload.get('incident', {})
+  vm_name = "my-test-vm"  # in practice parse from alert
+  project_id = os.environ.get("GCP_PROJECT_ID")
+  zone = "us-central1-a"
+
+  try:
+    compute_client = compute_v1.InstancesClient()
+    request = compute_v1.GetInstanceRequest(project=project_id, zone=zone, instance=vm_name)
+    vm_instance = compute_client.get(request=request)
+    vm_status = vm_instance.status
+    vm_ip = vm_instance.network_interfaces[0].network_ip if vm_instance.network_interfaces else "N/A"
+
+    diagnostic_message = f"VM '{vm_name}' status: {vm_status}, ip: {vm_ip}"
+  except Exception as e:
+    diagnostic_message = f"Error fetching VM status: {e}"
+
+  slack_webhook_url = os.environ.get('SLACK_WEBHOOK_URL')
+  if slack_webhook_url:
+    # post to Slack
+    pass
+  else:
+    print(diagnostic_message)
+        </pre>
+      </div>
+    </div>
+
+    <div class="col-span-1">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation</div>
+      <div class="text-sm text-slate-700">
+        The function reads the alert payload, uses the Compute API to fetch instance state, and prints or posts a diagnostic message. Key points: parse defensively, handle exceptions, and use environment variables for configuration.
+      </div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Deployment notes</div>
+        <div class="text-sm text-slate-700 mt-2">Grant the function a Compute Viewer role and test it in staging. Keep it focused on diagnostics, not remediation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

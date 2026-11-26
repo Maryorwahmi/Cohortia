@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Auth State</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card">
+      <div class="text-lg font-bold text-slate-800">AuthWrapper pattern</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>return StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const CircularProgressIndicator();
+    }
+    if (snapshot.hasData) {
+      return const HomeScreen();
+    }
+    return const AuthScreen();
+  },
+);
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This structure avoids manual navigation when users sign in or out, and centralizes the decision of which top-level screen to show.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Common mistakes & fixes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Don't use FutureBuilder with currentUser; it won't update on sign-out.</li>
+        <li>Initialize Firebase before listening to authStateChanges to avoid race conditions.</li>
+        <li>Show a loading state while the stream connection is waiting to avoid flicker.</li>
+      </ul>
+
+      <div class="mt-auto pt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Key takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">StreamBuilder with authStateChanges is the dependable way to present the correct top-level screen for the user's session state.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

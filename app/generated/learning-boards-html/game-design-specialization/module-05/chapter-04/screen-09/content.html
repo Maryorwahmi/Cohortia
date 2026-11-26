@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Modifying Player Movement — Practical Code Example</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Starter code (read-only)</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3 mono text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>// PlayerMovement.cs (excerpt)
+public float moveSpeed = 7f; // Adjusted for snappier feel
+public float jumpForce = 12f;
+public float fallMultiplier = 2.5f; // Makes falling faster
+public float lowJumpMultiplier = 2f; // For variable jump height
+
+private Rigidbody rb;
+private bool isGrounded;
+
+void Start()
+{
+  rb = GetComponent<Rigidbody>();
+}
+
+void Update()
+{
+  // Movement omitted for brevity
+  isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+  if (Input.GetButtonDown("Jump") && isGrounded)
+  {
+    rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+  }
+
+  if (rb.velocity.y < 0)
+  {
+    rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+  }
+  else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+  {
+    rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Teaching notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700">
+        <li>Expose tuning variables as public fields so designers can iterate without code changes.</li>
+        <li>Adjust one variable at a time and record the build label and hypothesis.</li>
+        <li>Use FixedUpdate for physics changes and keep input handling separate for clarity.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-slate-800">Example test: change fallMultiplier from 1.5 to 2.5, run 6 playtests, measure jump landing consistency, and collect subjective feedback on "snappiness."</div>
+
+      <div class="mt-auto text-xs text-slate-500">Remember: the code is a tool for controlled experiments. Commit with a message that states the hypothesis for future traceability.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

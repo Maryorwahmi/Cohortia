@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Assessment</span>
+  </div>
+
+  <div class="bg-white rounded-2xl border p-6 shadow-sm h-full">
+    <div class="text-lg font-bold">Question 1</div>
+    <div class="mt-2 text-sm text-slate-700">You have prod_credentials.yml in plain text. Encrypt it and have Ansible run without prompting, using /opt/ansible/vault_key.txt as the password file. Explain the steps and why they are secure.</div>
+
+    <div class="mt-3 rounded-lg p-3 bg-slate-50 border">
+      <div class="text-sm font-medium">Correct approach</div>
+      <pre class="mt-2 text-sm bg-slate-900 text-white p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">ansible-vault encrypt prod_credentials.yml
+# create /opt/ansible/vault_key.txt containing only the vault password
+# set strict permissions: chmod 0600 /opt/ansible/vault_key.txt
+ansible-playbook -i inventory/hosts my_playbook.yml --vault-password-file /opt/ansible/vault_key.txt</pre>
+      <div class="text-sm text-slate-700 mt-2">Explanation: Encrypt converts the file to ciphertext. The password file provides automatic decryption during runs while restrictive permissions protect the password file from other users.</div>
+    </div>
+
+    <div class="mt-4">
+      <div class="text-lg font-bold">Question 2</div>
+      <div class="mt-2 text-sm text-slate-700">What are the security implications of using a debug task to print a vaulted variable, and what is the safer alternative?</div>
+      <div class="mt-2 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-sm">Answer: Printing a vaulted variable reveals plaintext to console and logs. Use no_log: true on tasks handling secrets or avoid printing secrets entirely.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

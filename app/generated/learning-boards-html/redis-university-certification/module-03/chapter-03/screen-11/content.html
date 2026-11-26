@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span class="">›</span>
+    <span class="text-slate-700">AOF rewrite</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4">
+      <h3 class="text-xl font-bold text-slate-800">Why rewrite matters</h3>
+      <p class="text-sm text-slate-600 mt-3">Rewriting compacts the AOF to the minimal set of commands needed to recreate the current dataset, reducing disk growth and improving recovery time.</p>
+
+      <div class="mt-4 list-decimal pl-5 text-sm text-slate-700">
+        <ol class="space-y-2">
+          <li>Trigger BGREWRITEAOF manually or via configured thresholds.</li>
+          <li>Redis forks a child process to read memory and write a new AOF.</li>
+          <li>When complete, Redis replaces the old AOF with the rewritten one.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l card-border flex flex-col">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">Run BGREWRITEAOF after a period of many updates to shrink appendonly.aof and speed future restarts.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Schedule rewrites when the server is quiet to limit resource contention and avoid too-frequent forks.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Monitoring</div>
+        <p class="text-sm text-slate-600 mt-2">Watch AOF size and rewrite durations. Very long rewrites indicate you should adjust thresholds or hardware I/O capacity.</p>
+      </div>
+    </div>
+  </div>
+</div>

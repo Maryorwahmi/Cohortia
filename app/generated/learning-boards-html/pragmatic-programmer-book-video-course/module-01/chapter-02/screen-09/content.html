@@ -1,0 +1,47 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Tax Refactor — Code</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Before: duplicated logic</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+def calculate_order_total_checkout(items):
+    subtotal = sum(item.price * item.quantity for item in items)
+    tax_rate = 0.08 # duplicated
+    tax_amount = subtotal * tax_rate
+    return subtotal + tax_amount
+
+def calculate_order_total_invoice(items):
+    subtotal = sum(item.price * item.quantity for item in items)
+    tax_rate = 0.08 # duplicated
+    tax_amount = subtotal * tax_rate
+    return subtotal + tax_amount
+      </pre>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">After: centralized</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+TAX_RATE = 0.08
+
+def calculate_tax(amount):
+    return amount * TAX_RATE
+
+def calculate_order_total(items):
+    subtotal = sum(item.price * item.quantity for item in items)
+    tax_amount = calculate_tax(subtotal)
+    return subtotal + tax_amount
+      </pre>
+
+      <div class="mt-3">
+        <div class="rounded p-3 bg-emerald-50 text-emerald-800">Example tip: add unit tests that compare both versions' outputs before you remove the old code.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

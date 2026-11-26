@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">TransactionSender Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Key flow</div>
+      <ol class="list-decimal pl-4 text-sm text-slate-700 space-y-3">
+        <li>Connect to MetaMask and instantiate web3 and the contract.</li>
+        <li>Estimate gas for the call and present it to the user.</li>
+        <li>Fetch current gas price and next pending nonce just before sending.</li>
+        <li>Sign and send the transaction with an explicit nonce and buffered gas limit.</li>
+        <li>If pending, offer a speed-up that resends with the same nonce and higher gas price.</li>
+      </ol>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Starter code excerpt</div>
+      <pre class="code text-sm p-3 rounded bg-slate-50 border">const gas = await contract.methods.increment().estimateGas({ from: accounts[0] });
+const gasPrice = await web3.eth.getGasPrice();
+const nonce = await web3.eth.getTransactionCount(accounts[0], 'pending');
+
+// For speed-up
+const higherGasPrice = web3.utils.toBN(gasPrice).mul(web3.utils.toBN(120)).div(web3.utils.toBN(100)).toString(); // 20% higher</pre>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Safety notes</div>
+        <ul class="pl-4 list-disc text-sm text-slate-700 space-y-2">
+          <li>Do not store private keys in production code; use secure signing solutions.</li>
+          <li>Update nonce/pending state after confirmations and clear pending identifiers.</li>
+          <li>Provide clear feedback and an explicit speed-up action for users.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">The component links estimation, nonce control, and replacement logic into a reproducible pattern for production dApps.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

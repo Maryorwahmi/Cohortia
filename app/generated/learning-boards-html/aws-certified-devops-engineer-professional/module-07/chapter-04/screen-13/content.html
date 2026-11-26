@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Scenario</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">Three-tier web application</h3>
+      <p class="text-sm text-slate-600 mt-3">RTO: 4 hours. RPO: 1 hour. Decide a DR approach and list services per tier to implement it.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">Recommended strategy</div>
+          <div class="text-xs text-slate-600 mt-1">Pilot Light: maintain replicated data and a minimal compute footprint in the DR Region to meet the RTO and RPO at moderate cost.</div>
+        </div>
+
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">Implementation by tier</div>
+          <ul class="text-xs text-slate-600 mt-1 pl-4 list-disc space-y-1">
+            <li>Web Tier: store AMIs and CloudFormation templates; small ASG in DR Region to hold code.</li>
+            <li>Application Tier: same templates and a minimal ASG; keep deployments synchronized via CI/CD.</li>
+            <li>Database: RDS cross-region read replica that can be promoted to primary.</li>
+            <li>Static Assets: S3 Cross-Region Replication and CloudFront with multi-origin if desired.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Checks</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Test promoting the DB replica and verifying integrity.</li>
+        <li>Validate scaling operations to meet the four-hour RTO.</li>
+        <li>Automate DNS changes and run smoke tests post-failover.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Map each tier to replication and provisioning patterns, automate promotion, and practise the end-to-end recovery to be confident you meet RTO and RPO targets.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

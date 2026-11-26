@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on: Convert to Synchronous</span>
+    </div>
+    <div class="grid grid-cols-2 gap-6 h-[calc(100%-88px)]">
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Part 1 — Primary</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded"><code># Edit primary_db postgresql.conf
+synchronous_commit = on
+synchronous_standby_names = 'FIRST 1 (my_standby)'
+# Restart primary
+sudo systemctl restart postgresql
+</code></pre>
+        <div class="text-sm text-slate-700 mt-3">Restart is required for these parameters to take effect. Confirm pg_stat_replication after restarting.</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Part 2 — Standby</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded"><code># On standby_db
+primary_conninfo = 'host=&lt;primary_ip&gt; port=5432 user=replicator_user password=mysecretpassword application_name=my_standby'
+# Restart standby
+sudo systemctl restart postgresql
+</code></pre>
+        <div class="text-sm text-slate-700 mt-3">Make sure the application_name matches exactly. Then verify sync_state = sync on the primary.</div>
+      </div>
+    </div>
+    <div class="mt-4 bg-white rounded-xl p-3 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Test steps</div>
+      <ol class="mt-2 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Open session A on primary: BEGIN; INSERT ... (do not commit).</li>
+        <li>Open session B on primary: attempt another INSERT and observe blocking.</li>
+        <li>Stop the standby: sudo systemctl stop postgresql — observe session A blocks if waiting for confirmation.</li>
+        <li>Start the standby again and watch blocked statements complete; then COMMIT in each session and verify replication.</li>
+      </ol>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

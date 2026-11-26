@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">pg_hba.conf & listen_addresses</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 h-full">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm border-slate-100 h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Key configuration lines</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code># postgresql.conf
+# Default: listen_addresses = 'localhost'
+listen_addresses = '*'
+
+# pg_hba.conf example (testing only; restrict in production)
+host    all             all             0.0.0.0/0               md5</code></pre>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-xl bg-white p-3 border border-slate-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Example</div>
+            <div class="text-sm text-slate-800">To allow a specific subnet, replace 0.0.0.0/0 with 192.0.2.0/24 and use md5 for password authentication.</div>
+          </div>
+
+          <div class="rounded-xl bg-rose-50 p-3 border border-slate-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Security warning</div>
+            <div class="text-sm text-slate-800">Do not use 0.0.0.0/0 in production without strict firewall rules protecting port 5432.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 h-full flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-4 shadow-sm border-slate-100 flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Checklist after edits</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Save file changes and run sudo systemctl reload postgresql.</li>
+          <li>Test remote connection with psql from the client machine.</li>
+          <li>Ensure OS firewall allows 5432/tcp only from trusted IPs.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">listen_addresses opens interfaces, pg_hba.conf authorizes clients; always restrict access and reload the server after changes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

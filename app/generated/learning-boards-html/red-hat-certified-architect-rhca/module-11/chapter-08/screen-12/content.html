@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">SELinux & Samba</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Problem</div>
+      <p class="text-sm text-slate-700 mt-2">Windows clients receive Access Denied while Samba and filesystem permissions appear correct. This often indicates SELinux blocking access.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Diagnosis</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc ml-5">
+          <li>Check audit logs: sudo ausearch -m AVC -ts today | grep samba</li>
+          <li>Run sealert -a /var/log/audit/audit.log for analysis</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-semibold text-emerald-700">Fix (relabelling)</div>
+          <pre class="bg-slate-800 text-white rounded-md p-3 font-mono text-sm mt-2" style="white-space:pre-wrap;tab-size:2">sudo semanage fcontext -a -t samba_share_t "/srv/sambashare(/.*)?"
+sudo restorecon -Rv /srv/sambashare</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Booleans & notes</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div><span class="font-semibold">samba_enable_home_dirs:</span> allow sharing home directories if required.</div>
+        <div><span class="font-semibold">samba_export_all_rw:</span> use with caution if broad write access is needed.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-sm font-semibold text-amber-700">Misconception</div>
+          <p class="text-sm text-slate-700 mt-1">Disabling SELinux fixes symptoms but removes valuable security controls. Relabel and set booleans instead.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

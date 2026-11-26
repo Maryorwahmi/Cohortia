@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">/etc/exports & fsid=0</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Declare pseudo-root, then subexports</h3>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+        <li>Create /srv/nfsshare and set permissive root permissions for the root export.</li>
+        <li>Add fsid=0 line to /etc/exports to mark the pseudo-root.</li>
+        <li>Add subdirectory exports under that tree with subnet restrictions and sec=krb5p where needed.</li>
+        <li>Run exportfs -rv and verify showmount -e.</li>
+      </ol>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">fsid=0 centralizes the NFSv4 namespace; every other export must be a subdirectory of that root.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre class="bg-slate-800 text-white rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap;tab-size:2"># /etc/exports
+/srv/nfsshare *(rw,sync,no_subtree_check,fsid=0)
+/srv/nfsshare/data 192.168.10.0/24(rw,sync,no_subtree_check,sec=krb5p)</pre>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common mistakes</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-5">
+          <li>Placing fsid=0 on a non-root export or omitting it entirely.</li>
+          <li>Using wildcards for exports that should be subnet-limited.</li>
+          <li>Neglecting to run exportfs after editing exports.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

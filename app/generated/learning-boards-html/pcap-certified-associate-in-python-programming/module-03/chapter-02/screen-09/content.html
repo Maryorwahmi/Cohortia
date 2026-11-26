@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre.code{background:#0f172a;color:#e6eef8;border-radius:10px;padding:14px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+      <span>›</span>
+      <span class="text-slate-700">*args vs **kwargs and combined signatures</span>
+    </div>
+    <div class="flex gap-6 h-[72vh]">
+      <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm">
+        <div class="text-xl font-extrabold text-slate-900">Mixing positional and keyword collections</div>
+        <div class="text-sm text-slate-600 mt-2">Design functions that accept a core value, a variable list, and extra named options.</div>
+        <div class="mt-4 text-sm text-slate-700">Key binding rules:
+          <ul class="list-disc ml-5 mt-2 text-sm text-slate-700">
+            <li>Positional-only or regular positional parameters fill first.</li>
+            <li>Remaining positionals go into *args as a tuple.</li>
+            <li>Named parameters are matched first; leftover names go into **kwargs as a dict.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm">
+        <div class="text-sm font-bold text-slate-700">Example</div>
+        <pre class="code mt-3"><code>def process_data(name, *items, **options):
+  print(f"Name: {name}")
+  print(f"Items: {items}")
+  print(f"Options: {options}")
+
+process_data("Report 1", 10, 20, 30, format="pdf", date="2023-10-26")
+
+# Output:
+# Name: Report 1
+# Items: (10, 20, 30)
+# Options: {'format': 'pdf', 'date': '2023-10-26'}
+</code></pre>
+        <div class="mt-3 text-sm text-slate-700">Scenario: create a wrapper that forwards a primary resource name, any number of data items, and options like format and date to an exporter function. Misconception check: keyword arguments never flow into *args; they are either bound by name or end up in **kwargs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

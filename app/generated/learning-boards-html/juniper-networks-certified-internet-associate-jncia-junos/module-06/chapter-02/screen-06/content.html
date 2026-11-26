@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} svg{display:block}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Comparison</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Master vs Backup</div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Master</div>
+          <ul class="text-sm text-slate-700 list-disc pl-5 mt-2">
+            <li>Forwards traffic for the virtual IP</li>
+            <li>Responds to ARP for the virtual MAC</li>
+            <li>Sends VRRP advertisements</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold text-slate-800">Backup</div>
+          <ul class="text-sm text-slate-700 list-disc pl-5 mt-2">
+            <li>Monitors advertisements</li>
+            <li>Takes over when master stops advertising</li>
+            <li>Does not respond to ARP while backup</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Tip: use clear priority conventions in your network documentation so operators know which router should win elections and why.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Election rules & preemption</div>
+      <div class="text-sm text-slate-600 mb-3">Priority value 1–255 selects the master; equal priorities use highest IP as tiebreaker. Preemption causes a recovered higher-priority router to reclaim mastership immediately when enabled.</div>
+      <div class="rounded-lg bg-white p-3 border card mt-2">
+        <div class="text-sm font-bold text-slate-800">Example scenarios</div>
+        <div class="text-sm text-slate-600 mt-2">
+          <ul class="list-disc pl-5 space-y-2">
+            <li>R1 priority 150, R2 priority 100 → R1 master. If R1 fails, R2 becomes master. If R1 returns and preempt is enabled, R1 reclaims mastership.</li>
+            <li>R1 and R2 priority 120, virtual IP highest on R2 → R2 becomes master.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Set priorities deliberately and decide whether preemption should minimize downtime or avoid churn.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Aliasing</span>
+  </div>
+
+  <div class="bg-white rounded-2xl p-6 shadow-sm card-border h-full flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-900">Aliasing explained</h3>
+    <p class="text-sm text-slate-600 mt-2">When two branches share the same index, the single stored predictor state is updated by both, which can corrupt local predictions.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-md p-3 bg-white card-border">
+        <div class="text-sm font-semibold">Example: alternating branches</div>
+        <div class="text-sm text-slate-600 mt-1">A: T, B: N, A: T, B: N... If A and B map to the same entry the counter never stabilizes and both mispredict often on small BHTs.</div>
+      </div>
+
+      <div class="rounded-md p-3 bg-white card-border">
+        <div class="text-sm font-semibold">Why it's harmful</div>
+        <div class="text-sm text-slate-600 mt-1">Shared state prevents accurate local bias tracking, which directly reduces prediction accuracy and increases pipeline flushes.</div>
+      </div>
+
+      <div class="rounded-md p-3 bg-amber-50 card-border">
+        <div class="text-sm font-semibold">Misconception check</div>
+        <div class="text-sm text-slate-600 mt-1">Aliasing is not just a rare corner case; it frequently affects real workloads where many branches compete for a limited index space.</div>
+      </div>
+
+      <div class="rounded-md p-3 bg-white card-border">
+        <div class="text-sm font-semibold">Detection</div>
+        <div class="text-sm text-slate-600 mt-1">Compare trace addresses to the BHT index function; if different addresses yield the same index frequently, aliasing is present.</div>
+      </div>
+    </div>
+  </div>
+</div>

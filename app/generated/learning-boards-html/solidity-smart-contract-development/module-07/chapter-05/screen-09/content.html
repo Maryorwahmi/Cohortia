@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Response vs Receipt</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-lg font-bold text-slate-800">TransactionResponse</div>
+      <div class="text-sm text-slate-600 mt-2">Returned immediately after sending a transaction. Contains the hash and a promise to wait for the receipt.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+        <pre><code>const tx = await counter.increment();
+console.log(tx.hash);
+// tx is a TransactionResponse
+</code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-lg font-bold text-slate-800">TransactionReceipt</div>
+      <div class="text-sm text-slate-600 mt-2">Returned after await tx.wait(); includes gasUsed, blockNumber, and logs with emitted events for validation.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+        <pre><code>const receipt = await tx.wait();
+console.log(receipt.blockNumber, receipt.gasUsed);
+console.log(receipt.logs); // event data
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-bold">Debugging tip</div>
+        <div class="text-sm text-slate-600 mt-2">Log the tx.hash for explorer lookup and inspect receipt.logs to confirm expected events emitted by your contract.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

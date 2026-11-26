@@ -1,0 +1,28 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Comparison</span>
+    <span>›</span>
+    <span class='text-slate-700'>Multicolumn Indexes</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-sm font-bold text-slate-800'>Good match: (country, city, last_name)</div>
+      <div class='mt-3 text-sm text-slate-700'>Queries filtering by country and city will use this index effectively. The leading country column narrows the search drastically if country is selective, making indexes scans cheap.</div>
+
+      <div class='mt-4 bg-slate-100 rounded-md p-3 text-sm text-slate-700'>Example: SELECT * FROM people WHERE country = 'US' AND city = 'Seattle' ORDER BY last_name;</div>
+    </div>
+
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-sm font-bold text-slate-800'>Poor match: filtering only by trailing column</div>
+      <div class='mt-3 text-sm text-slate-700'>A query that filters only by last_name cannot efficiently use the same index because last_name is not the leading column. This often leads to a sequential scan or a different index.</div>
+
+      <div class='mt-4 bg-slate-100 rounded-md p-3 text-sm text-slate-700'>Example: SELECT * FROM people WHERE last_name = 'Garcia';</div>
+    </div>
+
+    <div class='col-span-2 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+      <p class='text-xs font-medium text-slate-800'>Design multicolumn indexes to match common WHERE clause order. If you need flexibility, consider multiple narrower indexes or partial indexes instead of a very wide composite index.</p>
+    </div>
+  </div>
+</div>

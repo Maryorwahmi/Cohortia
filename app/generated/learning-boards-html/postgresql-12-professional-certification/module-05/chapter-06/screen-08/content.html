@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Preparing PGDATA</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">File preparation</div>
+        <div class="mt-3 text-sm text-slate-700">Remove or move the existing PGDATA contents so the restored backup files do not mix with old files. Failure to do so can lead to data corruption and startup errors.</div>
+
+        <pre class="mt-3 bg-slate-900 text-white p-3 rounded-lg mono text-sm" style="white-space:pre-wrap;tab-size:2;">sudo systemctl stop postgresql@12-main
+sudo rm -rf /var/lib/postgresql/12/main/*
+# Then copy base backup contents into PGDATA
+sudo cp -r /mnt/pg_backups/base_backup_plain_20231027/* /var/lib/postgresql/12/main/
+sudo chown -R postgres:postgres /var/lib/postgresql/12/main/
+        </pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Disk-space note</div>
+        <div class="text-sm text-slate-700 mt-2">Ensure sufficient free space because WAL replay can increase the data directory size while applying changes.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Confirm file ownership and permissions as postgres.</li>
+          <li>Check that the base backup corresponds to your WAL archive timeline.</li>
+          <li>Test copying a sample WAL file with the restore_command to ensure access works.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">Be extremely careful with rm and cp; run these commands only in your lab or a controlled environment where you intend to restore data.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

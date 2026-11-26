@@ -1,0 +1,67 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Code Walkthrough</span>
+      <span>›</span>
+      <span class='text-slate-700'>Aggregate Notebook & Output Schema</span>
+    </div>
+    <div class='flex gap-6 h-[68%]'>
+      <div class='w-1/2 bg-white rounded-xl p-4 border border-slate-100 overflow-auto'>
+        <div class='text-lg font-bold text-slate-900 mb-2'>Excerpt: aggregate_data_task</div>
+        <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:240px;'>
+# Databricks Notebook: aggregate_data_task
+from pyspark.sql.functions import col, count, avg
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+
+# Get parameters
+input_table_name = dbutils.widgets.get('input_table_name')
+output_table_name = dbutils.widgets.get('output_table_name')
+processing_date = dbutils.widgets.get('processing_date')
+
+print(f'Aggregating data from {input_table_name} for date: {processing_date}')
+
+try:
+    silver_df = spark.table(input_table_name).filter(col('processing_date') == processing_date)
+
+    aggregated_df = silver_df.groupBy('country', 'processing_date') \
+                             .agg(count('customer_id').alias('total_customers'),
+                                  avg('age').alias('average_age'))
+
+    spark.sql(f"CREATE DATABASE IF NOT EXISTS gold")
+    aggregated_df.write.format('delta').mode('overwrite').option('mergeSchema', 'true').saveAsTable(output_table_name)
+
+    print(f'Successfully aggregated data to {output_table_name}')
+except Exception as e:
+    print(f'Aggregation task failed: {e}')
+    raise
+</pre>
+      </div>
+      <div class='w-1/2 bg-white rounded-xl p-4 border border-slate-100'>
+        <div class='text-lg font-bold text-slate-900 mb-2'>Validation & partitioning</div>
+        <div class='text-sm text-slate-700 space-y-2'>
+          <div>Validate aggregated counts against source row counts to detect data loss.</div>
+          <div>Use partitioning by processing_date to query efficiently and allow idempotent overwrites per date.</div>
+          <div>Write with overwrite for the target date to ensure reruns produce the same results.</div>
+        </div>
+        <div class='mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-600'>Check</div>
+        <div class='text-sm text-slate-700 mt-1'>Confirm average and counts look reasonable and compare to baseline metrics if available.</div>
+      </div>
+    </div>
+    <div class='mt-4 grid grid-cols-3 gap-3'>
+      <div class='rounded-xl p-3 bg-white border-l-4 border-l-emerald-500'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <div class='text-sm font-medium text-slate-800'>Write aggregated tables idempotently and validate metrics post-run for confidence in downstream reports.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white border'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Pro Tip</div>
+        <div class='text-sm text-slate-700'>Store a small set of validation queries to run automatically after aggregation.</div>
+      </div>
+      <div class='rounded-xl p-3 bg-white border'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1'>Misconception</div>
+        <div class='text-sm text-slate-700'>Aggregates should be treated as outputs to test, not assumptions; include checks and alerts.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

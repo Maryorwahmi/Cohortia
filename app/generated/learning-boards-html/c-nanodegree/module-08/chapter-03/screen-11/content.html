@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example</div>
+    <div class="text-2xl font-bold text-slate-900">Memory leak demonstration</div>
+    <div class="text-sm text-slate-600 mt-1">See how Valgrind reports a definite leak and points to the allocation site.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">memleak.cpp (source)</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">#include &lt;iostream&gt;
+
+void create_leak() {
+  int* data = new int[10]; // Allocate memory
+  // Forgot to delete[] data; -> memory leak
+  data[0] = 5;
+  std::cout << "Data allocated and used." << std::endl;
+}
+
+int main() {
+  create_leak();
+  std::cout << "Program finished." << std::endl;
+  return 0;
+}</pre>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white border-slate-100">
+      <div class="text-sm font-semibold text-slate-800">Valgrind output snippet</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">==12345== HEAP SUMMARY:
+==12345==     in use at exit: 40 bytes in 1 blocks
+==12345==   total heap usage: 1 allocs, 0 frees, 40 bytes allocated
+==12345== 40 bytes in 1 blocks are definitely lost
+==12345==    at 0x...: operator new[](unsigned long)
+==12345==    by 0x...: create_leak() (memleak.cpp:5)
+==12345==    by 0x...: main (memleak.cpp:11)</pre>
+      <div class="text-xs text-slate-600 mt-2">Use the stack lines to open memleak.cpp at the reported line and add delete[] or replace the raw array with std::vector.</div>
+    </div>
+
+    <div class="col-span-2 mt-3">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Valgrind shows where memory was allocated and not freed. Fix leaks by freeing at the right place or use RAII to avoid manual deletes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor Challenge</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Design a query-first table</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+      <div class="rounded p-4 bg-slate-50 border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="font-semibold text-slate-800">Problematic query</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded" style="white-space:pre-wrap;tab-size:2"><code>-- Unsafe or slow
+SELECT title FROM blog_posts WHERE author_id = /* id */;</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">This either errors or needs ALLOW FILTERING and is not safe for production. Consider expected query frequency and write amplification before choosing an approach.</div>
+      </div>
+
+      <div class="rounded p-4 bg-slate-50 border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="font-semibold text-slate-800">Refactor: denormalized table</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded" style="white-space:pre-wrap;tab-size:2"><code>-- New table optimized for query
+CREATE TABLE user_profiles.blog_posts_by_author (
+  author_id uuid,
+  post_id uuid,
+  title text,
+  publication_date timestamp,
+  PRIMARY KEY (author_id, post_id)
+);
+
+-- Fast query
+SELECT title, publication_date FROM user_profiles.blog_posts_by_author
+WHERE author_id = /* id */;</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Consider</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4">
+          <li>Read vs write volume</li>
+          <li>Acceptable data duplication</li>
+          <li>Ordering needs (clustering columns)</li>
+        </ul>
+      </div>
+      <div class="rounded p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <div class="mt-2 text-sm text-slate-600">Duplication is not a bug in Cassandra; it's the standard way to support different query paths efficiently.</div>
+      </div>
+      <div class="rounded p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your design</div>
+        <div class="mt-2 text-sm text-slate-600">List frequently used queries and make one table per heavy query pattern.</div>
+      </div>
+    </div>
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Server setup</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Create directories & ownership</div>
+      <pre class="p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">sudo mkdir -p /srv/nfs_share /srv/samba_public /srv/samba_private
+sudo chown nobody:nogroup /srv/nfs_share
+sudo chown nobody:nogroup /srv/samba_public
+sudo useradd -M -s /sbin/nologin smbuser1
+sudo smbpasswd -a smbuser1
+sudo chown smbuser1:smbuser1 /srv/samba_private
+sudo chmod 770 /srv/samba_private</pre>
+      <p class="text-sm text-slate-600 mt-3">These steps prepare the filesystem so NFS and Samba services can serve the paths with predictable ownership and permissions.</p>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Enable services & exports</div>
+      <pre class="p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">/etc/exports:
+/srv/nfs_share *(rw,sync,no_subtree_check,root_squash,anonuid=65534,anongid=65534)
+
+sudo exportfs -ra
+sudo systemctl enable --now nfs-server rpcbind
+sudo systemctl enable --now smb nmb
+sudo firewall-cmd --add-service=nfs --permanent && sudo firewall-cmd --reload
+sudo firewall-cmd --add-service=samba --permanent && sudo firewall-cmd --reload</pre>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-slate-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prepare directories and ownership before enabling services; service status and firewall rules are required for successful client access.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

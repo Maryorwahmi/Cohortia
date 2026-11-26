@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.7</span>
+    <span>›</span>
+    <span class="text-slate-700">SSM Automation</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-6 shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">What an Automation document does</div>
+      <div class="text-sm text-slate-500 mt-2">Defines parameters and mainSteps: each step maps to an action such as aws:runCommand or aws:modifyVolume.</div>
+
+      <div class="mt-6">
+        <div class="text-sm font-semibold text-slate-700">Design tips</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+          <li>Keep steps idempotent where possible</li>
+          <li>Expose parameters for instance and volume IDs</li>
+          <li>Emit outputs and use SNS for notifications</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Simplified Automation YAML</div>
+      <pre class="mt-3 rounded-md bg-slate-800 text-slate-100 p-3 code-mono"><code>description: Cleans up old log files on an EC2 instance.
+schemaVersion: '0.3'
+parameters:
+  InstanceId:
+    type: String
+    description: (Required) The ID of the instance.
+mainSteps:
+  - name: cleanupLogs
+    action: aws:runCommand
+    inputs:
+      DocumentName: AWS-RunShellScript
+      InstanceIds:
+        - '{{ InstanceId }}'
+      Parameters:
+        commands:
+          - 'sudo find /var/log -type f -name "*.gz" -delete'
+          - 'sudo journalctl --vacuum-size=100M'
+          - 'echo "Log cleanup completed."'
+</code></pre>
+
+      <div class="mt-4 text-sm text-slate-500">This example demonstrates a focused cleanup step. Production documents often include error checking, waits, and notifications.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre {background:#0f1724;color:#e6eef8;border-radius:.75rem;padding:1rem;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}
+    .card {border-radius:1rem;background:#fff;border:1px solid rgba(226,232,240,0.9)}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">DSE Search: CQL</span>
+  </div>
+
+  <div class="flex gap-6 h-full min-h-0">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Index example (conceptual)</div>
+      <div class="text-sm text-slate-600 mt-2">This CQL shows the pattern for creating a Solr-backed custom index and issuing a search query using solr_query.</div>
+
+      <div class="mt-3">
+        <pre><code>CREATE KEYSPACE IF NOT EXISTS myapp WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3};
+USE myapp;
+CREATE TABLE IF NOT EXISTS articles (
+    article_id UUID PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    author TEXT,
+    publish_date TIMESTAMP
+);
+
+CREATE CUSTOM INDEX articles_search_idx ON articles (title, content) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex'
+WITH OPTIONS = {
+    'schema_name': 'articles_schema',
+    'solr_query_field': 'solr_query',
+    'default_text_field': 'content',
+    'fields': {
+        'title': { 'type': 'text_general', 'indexed': true, 'stored': true },
+        'content': { 'type': 'text_general', 'indexed': true, 'stored': true },
+        'author': { 'type': 'string', 'indexed': true, 'stored': true }
+    }
+};
+
+SELECT * FROM articles WHERE solr_query = '{ "q": "cassandra" }';
+SELECT * FROM articles WHERE solr_query = '{ "q": "search capabilities", "fq": "author:Bob" }';</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Note how the WITH OPTIONS block passes Solr schema and fields. The solr_query JSON payload runs the search from CQL. Avoid indexing unnecessary large fields to keep index size reasonable.</div>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-bold text-slate-800">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+          <li>CREATE CUSTOM INDEX ties a Solr index to specified columns so text can be searched.</li>
+          <li>The solr_query field accepts a Solr JSON string that can include queries and filter queries.</li>
+          <li>WITH OPTIONS configures field types and the default text field used for free-text queries.</li>
+        </ul>
+
+        <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="font-bold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">Indexing product descriptions so users can search with keywords and then filter results by category or price using filter queries.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Indexing too many or very large text columns without planning index storage and update costs can slow writes and grow disk usage quickly.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

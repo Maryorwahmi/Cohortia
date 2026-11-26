@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Distributed Locks</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Typical flow</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2 mb-4">
+        <li>Client requests lock from the lock manager.</li>
+        <li>Lock manager grants ownership and issues token.</li>
+        <li>Client uses token to perform protected updates.</li>
+        <li>Client releases lock; manager grants next waiter.</li>
+      </ol>
+
+      <div class="rounded-lg p-3 bg-white border border-slate-100 mb-3">
+        <div class="text-sm font-bold text-slate-800 mb-1">Fencing tokens</div>
+        <div class="text-sm text-slate-700">A token prevents stale clients from making writes after losing a lease. Resources reject older tokens to avoid state corruption.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 card-border mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-800">Relying solely on key expiry without fencing can allow expired clients to perform late writes, corrupting state.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Tooling notes</div>
+      <div class="grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">ZooKeeper / etcd</div>
+          <div class="text-sm text-slate-700 mt-1">Consensus-backed services that provide stronger guarantees for lock ownership and ordering.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Redis (SETNX/Redlock)</div>
+          <div class="text-sm text-slate-700 mt-1">Simpler and fast, but requires careful expiry, ownership checks, and understanding of edge cases.</div>
+        </div>
+
+        <div class="mt-auto rounded-xl p-3 bg-emerald-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-sm text-slate-800">If you must serialize across nodes, use a lock service and fencing tokens, and design for failures and ownership verification.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

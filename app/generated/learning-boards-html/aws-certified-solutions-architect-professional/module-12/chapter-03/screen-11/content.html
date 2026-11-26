@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Site-to-Site VPN with Transit Gateway</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter terminal commands (simulated)</div>
+      <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+        <pre class="text-xs text-slate-800"># Create VPCs (example CIDRs)
+# ProdVPC: 10.1.0.0/16
+# DevVPC: 10.2.0.0/16
+# OnPremVPC: 192.168.0.0/16 (simulated)
+
+# Create Transit Gateway
+# aws ec2 create-transit-gateway --description "TGW for hybrid lab"
+
+# Create TGW attachments for Prod and Dev
+# aws ec2 create-transit-gateway-vpc-attachment --transit-gateway-id tgw-xxxx --vpc-id vpc-prod --subnet-ids subnet-priv-prod
+
+# Create Customer Gateway using public IP of simulated device
+# aws ec2 create-customer-gateway --type ipsec.1 --public-ip 198.51.100.10 --bgp-asn 65000
+
+# Create VPN connection to Transit Gateway
+# aws ec2 create-vpn-connection --customer-gateway-id cgw-xxxx --transit-gateway-id tgw-xxxx --type ipsec.1 --options '{"StaticRoutesOnly":false}'
+
+# After tunnels are Up, update private route tables to point on-prem CIDR to TGW attachment
+
+# Test connectivity from simulated on-prem host
+# ping 10.1.0.10
+# traceroute 10.1.0.10</pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-lg p-3 bg-white border-l-4 border-l-emerald-500">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700">Lab tip</div>
+          <div class="text-xs text-slate-700 mt-1">If pings fail, check VPN tunnel state, ensure route tables include the on‑prem CIDR pointing to the Transit Gateway attachment, and verify security group rules allow ICMP for testing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Example verification</div>
+      <div class="text-xs text-slate-600">1) Ensure VPN tunnels are reported UP in the console. 2) From OnPremServer, attempt ping to ProdAppServer private IP. 3) From ProdAppServer, traceroute to OnPremServer private IP. 4) Confirm return paths and security group permissions.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-amber-500">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Neglecting to enable association and propagation on Transit Gateway attachments prevents routes from being learned and applied across attachments.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

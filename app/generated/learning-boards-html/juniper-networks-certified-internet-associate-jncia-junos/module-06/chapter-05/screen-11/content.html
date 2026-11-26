@@ -1,0 +1,82 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Junos CLI Walkthrough</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concise CLI Example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="max-height:56%;"><code># Enter configuration mode
+edit
+
+# 1. Define IKE Phase 1 Proposal
+set security ike proposal ike-prop-aes256-sha256-g14 authentication-method pre-shared-keys
+set security ike proposal ike-prop-aes256-sha256-g14 authentication-algorithm sha-256
+set security ike proposal ike-prop-aes256-sha256-g14 encryption-algorithm aes-256-cbc
+set security ike proposal ike-prop-aes256-sha256-g14 dh-group group14
+set security ike proposal ike-prop-aes256-sha256-g14 lifetime-seconds 86400
+
+# 2. Define IKE Phase 1 Policy
+set security ike policy ike-pol-psk mode main
+set security ike policy ike-pol-psk proposals ike-prop-aes256-sha256-g14
+set security ike policy ike-pol-psk pre-shared-key ascii-text "MyStrongVPNKey123!"
+
+# 3. Define IPsec Phase 2 Proposal
+set security ipsec proposal ipsec-prop-aes256-sha256 protocol esp
+set security ipsec proposal ipsec-prop-aes256-sha256 authentication-algorithm hmac-sha-256-96
+set security ipsec proposal ipsec-prop-aes256-sha256 encryption-algorithm aes-256-cbc
+set security ipsec proposal ipsec-prop-aes256-sha256 lifetime-seconds 3600
+
+# 4. Define IPsec Phase 2 Policy
+set security ipsec policy ipsec-pol-pfs proposals ipsec-prop-aes256-sha256
+set security ipsec policy ipsec-pol-pfs perfect-forward-secrecy keys group14
+
+# 5. Define IKE Gateway (Peer)
+set security ike gateway remote-gateway-peer ike-policy ike-pol-psk
+set security ike gateway remote-gateway-peer address 203.0.113.1 # Remote peer's public IP
+set security ike gateway remote-gateway-peer external-interface ge-0/0/0.0
+
+# 6. Define VPN
+set security ipsec vpn my-site-to-site-vpn bind-interface st0.0
+set security ipsec vpn my-site-to-site-vpn ike gateway remote-gateway-peer
+set security ipsec vpn my-site-to-site-vpn ike ipsec-policy ipsec-pol-pfs
+set security ipsec vpn my-site-to-site-vpn establish-tunnels on-traffic
+
+# Commit the changes
+commit and-quit</code></pre>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400 text-sm text-slate-800">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Quick Notes</div>
+          <div>- The IKE proposal sets Phase 1 crypto. The IPsec proposal sets Phase 2 crypto.</div>
+          <div>- The gateway stanza names the peer and links the IKE policy. The vpn stanza binds the IPsec policy to st0.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification & Commands</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li class="flex gap-2"><svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"></path></svg><span>show security ike proposal</span></li>
+        <li class="flex gap-2"><svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"></path></svg><span>show security ike policy</span></li>
+        <li class="flex gap-2"><svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"></path></svg><span>show security ipsec sa</span></li>
+        <li class="flex gap-2"><svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"></path></svg><span>show security ike sa</span></li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Common Troubleshooting Check</div>
+        <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500 text-sm text-slate-800">If the tunnel does not form, compare pre-shared keys, check that IKE and IPsec proposals match exactly on both peers, and verify the gateway's external interface is the actual public-facing interface.</div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">
+        <div class="font-bold text-slate-700 mb-1">Practical Exercise</div>
+        <div>Use the provided example in a lab. Adjust the peer address and the pre-shared key, commit, then inspect the IKE and IPsec SAs to confirm the tunnel establishes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

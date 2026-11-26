@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">TogglePauseMenu Walkthrough</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6">
+    <div class="col-span-7 rounded-2xl bg-white border p-4 shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase text-slate-600">Code example</div>
+      <pre class="code mt-3 rounded-md bg-slate-900 text-slate-50 p-4" style="overflow:auto"><code>// Example: Toggling a Pause Menu
+void AMyPlayerController::TogglePauseMenu()
+{
+    if (bIsGamePaused)
+    {
+        // Resume game
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        bIsGamePaused = false;
+        if (PauseMenuWidget)
+        {
+            PauseMenuWidget->RemoveFromParent();
+            PauseMenuWidget = nullptr;
+        }
+        FInputModeGameOnly InputMode;
+        SetInputMode(InputMode);
+        bShowMouseCursor = false;
+    }
+    else
+    {
+        // Pause game
+        UGameplayStatics::SetGamePaused(GetWorld(), true);
+        bIsGamePaused = true;
+        if (PauseMenuWidgetClass)
+        {
+            PauseMenuWidget = CreateWidget&lt;UUserWidget&gt;(this, PauseMenuWidgetClass);
+            if (PauseMenuWidget)
+            {
+                PauseMenuWidget->AddToViewport();
+            }
+        }
+        FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        SetInputMode(InputMode);
+        bShowMouseCursor = true;
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-4 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase text-slate-600">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Check the paused flag to decide branch. Toggle game pause state to freeze or resume game logic.</li>
+        <li>Create or remove the pause widget. AddToViewport displays it, RemoveFromParent unloads it.</li>
+        <li>Set input mode: UIOnly when paused, GameOnly when resuming. SetWidgetToFocus ensures controller focus.</li>
+        <li>Toggle bShowMouseCursor so the player can interact with widgets when needed.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+        <div class="text-sm text-rose-600 mt-2">Not clearing the PauseMenuWidget pointer after removal can cause dangling references. Always null out stored widget references when you RemoveFromParent.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

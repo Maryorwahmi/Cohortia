@@ -1,0 +1,108 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Functions, Signals, and Scene Interaction</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-blue-100 p-2 text-blue-700">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-slate-800">What you'll master</div>
+            <p class="text-sm text-slate-600 mt-1">Write reusable functions, emit and connect signals, and access nodes safely to build modular game systems.</p>
+          </div>
+        </div>
+
+        <div class="mt-5 grid grid-cols-3 gap-3">
+          <div class="rounded-xl bg-blue-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700">In this lesson</div>
+            <p class="text-sm text-slate-700 mt-1">Functions, signals, node paths, and a health-system activity.</p>
+          </div>
+          <div class="rounded-xl bg-violet-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Core idea</div>
+            <p class="text-sm text-slate-700 mt-1">Decouple event producers and consumers with signals; encapsulate logic with functions.</p>
+          </div>
+          <div class="rounded-xl bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Outcome</div>
+            <p class="text-sm text-slate-700 mt-1">A working player health flow that updates UI and triggers game over via signals.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex gap-4">
+        <div class="w-1/2">
+          <div class="text-xl font-semibold text-slate-800">Visual summary</div>
+          <p class="text-sm text-slate-600 mt-2">A Player emits health-change and death events. GameManager and UI connect to those signals to update state without direct coupling.</p>
+
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="rounded-lg bg-slate-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Producer</div>
+              <div class="mt-1 font-medium text-slate-800">Player (emits)</div>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Consumers</div>
+              <div class="mt-1 font-medium text-slate-800">GameManager, UI</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-1/2">
+          <div class="text-xl font-semibold text-slate-800">Starter code peek</div>
+          <pre class="mono text-sm bg-slate-100 rounded-md p-3 mt-2" style="white-space: pre-wrap; tab-size: 2; max-height:160px; overflow:hidden;">
+extends CharacterBody2D
+
+signal player_health_changed(new_health: int, max_health: int)
+
+var current_health: int = 100
+
+func take_damage(amount: int):
+  current_health -= amount
+  emit_signal("player_health_changed", current_health, 100)
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl bg-amber-50 p-4 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Explore Key Topics</div>
+        <div class="mt-2 text-sm text-slate-700">These are the three themes we'll return to throughout the chapter.</div>
+        <div class="mt-3 grid gap-2">
+          <div class="rounded-lg bg-white p-3 border border-slate-100">
+            <div class="font-semibold text-slate-800">Functions</div>
+            <div class="text-sm text-slate-600 mt-1">Encapsulate tasks with parameters and optional return values so logic is reusable.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 border border-slate-100">
+            <div class="font-semibold text-slate-800">Signals</div>
+            <div class="text-sm text-slate-600 mt-1">Emit and connect events to keep systems decoupled and flexible.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 border border-slate-100">
+            <div class="font-semibold text-slate-800">Node Access</div>
+            <div class="text-sm text-slate-600 mt-1">Use get_node, $ and @onready to find and cache nodes safely in the scene tree.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Quick tip</div>
+        <div class="text-sm text-slate-700 mt-2">Always check for null after get_node or use @onready caching to avoid accessing nodes that aren't yet in the tree.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Starter activity</div>
+        <div class="text-sm text-slate-700 mt-2">Build the provided health system: connect the Damage button, emit health updates, and have GameManager listen for death.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

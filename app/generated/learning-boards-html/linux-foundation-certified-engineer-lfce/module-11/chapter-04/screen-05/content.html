@@ -1,0 +1,42 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">journalctl</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Reading systemd logs with journalctl</h3>
+    <p class="text-sm text-slate-600 mt-2">journalctl gives timestamped, structured logs from systemd-managed services. Use filters to focus on the failure window.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common journalctl commands</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># show recent entries for a unit with extra info
+journalctl -u my_app -xe
+
+# limit to a time range
+journalctl -u my_app --since "2026-01-01 11:59" --until "2026-01-01 12:05"
+
+# follow in real time
+journalctl -u my_app -f</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Use --since and --until to isolate the failure window. -f is useful when restarting to watch new messages as the service attempts to start.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example snippet and interpretation</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>Jan 01 12:00:00 host systemd[1]: Starting My Cohortia Flask App...
+Jan 01 12:00:00 host python3[12345]: PermissionError: [Errno 13] Permission denied: '/opt/my_app/my_app.py'
+Jan 01 12:00:00 host systemd[1]: my_app.service: Main process exited, code=exited, status=1/FAILURE
+Jan 01 12:00:00 host systemd[1]: my_app.service: Failed with result 'exit-code'.</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This combination shows both the Python stack trace and systemd's recorded exit: correlate the timestamp and the exact file path to check file permissions or ownership next.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-xs text-slate-700 mt-1">If the journal lacks application detail, check /var/log/<application> for richer stack traces before moving to strace.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

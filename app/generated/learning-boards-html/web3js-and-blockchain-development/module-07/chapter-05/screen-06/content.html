@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Implementing Multicall</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl p-6 bg-white border' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-xl font-bold text-slate-800'>Code pattern</div>
+      <div class='text-sm text-slate-700 mt-3'>Create call objects, call aggregate, decode results, and map to tokens.</div>
+
+      <div class='mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm' style='white-space: pre-wrap; tab-size: 2;'>
+<pre><code>// Build calls
+const calls = TOKEN_CONFIG.map(token =&gt; ({
+  target: token.address,
+  callData: web3.eth.abi.encodeFunctionCall(ERC20_ABI.find(m =&gt; m.name === 'balanceOf'), [account])
+}));
+
+// Single aggregate RPC
+const { returnData } = await multicallContract.methods.aggregate(calls).call();
+
+// Decode results
+returnData.forEach((result, i) =&gt; {
+  if (result.success) {
+    const decoded = web3.eth.abi.decodeParameters(['uint256'], result.returnData);
+    balances[TOKEN_CONFIG[i].name] = web3.utils.fromWei(decoded[0], 'ether');
+  } else {
+    balances[TOKEN_CONFIG[i].name] = 'Error';
+  }
+});</code></pre>
+      </div>
+    </div>
+
+    <div class='rounded-2xl p-6 bg-white border flex flex-col' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Example result</div>
+      <div class='text-sm text-slate-700 mt-2'>When fetching five balances, the Multicall approach yields one network request and a single latency bound, often faster than parallel or sequential individual RPCs.</div>
+
+      <div class='rounded-xl p-3 bg-amber-50 mt-4'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1'>Pro tip</div>
+        <div class='text-sm text-slate-800'>When tokens have different decimals, decode raw numbers first then apply token-specific decimals before formatting for display.</div>
+      </div>
+
+      <div class='rounded-xl p-3 bg-rose-50 mt-4'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Edge case</div>
+        <div class='text-sm text-slate-700'>If a Multicall returns empty bytes or fails, handle it gracefully by showing an error state for that token rather than breaking the entire UI.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

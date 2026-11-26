@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.6</span>
+      <span>›</span>
+      <span class="text-slate-700">LOCAL_PREF</span>
+    </div>
+    <div class="flex gap-4 h-[calc(100%-64px)]">
+      <div class="w-1/2 card p-5 flex flex-col">
+        <div class="text-lg font-bold text-slate-800">What LOCAL_PREF does</div>
+        <div class="text-sm text-slate-600 mt-2">An iBGP-only attribute that determines which path the AS prefers for outbound traffic. Higher is preferred.</div>
+        <div class="mt-4 text-sm font-bold text-slate-700">Example use</div>
+        <div class="text-sm text-slate-600 mt-2">Set LOCAL_PREF 200 for routes from ISP A and 100 for ISP B so the AS prefers ISP A for outbound flows.</div>
+      </div>
+      <div class="w-1/2 card p-5 flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-bold text-slate-800">Configuration example</div>
+          <pre class="mt-2 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap;tab-size:2"><code>set policy-options policy-statement PREFER_ISP_A term 1 then local-preference 200
+set protocols bgp group FROM_ISP_A import PREFER_ISP_A
+
+set policy-options policy-statement PREFER_ISP_B term 1 then local-preference 100
+set protocols bgp group FROM_ISP_B import PREFER_ISP_B</code></pre>
+          <div class="text-xs text-slate-500 mt-2">Apply these as import policies on the groups receiving routes from each ISP.</div>
+        </div>
+        <div class="mt-4">
+          <div class="text-sm font-bold text-slate-700">Misconception</div>
+          <div class="text-sm text-slate-600 mt-1">LOCAL_PREF affects outbound selection inside your AS only; it does not directly influence how upstream peers route to you.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

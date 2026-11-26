@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Example buildspec for Node.js</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why this example works</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4">
+        <li>Runtime version ensures node behavior is consistent across builds.</li>
+        <li>Separate phases make failures easier to locate: install vs build vs post_build.</li>
+        <li>Cache path for npm reduces install time when restored.</li>
+      </ul>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Troubleshooting hint</div>
+      <div class="mt-2 rounded-lg p-3 bg-rose-50 text-rose-700">If you see "Cache not found" check IAM permissions and that the build project cache configuration points to the correct S3 bucket and prefix.</div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">buildspec.yml (copyable)</div>
+      <pre class="mt-3 rounded bg-slate-900 text-white p-3 text-sm">version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing dependencies..."
+      - npm install
+  pre_build:
+    commands:
+      - echo "Running linting and security checks..."
+      - npm run lint
+  build:
+    commands:
+      - echo "Building application..."
+      - npm run build
+      - echo "Running unit tests..."
+      - npm test
+  post_build:
+    commands:
+      - echo "Packaging artifacts..."
+      - cp -r build/* .
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'build'
+cache:
+  paths:
+    - '/root/.npm/**/*'</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerDataHandler</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="p-5 bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Server script (continued)</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">
+        <pre style="white-space:pre-wrap; tab-size:2; margin:0;">
+-- ServerScriptService/PlayerDataHandler
+local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local playerDataStore = DataStoreService:GetDataStore("PlayerCoinsData")
+local leaderboardStore = DataStoreService:GetOrderedDataStore("TopCoinEarners")
+
+local getLeaderboardData = Instance.new("RemoteFunction")
+getLeaderboardData.Name = "GetLeaderboardData"
+getLeaderboardData.Parent = ReplicatedStorage
+
+local function saveData(player)
+  local success, err = pcall(function()
+    playerDataStore:SetAsync(player.UserId, player:GetAttribute("Coins"))
+  end)
+  if not success then
+    warn("Error saving data for " .. player.Name .. ": " .. err)
+  end
+end
+
+local function updateLeaderboard(player, score)
+  local success, err = pcall(function()
+    leaderboardStore:SetAsync(player.UserId, score)
+  end)
+  if not success then
+    warn("Error updating leaderboard for " .. player.Name .. ": " .. err)
+  end
+end
+
+Players.PlayerRemoving:Connect(function(player)
+  local coins = player:GetAttribute("Coins") or 0
+  updateLeaderboard(player, coins)
+  saveData(player)
+end)
+        </pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A single server script can manage saves, leaderboard pushes, and a remote function for client requests.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-5 bg-white border border-[rgba(226,232,240,0.9)] rounded-2xl shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Testing checklist</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Enable API Services in Game Settings</li>
+        <li>Run multiple Play sessions in Studio to simulate concurrent updates</li>
+        <li>Verify PlayerAdded sets attribute and PlayerRemoving saves and updates leaderboard</li>
+      </ul>
+
+      <div class="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+        <div class="text-xs font-semibold text-amber-700">Common improvement</div>
+        <p class="text-sm text-slate-700 mt-1">Add periodic auto-saves during play to protect against crashes that skip PlayerRemoving.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">NETCONF VLAN Lab</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">netconf_vlan.py (key excerpt)</div>
+      <pre class="mt-3 rounded-lg p-3 bg-slate-900 text-slate-100"><code>VLAN_CONFIG_PAYLOAD = """
+&lt;config&gt;
+  &lt;native xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-native"&gt;
+    &lt;vlan&gt;
+      &lt;vlan-list&gt;
+        &lt;id&gt;200&lt;/id&gt;
+        &lt;name&gt;Automation_VLAN_NETCONF&lt;/name&gt;
+      &lt;/vlan-list&gt;
+    &lt;/vlan&gt;
+  &lt;/native&gt;
+&lt;/config&gt;
+"""
+
+reply = m.edit_config(target='running', config=VLAN_CONFIG_PAYLOAD, default_operation='merge')
+print(reply.xml)
+verify_reply = m.get_config(source='running', filter=VLAN_VERIFY_FILTER)
+print(verify_reply.data_xml)
+</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Run the script, check logs for successful creation, then run show vlan brief on the device to cross-check. Use save_config() if available to persist changes.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</div>
+        <p class="text-sm text-slate-700 mt-2">After edit-config, call get-config filtered for vlan id 200 and parse the returned XML to check the name element. Log both the reply.xml from edit-config and the verification XML for auditing.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 border mt-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Key Takeaway</div>
+        <p class="text-sm text-slate-700 mt-2">Use merge for safe adds, verify with a filtered get-config, and persist configuration only after you confirm the intended state.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

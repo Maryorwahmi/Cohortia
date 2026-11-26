@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">traceoptions Workflow</span>
+    </div>
+    <div class="h-[68%] grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+        <div class="text-xl font-bold text-slate-800">Configure traceoptions</div>
+        <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+set protocols ospf traceoptions file ospf-debug size 1m files 2
+set protocols ospf traceoptions flag hello detail
+set protocols ospf traceoptions flag error
+set protocols ospf traceoptions flag state
+commit
+        </pre>
+        <div class="mt-3 text-sm text-slate-600">Limit file size and flags to reduce resource usage. Use detail for verbose hello output only when needed.</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 overflow-auto">
+        <div class="text-xl font-bold text-slate-800">Inspect and clean up</div>
+        <div class="mt-3 text-sm text-slate-600">After reproducing the issue, run:</div>
+        <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+show log ospf-debug | last 50
+delete protocols ospf traceoptions
+commit
+        </pre>
+        <div class="mt-3 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <div class="text-xs font-medium text-slate-800">Leaving traceoptions enabled in production can fill disk and increase CPU; always delete when done.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Traceoptions are powerful but must be used briefly and with targeted flags to avoid impacting device resources.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

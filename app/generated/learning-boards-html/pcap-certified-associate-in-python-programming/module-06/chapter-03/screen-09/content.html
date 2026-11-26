@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center justify-between">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <div class="text-xs text-slate-500">Temporary Directory</div>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm h-full grid grid-rows-3 gap-4">
+    <div>
+      <div class="text-sm font-semibold text-slate-800">Starter requirements</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 mt-2 space-y-2">
+        <li>Create a directory with tempfile.mkdtemp()</li>
+        <li>Return the path from __enter__ or yield it from the generator</li>
+        <li>Remove the directory in __exit__ or finally using shutil.rmtree()</li>
+        <li>Handle missing directory checks to avoid errors during cleanup</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="text-sm font-semibold text-slate-800">Starter code (template)</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded-md text-sm text-slate-800 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>import tempfile
+import shutil
+import os
+from contextlib import contextmanager
+
+@contextmanager
+def temporary_directory_generator():
+    temp_dir_path = None
+    try:
+        temp_dir_path = tempfile.mkdtemp()
+        print(f"DEBUG: Created temporary directory: {temp_dir_path}")
+        yield temp_dir_path
+    except Exception as e:
+        print(f"An error occurred within the temporary directory block: {e}")
+    finally:
+        if temp_dir_path and os.path.exists(temp_dir_path):
+            print(f"DEBUG: Removing temporary directory: {temp_dir_path}")
+            shutil.rmtree(temp_dir_path)</code></pre>
+    </div>
+
+    <div class="mt-auto">
+      <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Test idea</div>
+        <div class="text-sm text-slate-700 mt-1">Inside the with block create a file then raise an error; after the block assert the directory path does not exist.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

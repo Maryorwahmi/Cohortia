@@ -1,0 +1,67 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>Compilation and the ABI</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 flex flex-col'>
+      <div class='text-lg font-bold text-slate-800'>What the compiler produces</div>
+      <p class='text-sm text-slate-700 mt-2'>A compiled contract gives you both the bytecode (the executable payload) and the ABI (a JSON description of functions and events). Both are needed to deploy and interact reliably.</p>
+
+      <div class='mt-4'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Example: SimpleStorage.sol</div>
+        <div class='rounded-lg bg-slate-900 text-white p-3 font-mono text-sm' style='white-space:pre-wrap; tab-size:2;'>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract SimpleStorage {
+  uint256 public storedData;
+
+  constructor(uint256 initialData) {
+    storedData = initialData;
+  }
+
+  function set(uint256 x) public {
+    storedData = x;
+  }
+
+  function get() public view returns (uint256) {
+    return storedData;
+  }
+}
+        </div>
+      </div>
+
+      <div class='mt-4 grid grid-cols-2 gap-3'>
+        <div class='rounded-lg p-3 border bg-amber-50'>
+          <div class='font-semibold text-slate-800'>ABI purpose</div>
+          <div class='text-sm text-slate-700 mt-1'>Describes how to encode calls and decode return values for off-chain clients.</div>
+        </div>
+        <div class='rounded-lg p-3 border bg-emerald-50'>
+          <div class='font-semibold text-slate-800'>Bytecode purpose</div>
+          <div class='text-sm text-slate-700 mt-1'>The payload sent in the create transaction that becomes the on-chain contract.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 flex flex-col'>
+      <div class='text-lg font-bold text-slate-800'>Practical tips</div>
+      <ul class='mt-3 space-y-2 text-sm text-slate-700'>
+        <li>Keep the build artifacts and ABI checked into the dApp project (not the private keys).</li>
+        <li>Verify constructor args locally before encoding them into a deploy script.</li>
+        <li>Use the ABI to immediately read initial state after deployment.</li>
+      </ul>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Both bytecode and ABI are produced by compilation; one runs on-chain, the other lets clients interact with the running contract.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

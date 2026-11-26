@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Imperative Example: SSH Scripting</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-7 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 shadow-sm card h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Process Flow</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">Imperative script pattern</div>
+        <div class="text-sm text-slate-600 mt-3">Open session → Authenticate → Enter config mode → Run commands → Verify → Save/rollback.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-bold text-slate-700 mb-2">Example (pseudo-shell steps)</div>
+          <pre class="bg-slate-900 text-white p-3 rounded-md text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code># Connect to device over SSH
+ssh admin@router.example.com
+# enter enable and config mode
+enable
+configure terminal
+interface GigabitEthernet0/1
+ip address 192.168.10.1 255.255.255.0
+no shutdown
+end
+write memory
+# verify interface status
+show ip interface brief | include GigabitEthernet0/1</code></pre>
+
+          <div class="text-xs text-slate-600 mt-2">Note: this code panel is a readable pattern, not vendor-specific output. Replace with secure session methods in production.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-3 shadow-sm card">
+        <div class="font-bold text-slate-800">Risks & Mitigations</div>
+        <ul class="list-disc pl-4 text-sm text-slate-600 mt-2 space-y-2">
+          <li>Risk: brittle if device prompts differ. Mitigation: robust parsing and error handling.</li>
+          <li>Risk: partial failures leave devices inconsistent. Mitigation: add verification and rollback steps.</li>
+          <li>Risk: exposed credentials. Mitigation: use vaults or environment-based secrets.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Imperative scripts are direct but need verification, version control, and secure secrets to be safe in production.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Definition</div>
+      <h3 class="text-2xl font-extrabold text-slate-900 mt-2">Mock vs MagicMock</h3>
+      <p class="text-sm text-slate-700 mt-3">Choose Mock for configurable attributes and method responses. Choose MagicMock when magic methods or context manager behavior is required.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">When to use Mock</div>
+          <div class="text-sm text-slate-700 mt-1">For methods and attributes you explicitly configure, keeping the test surface small and explicit.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">When to use MagicMock</div>
+          <div class="text-sm text-slate-700 mt-1">When the object participates in language protocols: context managers, iteration, or special method calls.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50 card-border">
+          <div class="text-sm font-semibold text-slate-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">MagicMock isn't always better; it can introduce unused magic behaviors that hide incorrect code paths.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-slate-50 p-4 card-border flex-grow mono">
+        <div class="text-sm font-semibold text-slate-800">Example: mocking open()</div>
+        <pre class="mono" style="white-space:pre-wrap; tab-size:2;">from unittest.mock import Mock
+
+mock_file = Mock()
+mock_file.read.return_value = 'key=value
+'
+mock_open = Mock()
+# Configure the context manager behavior
+mock_open.return_value.__enter__.return_value = mock_file
+
+# Patch builtins.open in a test so with open(...) as f: f.read() returns configured data</pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Prefer the smallest mock that satisfies the test. Add magic behavior only when the unit requires it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-800">Dynamic Users Playbook Walkthrough</div>
+    <div class="text-sm text-slate-600 mt-2">Follow this starter structure to ensure groups exist, create users from a list, and verify a target user with a registered command.</div>
+  </div>
+
+  <div class="rounded-xl bg-white card-border p-4 h-full overflow-hidden">
+    <pre class="bg-slate-50 p-3 rounded-md text-sm h-full overflow-auto"><code>---
+- name: Manage users dynamically
+  hosts: all
+  become: yes
+  vars:
+    users_to_manage:
+      - { name: 'devuser1', uid: 2001, group: 'developers' }
+      - { name: 'devuser2', uid: 2002, group: 'developers' }
+      - { name: 'adminuser', uid: 3001, group: 'admins' }
+  tasks:
+    - name: Ensure 'developers' group exists
+      ansible.builtin.group:
+        name: developers
+        state: present
+
+    - name: Ensure 'admins' group exists
+      ansible.builtin.group:
+        name: admins
+        state: present
+
+    - name: Create/manage users from list
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        uid: "{{ item.uid }}"
+        group: "{{ item.group }}"
+        state: present
+        shell: /bin/bash
+      loop: "{{ users_to_manage }}"
+
+    - name: Confirm user management
+      ansible.builtin.debug:
+        msg: "User {{ item.name }} managed."
+      loop: "{{ users_to_manage }}"
+
+    - name: Check if devuser1 exists
+      ansible.builtin.command: id -u devuser1
+      register: devuser1_check
+      ignore_errors: yes
+
+    - name: Debug if devuser1 was found
+      ansible.builtin.debug:
+        msg: "devuser1 exists on this system."
+      when: devuser1_check.rc == 0</code></pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

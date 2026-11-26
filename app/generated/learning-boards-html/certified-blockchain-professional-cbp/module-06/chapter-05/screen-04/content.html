@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg { background: #f8fafc; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:0.9rem; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Quantum-Resistant Cryptography</span>
+    </div>
+
+    <div class="flex gap-6 h-[68%]">
+      <div class="w-1/2 h-full rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="text-lg font-bold text-slate-900">What is post-quantum cryptography?</div>
+        <div class="text-sm text-slate-600 mt-2">Algorithms designed to resist attacks by quantum computers that can run algorithms such as Shor's and Grover's.</div>
+
+        <ul class="mt-4 space-y-3 text-sm text-slate-700">
+          <li>Definition: cryptographic primitives that maintain security even against quantum adversaries.</li>
+          <li>Why it matters: recorded traffic and long-lived signatures are vulnerable to future quantum decryption.</li>
+          <li>Concrete mitigation: design upgradeable key formats and support algorithm agility in wallets and nodes.</li>
+          <li>Misconception: quantum risk is distant, but passive collection by adversaries makes early planning prudent.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Example</div>
+          <div class="rounded-lg bg-emerald-50 p-3 border border-emerald-100 text-sm text-slate-800">A security team may prepare a migration plan that allows accounts to add a post-quantum public key alongside existing keys, enabling gradual transition without losing access.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Treat quantum resistance as a long-term design requirement: inventory cryptographic dependencies and enable algorithm agility.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 h-full rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Conceptual Code (research-level)</div>
+        <div class="mt-2 mono bg-slate-50 p-3 rounded"> 
+          <pre style="white-space:pre-wrap; tab-size:2; margin:0;"># Conceptual representation of cryptographic operations vulnerable to quantum attacks
+import hashlib
+from ecdsa import SigningKey, SECP256k1  # Example of ECC used in many blockchains
+
+# --- Current Blockchain Cryptography (vulnerable to Shor's algorithm) ---
+# sk = SigningKey.generate(curve=SECP256k1)
+# vk = sk.get_verifying_key()
+# signature = sk.sign(b"Hello, Blockchain!", hashlib.sha256)
+
+# --- Hashing (impacted by Grover's algorithm) ---
+# block_hash = hashlib.sha256(b"This is a block of data.").hexdigest()
+
+# --- Post-Quantum Candidates (conceptual) ---
+# from pqcrypto.kem import Kyber
+# pk, sk = Kyber.keygen()
+# ciphertext, shared_secret = Kyber.encapsulate(pk)
+# shared_secret_receiver = Kyber.decapsulate(sk, ciphertext)
+</pre>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-700">
+          <div class="font-semibold">Notes on the example</div>
+          <ul class="mt-2 space-y-2">
+            <li>The code is conceptual and illustrates the shift from ECC to candidate post-quantum key encapsulation schemes.</li>
+            <li>Standards bodies and the community will determine which algorithms become recommended; avoid ad-hoc choices.</li>
+            <li>Prepare key-management and upgrade paths rather than making a single irreversible change overnight.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

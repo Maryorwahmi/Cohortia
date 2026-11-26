@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>.cohortia-bg{background-color:#f8fafc;}.card-shadow{box-shadow:0 4px 6px rgba(0,0,0,0.05);}.border-light-slate{border-color:rgba(226,232,240,0.9);}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.4</span><span>›</span><span class="text-slate-700">Config Update: Modifying and Computing Delta</span></div><div class="flex flex-col flex-grow"><div class="mb-6"><span class="text-[10px] font-bold uppercase tracking-wider text-violet-600 mb-2">Terminal Demo</span><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">Config Update: Modifying and Computing Delta</h2><p class="text-lg text-slate-700">Injecting new organization details and generating the update</p></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 text-white p-4 rounded-xl font-mono text-sm overflow-auto card-shadow flex-grow"><pre><code style="white-space: pre-wrap; tab-size: 2;"># 1. Create a new Org3 MSP definition (e.g., from configtxgen output)
+# configtxgen -printOrg Org3MSP > org3.json
+# For this example, assume org3.json exists with Org3's MSP config.
+
+# 2. Add Org3's MSP to the 'Application' group in config.json
+jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"Org3MSP":.[1]}}}}}' config.json ./organizations/org3.json > updated_config.json
+
+# Output (no direct console output, creates updated_config.json)
+
+# 3. Encode original and updated configs back to protobuf
+configtxlator proto_encode \
+  --input config.json \
+  --type common.Config \
+  --output original_config.pb
+
+configtxlator proto_encode \
+  --input updated_config.json \
+  --type common.Config \
+  --output updated_config.pb
+
+# Output (no direct console output, creates .pb files)
+
+# 4. Compute the delta (config update)
+configtxlator compute_update \
+  --channel_id mychannel \
+  --original original_config.pb \
+  --updated updated_config.pb \
+  --output config_update.pb
+
+# Output (no direct console output, creates config_update.pb)
+
+# 5. Decode the config update to JSON for inspection (optional)
+configtxlator proto_decode \
+  --input config_update.pb \
+  --type common.ConfigUpdate \
+  --output config_update.json
+
+# Output (no direct console output, creates config_update.json)</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="p-4 rounded-xl bg-white border border-light-slate card-shadow"><h3 class="text-base font-semibold text-slate-900 mb-2">Command Breakdown</h3><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><code>jq -s '.[0] * ...'</code>: Merges the original config with the new Org3 MSP definition.</li><li><code>configtxlator proto_encode</code>: Converts JSON back to protobuf.</li><li><code>configtxlator compute_update</code>: Generates the minimal configuration update transaction (the 'delta').</li><li><code>--channel_id</code>: Specifies the target channel.</li><li><code>--original</code>, <code>--updated</code>: Paths to the original and modified protobuf configurations.</li></ul></div><div class="p-4 rounded-xl bg-rose-50 border border-rose-100 card-shadow"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Incorrect <code>jq</code> syntax or invalid JSON structure can lead to errors during <code>proto_encode</code> or <code>compute_update</code>. Always test your <code>jq</code> commands on small JSON snippets first.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The <code>compute_update</code> command is crucial for generating a concise delta, representing only the changes, which is then signed and submitted to the network.</p></div></div></div></div><script>gsap.from('.cohortia-bg > div', {opacity: 0, y: 20, duration: 0.8, stagger: 0.1, ease: 'power3.out'});</script><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

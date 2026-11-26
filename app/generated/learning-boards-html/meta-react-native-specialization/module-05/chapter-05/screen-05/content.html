@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">How Bridging Works</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Bridge process</div>
+      <div class="text-sm text-slate-600 mt-1">Step-by-step flow that keeps the UI responsive</div>
+
+      <ol class="mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-3">
+        <li><span class="font-semibold">JS sends async call:</span> JavaScript invokes a native method via NativeModules.</li>
+        <li><span class="font-semibold">Bridge queues message:</span> The call traverses the bridge as an asynchronous message.</li>
+        <li><span class="font-semibold">Native executes:</span> Native code runs the requested work on an appropriate native thread.</li>
+        <li><span class="font-semibold">Return or event:</span> Native resolves via callback, promise resolution, or emits an event back to JS.</li>
+      </ol>
+
+      <div class="mt-4 bg-white rounded-xl p-3 border card">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Misconception</div>
+        <div class="text-sm text-slate-800">Assuming native calls are synchronous. Always treat them as asynchronous and design your code around callbacks or promises.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Threading rules</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>• Android UI changes must run on the main thread; use runOnUiThread.</li>
+        <li>• iOS UI updates must be dispatched to the main queue using dispatch_async(dispatch_get_main_queue(), ...).</li>
+        <li>• Long computations belong on background threads; return results with promises or callbacks.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Check your understanding</div>
+        <div class="bg-emerald-50 rounded-xl p-3 text-sm text-slate-800">If a native method takes several seconds, how will you structure it so the UI does not freeze? Answer: perform work on a background thread and resolve a promise or callback when complete.</div>
+      </div>
+    </div>
+  </div>
+</div>

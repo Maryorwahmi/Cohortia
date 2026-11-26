@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Nginx SELinux Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Starter Steps</div>
+      <div class="text-sm text-slate-700">Create a custom document root, configure an Nginx server block, then test and reproduce the 403 error.</div>
+
+      <div class="mt-4 p-3 rounded bg-slate-50 mono text-sm"><pre>sudo mkdir -p /srv/web/mysecureapp/html
+echo '&lt;h1&gt;Hello&lt;/h1&gt;' | sudo tee /srv/web/mysecureapp/html/index.html
+# Create server block pointing to /srv/web/mysecureapp/html
+sudo nginx -t && sudo systemctl reload nginx
+# If 403 occurs, inspect SELinux denials
+sudo ausearch -c 'nginx' --raw | audit2allow -M mynginx
+</pre></div>
+    </div>
+
+    <div class="rounded-2xl bg-white shadow-sm card-border p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Apply Correct Context</div>
+      <div class="text-sm text-slate-700">Add a file context and restore it to fix denied access without weakening file permissions.</div>
+      <div class="mt-3 mono text-sm p-3 rounded bg-slate-50"><pre>sudo semanage fcontext -a -t httpd_sys_content_t "/srv/web/mysecureapp(/.*)?"
+sudo restorecon -Rv /srv/web/mysecureapp
+sudo setsebool -P httpd_can_network_connect 1  # if outbound network access required
+sudo systemctl reload nginx</pre></div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer SELinux context corrections over world-writable permissions to maintain security and availability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

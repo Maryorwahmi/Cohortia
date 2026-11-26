@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter script excerpt</div>
+      <pre class="text-sm p-3 bg-slate-50 rounded-md border mt-2" style="white-space: pre-wrap; tab-size: 2;">def add_ssh_ingress_rule(sg_id, source_ip):
+  try:
+    ec2.authorize_security_group_ingress(
+      GroupId=sg_id,
+      IpPermissions=[{
+        'IpProtocol': 'tcp','FromPort': 22,'ToPort': 22,
+        'IpRanges': [{'CidrIp': source_ip, 'Description': f'SSH from {source_ip}'}]
+      }]
+    )
+  except ClientError as e:
+    if e.response['Error']['Code'] == 'InvalidPermission.Duplicate':
+      print('Rule already exists')
+    else:
+      print(f'Error adding SSH rule: {e}')</pre>
+      <div class="text-sm text-slate-600 mt-2">Replace placeholders for VPC ID, security group name, and your public IP before running.</div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="rounded-xl bg-white p-3 card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Verification steps</div>
+        <div class="text-sm text-slate-700">Run the script, then confirm the inbound rule appears in the EC2 console under Inbound Rules for the security group. Optionally run the revoke function to remove the test rule.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Always validate script changes in a safe environment and make scripts idempotent so repeated runs do not create duplicates.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

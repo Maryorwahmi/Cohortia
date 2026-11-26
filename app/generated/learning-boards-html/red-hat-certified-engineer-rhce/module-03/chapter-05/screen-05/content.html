@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Ansible group & user modules</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl border p-4 bg-white" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">ansible.builtin.group</div>
+      <div class="text-sm text-slate-600 mt-2">Use name and state to ensure groups exist or are removed. Set gid when you need a numeric Group ID.</div>
+
+      <div class="mt-4 text-lg font-bold text-slate-800">ansible.builtin.user</div>
+      <div class="text-sm text-slate-600 mt-2">Manage the entire account: uid, primary group, supplementary groups, home, shell, and hashed password. Use append to preserve other memberships.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800">Common mistake: forgetting append when adding supplementary groups; this will remove existing memberships.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border p-4 bg-white" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Example: create jdoe</div>
+      <pre class="mt-3 rounded text-sm bg-slate-900 text-white p-3"><code>- name: Create user 'jdoe'
+  ansible.builtin.user:
+    name: jdoe
+    state: present
+    shell: /bin/bash
+    home: /home/jdoe
+    group: developers
+    groups: developers,sudo
+    append: yes
+    password: "{{ 'your_hashed_password_here' | password_hash('sha512') }}"</code></pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-emerald-50 text-emerald-700">
+        <div class="text-[10px] font-bold uppercase tracking-wider">Key Takeaway</div>
+        <div class="text-xs text-slate-800 mt-1">Know each parameter's effect before applying tasks to production systems.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

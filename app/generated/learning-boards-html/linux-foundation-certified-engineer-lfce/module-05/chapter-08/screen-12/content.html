@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Authentication Failures</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Server vs Client indicators</h3>
+      <div class="mt-3 space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-lg bg-amber-50">Server: explicit 'authentication failed' or 'user not found' in dovecot logs; check backend and user store.</div>
+        <div class="p-3 rounded-lg bg-blue-50">Client: TLS errors or failures only from a single client; ask the user to test a different client or device.</div>
+        <div class="p-3 rounded-lg bg-emerald-50">Delivery: if authentication succeeds but Maildir is absent or permissions incorrect, you will see delivery errors in logs.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Commands to reproduce</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>sudo journalctl -u dovecot -n 50 | grep "authentication failed"
+# Reproduce auth while tailing logs
+openssl s_client -connect mail.example.com:993 -crlf
+# Or telnet for non-TLS demo
+telnet mail.example.com 143
+# Attempt: a1 LOGIN username password</code></pre>
+
+      <div class="mt-4 rounded-lg bg-rose-50 p-3">
+        <div class="text-sm text-slate-800">Common mistake: resetting passwords without checking logs. The right fix follows from evidence: backend lookup, permission error, or TLS requirement.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Confirm the server's log message before acting. Reproduce the auth while tailing logs to capture the decisive error text.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

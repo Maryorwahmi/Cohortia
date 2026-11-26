@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:14px;border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.9</span>
+    <span>›</span>
+    <span class="text-slate-700">N+1 Problem</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white card p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Problem demonstration</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800"><code>authors = session.query(Author).all()
+for author in authors:
+  for post in author.posts:
+    print(post.title)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">With lazy relationships this triggers one query for authors and one query per author for posts — N+1 queries total.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Assuming individual queries are cheap; many small round trips add latency, especially across networked DBs.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white card p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Fix with eager loading</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm text-slate-800"><code>from sqlalchemy.orm import joinedload
+authors_optimized = session.query(Author).options(joinedload(Author.posts)).all()
+for author in authors_optimized:
+  for post in author.posts:
+    print(post.title)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This fetches authors and posts in a single joined query. Alternatively, selectinload issues one extra IN query that can be faster for many parents.</div>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Detect N+1 with SQL logs and remove it by eager loading; choose joinedload or selectinload based on result shape.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

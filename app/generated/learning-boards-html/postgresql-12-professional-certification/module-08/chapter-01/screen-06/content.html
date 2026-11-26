@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Performance</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">log_min_duration_statement</div>
+      <div class="text-sm text-slate-600 mt-2">Log statements taking longer than a configured threshold in milliseconds.</div>
+
+      <div class="mt-4 text-sm text-slate-700 flex-1">
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">How it works</div>
+          <div class="text-xs text-slate-600 mt-1">Set a millisecond threshold; statements longer than that are recorded with their duration and text.</div>
+        </div>
+
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="font-semibold">Best practice</div>
+          <div class="text-xs text-slate-600 mt-1">Choose a threshold that captures problem queries but avoids logging routine fast operations.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Use duration-based logging to focus on the queries that matter for performance tuning.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example: cause a slow log entry</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Set threshold to 100 ms
+log_min_duration_statement = 100
+
+-- This will be logged because it sleeps for 200ms
+SELECT pg_sleep(0.2);
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Misconception</div>
+        <div class="text-xs mt-1 text-slate-600">Logging everything with log_statement = 'all' may seem easier, but it produces massive logs and can hurt performance; prefer targeted duration-based logging.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

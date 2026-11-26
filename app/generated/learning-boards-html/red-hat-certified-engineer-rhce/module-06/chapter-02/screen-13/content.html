@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Configure web_admins sudoers</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter files</div>
+
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-600">files/web_admins_sudoers</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded text-sm overflow-auto"><code># /etc/sudoers.d/web_admins
+%web_admins ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart httpd, /usr/bin/systemctl status httpd
+%web_admins ALL=(ALL) /usr/bin/chown *, /usr/bin/chmod *</code></pre>
+
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-600">configure_web_sudo.yml</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded text-sm overflow-auto"><code>---
+- name: Configure sudo privileges for web_admins
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure 'web_admins' group exists
+      ansible.builtin.group:
+        name: web_admins
+        state: present
+
+    - name: Deploy sudoers file for 'web_admins' group
+      ansible.builtin.copy:
+        src: files/web_admins_sudoers
+        dest: /etc/sudoers.d/web_admins
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Lab checklist</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal pl-4 space-y-2">
+        <li>Create files/web_admins_sudoers locally with precise commands and full paths.</li>
+        <li>Run configure_web_sudo.yml to ensure group and deploy sudoers drop-in with validate.</li>
+        <li>Create a test user and add to web_admins, then verify allowed commands work.</li>
+        <li>Check /var/log/sudo.log or configured logfile to audit actions.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistakes</div>
+        <p class="text-xs font-medium text-slate-800">Forgot validate, wrong file mode, missing group, or using relative binary names. Fix these and re-run the playbook.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

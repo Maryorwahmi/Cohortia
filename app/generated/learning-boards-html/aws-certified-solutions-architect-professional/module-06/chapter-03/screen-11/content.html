@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Architecture</span>
+    <span>›</span>
+    <span class='text-slate-700'>Cross-account encryption</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='rounded-xl p-4 bg-white border shadow-sm h-1/2'>
+        <div class='text-sm font-semibold text-slate-800'>Required permissions</div>
+        <ul class='list-disc list-inside text-sm text-slate-600 mt-3 space-y-2'>
+          <li>KMS key policy allows the external role kms:Decrypt (and kms:GenerateDataKey if needed).</li>
+          <li>S3 bucket policy allows s3:GetObject for the external role.</li>
+          <li>Both must be present; one without the other fails at runtime.</li>
+        </ul>
+      </div>
+
+      <div class='rounded-xl p-3 bg-emerald-50 border border-gray-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1'>Concrete sequence</div>
+        <div class='text-sm text-slate-800'>1) Update KMS policy to add the remote role. 2) Update S3 policy to allow GetObject from that role. 3) Test read and observe Decrypt entries in CloudTrail.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='rounded-xl p-4 bg-slate-50 border shadow-sm flex-1'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Example troubleshooting</div>
+        <div class='text-sm text-slate-700'>If reads fail with Access Denied, check CloudTrail for kms:Decrypt denial and then inspect both the key policy and bucket policy for missing principals or conditions.</div>
+      </div>
+
+      <div class='rounded-xl p-3 bg-rose-50 border border-gray-100'>
+        <div class='text-xs font-bold uppercase tracking-wider text-rose-600 mb-1'>Common mistake</div>
+        <div class='text-sm text-slate-700'>Only updating the S3 policy and forgetting the KMS key policy creates the most frequent cross-account failure mode.</div>
+      </div>
+    </div>
+  </div>
+</div>

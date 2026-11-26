@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory.alloc Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pseudocode</div>
+        <pre class="mt-3 text-sm text-slate-700">// Memory.alloc(size)
+Memory.alloc(size):
+  if size == 0: return 0
+  best = null
+  prevBest = null
+  prev = null
+  cur = freeListHead
+  while cur != 0:
+    if cur.size >= size:
+      if best == null or cur.size &lt; best.size:
+        best = cur
+        prevBest = prev
+    prev = cur
+    cur = cur.next
+  if best == null: return 0  // allocation failure
+  if best.size == size:
+    remove best from list (use prevBest)
+    return best.startAddress
+  else:
+    // split: allocated = best.start; remainder = best.start + size + header
+    allocate front portion and update best entry to point to remainder
+    return allocated.startAddress</pre>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfalls</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-5 space-y-1">
+          <li>Forgetting to update prevBest when removing the head node.</li>
+          <li>Creating zero-sized remainder when sizes match closely; avoid split if remainder would be too small.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="mt-3 text-sm text-slate-700">Heap: [20][15][30] request alloc(12). Best-fit chooses 15, split into 12 and remainder 3 (if header overhead considered). The allocator updates links so free list becomes [20][3][30] or coalesces as required.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-2">Write clear code for list traversal, carefully maintain prev pointers, and test boundary sizes to ensure safe splits and correct head updates.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Calculator Starter</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Starter code (excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-4 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>// Command Interface
+interface CalculatorCommand {
+  void execute();
+  void undo();
+}
+
+// Receiver: Calculator
+class Calculator {
+  private int currentValue = 0;
+  private Stack&lt;Integer&gt; history = new Stack<>();
+
+  public void add(int value) {
+    history.push(currentValue);
+    currentValue += value;
+    System.out.println("Added " + value + ". Current value: " + currentValue);
+  }
+
+  public void restorePreviousState() {
+    if (!history.isEmpty()) currentValue = history.pop();
+  }
+
+  public int getCurrentValue() { return currentValue; }
+}
+
+// Example concrete command
+class AddCommand implements CalculatorCommand {
+  private Calculator calculator;
+  private int operand;
+  public AddCommand(Calculator calculator, int operand) { this.calculator = calculator; this.operand = operand; }
+  @Override public void execute() { calculator.add(operand); }
+  @Override public void undo() { calculator.restorePreviousState(); }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Activity steps</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal pl-5 space-y-2">
+        <li>Define CalculatorCommand with execute and undo.</li>
+        <li>Implement MultiplyCommand and DivideCommand following Add/Subtract examples.</li>
+        <li>Create User invoker that executes commands and pushes them to an executed stack.</li>
+        <li>Run a sequence of operations, then undo them and verify the Calculator restores values.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)] text-sm text-slate-700">
+        <div class="font-semibold">Safety tip</div>
+        <div class="mt-1">For divide, check for zero before modifying state; do not push a state snapshot if the operation fails.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

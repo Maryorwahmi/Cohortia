@@ -1,0 +1,45 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Conditional Logic</div>
+    <h3 class="text-2xl font-bold text-slate-800">Using facts for conditional tasks</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-700 mb-2">Task snippet</div>
+      <pre class="bg-slate-50 p-3 rounded"><code>---
+- name: Install web server package based on OS family
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Apache on Red Hat-based systems
+      ansible.builtin.dnf:
+        name: httpd
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Apache on Debian-based systems
+      ansible.builtin.apt:
+        name: apache2
+        state: latest
+      when: ansible_os_family == "Debian"</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Run this play to confirm the correct task runs per host. Use debug messages to print the evaluated ansible_os_family for each host as a verification step.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>when: checks facts at runtime and gates task execution.</li>
+        <li>Use distribution-specific package modules for best results (apt vs dnf).</li>
+        <li>Always verify by printing ansible_os_family and related facts after a run.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+          <p class="text-xs font-medium text-slate-800">How would you extend this pattern to handle a package name change in an OS derivative? Consider adding a mapping variable keyed by ansible_distribution.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

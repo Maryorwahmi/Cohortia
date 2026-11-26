@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">NetworkManager + Ansible</div>
+      <div class="text-sm text-slate-600 mt-3">Ansible uses nmcli to manage NetworkManager connection profiles declaratively, avoiding direct and fragile edits to legacy ifcfg files.</div>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div><span class="font-semibold">Profile-centric:</span> You manage connection profiles instead of low-level device settings.</div>
+        <div><span class="font-semibold">Declarative approach:</span> Ansible describes the desired state; NetworkManager applies it.</div>
+        <div><span class="font-semibold">Safer runtime:</span> NetworkManager remains the authority for activation and device state.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+        <div class="text-xs text-slate-600">Prefer nmcli tasks in Ansible rather than templating ifcfg files to avoid conflicts with NetworkManager.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Architecture snapshot</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="rounded-md p-3 bg-blue-50">
+          <div class="text-xs font-semibold text-blue-700">Ansible</div>
+          <div class="text-[12px] text-slate-600 mt-1">Declares connection profiles via community.general.nmcli.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">NetworkManager</div>
+          <div class="text-[12px] text-slate-600 mt-1">Creates and activates the runtime connection using the profile's settings.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-semibold text-slate-800">System Networking</div>
+          <div class="text-[12px] text-slate-600 mt-1">Network interfaces operate under NetworkManager's control, following profile definitions.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example task</div>
+        <pre class="bg-slate-900 text-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2"><code># Ansible task snippet
+- name: Configure static IP for my-static-eth0
+  community.general.nmcli:
+    conn_name: my-static-eth0
+    ifname: eth0
+    type: ethernet
+    ip4: 192.168.1.100/24
+    gw4: 192.168.1.1
+    dns4:
+      - 8.8.8.8
+      - 8.8.4.4
+    state: present
+    autoconnect: yes</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploying sudoers with ansible.builtin.copy</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Task anatomy</div>
+      <div class="mt-3 text-sm text-slate-700">This task copies a prebuilt sudoers file and runs visudo -cf to check syntax before placing it in /etc/sudoers.d.</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm overflow-auto"><code>- name: Deploy sudoers file for 'devops' group
+  ansible.builtin.copy:
+    src: files/devops_sudoers
+    dest: /etc/sudoers.d/devops
+    owner: root
+    group: root
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Checklist before deploy</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Confirm group exists on target hosts or create it with ansible.builtin.group.</li>
+          <li>Lint the src file locally where possible.</li>
+          <li>Use validate so visudo runs before the file is installed.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">If validate fails during the copy task, the candidate file is not installed. Investigate the syntax, correct the src, and re-run the playbook or fix manually via a safe console.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

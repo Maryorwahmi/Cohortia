@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;padding:12px} .col-left{width:45%}.col-right{width:55%} </style>
+
+  <div class="breadcrumb flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">MBR vs GPT</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="col-left flex flex-col justify-start gap-4">
+      <div class="card">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Core Concept</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">MBR and GPT compared</div>
+        <div class="mt-3 text-sm text-slate-700">MBR is limited to 2TB and four primary partitions. GPT supports larger disks and many partitions and is the recommended modern format for new systems. Choose the correct tool: fdisk for MBR, gdisk for GPT.</div>
+      </div>
+
+      <div class="card">
+        <div class="text-sm font-bold text-slate-800">Common mistakes</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-4">
+          <li>Using fdisk on a 3TB disk may produce partitions that cannot use full capacity.</li>
+          <li>Not checking existing partition start/end sectors can cause overlaps.</li>
+          <li>Forgetting to set the correct type flags for special partitions like BIOS boot or EFI.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-right flex flex-col gap-4">
+      <div class="card h-full">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Comparison</div>
+            <div class="text-lg font-bold text-slate-800 mt-1">Visual summary</div>
+          </div>
+          <div class="text-xs font-bold text-slate-500">fdisk vs gdisk</div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3 h-full">
+          <div class="p-3 rounded-xl bg-white border card-border">
+            <div class="text-sm font-bold text-slate-800">MBR (fdisk)</div>
+            <div class="text-sm text-slate-700 mt-2">Up to 4 primary partitions, 2TB limit, legacy boot compatibility, use when required by older systems.</div>
+            <div class="text-xs text-slate-500 mt-3">Example: Small boot-only media or legacy appliances.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white border card-border">
+            <div class="text-sm font-bold text-slate-800">GPT (gdisk)</div>
+            <div class="text-sm text-slate-700 mt-2">Supports many partitions and disks larger than 2TB, required for modern large-volume servers and new installations.</div>
+            <div class="text-xs text-slate-500 mt-3">Example: Use gdisk on a 3TB backup disk to access full capacity.</div>
+          </div>
+
+          <div class="col-span-2 mt-2">
+            <div class="text-sm font-bold text-slate-800">Quick verification commands</div>
+            <pre class="mt-2 p-3 bg-slate-50 rounded text-sm card-border"><code>sudo fdisk -l /dev/sdb
+sudo gdisk -l /dev/sdb
+sudo parted -l</code></pre>
+            <div class="text-xs text-slate-500 mt-2">These commands show the partition table type and sizes so you can confirm the correct tool before creating partitions.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Key Takeaway</div>
+        <div class="text-sm text-slate-700 mt-2">Prefer GPT for disks over 2TB. Use fdisk only for MBR/legacy scenarios and always verify the table type before writing changes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

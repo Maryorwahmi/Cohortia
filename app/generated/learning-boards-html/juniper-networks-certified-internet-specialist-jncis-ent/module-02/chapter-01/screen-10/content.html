@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border-radius:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+      <span class='text-slate-700'>Native VLAN</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='text-xl font-bold text-slate-900'>Native VLAN behavior</div>
+      <div class='text-sm text-slate-600'>Frames for the native VLAN may be sent untagged across an 802.1Q trunk. That makes consistent configuration critical.</div>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Consequences of mismatch</div>
+        <ul class='text-sm text-slate-700 space-y-2'>
+          <li>Untagged frames assigned to the wrong VLAN on the receiving switch.</li>
+          <li>Connectivity problems or unintended communication between hosts.</li>
+          <li>Potential security exposure via VLAN hopping if untagged traffic is mishandled.</li>
+        </ul>
+      </div>
+      <div class='card p-3'>
+        <div class='font-bold text-slate-800 mb-1'>Mitigation</div>
+        <div class='text-sm text-slate-700'>Either tag all VLANs across the trunk, or explicitly align native VLAN IDs and use an unused VLAN for native traffic.</div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Example mismatch scenario</div>
+        <div class='text-sm text-slate-700'>Switch A native VLAN = 1, Switch B native VLAN = 99. Untagged frames from A appear in VLAN 99 on B, causing hosts to be placed incorrectly.</div>
+      </div>
+      <div class='rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Common mistake</div>
+        <p class='text-xs font-medium text-slate-800'>Relying on default native VLAN IDs without verifying both sides of a trunk is a frequent source of misconfiguration.</p>
+      </div>
+    </div>
+  </div>
+</div>

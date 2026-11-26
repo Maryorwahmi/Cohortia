@@ -1,0 +1,75 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudFormation Snippet</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card rounded-2xl p-6 overflow-hidden">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Starter snippet</div>
+      <div class="text-sm text-slate-700 mb-3">A minimal scaffold creates three VPCs and the Transit Gateway resource. Attachments and route resources are placeholders that must be completed before deployment.</div>
+
+      <pre class="text-sm font-mono p-3 rounded bg-slate-800 text-slate-100" style="white-space:pre-wrap;tab-size:2; max-height:260px; overflow:auto;">
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Transit Gateway Hub and Spoke Network Setup
+
+Resources:
+  ProdVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  DevVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.2.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  SharedServicesVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.3.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  MyTransitGateway:
+    Type: AWS::EC2::TransitGateway
+    Properties:
+      Description: Central Transit Gateway
+      AmazonSideAsn: 64512
+
+  # Attachments, TGW Route Tables, Associations, Propagations, and VPC Route Updates to be added
+      </pre>
+
+      <div class="mt-3 p-3 rounded-lg border bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Deployment notes</div>
+        <div class="text-sm text-amber-800 mt-1">Replace subnet placeholder IDs with concrete logical references or parameters. Add TransitGatewayRouteTable, Association, and Propagation resources. Update Route resources with correct RouteTableId values.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card rounded-2xl p-6 flex flex-col gap-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Common mistakes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Leaving 0.0.0.0/0 where specific VPC CIDRs are required for inter-VPC routes.</li>
+        <li>Forgetting TGW route table associations so attachments end up in default or wrong tables.</li>
+        <li>Not testing route updates in staging and breaking services like DNS or NTP.</li>
+      </ul>
+
+      <div class="mt-3 p-3 rounded-lg border bg-white">
+        <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-1">Modularize template into nested stacks and pass TGW and subnet IDs as parameters to reduce blast radius and improve reuse.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Treat the snippet as a scaffold: fill attachments, TGW route tables, associations, propagations, and scoped VPC routes before production deployment.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

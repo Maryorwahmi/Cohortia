@@ -1,0 +1,92 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">RabbitMQ consumer</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-white p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+import pika
+import json
+import time
+
+# Establish connection to RabbitMQ
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+# Declare the queue (it's safe to declare it multiple times)
+channel.queue_declare(queue='order_events', durable=True) # durable=True ensures queue survives broker restarts
+
+def process_order_event(event_data):
+    """Simulates sending an email notification for an OrderCreated event."""
+    order_id = event_data.get('orderId')
+    customer_id = event_data.get('customerId')
+    items = event_data.get('items')
+
+    print(f"--- Notification Service ---")
+    print(f"Sending confirmation email for Order ID: {order_id}")
+    print(f"To Customer: {customer_id}")
+    print(f"Items: {', '.join(items)}")
+    print(f"Email content: 'Your order {order_id} has been placed successfully!'")
+    time.sleep(0.5) # Simulate email sending delay
+    print(f"Email sent for Order ID: {order_id}
+")
+
+def callback(ch, method, properties, body):
+    """Callback function to process received messages."""
+    try:
+        event_data = json.loads(body)
+        print(f" [x] Received raw event: {event_data}")
+
+        if event_data.get('eventType') == 'OrderCreated':
+            process_order_event(event_data)
+        else:
+            print(f" [ ] Unrecognized event type: {event_data.get('eventType')}")
+
+        ch.basic_ack(method.delivery_tag) # Acknowledge message processing
+    except json.JSONDecodeError:
+        print(f" [!] Failed to decode JSON: {body}")
+        ch.basic_nack(method.delivery_tag, requeue=False) # Nack and don't requeue malformed messages
+    except Exception as e:
+        print(f" [!] Error processing message: {e}")
+        ch.basic_nack(method.delivery_tag, requeue=True) # Nack and requeue for retry
+
+# Set up consumer
+channel.basic_consume(
+    queue='order_events',
+    on_message_callback=callback,
+    auto_ack=False # We will manually acknowledge messages
+)
+
+print(' [*] Notification Service waiting for messages. To exit press CTRL+C')
+channel.start_consuming()
+      </pre>
+    </div>
+
+    <div class="flex-1 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explainer</div>
+      <p class="text-sm text-slate-600 mt-2">This consumer demonstrates durable queue declaration, parsing JSON events, and explicit acknowledgements. It treats malformed messages differently from processing failures so that bad data does not requeue forever.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Operational checklist</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>Use durable queues and persistent messages for recovery.</li>
+          <li>Manually ack only after successful processing.</li>
+          <li>Use dead-letter queues for persistent failures; requeue for transient errors.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Explicit acknowledgements and clear error handling make consumer processing reliable and observable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

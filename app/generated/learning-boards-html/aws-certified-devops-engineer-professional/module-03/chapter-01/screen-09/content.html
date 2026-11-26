@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">CLI Deploy</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm h-full" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">Command breakdown</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded h-40 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+aws cloudformation deploy \
+  --template-file webserver-template.yaml \
+  --stack-name MyDevOpsWebServerStack \
+  --parameter-overrides KeyPairName=YOUR_KEY_PAIR_NAME AMIId=YOUR_AMI_ID \
+  --capabilities CAPABILITY_IAM
+      </pre>
+      <div class="text-sm text-slate-600 mt-2">Parameter overrides inject values at runtime. Capabilities flags are explicit acknowledgements for IAM entities to protect against accidental privilege creation.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm h-full" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">Validation & pipeline tips</div>
+      <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Run aws cloudformation validate-template to check structure before deploy.</li>
+        <li>Lint YAML and use template-specific linters for resource schema checks.</li>
+        <li>Stage deploys in non-prod accounts and capture Outputs for downstream steps.</li>
+      </ul>
+
+      <div class="mt-3 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">The deploy command does not remove the need for careful permissions and validation. It automates operations but requires correct flags and parameter handling.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

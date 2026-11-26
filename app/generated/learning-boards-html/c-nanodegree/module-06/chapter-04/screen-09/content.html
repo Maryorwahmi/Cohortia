@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition & Pattern</div>
+      <div class="text-lg font-bold text-slate-900">Robust input loop using cin.fail</div>
+      <div class="mt-3 text-sm text-slate-600">Detect failed extractions, clear flags, and discard the rest of the line before retrying.</div>
+
+      <pre class="code rounded-lg p-3 bg-slate-50 border border-slate-100 mt-4"><code>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+double getDoubleInput(const std::string&amp; prompt) {
+  double value;
+  while (true) {
+    std::cout &lt;&lt; prompt;
+    std::cin &gt;&gt; value;
+
+    if (std::cin.fail()) {
+      std::cerr &lt;&lt; "ERROR: Invalid input. Please enter a number." &lt;&lt; std::endl;
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '
+');
+    } else {
+      std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '
+');
+      return value;
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-4">
+        <li>Check std::cin.fail() after extraction to detect conversion errors.</li>
+        <li>Clear flags with std::cin.clear() before ignoring input.</li>
+        <li>Ignore the rest of the invalid line to avoid repeated failure.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Report validation failures to std::cerr for immediate visibility during interaction or debugging.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

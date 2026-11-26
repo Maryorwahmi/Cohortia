@@ -1,0 +1,21 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span> <span>›</span> <span>Chapter 4.5</span> <span>›</span> <span class="text-slate-700">Stack JSON</span> </div> <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full"> <div class="text-sm font-bold text-slate-800">Conceptual OpsWorks Stack JSON</div> <p class="text-sm text-slate-600 mt-2">This snippet is a planning artifact. It reflects the parameters you'll set when creating a stack and layers.</p> <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 mt-4 overflow-auto" style="white-space:pre-wrap;tab-size:2">{  
+  &quot;StackName&quot;: &quot;MyWebAppStack&quot;,
+  &quot;Region&quot;: &quot;us-east-1&quot;,
+  &quot;ServiceRoleArn&quot;: "arn:aws:iam::123456789012:role/aws-opsworks-service-role",
+  &quot;DefaultInstanceProfileArn&quot;: "arn:aws:iam::123456789012:instance-profile/aws-opsworks-ec2-role",
+  &quot;Layers&quot;: [
+    {
+      &quot;Name&quot;: &quot;WebServerLayer&quot;,
+      &quot;Type&quot;: &quot;aws-opsworks-web",
+      &quot;AutoScaling&quot;: { &quot;MinInstances&quot;: 1, &quot;MaxInstances&quot;: 3 },
+      &quot;CustomRecipes&quot;: { &quot;Setup&quot;: ["my_cookbook::webserver_setup"], &quot;Deploy&quot;: ["my_cookbook::webserver_deploy"] }
+    },
+    {
+      &quot;Name&quot;: &quot;AppServerLayer&quot;,
+      &quot;Type&quot;: &quot;aws-opsworks-app",
+      &quot;AutoScaling&quot;: { &quot;MinInstances&quot;: 1, &quot;MaxInstances&quot;: 2 },
+      &quot;CustomRecipes&quot;: { &quot;Setup&quot;: ["my_cookbook::appserver_setup"], &quot;Deploy&quot;: ["my_cookbook::appserver_deploy"] }
+    }
+  ],
+  &quot;AppSources&quot;: [ { &quot;Type&quot;: &quot;git&quot;, &quot;Url&quot;: &quot;https://github.com/myorg/my-app.git&quot;, &quot;Revision&quot;: &quot;main&quot; } ]
+}</pre> <div class="mt-4 grid grid-cols-3 gap-3"> <div class="rounded-lg p-3 bg-blue-50 border border-blue-100"> <div class="text-sm font-semibold text-blue-700">Service & Instance Roles</div> <div class="text-xs text-slate-600 mt-2">Define service role and default instance profile ARNs so OpsWorks and EC2 have required permissions.</div> </div> <div class="rounded-lg p-3 bg-amber-50 border border-amber-100"> <div class="text-sm font-semibold text-amber-700">Custom Recipes</div> <div class="text-xs text-slate-600 mt-2">Map recipes to lifecycle events to automate install and deploy tasks.</div> </div> <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100"> <div class="text-sm font-semibold text-emerald-700">AppSources</div> <div class="text-xs text-slate-600 mt-2">Point to a Git repository or other source to let OpsWorks pull application code during Deploy.</div> </div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

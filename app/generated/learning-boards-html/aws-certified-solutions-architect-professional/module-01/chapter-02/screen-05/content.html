@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .panel{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:14px;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Authoring SCP JSON</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Pattern: Sid, Effect, Action, Resource, Condition</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Use Sid for a readable identifier for each statement.</li>
+        <li>Set Effect to Deny for guardrails; avoid broad root-level allows without testing.</li>
+        <li>Specify Action narrowly when possible; use "*" only when necessary.</li>
+        <li>Include both bucket and object ARNs when protecting S3 data.</li>
+        <li>Leverage Condition keys like aws:RequestedRegion for precision.</li>
+      </ul>
+
+      <div class="mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+      <div class="mt-2 p-3 rounded-lg bg-rose-50 text-rose-700">Forgetting to include object ARNs or relying only on naming filters can leave audit logs deletable. Test both bucket and object operations.</div>
+    </div>
+
+    <div class="w-1/2 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Concrete SCP: deny S3 bucket and object deletion</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyS3BucketDeletion",
+      "Effect": "Deny",
+      "Action": ["s3:DeleteBucket","s3:DeleteObject"],
+      "Resource": [
+        "arn:aws:s3:::*cohortia-audit-logs*",
+        "arn:aws:s3:::*cohortia-audit-logs*/*"
+      ]
+    }
+  ]
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Attach this SCP to the Security OU to prevent deletion attempts across all member accounts under that OU, and verify using a sandbox account that both bucket and object deletion produce Access Denied.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Write focused Deny statements, include exact resource ARNs to cover buckets and objects, and test before wide attachment.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Create alarm & SNS</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Step-by-step</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-3">
+        <li>Create an SNS topic and add a subscription for notifications.</li>
+        <li>Choose the CloudWatch metric (NetworkOut) and select instance dimension.</li>
+        <li>Pick statistic and period (Sum, 5 minutes) and set threshold.</li>
+        <li>Attach alarm-actions to the SNS topic and name the alarm.</li>
+        <li>Test by generating outbound traffic and verify notification arrives.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">CLI example (visual only)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code># Create SNS topic
+aws sns create-topic --name NetworkPerformanceAlerts
+
+# Use the TopicArn in a put-metric-alarm call
+aws cloudwatch put-metric-alarm \
+  --alarm-name "HighNetworkOutAlarm" \
+  --alarm-description "Alarm when EC2 NetworkOut exceeds 50 MB/second for 5 minutes" \
+  --metric-name NetworkOut \
+  --namespace AWS/EC2 \
+  --statistic Sum \
+  --period 300 \
+  --threshold 52428800 \
+  --comparison-operator GreaterThanThreshold \
+  --dimensions Name=InstanceId,Value=i-0abcdef1234567890 \
+  --evaluation-periods 1 \
+  --alarm-actions arn:aws:sns:us-east-1:123456789012:NetworkPerformanceAlerts \
+  --unit Bytes</code></pre>
+      <div class="text-xs text-slate-500 mt-2">The code block shows the required parameters. Replace the instance ID and TopicArn for your environment.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

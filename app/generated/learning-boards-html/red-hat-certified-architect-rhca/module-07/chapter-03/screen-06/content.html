@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">VM XML structure</div>
+      <div class="text-sm text-slate-600 mt-2">The XML contains the VM's <code>&lt;os&gt;</code>, <code>&lt;devices&gt;</code>, and resource elements that libvirt reads at runtime.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Example — change boot order</div>
+        <div class="rounded-lg bg-slate-100 p-3">
+          <pre><code>&lt;os&gt;
+  &lt;type arch='x86_64' machine='pc-q35-6.2'&gt;hvm&lt;/type&gt;
+  &lt;boot dev='hd' /&gt;
+  &lt;boot dev='network' /&gt;
+&lt;/os&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold text-slate-900">How to edit safely</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-1">
+          <li>Use <code>virsh edit &lt;VM&gt;</code> so libvirt validates on save.</li>
+          <li>Export a backup copy with <code>virsh dumpxml &gt; vmname.xml</code> before large edits.</li>
+          <li>Mind device targets and addresses to avoid renaming or reordering disks inside the guest.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-1">Editing XML while a VM is running and expecting all changes to apply immediately; some must be applied with virsh set* commands or after reboot.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Treat the XML as the single source of truth and validate edits before restarting or applying them to running guests.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

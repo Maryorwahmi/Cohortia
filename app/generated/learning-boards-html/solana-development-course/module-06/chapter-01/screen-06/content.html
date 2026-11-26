@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-900 mt-1">Initializing the Anchor Program in React</h3>
+    <p class="text-sm text-slate-600 mt-1">Build a provider and Program instance that your UI can call safely.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter code (visual)</div>
+      <pre style="white-space:pre-wrap;tab-size:2;margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;">import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
+import { Program, AnchorProvider } from '@project-serum/anchor';
+import idl from './idl.json';
+
+const programID = new PublicKey('YOUR_PROGRAM_ID');
+
+function getProgram(connection, wallet) {
+  if (!wallet) return null;
+  const provider = new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
+  return new Program(idl as any, programID, provider);
+}
+</pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-sm font-bold text-slate-800">Checklist before creating Program</div>
+        <ul class="list-disc list-inside text-sm text-slate-600 mt-2">
+          <li>Connection object exists for your chosen cluster (devnet/mainnet)</li>
+          <li>Wallet is connected and available to the provider</li>
+          <li>idl.json matches the deployed program version</li>
+          <li>Program ID points to the deployed program</li>
+        </ul>
+      </div>
+
+      <div class="card p-3 bg-emerald-50" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example verification</div>
+        <div class="text-sm text-slate-800 mt-1">After creating the program object, inspect program.rpc or program.methods to ensure expected instructions are present.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Constructing a Program with a null wallet or wrong idl.json causes runtime failure when calling methods; guard creation until wallet and connection exist.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

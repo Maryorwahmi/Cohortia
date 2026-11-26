@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:.5rem;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class="text-slate-700">DynamoDB Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-4 border card-border overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Starter Python (Boto3)</div>
+      <pre class="code mt-3"><code>import boto3
+import json
+from botocore.exceptions import ClientError
+
+# Initialize DynamoDB client
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+table_name = 'Enrollments' # Replace with your DynamoDB table name
+
+def create_enrollment_table():
+  try:
+    table = dynamodb.create_table(
+      TableName=table_name,
+      KeySchema=[
+        {'AttributeName': 'enrollmentId', 'KeyType': 'HASH'}
+      ],
+      AttributeDefinitions=[
+        {'AttributeName': 'enrollmentId', 'AttributeType': 'S'}
+      ],
+      ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+      }
+    )
+    table.wait_until_exists()
+    print(f"Table {table_name} created successfully.")
+  except ClientError as e:
+    if e.response['Error']['Code'] == 'ResourceInUseException':
+      print(f"Table {table_name} already exists.")
+    else:
+      raise e
+
+# Other functions: create_enrollment, update_enrollment_status, get_enrollment
+# See chapter content for full examples and recommended safety checks.</code></pre>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Notes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Use unique enrollment IDs to ensure idempotent writes when retrying.</li>
+        <li>Publish events after local writes to participate in Sagas.</li>
+        <li>Add conditional writes to prevent races and to make compensations predictable.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+        <p class="text-xs font-medium text-slate-800">Run the script in a sandboxed account, observe PENDING then CONFIRMED transitions, and watch the emitted events to see Saga messages flow.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

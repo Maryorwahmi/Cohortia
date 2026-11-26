@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Log Parsing</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Parsing checklist</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Identify mandatory fields: timestamp, source IP, event type, user identifier where applicable.</li>
+        <li>Use robust tokenization or regex with fallback defaults for missing fields.</li>
+        <li>Tag events with source and parser version for traceability.</li>
+        <li>Measure parse failure rates and iterate parsing rules against samples.</li>
+      </ul>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-md font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">192.168.1.10 - user1 [10/Oct/2023:14:30:00 -0400] "GET /index.html HTTP/1.1" 200 1234</pre>
+      <div class="mt-2 text-sm text-slate-700">From this line extract src_ip, username, timestamp, method, uri, status_code, bytes_sent and tag with source web-nginx and parser:v1.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical patterns</div>
+      <div class="mt-3 space-y-2 text-sm text-slate-600">
+        <div class="rounded-lg bg-blue-50 p-2">Defaulting missing fields to null instead of dropping events preserves context for later enrichment.</div>
+        <div class="rounded-lg bg-violet-50 p-2">Normalize timestamps to UTC during parsing so correlation windows align across sources.</div>
+        <div class="rounded-lg bg-amber-50 p-2">Emit parse metrics: success, failure, and field completeness to guide improvements.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+          <p class="text-xs font-medium text-slate-800">Make parsing incremental and measurable. Extract core security fields first, then expand parsing coverage with versioning and metrics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

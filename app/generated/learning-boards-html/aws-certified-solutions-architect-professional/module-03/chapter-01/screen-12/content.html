@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Lab</span>
+      <span>›</span>
+      <span class="text-slate-700">CLI Walkthrough</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-900">Hands-on CLI: Build Aurora Cluster and Global DB</div>
+    <div class="text-sm text-slate-600 mt-1">Use the provided commands as a template and replace identifiers for your environment.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-4/5">
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Starter command template</div>
+      <pre class="bg-slate-900 text-white p-3 rounded"><code># 1. Create an Aurora PostgreSQL cluster (primary)
+aws rds create-db-cluster \
+  --db-cluster-identifier my-primary-cluster \
+  --engine aurora-postgresql \
+  --engine-version 13.7 \
+  --master-username admin \
+  --master-user-password YourPassword123 \
+  --db-subnet-group-name my-db-subnet-group \
+  --vpc-security-group-ids sg-xxxxxxxx \
+  --port 5432 \
+  --backup-retention-period 7 \
+  --storage-encrypted --kms-key-id arn:aws:kms:... 
+
+# 2. Add reader instances
+aws rds create-db-instance \
+  --db-cluster-identifier my-primary-cluster \
+  --db-instance-identifier reader-1 \
+  --db-instance-class db.r6g.large \
+  --engine aurora-postgresql
+
+# 3. Create a custom reader endpoint
+aws rds create-db-cluster-endpoint \
+  --db-cluster-identifier my-primary-cluster \
+  --db-cluster-endpoint-identifier custom-reporting \
+  --endpoint-type READER \
+  --static-members reader-1 reader-2
+
+# 4. Create and associate a secondary cluster for global DB
+aws rds create-global-cluster --global-cluster-identifier my-global-cluster \
+  --source-db-cluster-identifier arn:aws:rds:us-east-1:123456789012:cluster:my-primary-cluster
+
+# 5. Simulate promotion (use carefully)
+aws rds remove-from-global-cluster --db-cluster-identifier my-secondary-cluster --region us-west-2
+aws rds promote-db-cluster --db-cluster-identifier my-secondary-cluster --region us-west-2</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Guidance and cautions</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Wait for each cluster or instance to become available before proceeding to the next step.</li>
+        <li>Test failover in a non-production environment first to validate application reconfiguration steps.</li>
+        <li>Account for cross-region replication costs and plan for DNS or connection routing changes after promotion.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

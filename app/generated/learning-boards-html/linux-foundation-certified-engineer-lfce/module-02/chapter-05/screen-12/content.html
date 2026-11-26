@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">XFS steps</div>
+      <pre class="mt-3 bg-slate-100 p-3 rounded text-sm"># format and mount
+sudo mkfs.xfs /dev/vg_xfs/lv_data
+sudo mkdir -p /mnt/xfs_data
+sudo mount /dev/vg_xfs/lv_data /mnt/xfs_data
+# add test data
+sudo dd if=/dev/urandom of=/mnt/xfs_data/large_file bs=1M count=500
+
+# extend LV and grow filesystem
+sudo lvextend -L +1G /dev/vg_xfs/lv_data
+sudo xfs_growfs /mnt/xfs_data
+# verify
+df -h /mnt/xfs_data</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Btrfs steps</div>
+      <pre class="mt-3 bg-slate-100 p-3 rounded text-sm"># format and mount
+sudo mkfs.btrfs /dev/vg_btrfs/lv_data
+sudo mkdir -p /mnt/btrfs_root
+sudo mount /dev/vg_btrfs/lv_data /mnt/btrfs_root
+
+# create subvolume and mount
+sudo btrfs subvolume create /mnt/btrfs_root/home_users
+sudo mkdir -p /mnt/home_users_mount
+sudo mount -o subvol=home_users /dev/vg_btrfs/lv_data /mnt/home_users_mount
+
+echo "User data" | sudo tee /mnt/home_users_mount/user_file.txt
+
+# snapshot and verify
+sudo btrfs subvolume snapshot -r /mnt/btrfs_root/home_users /mnt/btrfs_root/home_users_snap_readonly
+sudo btrfs subvolume list /mnt/btrfs_root
+
+# extend and resize
+sudo lvextend -L +1G /dev/vg_btrfs/lv_data
+sudo btrfs filesystem resize max /mnt/btrfs_root
+# verify
+df -h /mnt/btrfs_root</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

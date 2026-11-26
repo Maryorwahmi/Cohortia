@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Egress Strategies</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xl font-bold text-slate-800">Egress Router</div>
+      <div class="text-sm text-slate-600 mt-2">Traffic originates from pods in a project and is routed through a designated router pod which can have a specific IP.</div>
+      <div class="mt-4 text-sm text-slate-700">Use when you need granular control over outbound processing, logging, or when source IP isn't easily assigned by the cluster network.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xl font-bold text-slate-800">Egress IP</div>
+      <div class="text-sm text-slate-600 mt-2">Assigns a static source IP to pods or a project; outbound traffic is SNATed to that IP by the cluster network.</div>
+      <div class="mt-4 text-sm text-slate-700">Simpler for firewall scenarios where only a fixed source IP is required and the cluster supports egress IPs on nodes.</div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-lg p-3 bg-white card-border">
+      <div class="font-semibold">Example commands (simulation)</div>
+      <pre class="mt-2"># annotate namespace to assign egress IPs (example)
+oc patch namespace network-test-project -p '{"metadata": {"annotations": {"network.openshift.io/assign-egress-ips": "true"}}}' --type=merge
+# or add egress IP (cluster-admin action)
+oc adm egress-ip add-ip 192.168.1.100 --selector=app=frontend -n network-test-project</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

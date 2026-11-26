@@ -1,0 +1,36 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#ffffff;border:1px solid rgba(226,232,240,0.9);border-radius:14px}</style>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 min-w-0 flex flex-col'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3'>Process Flow</div>
+      <div class='card p-4 flex-1'>
+        <div class='text-lg font-semibold text-slate-900'>SUM and AVG</div>
+        <div class='text-sm text-slate-600 mt-2'>SUM adds values, AVG divides the sum by the count of non-NULL values.</div>
+        <ol class='mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Identify the numeric column to aggregate, e.g., total_amount.</li>
+          <li>Decide whether NULLs should be treated as missing or zero.</li>
+          <li>If needed, replace NULLs using COALESCE before aggregation.</li>
+          <li>Run SUM and AVG and verify counts to ensure correct interpretation.</li>
+        </ol>
+        <div class='mt-4 text-xs text-slate-500'>Tip: compare COUNT(*) and COUNT(column) to measure how many rows are excluded from AVG.</div>
+      </div>
+    </div>
+    <div class='w-1/2 min-w-0 flex flex-col'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3'>Code Walkthrough</div>
+      <div class='card p-4 flex-1 flex flex-col'>
+        <pre class='bg-slate-900 text-slate-50 rounded-md p-3 text-sm' style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>SELECT
+  SUM(total_amount) AS total_revenue,
+  AVG(total_amount) AS average_order_value,
+  COUNT(total_amount) AS non_null_amounts,
+  COUNT(*) AS total_rows
+FROM Orders;
+
+-- Treat NULL as zero before summing
+SELECT SUM(COALESCE(total_amount, 0)) AS revenue_with_nulls_as_zero
+FROM Orders;
+</pre>
+        <div class='mt-3 text-sm text-slate-600'>Notice how SUM and AVG ignore NULLs unless you explicitly replace them. Use COALESCE when missing values should count as zeros in financial sums.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} pre code{font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Kickstart & ERB walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 border-[rgba(226,232,240,0.9)] shadow-sm h-full grid grid-cols-2 gap-6">
+    <div class="flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Kickstart snippet (ERB example)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 overflow-auto" style="max-height:52%;"><code># Root password
+rootpw --iscrypted &lt;%= root_pass %&gt;
+
+%post --log=/var/log/anaconda/post-install.log
+
+# Install additional packages
+dnf install -y httpd mariadb-server
+
+# Enable and start services
+systemctl enable --now httpd
+systemctl enable --now mariadb
+
+echo "Post-installation script completed."
+
+%end</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">This template uses an ERB variable root_pass supplied by host parameters or Host Group defaults. The %post block installs and enables services, creating a ready host on first boot.</div>
+
+      <div class="mt-4 rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Keep logs in %post to aid troubleshooting and avoid storing plain-text secrets inside templates.</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Testing and validation</div>
+      <div class="mt-3 text-sm text-slate-700">Clone the Kickstart default template, edit, and preview the generated Kickstart for a sample host. Validate ERB syntax and ensure variables referenced are defined in the Host Group or host parameters.</div>
+
+      <div class="mt-4 rounded-lg bg-white border p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example activity</div>
+        <p class="text-xs text-slate-700">Add httpd to %packages and include a %post creating /var/www/html/index.html with a short message. Attach the template to a Host Group and provision one host to verify the service is running post-install.</p>
+      </div>
+
+      <div class="mt-4 rounded-lg border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">A single missing ERB tag or Kickstart directive typo can prevent Kickstart generation or cause install failure; always preview and test on one VM first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

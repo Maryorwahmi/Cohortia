@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Lab</div>
+    <div class="text-2xl font-bold text-slate-900">HAProxy with Flask backends</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Backend steps (each VM)</div>
+      <ol class="list-decimal pl-4 text-sm text-slate-600">
+        <li>Install Python and Flask.</li>
+        <li>Create app.py with / and /health endpoints that reply on port 5000.</li>
+        <li>Run Flask on host 0.0.0.0:5000 and allow firewall from HAProxy.</li>
+      </ol>
+      <div class="mt-3 text-sm font-semibold">Flask snippet</div>
+      <pre class="mono bg-slate-50 p-2 rounded text-sm">from flask import Flask
+app = Flask(__name__)
+SERVER_NAME = "Backend 1"
+@app.route('/')
+def hello():
+  return f"Hello from {SERVER_NAME}!
+"
+@app.route('/health')
+def health_check():
+  return "OK", 200
+if __name__ == '__main__':
+  app.run(host='0.0.0.0', port=5000)</pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">HAProxy steps</div>
+      <ol class="list-decimal pl-4 text-sm text-slate-600">
+        <li>Install HAProxy and enable the service.</li>
+        <li>Edit /etc/haproxy/haproxy.cfg: add frontend on :80 and backend with servers on port 5000.</li>
+        <li>Add option httpchk GET /health and a listen stats on :8080 with auth.</li>
+        <li>Validate with sudo haproxy -c -f /etc/haproxy/haproxy.cfg and reload the service.</li>
+      </ol>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the lab steps to validate health checks and stats-driven troubleshooting; stopping a backend should show it as DOWN and route traffic to healthy instances.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+      <span class="text-slate-600">›</span>
+      <span class="text-slate-700">Preparing Instances</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-3">Preparing Instances for a Replica Set</div>
+    <div class="text-sm text-slate-600 mt-1">Create data dirs, start mongod with a replica set name, and inspect status.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Shell steps</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm">mkdir -p /data/db/rs0-0 /data/db/rs0-1 /data/db/rs0-2
+
+mongod --port 27017 --dbpath /data/db/rs0-0 --logpath /data/db/rs0-0/mongod.log --fork --replSet rs0 --bind_ip localhost
+
+mongo --port 27017
+// inside shell
+db.adminCommand({replSetGetStatus: 1});</pre>
+      <div class="text-sm text-slate-700 mt-3">Note the --replSet option names the set; it does not initialize replication by itself. You will usually need to run rs.initiate when ready to form the set.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Expected observation</div>
+      <div class="text-sm text-slate-700">When you check replSetGetStatus on a single named instance you may see an error or states like STARTUP2 or RECOVERING because there is no primary to sync from yet. This confirms the instance is prepared but not initialized.</div>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common pitfall</div>
+        <div class="text-sm text-slate-800 mt-1">Assuming --replSet automatically creates a replica set. You must initiate and configure members to form a working set.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Preparing instances is a low-risk step to confirm readiness; initialization and adding members completes the replica set.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

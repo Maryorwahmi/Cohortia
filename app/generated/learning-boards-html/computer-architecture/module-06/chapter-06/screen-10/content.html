@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Meltdown: out-of-order execution</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex gap-6">
+    <div class="w-1/2">
+      <div class="text-sm font-semibold text-slate-700">What Meltdown does</div>
+      <p class="text-sm text-slate-600 mt-2">Meltdown relies on the CPU speculatively executing a load from kernel memory that is still mapped in the user address space but protected. The speculative read can influence cache state before the fault is handled, enabling a timing-based leak.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="font-semibold text-slate-800">Why KPTI works</div>
+          <p class="text-sm text-slate-600 mt-1">KPTI removes the kernel mapping from user page tables, so user-mode addresses cannot speculatively read kernel memory because those addresses are not present in the mapping.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-lg bg-amber-50 p-3 card-border">
+        <div class="text-sm font-semibold text-amber-700">Performance impact</div>
+        <p class="text-sm text-slate-700 mt-2">KPTI increases system call overhead and TLB misses, producing slowdowns ranging from minimal to substantial depending on workload, particularly I/O-bound tasks.</p>
+      </div>
+
+      <div class="rounded-lg bg-rose-50 p-3 card-border">
+        <div class="text-sm font-semibold text-rose-700">Common misconception</div>
+        <p class="text-sm text-slate-700 mt-1">KPTI does not address Spectre because Spectre does not require kernel mappings; it manipulates speculative paths and predictors instead.</p>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Meltdown is about speculative privileged reads; KPTI protects by removing those privileged mappings from user space.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

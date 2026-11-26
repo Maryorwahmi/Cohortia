@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe fsck Usage</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">One-sentence rule</div>
+      <p class="text-sm text-slate-700 mt-2">Do not run fsck on a mounted filesystem; use a rescue environment for root repairs.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-white p-3 border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common fsck flags</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc list-inside">
+            <li><strong>-y</strong>: automatically apply fixes (use with caution)</li>
+            <li><strong>-f</strong>: force check even if clean</li>
+            <li><strong>-c</strong>: run badblocks integration (Ext filesystems)</li>
+          </ul>
+        </div>
+
+        <div class="rounded-xl bg-blue-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">XFS special case</div>
+          <p class="text-sm text-slate-700 mt-2">Use xfs_repair and prefer the -n dry run to preview required repairs before committing them.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Preserve a copy before repairs. Use dry-run and avoid blind "yes" in production.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Step-by-step checklist</div>
+      <ol class="mt-2 list-decimal list-inside text-sm text-slate-700">
+        <li>Gather logs: dmesg, syslog, and /var/log/messages for I/O symptoms.</li>
+        <li>Confirm device name with lsblk or blkid to avoid wrong partition mistakes.</li>
+        <li>Unmount the filesystem: sudo umount /dev/sdXN.</li>
+        <li>Run fsck with appropriate flags; prefer dry-run options when available.</li>
+        <li>Mount read-only to confirm recovery, then mount read-write after verification.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <p class="text-sm text-rose-600 mt-2">Running fsck while mounted is safe if it's read-only — false. Even reads can race with system activity; unmount or use rescue mode.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Dynamic Control with GDScript</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Script concept</div>
+      <p class="text-sm text-slate-700 mt-2">Rotate the DirectionalLight3D over time to simulate the sun moving. Use a time-derived value to modulate fog settings for atmospheric variation.</p>
+
+      <div class="mt-4 p-3 rounded-lg bg-violet-50">
+        <div class="font-semibold text-slate-800">Why this matters</div>
+        <div class="text-sm text-slate-700 mt-1">Dynamic changes make worlds feel alive and allow night/day transitions without reauthoring scene assets.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example code</div>
+      <pre class="mt-3 rounded p-3 bg-slate-50"><code># Example: Dynamically adjusting light and environment properties
+extends Node3D
+
+@onready var directional_light = $DirectionalLight3D
+@onready var world_environment = $WorldEnvironment
+
+func _process(delta):
+  # Rotate the directional light to simulate a day-night cycle
+  directional_light.rotation_degrees.x += 0.1 * delta # Rotate around X-axis
+
+  # Adjust fog based on time (simple example)
+  var time_of_day = fmod(OS.get_unix_time_from_datetime(OS.get_datetime()), 24.0 * 3600.0) # Seconds in a day
+  var fog_intensity = sin(time_of_day / (24.0 * 3600.0) * PI) # Peaks at midday, low at night
+
+  if world_environment and world_environment.environment:
+    world_environment.environment.fog_enabled = true
+    world_environment.environment.fog_depth_begin = 10.0 + (1.0 - fog_intensity) * 50.0 # Thicker fog at night
+    world_environment.environment.fog_color = Color(0.7, 0.8, 0.9, fog_intensity * 0.5) # Bluer, more opaque fog at night
+</code></pre>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Small runtime changes to light rotation and environment parameters produce convincing dynamic atmospheres with minimal asset work.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

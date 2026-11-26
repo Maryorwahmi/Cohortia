@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-panel{background:#0f1724;color:#d1d5db;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-gray-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">UIManager.cs</div>
+      <div class="text-sm text-slate-700 mt-3">This script shows public fields for the score text and health fill and methods to update them.</div>
+      <div class="mt-4 code-panel overflow-auto">
+<pre style="white-space:pre-wrap; tab-size:2; margin:0;">using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+
+public class UIManager : MonoBehaviour
+{
+  public TextMeshProUGUI scoreText; // Drag your ScoreText here
+  public Image healthBarFill;       // Drag your HealthBarFill here
+
+  private int currentScore = 0;
+  private float currentHealth = 1.0f; // 0.0 to 1.0
+
+  void Start()
+  {
+    UpdateScore(0);
+    UpdateHealth(1.0f);
+  }
+
+  public void UpdateScore(int newScore)
+  {
+    currentScore = newScore;
+    if (scoreText != null)
+      scoreText.text = "Score: " + currentScore;
+  }
+
+  public void UpdateHealth(float newHealthNormalized)
+  {
+    currentHealth = Mathf.Clamp01(newHealthNormalized);
+    if (healthBarFill != null)
+      healthBarFill.fillAmount = currentHealth;
+  }
+
+  void Update()
+  {
+    if (Input.GetKeyDown(KeyCode.P)) UpdateScore(currentScore + 10);
+    if (Input.GetKeyDown(KeyCode.O)) UpdateHealth(currentHealth - 0.1f);
+  }
+}
+</pre>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 border border-gray-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Annotations</div>
+      <ul class="text-sm text-slate-700 mt-3 space-y-2 flex-grow">
+        <li><strong>Public fields:</strong> Assign references in the Inspector to avoid fragile runtime lookups.</li>
+        <li><strong>Update methods:</strong> Keep them simple and focused on UI representation only.</li>
+        <li><strong>Clamp health:</strong> Use Mathf.Clamp01 to ensure fillAmount stays between 0 and 1.</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Expose UI refs and update their visual properties from clear public methods; this keeps UI and game logic decoupled.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Amazon SQS for Decoupling</span>
+  </div>
+
+  <div class="rounded-2xl bg-white shadow-sm card-border p-6 h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Use SQS to decouple and buffer work</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">How it helps</div>
+          <ul class="list-disc list-inside text-sm text-slate-600 mt-2 space-y-1">
+            <li>Buffers bursts of traffic.</li>
+            <li>Allows independent scaling of producers and consumers.</li>
+            <li>Durable storage prevents message loss between services.</li>
+          </ul>
+        </div>
+
+        <div class="mt-3 rounded-lg bg-emerald-50 p-3 card-border">
+          <div class="text-sm font-semibold text-emerald-700">Operational signals</div>
+          <p class="text-sm text-slate-700 mt-2">Monitor queue depth, age of oldest message, and receive counts to detect backlog or poison messages.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="rounded-lg bg-slate-50 p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Example: sending a message (Python)</div>
+          <pre class="mt-2 text-sm text-slate-700">import boto3
+import json
+
+sqs = boto3.client('sqs')
+queue_url = 'YOUR_SQS_QUEUE_URL'
+
+message_body = {
+  "orderId": "12345",
+  "productId": "ABC",
+  "quantity": 2
+}
+
+response = sqs.send_message(
+  QueueUrl=queue_url,
+  MessageBody=json.dumps(message_body),
+  MessageGroupId='OrderProcessing', # Required for FIFO queues
+  MessageDeduplicationId='unique-order-12345' # Required for FIFO queues
+)
+print(f"Message sent: {response['MessageId']}")</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">SQS decouples components so work can be retried or inspected later without blocking producers.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

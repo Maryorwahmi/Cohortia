@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre.terminal{background:#0b1220;color:#dbeafe;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2} .card{border-color:rgba(226,232,240,0.9)}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Commands</h3>
+      <pre class="terminal mt-3"># Terminal 1: run backend
+python backend_service.py
+
+# Terminal 2: run frontend
+python frontend_service.py
+
+# Terminal 3: trigger request
+curl "http://localhost:5000/hello?name=Cohortia"
+</pre>
+    </div>
+    <div class="rounded-2xl bg-white p-4 border card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Expected Console Output (example)</div>
+      <pre class="terminal mt-3"># frontend console prints span
+Span: name=hello_frontend_endpoint trace_id=0xabc123 parent_id=0xdef456
+# backend console prints child span with same trace
+Span: name=greet_backend_endpoint trace_id=0xabc123 parent_id=0xghi789
+
+# The important check: trace_id matches across services and parent_id shows linkage
+</pre>
+      <div class="mt-3 text-sm text-slate-600">If trace_id differs, inspect propagator configuration and outgoing header injection. If spans are missing, verify exporters and that auto-instrumentation is active for Flask and requests.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

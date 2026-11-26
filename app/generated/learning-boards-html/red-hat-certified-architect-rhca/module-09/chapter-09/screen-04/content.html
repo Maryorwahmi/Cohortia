@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Components and Roles</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Component definitions</div>
+      <div class="text-sm text-slate-600 mt-1">Clear responsibilities help avoid overlapping assumptions during failover.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1 overflow-hidden">
+        <div class="rounded-lg p-3 bg-blue-50 border">
+          <div class="text-xs font-bold text-blue-700 uppercase">Keepalived</div>
+          <div class="text-sm text-slate-700 mt-1">Manages a Virtual IP using VRRP and scripts that watch HAProxy to quickly move the VIP when the active node fails.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 border">
+          <div class="text-xs font-bold text-emerald-700 uppercase">HAProxy</div>
+          <div class="text-sm text-slate-700 mt-1">Load balancer that distributes client requests and performs health checks to stop sending traffic to unhealthy backends.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-violet-50 border">
+          <div class="text-xs font-bold text-violet-700 uppercase">Pacemaker / Corosync</div>
+          <div class="text-sm text-slate-700 mt-1">Cluster manager for resources that must run on a single node. Provides failover and coordinates fencing to protect shared storage.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="text-xs font-bold text-slate-600 uppercase">Shared Storage</div>
+          <div class="text-sm text-slate-700 mt-1">SAN or NAS used for stateful data. Pacemaker ensures ownership and avoids concurrent mounts that risk corruption.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">How they cooperate</div>
+      <div class="mt-3 flex-1">
+        <div class="rounded-lg p-3 bg-white border shadow-sm">
+          <div class="text-sm font-semibold text-slate-800">Architectural flow</div>
+          <ol class="mt-3 ml-4 list-decimal text-sm text-slate-600 space-y-2">
+            <li>Client connects to the Keepalived VIP.</li>
+            <li>Active HAProxy receives traffic and uses health checks to choose backends.</li>
+            <li>Backends interact with database/storage owned under Pacemaker control.</li>
+            <li>On failures, Keepalived moves VIP, Pacemaker moves resources, HAProxy removes unhealthy backends.</li>
+          </ol>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-amber-50 border">
+            <div class="text-xs font-bold uppercase text-amber-700">Concrete example</div>
+            <div class="text-sm text-slate-700 mt-1">A VIP moves from HAProxy-A to HAProxy-B when a health script detects HAProxy-A has crashed. HAProxy-B continues routing to healthy app servers while Pacemaker ensures the database remains owned by a single node.</div>
+          </div>
+
+          <div class="mt-3">
+            <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+              <p class="text-xs font-medium text-slate-800">Separate responsibilities: VIP for ingress continuity, HAProxy for routing, Pacemaker for safe ownership of stateful resources.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span class="text-slate-400">›</span>
+    <span class="">Chapter 3.6</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Task checklist</div>
+        <ol class="list-decimal pl-5 text-slate-600 space-y-2">
+          <li>Write BGP neighbor and network statements for Router A and Router B advertising 172.16.0.0/16.</li>
+          <li>On Router B create route-map PREPEND_AS and set as-path prepend 65000 65000 65000.</li>
+          <li>Confirm AS_PATH lengths via show ip bgp on both routers and on any BGP monitor.</li>
+          <li>Simulate failure of Router A's BGP session and measure convergence time.</li>
+          <li>Document outputs and expected recovery actions in your test report.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Starter configuration (conceptual)</div>
+        <pre class="text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Router A (Primary DX)
+router bgp 65000
+ neighbor &lt;AWS_IP_PRIMARY&gt; remote-as 64512
+  address-family ipv4
+   network 172.16.0.0 mask 255.255.0.0
+  exit-address-family
+
+# Router B (Secondary DX)
+router bgp 65000
+ neighbor &lt;AWS_IP_SECONDARY&gt; remote-as 64512
+  address-family ipv4
+   network 172.16.0.0 mask 255.255.0.0
+   neighbor &lt;AWS_IP_SECONDARY&gt; route-map PREPEND_AS out
+  exit-address-family
+
+route-map PREPEND_AS permit 10
+ set as-path prepend 65000 65000 65000
+        </pre>
+
+        <div class="mt-3 text-xs text-slate-500">Replace &lt;AWS_IP_PRIMARY&gt; and &lt;AWS_IP_SECONDARY&gt; with peer IPs. Capture show ip bgp and peer states before and after tests.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

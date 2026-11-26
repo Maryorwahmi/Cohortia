@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Bucket Policies vs ACLs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">ACLs</div>
+          <div class="text-slate-600 mt-1">Legacy, object-level grants; limited conditions and harder to audit at scale.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Bucket Policies</div>
+          <div class="text-slate-600 mt-1">JSON-based, fine-grained, supports conditions and cross-account principals; preferred for most cases.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Policy Example (snippet)</div>
+        <div class="rounded-lg bg-slate-100 p-3 font-mono text-sm mt-2" style="white-space:pre-wrap; tab-size:2;">
+          <pre><code>{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::123456789012:role/PartnerReadRole"},
+      "Action": ["s3:GetObject"],
+      "Resource": ["arn:aws:s3:::my-bucket/*"]
+    }
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operational guidance</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li>Use bucket policies for cross-account access and conditional rules.</li>
+        <li>Keep Block Public Access enabled unless an exception is justified and documented.</li>
+        <li>Audit policies and prefer principals over public access entries.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Making a bucket public via an ACL or an overly broad policy without recording why increases risk of data loss or exposure.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">When you need external access, scope a single path and test with a specific IAM principal before expanding access.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

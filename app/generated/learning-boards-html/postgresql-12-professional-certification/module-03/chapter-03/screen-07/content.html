@@ -1,0 +1,45 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-2/5 card p-5'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Definition</div>
+      <h3 class='text-xl font-bold text-slate-800'>Role inheritance and INHERIT</h3>
+      <p class='text-sm text-slate-600 mt-2'>Membership grants a role the privileges of its parent role when INHERIT is present.</p>
+
+      <div class='mt-4 space-y-3 text-sm text-slate-700'>
+        <div><strong>Behavior:</strong> A member automatically gains privileges from roles it belongs to.</div>
+        <div><strong>Example:</strong> Grant read_only_analyst to analyst_john → analyst_john can SELECT.</div>
+        <div><strong>Audit:</strong> Changing the group changes members instantly.</div>
+      </div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Use inheritance to centralize grants; use membership to manage who receives them.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='flex-1 card p-5 flex flex-col'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Annotated Example</div>
+      <div class='p-4 rounded-lg border bg-white text-sm text-slate-700'>
+        <div class='font-semibold'>Group role:</div>
+        <div class='mt-2'>CREATE ROLE read_only_analyst; GRANT SELECT ON public.table1 TO read_only_analyst;</div>
+        <div class='mt-3 font-semibold'>Grant to user:</div>
+        <div class='mt-2'>GRANT read_only_analyst TO analyst_john;</div>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-600'>Misconception check: membership is not a copy. If you revoke SELECT from the group, members lose it immediately. If you REVOKE membership, access is removed without touching other privileges.</div>
+
+      <div class='mt-4 grid grid-cols-2 gap-3'>
+        <div class='p-3 rounded-md border bg-white'>
+          <div class='text-xs font-bold text-slate-700'>Example</div>
+          <div class='text-sm text-slate-600 mt-2'>Use a department role to hold shared schema privileges; add users to that role for instant access.</div>
+        </div>
+        <div class='p-3 rounded-md border bg-white'>
+          <div class='text-xs font-bold text-slate-700'>Pro Tip</div>
+          <div class='text-sm text-slate-600 mt-2'>Keep sensitive groups small and use NOINHERIT for roles that should require explicit elevation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

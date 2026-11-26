@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card shadow-sm h-full">
+    <div class="text-sm font-bold text-slate-800">TimescaleDB hypertable example</div>
+    <pre class="mt-3 text-sm text-slate-700">CREATE TABLE sensor_data (
+    time TIMESTAMPTZ NOT NULL,
+    device_id TEXT NOT NULL,
+    temperature DOUBLE PRECISION,
+    humidity DOUBLE PRECISION
+);
+
+SELECT create_hypertable('sensor_data', 'time');
+
+-- Average temperature for a device over last hour, every 5 minutes
+SELECT
+    time_bucket('5 minutes', time) AS five_min_bucket,
+    avg(temperature) AS avg_temp
+FROM sensor_data
+WHERE time &gt; now() - INTERVAL '1 hour' AND device_id = 'sensor_123'
+GROUP BY five_min_bucket
+ORDER BY five_min_bucket;</pre>
+
+    <div class="mt-4 text-sm text-slate-700">
+      <ul class="list-disc pl-5">
+        <li>Hypertables partition data by time to limit scanned ranges for windowed queries.</li>
+        <li>Index device_id when queries filter on device to avoid full-partition scans.</li>
+        <li>Downsample or aggregate older partitions to control storage costs.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

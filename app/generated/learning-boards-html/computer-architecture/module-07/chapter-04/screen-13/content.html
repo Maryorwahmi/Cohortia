@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Simulation</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-[64vh] flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-900">Simulate 4-MSHR direct-mapped cache</h3>
+    <p class="text-sm text-slate-600 mt-2">Trace: R 0x0000, R 0x0010, R 0x0040, R 0x0080, R 0x0000, R 0x00C0, R 0x0100, W 0x0040. Memory latency = 4 cycles.</p>
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl bg-slate-50 p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">MSHR table over time</div>
+        <div class="mt-3 space-y-2 text-sm text-slate-600">
+          <div><span class="font-semibold">After access 1:</span> MSHR0 &rarr; 0x0000 (issued), waiting: R@1</div>
+          <div><span class="font-semibold">After access 2:</span> hit, no change</div>
+          <div><span class="font-semibold">After access 3:</span> MSHR1 &rarr; 0x0040 (issued), waiting: R@3</div>
+          <div><span class="font-semibold">After access 4:</span> MSHR2 &rarr; 0x0080 (issued), waiting: R@4</div>
+          <div><span class="font-semibold">After access 5:</span> R 0x0000 merges into MSHR0; waiting: R@1,R@5</div>
+          <div><span class="font-semibold">After access 6:</span> MSHR3 &rarr; 0x00C0 (issued), waiting: R@6</div>
+          <div><span class="font-semibold">After access 7:</span> R 0x0100 wants new MSHR but all 4 are used — stall until an MSHR frees</div>
+          <div><span class="font-semibold">After access 8:</span> W 0x0040 merges with MSHR1; MSHR1 records store data and a byte mask</div>
+        </div>
+      </div>
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">What happens when memory returns</div>
+        <div class="mt-3 text-sm text-slate-600 space-y-2">
+          <div>When block 0x0000 returns, MSHR0 applies no stores, wakes R@1 and R@5, and frees MSHR0. The stalled R 0x0100 can now allocate an MSHR.</div>
+          <div>When block 0x0040 returns, MSHR1 applies the stored bytes per its mask, wakes any waiting operations, and frees MSHR1.</div>
+          <div>Overall, non-blocking caches reduce stalls for independent hits and consolidate store handling; a blocking cache would have stalled earlier and prevented hits like R 0x0010 from completing while any miss was pending.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Analyzing MSHR state step-by-step reveals when merges occur and when MSHR capacity causes stalls—this guides sensible MSHR sizing.</p>
+      </div>
+    </div>
+  </div>
+</div>

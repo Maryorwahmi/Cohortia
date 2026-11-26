@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.2</span><span>›</span><span class="text-slate-700">Preventing Infinite Loops</span></div><div class="mb-6"><p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">AVOIDING ISSUES</p><h1 class="text-3xl font-bold text-slate-900 mb-2">Preventing Infinite Loops</h1><p class="text-base text-slate-700">Understand and avoid common mistakes in loop conditions, and use `break`.</p></div><div class="flex-grow grid grid-cols-12 gap-6"><div class="col-span-7 flex flex-col bg-slate-800 rounded-xl shadow-lg overflow-hidden"><div class="flex items-center bg-slate-700 px-4 py-2 text-slate-300 text-xs font-mono rounded-t-xl"><div class="flex gap-1 mr-3"><span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span><span class="w-2.5 h-2.5 bg-yellow-500 rounded-full"></span><span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span></div><span>loop_control.sh</span></div><pre class="flex-grow p-4 text-sm text-slate-50 font-mono overflow-auto whitespace-pre-wrap" style="tab-size: 2;"><code>#!/bin/bash
+
+# Example of an infinite loop (DO NOT RUN WITHOUT CAUTION!)
+# COUNT=1
+# while [ "$COUNT" -eq 1 ]; do
+#     echo "This will run forever!"
+#     # No increment or condition change
+# done
+
+# Corrected loop with increment
+echo "Corrected loop:"
+COUNTER=0
+while [ "$COUNTER" -lt 3 ]; do
+    echo "  - Iteration $COUNTER"
+    COUNTER=$((COUNTER + 1))
+done
+
+echo "
+---"
+
+# Using 'break' to exit a loop prematurely
+echo "Loop with 'break':"
+for i in {1..10};
+do
+    if [ "$i" -eq 5 ]; then
+        echo "  - Reached 5, breaking loop."
+        break # Exit the loop
+    fi
+    echo "  - Current value: $i"
+done
+echo "Loop finished after break."
+</code></pre></div><div class="col-span-5 flex flex-col gap-4"><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">What is an Infinite Loop?</h3><p class="text-xs text-slate-600">A loop whose condition never becomes false, causing it to execute indefinitely. This can lead to resource exhaustion and system instability.</p></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">How to Prevent Them</h3><ul class="list-disc list-inside text-xs text-slate-600 space-y-1"><li>**Ensure condition change:** Always include logic within the loop that will eventually make the condition false.</li><li>**Test thoroughly:** Use small datasets for testing loops before deploying to production.</li></ul></div><div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200"><h3 class="text-sm font-semibold text-slate-800 mb-2">The `break` Command</h3><p class="text-xs text-slate-600">Immediately terminates the innermost loop it is in. Execution continues with the command following the loop. Useful for early exits based on specific internal conditions.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Always design loops with a clear exit strategy. Use `break` for controlled early termination when specific conditions are met.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

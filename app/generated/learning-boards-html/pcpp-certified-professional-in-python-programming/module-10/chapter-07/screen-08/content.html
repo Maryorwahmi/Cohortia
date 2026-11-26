@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Comparison</div>
+      <h3 class="text-2xl font-extrabold text-slate-900 mt-2">patch: decorator vs context manager</h3>
+      <p class="text-sm text-slate-700 mt-3">Decorators provide test-wide patches and automatic cleanup. Context managers limit the patch to a block and improve readability for localized behavior.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 card-border">
+          <div class="text-sm font-semibold text-blue-700">Decorator</div>
+          <div class="text-sm text-slate-700 mt-1">Use when the entire test relies on the patched object and you want a compact declaration.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-sm font-semibold text-amber-700">Context manager</div>
+          <div class="text-sm text-slate-700 mt-1">Use for precise scoping when only part of the test interacts with the dependency.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col mono">
+      <div class="rounded-lg bg-slate-50 p-4 card-border flex-grow">
+        <div class="text-sm font-semibold text-slate-800">Examples</div>
+        <pre class="mono" style="white-space:pre-wrap; tab-size:2;"># Decorator style
+@patch('my_service.requests')
+def test_fetch(mock_requests):
+    # whole test uses mock_requests
+    ...
+
+# Context-manager style
+def test_read_config():
+    with patch('os.path.exists', return_value=True), \
+         patch('builtins.open', new_callable=Mock) as mock_open:
+        # only this block uses patched open
+        ...</pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Match patch style to scope: prefer narrow, readable patches unless the whole test legitimately needs the replacement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

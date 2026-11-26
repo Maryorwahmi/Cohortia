@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre {background:#0f172a;color:#e6eefc;padding:12px;border-radius:8px; overflow:auto;} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.10</span>
+      <span>›</span>
+      <span class="text-slate-700">POI Index — Query Example</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm h-3/5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+        <div class="text-sm text-slate-700">This canonical Elasticsearch search body finds POIs by category within a radius. It combines a text match with a geo_distance filter to ensure both relevance and spatial constraint. You can add sorting by distance or additional must/should clauses for ratings.</div>
+
+        <div class="mt-3 mono">
+          <pre><code>&lt;!-- Example Elasticsearch _search body (JSON) --&gt;
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "category": "Coffee Shop" } }
+      ],
+      "filter": {
+        "geo_distance": {
+          "distance": "5km",
+          "location": { "lat": 34.05, "lon": -118.25 }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm h-2/5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Notes</div>
+        <ul class="pl-5 list-disc text-sm text-slate-700">
+          <li>Add a distance sort to return closest POIs first.</li>
+          <li>Tune analyzers to improve name matches and reduce false positives.</li>
+          <li>Monitor index refresh interval if you need near-real-time visibility of new POIs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm h-3/5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Design trade-offs</div>
+        <div class="text-sm text-slate-700">
+          Shard for write and query patterns; prefer more shards for join-free, distributed queries but avoid too many tiny shards. Cache hot queries and tune refresh to balance indexing throughput and visibility of new data.
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm h-2/5 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Common mistake</div>
+          <div class="text-sm text-slate-700">Underestimating query load and not caching popular radius queries leads to unnecessary load on the search cluster during peak times.</div>
+        </div>
+        <div class="mt-3 text-xs text-slate-500">Reflection: How will you measure the trade-off between index refresh frequency and overall indexing throughput?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

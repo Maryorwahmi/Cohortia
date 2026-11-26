@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">ECR, Tagging & imagedefinitions.json</h3>
+      <p class="text-sm text-slate-600 mt-2">Store immutable images in ECR and pass the exact image URI to the deployment step via a simple JSON artifact.</p>
+
+      <div class="mt-4 text-sm text-slate-600 space-y-2">
+        <div><strong>Tagging:</strong> Commit-hash tags for immutability; latest for convenience but avoid relying on it for rollback.</div>
+        <div><strong>Artifact:</strong> imagedefinitions.json maps container name to the image URI for CodeDeploy.</div>
+        <div><strong>Check:</strong> Ensure the artifact in S3 contains the expected imageUri before deployment.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] min-h-0">
+      <div class="text-sm font-semibold text-slate-700">Example imagedefinitions.json</div>
+      <div class="mt-3 font-mono text-sm bg-slate-50 p-3 rounded border border-[rgba(226,232,240,0.9)]">[{"name":"my-web-app-container","imageUri":"123456789012.dkr.ecr.us-east-1.amazonaws.com/my-web-app:abc1234"}]</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-700">Why imagedefinitions.json?</div>
+        <div class="text-xs text-slate-600 mt-2">It creates a stable contract between the build and deployment stages so the exact image is deployed, not an inferred tag.</div>
+      </div>
+    </div>
+  </div>
+</div>

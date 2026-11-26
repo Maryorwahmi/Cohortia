@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #ffffff;">
+  <style>
+    .step { border-radius: 12px; border:1px solid rgba(226,232,240,0.9); background: white }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Structured troubleshooting</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[72%]">
+      <div class="step p-5 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+        <h3 class="text-2xl font-bold text-slate-800 mt-2">Underlay → LISP → VXLAN → Policy</h3>
+        <div class="mt-4 grid gap-3">
+          <div class="p-3 rounded-md border border-slate-100">
+            <div class="font-semibold text-slate-800">Step 1 — Underlay</div>
+            <div class="text-xs text-slate-600 mt-1">Ping RLOCs, `show ip ospf neighbor`, `show ip route ospf`, and traceroute to prove basic reachability.</div>
+          </div>
+          <div class="p-3 rounded-md border border-slate-100">
+            <div class="font-semibold text-slate-800">Step 2 — LISP control plane</div>
+            <div class="text-xs text-slate-600 mt-1">Check EID registration with `show lisp site` and `show lisp eid-table` and confirm map-cache entries with `show lisp map-cache`.</div>
+          </div>
+          <div class="p-3 rounded-md border border-slate-100">
+            <div class="font-semibold text-slate-800">Step 3 — VXLAN data plane</div>
+            <div class="text-xs text-slate-600 mt-1">Validate VTEPs, VNI bindings, and MTU to ensure encapsulated traffic is forwarded properly.</div>
+          </div>
+          <div class="p-3 rounded-md border border-slate-100">
+            <div class="font-semibold text-slate-800">Step 4 — Policy</div>
+            <div class="text-xs text-slate-600 mt-1">Use Path Trace to see SGTs and SGACL actions; check ISE Live Logs and `show cts sgt-map` on edge nodes.</div>
+          </div>
+        </div>
+      </div>
+      <div class="step p-5 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete checks</div>
+        <div class="mt-3">
+          <div class="rounded-md p-3 border border-slate-100 bg-white">
+            <div class="text-sm font-semibold text-slate-800">Underlay example</div>
+            <pre class="mt-2"><code>ping 10.255.255.2
+traceroute 10.255.255.2
+show ip ospf neighbor</code></pre>
+            <div class="text-xs text-slate-600 mt-2">If these fail, stop and fix underlay first.</div>
+          </div>
+          <div class="rounded-md p-3 border border-slate-100 bg-white mt-3">
+            <div class="text-sm font-semibold text-slate-800">LISP example</div>
+            <pre class="mt-2"><code>show lisp eid-table vlan 100 summary
+show lisp map-cache 192.168.2.20</code></pre>
+            <div class="text-xs text-slate-600 mt-2">No mapping means the destination endpoint isn’t registered or the control plane is unreachable.</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+            <p class="text-xs font-medium text-slate-800">Jumping to policy changes before confirming underlay and mapping often wastes time and can mask the real fault.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

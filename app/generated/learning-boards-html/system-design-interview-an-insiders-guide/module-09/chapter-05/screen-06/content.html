@@ -1,0 +1,69 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Token Bucket Algorithm</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-2/5 card p-5 flex flex-col">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Concept</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Token Bucket</h2>
+      <p class="mt-3 text-sm text-slate-600">Tokens are added at a steady rate. Requests consume tokens. Tokens allow bursts up to capacity, while the refill enforces the long-term rate.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">When to use</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>User-facing endpoints where bursts are expected and acceptable for short periods.</li>
+          <li>When average throughput must be controlled but momentary bursts aid UX.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="mt-2 text-sm text-slate-700">Token Bucket permits controlled bursts, offering better responsiveness than Leaky Bucket while enforcing an average rate.</div>
+      </div>
+    </div>
+
+    <div class="w-3/5 card p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Conceptual code (visual)</div>
+      <div class="mt-3 bg-slate-100 rounded-lg p-3 text-sm text-slate-800">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+class TokenBucket:
+  def __init__(self, capacity, fill_rate):
+    self.capacity = capacity
+    self.fill_rate = fill_rate
+    self.tokens = capacity
+    self.last_fill_time = current_time()
+
+  def _refill(self):
+    now = current_time()
+    self.tokens = min(self.capacity, self.tokens + (now - self.last_fill_time) * self.fill_rate)
+    self.last_fill_time = now
+
+  def try_consume(self, n=1):
+    self._refill()
+    if self.tokens >= n:
+      self.tokens -= n
+      return True
+    return False
+        </pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-amber-50 rounded-lg">
+          <div class="text-xs font-bold text-amber-700">Analogy</div>
+          <div class="text-sm text-slate-700 mt-2">Tokens are tickets printed at a steady rate; requests need a ticket to go through. Spare tickets allow short lines of arrivals.</div>
+        </div>
+
+        <div class="p-3 bg-rose-50 rounded-lg">
+          <div class="text-xs font-bold text-rose-600">Pitfall</div>
+          <div class="text-sm text-slate-700 mt-2">Allowing large bursts without backend safeguards can temporarily overload downstream services.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

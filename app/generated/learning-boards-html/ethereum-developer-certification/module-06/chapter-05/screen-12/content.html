@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .code{background:#0f172a;color:#e6edf3;padding:12px;border-radius:12px;font-family:ui-monospace,Menlo,monospace;font-size:13px;white-space:pre-wrap;tab-size:2}
+    .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Testing in Hardhat</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4 h-full">
+      <div class="card flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Test Pattern</div>
+        <ol class="text-sm text-slate-700 space-y-2">
+          <li>1) Deploy token, delegate votes to test signers.</li>
+          <li>2) Deploy timelock and governor, grant roles to governor.</li>
+          <li>3) Propose: build calldata and call governor.propose.</li>
+          <li>4) Advance chain time/blocks for votingDelay and votingPeriod.</li>
+          <li>5) Cast votes, mine blocks, assert quorum and state.</li>
+          <li>6) Queue, advance time past timelock, execute, then assert effects.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Test Snippet</div>
+        <div class="code">// advance time in tests
+await ethers.provider.send("evm_increaseTime", [3600 * 24 * 7]);
+await ethers.provider.send("evm_mine");
+
+// vote in tests
+await governor.connect(voter1).castVote(proposalId, 1);
+await governor.connect(voter2).castVote(proposalId, 1);
+
+// queue & execute
+await governor.queue(targets, values, calldatas, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(description)));
+await ethers.provider.send("evm_increaseTime", [minDelay + 100]);
+await ethers.provider.send("evm_mine");
+await governor.execute(targets, values, calldatas, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(description)));
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4 h-full">
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-2">Checks to Assert</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>• Proposal state transitions: Pending → Active → Succeeded → Queued → Executed.</li>
+          <li>• Vote tallies match expected delegated balances.</li>
+          <li>• Token balances and events after execution reflect intended effects.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <div class="text-sm text-slate-800">Write negative tests: failing quorum, late voting, and malformed calldata to ensure the governor rejects unexpected inputs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

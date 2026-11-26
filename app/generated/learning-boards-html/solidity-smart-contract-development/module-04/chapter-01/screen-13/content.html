@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Reference & Lab</span>
+      <span>›</span>
+      <span class="text-slate-700">Ether Vault Activity</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mt-3">Lab: implement vulnerable and secure vaults</h3>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Vulnerable contract (starter)</div>
+      <pre class="text-sm text-slate-700 mt-2 p-2 bg-slate-50 rounded" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract EtherVaultVulnerable {
+    mapping(address =&gt; uint256) public deposits;
+
+    function deposit() public payable {
+        deposits[msg.sender] += msg.value;
+    }
+
+    function withdraw(uint256 _amount) public {
+        require(deposits[msg.sender] &gt;= _amount, "Insufficient funds");
+
+        // TODO: make an external call here BEFORE updating state to create the vulnerability
+
+        // deposits[msg.sender] -= _amount; // update state AFTER external call to be vulnerable
+    }
+
+    function getContractBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+}
+      </pre>
+    </div>
+    <div class="bg-white rounded-xl p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Lab steps & test plan</div>
+      <ol class="text-sm text-slate-600 list-decimal pl-5 mt-2 space-y-2">
+        <li>Complete withdraw to call msg.sender.call{{value:_amount}} before decrementing deposits.</li>
+        <li>Write an attacker contract with a fallback that calls withdraw when receiving Ether.</li>
+        <li>Write Hardhat tests that assert the vulnerable vault is drained and the secure vault resists the exploit.</li>
+      </ol>
+      <div class="mt-4 text-xs text-slate-500">Remember: keep the vulnerable pattern in the starter so you can demonstrate the exploit, and move the state update before the call in the secure contract.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

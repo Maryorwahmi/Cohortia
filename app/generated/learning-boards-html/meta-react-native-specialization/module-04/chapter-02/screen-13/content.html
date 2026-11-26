@@ -1,0 +1,51 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#f8fafc;'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>Putting it all together: recommended patterns</span>
+    </div>
+  </div>
+
+  <div class='rounded-2xl bg-white p-6 card shadow-sm h-full flex flex-col'>
+    <div class='text-xs uppercase tracking-wider text-slate-600 font-bold mb-2'>Architecture</div>
+    <h3 class='text-xl font-bold text-slate-900 mb-3'>Encapsulate and standardize</h3>
+
+    <div class='flex gap-4 flex-1 min-h-0'>
+      <div class='w-1/2 min-h-0'>
+        <div class='rounded-lg p-3 bg-slate-50 h-full'>
+          <div class='font-semibold mb-2'>Suggested api helper design</div>
+          <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#071026; color:#dbeafe; padding:12px; border-radius:8px;'><code>// api.js (concept)
+export const checkedFetch = async (url, options = {}) =&gt; {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    try { const err = await response.json(); throw new Error(err.message || `Status ${response.status}`); } catch(e) { throw new Error(`Status ${response.status}`); }
+  }
+  return response.json();
+};
+</code></pre>
+
+          <div class='mt-3 text-sm text-slate-700'>This helper centralizes checks and parsing so components only call get/post/put/delete helpers and handle results and errors.</div>
+        </div>
+      </div>
+
+      <div class='w-1/2 min-h-0 flex flex-col gap-3'>
+        <div class='rounded-xl p-3 bg-white card border border-slate-100 flex-1'>
+          <div class='font-semibold'>UI patterns</div>
+          <ul class='list-disc pl-5 text-sm text-slate-700 mt-2 space-y-1'>
+            <li>Show clear loading indicators and item-level spinners for actions.</li>
+            <li>Display friendly error messages derived from parsed error bodies.</li>
+            <li>Use optimistic updates with rollback where the UX benefits outweigh complexity.</li>
+          </ul>
+        </div>
+
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Centralize network logic into small helpers to make your components simpler and easier to test or update later.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

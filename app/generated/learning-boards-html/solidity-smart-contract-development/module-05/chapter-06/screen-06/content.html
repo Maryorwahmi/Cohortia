@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f1724;color:#e6eef8;border-radius:8px;padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 h-full card-border shadow-sm grid grid-cols-2 gap-6">
+    <div class="flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Counter.sol (excerpt)</div>
+      <div class="mt-3 code overflow-auto text-xs" aria-hidden="true">// contracts/Counter.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Counter {
+  uint public count;
+
+  constructor() {
+    count = 0;
+  }
+
+  function increment() public {
+    count++;
+  }
+
+  function decrement() public {
+    require(count > 0, "Count cannot go below zero");
+    count--;
+  }
+
+  function getCount() public view returns (uint) {
+    return count;
+  }
+}
+</div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-lg font-bold text-slate-900">test/Counter.js (excerpt)</div>
+      <div class="mt-3 code overflow-auto text-xs" aria-hidden="true">const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("Counter", function () {
+  let Counter;
+  let counter;
+  let owner;
+
+  beforeEach(async function () {
+    Counter = await ethers.getContractFactory("Counter");
+    [owner] = await ethers.getSigners();
+    counter = await Counter.deploy();
+    await counter.deployed();
+  });
+
+  it("Should set the initial count to 0", async function () {
+    expect(await counter.getCount()).to.equal(0);
+  });
+
+  it("Should increment the count by 1", async function () {
+    await counter.increment();
+    expect(await counter.getCount()).to.equal(1);
+  });
+
+  it("Should revert if count is already 0", async function () {
+    await expect(counter.decrement()).to.be.revertedWith("Count cannot go below zero");
+  });
+});
+</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <p class="text-sm text-slate-800 mt-1">Missing await on transactions or not redeploying per test can cause flaky or interdependent tests.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

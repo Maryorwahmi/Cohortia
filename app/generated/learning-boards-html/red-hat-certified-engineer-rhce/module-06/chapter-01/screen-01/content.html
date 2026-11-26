@@ -1,0 +1,95 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background: #fbfdff;">
+  <style>
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    .icon { width:24px;height:24px }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Automating User and Group Management</span>
+  </div>
+
+  <div class="flex gap-6 items-start h-full">
+    <div class="flex-1 min-h-0">
+      <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-3xl font-bold leading-tight text-slate-800">Automating User and Group Management</div>
+            <div class="text-sm text-slate-500 mt-2">Define user and group state with playbooks to ensure consistent access and safe deletions.</div>
+          </div>
+          <div class="text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded">Interactive 16:9 Masterclass</div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 gap-3">
+          <div class="rounded-xl bg-blue-50 p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">In this lesson</div>
+            <div class="text-sm text-slate-800">User & group modules, UID/GID, append behavior, deletion safety.</div>
+          </div>
+          <div class="rounded-xl bg-violet-50 p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Live demo</div>
+            <div class="text-sm text-slate-800">Create qa_team and two users, run playbook, verify with id and getent.</div>
+          </div>
+          <div class="rounded-xl bg-amber-50 p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common pitfall</div>
+            <div class="text-sm text-slate-800">Forgetting append: yes removes existing secondary groups.</div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex-1">
+          <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+            <div class="flex items-center gap-3">
+              <svg class="icon text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"></path><path d="M5 12h14"></path><path d="M12 22v-6"></path></svg>
+              <div>
+                <div class="text-sm font-bold text-slate-800">Quick visual</div>
+                <div class="text-xs text-slate-500">Users and groups declared in YAML become the single source of truth for target hosts.</div>
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-4">
+              <div class="rounded-lg bg-white p-3 border card-border">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Playbook</div>
+                <pre class="text-xs p-2 bg-slate-50 rounded" style="white-space:pre-wrap;tab-size:2;margin:0">- name: Create qa_team group
+  ansible.builtin.group:
+    name: qa_team
+    gid: 2005
+    state: present</pre>
+              </div>
+              <div class="rounded-lg bg-white p-3 border card-border">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Verify</div>
+                <pre class="text-xs p-2 bg-slate-50 rounded" style="white-space:pre-wrap;tab-size:2;margin:0">$ id qa_lead
+uid=1005(qa_lead) gid=2005(qa_team) groups=2005(qa_team)
+$ getent group qa_team
+qa_team:x:2005:qa_lead,qa_engineer</pre>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-96 min-h-0">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full flex flex-col">
+        <div class="text-xs uppercase tracking-wider text-slate-600">Visual concept</div>
+        <div class="mt-3 flex flex-col gap-3">
+          <div class="rounded-lg bg-emerald-50 p-3">
+            <div class="text-sm font-bold text-emerald-700">Desired state</div>
+            <div class="text-xs text-slate-700">Declare users and groups once, apply to many hosts.</div>
+          </div>
+          <div class="rounded-lg bg-rose-50 p-3">
+            <div class="text-sm font-bold text-rose-600">Danger</div>
+            <div class="text-xs text-slate-700">Omitting append can remove secondary group memberships.</div>
+          </div>
+          <div class="rounded-lg bg-violet-50 p-3 mt-auto">
+            <div class="text-sm font-bold text-violet-700">Audit</div>
+            <div class="text-xs text-slate-700">Test playbooks in staging before production runs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

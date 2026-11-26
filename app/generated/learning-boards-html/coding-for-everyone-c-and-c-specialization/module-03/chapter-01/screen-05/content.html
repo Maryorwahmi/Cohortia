@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  <style>    .code-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}  </style>  <div class="flex h-full gap-4">    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>      <div class="text-lg font-bold text-slate-800">Allocate inside a function</div>      <div class="text-sm text-slate-600 mt-2">Follow this safe sequence to allocate and hand back memory:</div>      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600">        <li>Pass the pointer's address: function(int **p)</li>        <li>Inside function, call malloc and assign to *p</li>        <li>Check *p for NULL before use</li>        <li>Initialize **p if needed</li>        <li>Caller frees and nulls the pointer when done</li>      </ol>      <div class="mt-4 rounded-lg bg-amber-50 p-3">        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pitfall</div>        <div class="text-sm text-slate-800 mt-1">If you assign a local copy of the pointer instead of writing *p, the caller's pointer remains unchanged and the allocated block is lost.</div>      </div>    </div>    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">      <div class="text-sm font-semibold text-slate-800">Annotated Code Example</div>      <pre class="code-pre bg-slate-50 rounded-md p-3 mt-3 border card-border"><code>void modifyPointer(int **ptr_ref) {
+  // Allocate and store into caller's pointer
+  *ptr_ref = (int *)malloc(sizeof(int));
+  if (*ptr_ref != NULL) {
+    **ptr_ref = 100; // initialize allocated int
+  }
+}
+
+int main() {
+  int *myPtr = NULL;
+  modifyPointer(&myPtr); // pass address of pointer
+  if (myPtr != NULL) {
+    printf("Value: %d
+", *myPtr);
+    free(myPtr); // caller frees
+    myPtr = NULL; // avoid dangling pointer
+  }
+  return 0;
+}
+</code></pre>      <div class="mt-4">        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          <p class="text-xs font-medium text-slate-800">Pass &pointer when the function must allocate or reset it. Always check malloc results and have the caller own the free step.</p>        </div>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

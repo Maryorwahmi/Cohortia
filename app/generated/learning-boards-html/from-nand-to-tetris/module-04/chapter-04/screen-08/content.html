@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:14px;} .chip{background:#eef2ff;color:#2563eb;padding:6px 8px;border-radius:8px;font-weight:700;font-size:12px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Translating C-instructions</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-3">C-instruction parse & encode</h3>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card">
+      <div class="text-sm font-semibold text-slate-800">Parsing rules</div>
+      <div class="mt-2 text-sm text-slate-700">Split on '=' for dest and on ';' for jump. If '=' missing, dest is empty. If ';' missing, jump is empty. The remaining middle part is comp. Use the Code module to map each fragment to bits.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Assembly example</div>
+        <div class="text-sm font-semibold text-slate-800">D=A</div>
+        <div class="mt-1 text-sm text-slate-700">dest→D, comp→A, jump→(none). Lookup comp bits for A, dest bits for D, then assemble 111 + a + comp + dest + jump.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card">
+      <div class="text-sm font-semibold text-slate-800">Combining bits</div>
+      <div class="mt-2 text-sm text-slate-700">The output layout is fixed. Start with the 3-bit opcode 111, then the a bit, then the 6-bit comp field, the 3-bit dest, and the 3-bit jump. Test individual table entries frequently to ensure correctness.</div>
+
+      <div class="mt-4 text-sm text-slate-600">Misconception check: comp, dest, and jump are not variable-length fields; the assembler must always produce the exact bit widths required by the Hack machine.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Separate parsing from code lookup: return a structured instruction (dest, comp, jump) and then translate with your Code module for easier testing.</p>
+      </div>
+    </div>
+  </div>
+</div>

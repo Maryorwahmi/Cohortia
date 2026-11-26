@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">PIM-SM Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Topology and config snippets</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm font-mono overflow-auto" style="white-space:pre-wrap; tab-size:2;">!-- R1 (RP)
+R1(config)# interface Loopback0
+R1(config-if)# ip address 1.1.1.1 255.255.255.255
+R1(config-if)# ip pim sparse-mode
+R1(config-if)# exit
+
+R1(config)# interface GigabitEthernet0/0
+R1(config-if)# ip address 10.0.0.1 255.255.255.0
+R1(config-if)# ip pim sparse-mode
+R1(config-if)# no shut
+
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip address 10.0.1.1 255.255.255.0
+R1(config-if)# ip pim sparse-mode
+R1(config-if)# no shut
+
+R1(config)# access-list 1 permit 239.1.1.1
+R1(config)# ip pim rp-address 1.1.1.1 group-list 1
+
+!-- R3 (receiver) example
+R3(config)# interface GigabitEthernet0/1
+R3(config-if)# ip address 192.168.20.1 255.255.255.0
+R3(config-if)# ip pim sparse-mode
+R3(config-if)# ip igmp join-group 239.1.1.1
+R3(config-if)# no shut
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">What to watch</div>
+      <ul class="list-disc ml-5 text-slate-700 space-y-2">
+        <li>R2 sends source registrations to the RP.</li>
+        <li>RP forwards via the shared tree to R3’s router once R3 joins.</li>
+        <li>Last-hop may switch to SPT creating (S,G) entries visible in show ip mroute.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A lab with static RP mappings is a controlled way to observe registrations, shared trees, and SPT switchover behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

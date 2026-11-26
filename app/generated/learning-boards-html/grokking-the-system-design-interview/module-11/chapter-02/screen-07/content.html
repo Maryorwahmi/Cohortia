@@ -1,0 +1,37 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.arrow{font-size:20px;color:#94a3b8}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='h-full rounded-xl bg-white p-4 card-border shadow-sm flex flex-col'>
+    <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Process Flow</div>
+    <div class='text-xl font-bold text-slate-800 mb-2'>Fanout: Push vs Pull</div>
+    <div class='text-sm text-slate-600 mb-4'>Step through cost and latency trade-offs to pick the right model.</div>
+
+    <div class='flex gap-4 flex-1'>
+      <div class='w-1/2 flex flex-col gap-3'>
+        <div class='rounded-lg bg-blue-50 p-3'>
+          <div class='font-bold text-slate-800'>Fanout-on-write (Push)</div>
+          <div class='text-sm text-slate-600 mt-1'>Write a post into each follower's inbox at creation time. Fast reads, higher write cost.</div>
+        </div>
+        <div class='rounded-lg bg-violet-50 p-3'>
+          <div class='font-bold text-slate-800'>Fanout-on-read (Pull)</div>
+          <div class='text-sm text-slate-600 mt-1'>Store posts once and assemble feeds on read by merging followees' posts. Lower write cost, slower reads.</div>
+        </div>
+        <div class='rounded-lg bg-amber-50 p-3'>
+          <div class='font-bold text-slate-800'>Hybrid</div>
+          <div class='text-sm text-slate-600 mt-1'>Push for typical users, pull for high-fanout accounts; or cache hot authors separately.</div>
+        </div>
+      </div>
+
+      <div class='w-1/2 flex flex-col justify-between'>
+        <div class='rounded-lg bg-white p-4 card-border'>
+          <div class='font-bold text-slate-800 mb-2'>Concrete scenario</div>
+          <div class='text-sm text-slate-600'>A user with 100 followers triggers 100 inserts on push — manageable. A celebrity with 10 million followers makes push impractical without batching, async processing, or a hybrid plan.</div>
+        </div>
+
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Match fanout strategy to the distribution of follower counts and the read/write ratio of your application.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

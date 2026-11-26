@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+      <span class="text-slate-700">Prompting Purchases</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="font-semibold">Server-side listener pattern</div>
+      <pre class="code mt-3"><code>local MarketplaceService = game:GetService("MarketplaceService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RequestPurchaseEvent = ReplicatedStorage:WaitForChild("RequestPurchaseEvent")
+
+RequestPurchaseEvent.OnServerEvent:Connect(function(player, itemId, itemType)
+  if itemType == "Product" then
+    MarketplaceService:PromptProductPurchase(player, itemId)
+  elseif itemType == "GamePass" then
+    MarketplaceService:PromptGamePassPurchase(player, itemId)
+  else
+    warn("Invalid itemType requested: " .. tostring(itemType))
+  end
+end)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This pattern validates itemType server-side and calls the correct Prompt method for the player. Using a RemoteEvent lets the client request the prompt while keeping the server authoritative.</div>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="font-semibold">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">Player clicks "Buy 500 Coins" → LocalScript fires RequestPurchaseEvent with itemId and "Product" → Server receives it and calls PromptProductPurchase for that player.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Do not call prompt functions from the client or trust the client to authorize purchases; the server must be authoritative.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Route purchase requests through the server and call MarketplaceService prompt methods there to keep purchase initiation secure.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

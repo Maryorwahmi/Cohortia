@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#0b1220;color:#e6eef8;padding:14px;border-radius:10px;border:1px solid rgba(226,232,240,0.9);} .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#475569;} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">AT clause</span>
+    </div>
+    <div class="text-lg font-bold text-slate-900 mt-2">Query historical states with AT</div>
+    <div class="text-sm text-slate-600 mt-1">Two common forms: OFFSET for relative time, TIMESTAMP for absolute time.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Examples</div>
+      <pre class="code mt-3">-- Querying data as it was 1 hour ago
+SELECT * FROM my_table AT (OFFSET =&gt; -3600);
+
+-- Querying data as it was at a specific timestamp
+SELECT * FROM my_table AT (TIMESTAMP =&gt; '2023-10-25 12:00:00'::TIMESTAMP_LTZ);
+</pre>
+      <div class="mt-2 text-xs text-slate-500">Use your recorded timestamp to target exact moments. Make sure the timestamp is within retention.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical workflow</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600">
+        <li>Note CURRENT_TIMESTAMP before making changes.</li>
+        <li>Perform updates or deletes.</li>
+        <li>Use AT with your saved timestamp or an OFFSET to read the previous state.</li>
+        <li>Validate results; INSERT rows back if you need to restore them permanently.</li>
+      </ol>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">AT reads past states. Use it to extract and reinsert rows or to compare prior values for debugging and audits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

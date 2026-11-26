@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@keyframes fadeInSlideUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}.animate-in{animation:fadeInSlideUp 0.6s ease-out forwards}.delay-100{animation-delay:0.1s}.delay-200{animation-delay:0.2s}.delay-300{animation-delay:0.3s}.delay-400{animation-delay:0.4s}.delay-500{animation-delay:0.5s}.delay-600{animation-delay:0.6s}.delay-700{animation-delay:0.7s}.delay-800{animation-delay:0.8s}.delay-900{animation-delay:0.9s}.delay-1000{animation-delay:1.0s}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span><span>›</span><span class="text-slate-700">Consuming Pipeline</span></div><h1 class="text-4xl font-extrabold text-slate-900 mb-2 animate-in">Integrating Universal Package Consumption</h1><p class="text-lg text-slate-600 mb-8 animate-in delay-100">Downloading Artifacts in Downstream Pipelines</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-6"><div class="bg-slate-800 rounded-2xl p-5 font-mono text-sm text-white shadow-lg h-full overflow-auto animate-in delay-200"><div class="text-slate-400 mb-3"># azure-pipelines.yml (Consuming Universal Package)</div><pre style="white-space: pre-wrap; tab-size: 2;"><code>trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  universalPackageFeed: 'MyOrgUniversalFeed'
+  universalPackageName: 'MyAppInstallers'
+  universalPackageVersion: '1.0.23456' # Replace with actual version
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Download Universal Package from Azure Artifacts'
+  inputs:
+    azureSubscription: 'YourAzureServiceConnection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az artifacts universal download \
+        --organization $(System.CollectionUri) \
+        --feed $(universalPackageFeed) \
+        --name $(universalPackageName) \
+        --version $(universalPackageVersion) \
+        --path $(Agent.TempDirectory)/downloaded_installers
+
+- script: |
+    echo "Downloaded files:"
+    ls -l $(Agent.TempDirectory)/downloaded_installers
+    cat $(Agent.TempDirectory)/downloaded_installers/README.txt
+  displayName: 'Verify downloaded content'</code></pre></div></div><div class="w-1/2 flex flex-col gap-6"><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 animate-in delay-300"><h3 class="text-xl font-semibold text-slate-800 mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>Pipeline Breakdown</h3><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><strong>Trigger:</strong> Set to <code>none</code> for manual or external triggers (e.g., release pipeline).</li><li><strong>Variables:</strong> Define feed, package name, and the specific version to download.</li><li><strong><code>AzureCLI@2</code> Task:</strong> Executes the <code>az artifacts universal download</code> command.</li><li><strong>Verify Content:</strong> A script step to confirm the package contents were downloaded correctly.</li><li><strong>Permissions:</strong> Service connection needs 'Reader' role on the Azure Artifacts feed.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4 animate-in delay-400"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-sm font-medium text-slate-800">Downstream Azure Pipelines can reliably consume Universal Packages using the <code>AzureCLI@2</code> task, enabling consistent deployment and use of shared artifacts.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

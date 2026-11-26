@@ -1,0 +1,56 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Python Circuit Breaker & Retry Example</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white shadow-sm card-border p-6 flex flex-col'>
+      <div class='text-lg font-bold text-slate-800'>Starter script (read-only)</div>
+      <div class='text-sm text-slate-600 mt-2'>A conceptual Python example shows breaker states and exponential backoff with jitter.</div>
+      <div class='mt-4 overflow-auto rounded-md bg-slate-900 text-white p-3' style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+<pre><code>class CircuitBreaker:
+  def __init__(self, failure_threshold=3, recovery_timeout_seconds=10, timeout_seconds=1):
+    self.failure_threshold = failure_threshold
+    self.recovery_timeout_seconds = recovery_timeout_seconds
+    self.failures = 0
+    self.last_failure_time = None
+    self.state = 'CLOSED'
+
+  def call(self, func, *args, **kwargs):
+    # Check state, allow or block call
+    # On success reset counters, on exception increment and open if threshold reached
+    pass
+
+def retry_with_exponential_backoff(func, max_retries=5, initial_delay=1, jitter_factor=0.5):
+  delay = initial_delay
+  for i in range(max_retries):
+    try:
+      return func()
+    except Exception:
+      if i == max_retries - 1:
+        raise
+      sleep_time = delay + random.uniform(0, delay * jitter_factor)
+      time.sleep(sleep_time)
+      delay *= 2
+</code></pre>
+      </div>
+      <div class='mt-3 text-xs text-slate-500'>Run the script as provided to watch printed transitions and retry timing in the terminal.</div>
+    </div>
+    <div class='flex-1 rounded-2xl bg-white shadow-sm card-border p-6 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Guided walkthrough</div>
+      <ul class='mt-3 space-y-2 text-sm text-slate-700'>
+        <li>• Observe how failures increment counters and trigger the open state.</li>
+        <li>• Watch the recovery timeout and half-open test requests that determine closure.</li>
+        <li>• For retries, note the increasing delay and the jitter variance across attempts.</li>
+        <li>• Modify thresholds to see how sensitive the system becomes to transient errors.</li>
+      </ul>
+      <div class='mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Use this script to safely observe state transitions, then apply similar instrumentation in production code before tuning thresholds.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

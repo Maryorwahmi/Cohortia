@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">TextField with controller</h3>
+      <pre class="mt-4 bg-slate-900 text-white rounded-md p-3">class MyTextInput extends StatefulWidget {
+  const MyTextInput({Key? key}) : super(key: key);
+
+  @override
+  State<MyTextInput> createState() => _MyTextInputState();
+}
+
+class _MyTextInputState extends State<MyTextInput> {
+  final TextEditingController _textController = TextEditingController();
+  String _displayText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _textController.addListener(_updateDisplayText);
+  }
+
+  void _updateDisplayText() {
+    setState(() {
+      _displayText = _textController.text;
+    });
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [ /* TextField and Text display */ ],
+    );
+  }
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation and tips</div>
+      <ul class="mt-3 text-sm text-slate-700 pl-4 space-y-2 list-disc">
+        <li>Initialize controller in State so you can call addListener and dispose later.</li>
+        <li>Prefer controller for programmatic reads and setState for UI updates.</li>
+        <li>Use InputDecoration to provide labelText and hintText that animate when focused.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-rose-50 border-l-4 border-l-rose-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Not disposing controllers leads to memory leaks; always call controller.dispose() in dispose().</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

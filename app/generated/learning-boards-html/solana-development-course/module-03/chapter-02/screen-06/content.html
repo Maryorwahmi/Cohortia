@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter initialize & increment</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-zinc-900 text-white p-4 shadow-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+      <div class="text-sm font-semibold text-white mb-2">Rust (Anchor) — example</div>
+      <pre style="white-space: pre-wrap; tab-size: 2; margin:0;" class="text-sm">
+<code>&lt;!-- Escaped Rust code for display --&gt;
+use anchor_lang::prelude::*;
+
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+
+#[program]
+pub mod my_counter_app {
+  use super::*;
+
+  pub fn initialize(ctx: Context&lt;Initialize&gt;) -&gt; Result&lt;()&gt; {
+    let counter_account = &mut ctx.accounts.counter_account;
+    counter_account.count = 0;
+    msg!("Counter account initialized with count: {}", counter_account.count);
+    Ok(())
+  }
+
+  pub fn increment(ctx: Context&lt;Increment&gt;) -&gt; Result&lt;()&gt; {
+    let counter_account = &mut ctx.accounts.counter_account;
+    counter_account.count += 1;
+    msg!("Counter incremented to: {}", counter_account.count);
+    Ok(())
+  }
+}
+
+#[derive(Accounts)]
+pub struct Initialize&lt;'info&gt; {
+  #[account(init, payer = user, space = 8 + 8)]
+  pub counter_account: Account&lt;'info, Counter&gt;,
+  #[account(mut)]
+  pub user: Signer&lt;'info&gt;,
+  pub system_program: Program&lt;'info, System&gt;,
+}
+
+#[derive(Accounts)]
+pub struct Increment&lt;'info&gt; {
+  #[account(mut)]
+  pub counter_account: Account&lt;'info, Counter&gt;,
+}
+
+#[account]
+pub struct Counter {
+  pub count: u64,
+}
+</code>
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & checks</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><strong>init:</strong> creates counter_account and allocates space.</li>
+        <li><strong>payer = user:</strong> user pays creation cost and must sign.</li>
+        <li><strong>space = 8 + 8:</strong> 8 bytes for Anchor discriminator, 8 bytes for u64 count.</li>
+        <li><strong>mut:</strong> marks accounts whose data will change during the instruction.</li>
+      </ul>
+
+      <div class="mt-4 rounded-md bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common error</div>
+        <div class="text-sm text-slate-800 mt-2">Undersizing space or forgetting payer as a signer causes build or runtime failures when Anchor constructs or writes the account.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Anchor attributes are declarative: they perform the heavy lifting for account creation so you can focus on program logic.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

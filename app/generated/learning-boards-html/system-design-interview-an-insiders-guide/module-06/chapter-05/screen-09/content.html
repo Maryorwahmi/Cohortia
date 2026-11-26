@@ -1,0 +1,38 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Direct Consumer</span>
+  </div>
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm'>
+      <div class='text-sm font-bold text-slate-800'>Consumer (excerpt)</div>
+      <pre class='mt-3 rounded p-3 bg-slate-900 text-slate-100 text-sm'><code>connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+
+# Bind for 'error' and 'warning'
+# channel.queue_bind(exchange='direct_logs', queue=queue_name, routing_key='error')
+# channel.queue_bind(exchange='direct_logs', queue=queue_name, routing_key='warning')
+
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+channel.start_consuming()</code></pre>
+    </div>
+    <div class='bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-600'>Guidance</div>
+      <div class='mt-3 text-sm text-slate-700'>
+        <div class='mb-2'><strong>Exclusive queues:</strong> Tied to a single connection and deleted when it closes — ideal for per-consumer temporary subscriptions.</div>
+        <div class='mb-2'><strong>Acknowledgements:</strong> Use explicit basic_ack for at-least-once processing when message loss is unacceptable.</div>
+        <div class='mb-2'><strong>Binding keys:</strong> Add or remove bindings to control which messages reach this consumer.</div>
+      </div>
+      <div class='mt-auto border-t pt-3'>
+        <div class='text-xs text-slate-600'>Misconception: auto_ack=True makes processing simpler, but it removes safety when consumers crash during work.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

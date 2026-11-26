@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.editor{background:#0b1220;color:#e6edf3;padding:12px;border-radius:10px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Scenario Walkthrough</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800">Starter commands</div>
+      <pre class="editor mt-3"><code>-- Create schema and tables
+CREATE SCHEMA app_data;
+
+CREATE TABLE app_data.products (
+  product_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price NUMERIC(10,2) NOT NULL
+);
+
+CREATE TABLE app_data.orders (
+  order_id SERIAL PRIMARY KEY,
+  product_id INT REFERENCES app_data.products(product_id),
+  quantity INT NOT NULL
+);
+
+-- Create roles
+CREATE ROLE app_backend WITH LOGIN PASSWORD 'AppSecurePass1!';
+CREATE ROLE reporting_user WITH LOGIN PASSWORD 'ReportSecurePass2!';</code></pre>
+    </div>
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800">Granting and verification</div>
+      <pre class="editor mt-3"><code>-- Grant schema usage
+GRANT USAGE ON SCHEMA app_data TO app_backend;
+GRANT USAGE ON SCHEMA app_data TO reporting_user;
+
+-- Grant CRUD to app_backend
+GRANT SELECT, INSERT, UPDATE, DELETE ON app_data.products TO app_backend;
+GRANT SELECT, INSERT, UPDATE, DELETE ON app_data.orders TO app_backend;
+
+-- Grant read-only to reporting_user
+GRANT SELECT ON app_data.products TO reporting_user;</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Verify by opening separate psql sessions as each role and exercising permitted and forbidden operations.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

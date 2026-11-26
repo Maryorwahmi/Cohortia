@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Non-root Dockerfile</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Non-Root Dockerfile: Walkthrough</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-lg border card-border bg-white p-4">
+      <div class="text-sm font-semibold">Dockerfile example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+FROM alpine:latest
+RUN apk add --no-cache nginx && \
+    adduser -D -g 'nginx' nginx && \
+    mkdir -p /var/cache/nginx /var/run/nginx && \
+    chown -R nginx:nginx /var/cache/nginx /var/run/nginx /var/log/nginx && \
+    chmod 755 /var/cache/nginx /var/run/nginx
+
+COPY default.conf /etc/nginx/conf.d/default.conf
+RUN echo "&lt;h1&gt;Hello Secure Nginx!&lt;/h1&gt;" &gt; /usr/share/nginx/html/index.html
+
+USER nginx
+EXPOSE 80
+CMD ["nginx","-g","daemon off;"]
+      </pre>
+    </div>
+
+    <div class="rounded-lg border card-border bg-white p-4">
+      <div class="text-sm font-semibold">Verification steps</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal ml-4 space-y-2">
+        <li>Build the image and run the container.</li>
+        <li>Exec into the container and run whoami to confirm the non-root user.</li>
+        <li>Attempt to write to the root filesystem when --read-only is set to confirm denied writes.</li>
+      </ol>
+      <div class="mt-4 text-xs text-slate-500">Common mistake: omitting chown after COPY. Always set ownership for non-root users.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

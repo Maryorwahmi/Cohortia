@@ -1,0 +1,45 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Producer Example</span>
+  </div>
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm'>
+      <div class='text-sm font-bold text-slate-800'>Producer (excerpt)</div>
+      <pre class='mt-3 rounded p-3 bg-slate-900 text-slate-100 text-sm'><code>import pika
+import time
+
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+channel.exchange_declare(exchange='fanout_logs', exchange_type='fanout')
+channel.exchange_declare(exchange='topic_logs', exchange_type='topic')
+
+def send_message(exchange_name, routing_key, message_body):
+  channel.basic_publish(
+    exchange=exchange_name,
+    routing_key=routing_key,
+    body=message_body
+  )
+  print(f" [x] Sent '{routing_key}':'{message_body}' to {exchange_name}")
+
+# Example sends omitted for brevity
+connection.close()</code></pre>
+    </div>
+    <div class='bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-600'>Notes</div>
+      <div class='mt-3 text-sm text-slate-700'>
+        <div class='mb-2'><strong>Idempotent declarations:</strong> Declaring exchanges from producer is safe; it ensures the endpoint exists.</div>
+        <div class='mb-2'><strong>Routing keys:</strong> Choose keys that match consumer bindings and patterns.</div>
+        <div class='mb-2'><strong>Separation of concerns:</strong> Producer shouldn't bind queues; that stays with topology owners or consumers.</div>
+      </div>
+      <div class='mt-auto border-t pt-3'>
+        <div class='text-xs text-slate-600'>Try it: run the producer with different routing keys while inspecting which consumers receive messages.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

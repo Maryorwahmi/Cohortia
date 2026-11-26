@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">Create a Config Rule for Tagging</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Activity steps</div>
+      <div class="text-sm text-slate-600 mt-2">Create the required-tags rule, test with compliant and noncompliant instances, and clean up.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Step summary</div>
+          <ol class="text-sm text-slate-600 pl-5 list-decimal mt-2">
+            <li>Enable AWS Config and record EC2 instances.</li>
+            <li>Create the required-tags managed rule with Owner as the key.</li>
+            <li>Launch a noncompliant instance and a compliant one to observe results.</li>
+            <li>Decide on notifications or remediation, then clean up test resources.</li>
+          </ol>
+        </div>
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Starter command</div>
+          <pre class="mono text-sm p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2;">aws configservice put-config-rule \
+    --config-rule '{"ConfigRuleName":"ec2-owner-tag-required", "Description":"Checks if EC2 instances have the Owner tag.", "Scope":{"ComplianceResourceTypes":["AWS::EC2::Instance"]}, "Source":{"Owner":"AWS","SourceIdentifier":"REQUIRED_TAGS"}, "InputParameters":"{\"tag1Key\":\"Owner\"}"}' \
+    --region us-east-1</pre>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-3 card-border h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Testing and cleanup</div>
+        <div class="text-sm text-slate-600">After verifying compliance states, terminate test instances and delete the Config rule if it was temporary. If this is a permanent rule, attach notifications and remediation carefully.</div>
+        <div class="mt-4 text-sm font-bold text-slate-800">Reflection</div>
+        <div class="text-sm text-slate-600 mt-2">Would you start enforcement with alerts only or with automated remediation? Choose the least disruptive path for initial rollout.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

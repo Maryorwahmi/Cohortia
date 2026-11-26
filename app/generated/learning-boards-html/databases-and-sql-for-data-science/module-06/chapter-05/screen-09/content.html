@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card {border-radius:12px; border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Database Logs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 bg-white card p-4 shadow-sm flex flex-col gap-3">
+      <div class="text-sm font-bold text-slate-800">Log inspection example</div>
+      <div class="text-xs text-slate-500">Look for severity, timestamp, and repeated patterns</div>
+
+      <div class="bg-slate-50 p-3 rounded-md code text-xs border border-slate-100 overflow-auto">
+<pre class="code">2026-09-01 02:03:12 UTC [12345] ERROR: could not write block 12345 to file "base/16384/67890": No space left on device
+2026-09-01 02:03:12 UTC [12345] LOG: database system was interrupted; last known up at 2026-09-01 01:59:00 UTC
+2026-09-01 02:04:01 UTC [12346] WARNING: duration: 12345.678 ms  execute <unnamed>: SELECT * FROM large_table WHERE user_id = 42;
+2026-09-01 02:05:01 UTC [12347] FATAL: password authentication failed for user "data_user"
+</pre>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <div class="p-3 bg-white rounded-md border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">What to extract</div>
+          <ul class="text-sm text-slate-700 pl-4 list-disc">
+            <li>Timestamp and PID to correlate with system metrics</li>
+            <li>Severity: ERROR or FATAL indicate urgent fixes</li>
+            <li>Repeated warnings show trends, not one-offs</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-white rounded-md border border-slate-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Rotation & Archiving</div>
+          <p class="text-sm text-slate-700">Rotate logs to prevent disk exhaustion and compress older logs for investigations. Keep a short retention window that matches your SLA.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Quick Rule</div>
+        <p class="text-sm text-slate-800">Preserve logs that match the incident window before performing disruptive recoveries or restarts.</p>
+      </div>
+    </div>
+
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="p-4 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Log Filters</div>
+        <p class="text-sm text-slate-700">Use time ranges and severity filters to reduce noise. Grep or a log viewer can quickly surface repeating messages.</p>
+      </div>
+
+      <div class="p-4 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Example Search</div>
+        <pre class="code text-xs"># find errors in a time window
+grep "2026-09-01 02:" postgresql.log | grep -i error</pre>
+      </div>
+
+      <div class="p-4 bg-white card border border-slate-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Scenario</div>
+        <p class="text-sm text-slate-700">If you see 'No space left on device' in logs, prioritize disk cleanup and avoid running heavy maintenance until space is reclaimed.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

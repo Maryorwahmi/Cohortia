@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> .card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex h-full gap-4"> 
+    <div class="w-1/2 p-4 bg-white card"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+      <div class="text-xl font-bold text-slate-900 mb-2">Constructor Injection</div>
+      <pre class="code bg-slate-50 p-3 rounded-md text-sm">public class OrderProcessor
+{
+  private readonly ILogger _logger;
+  public OrderProcessor(ILogger logger)
+  {
+    _logger = logger; // Injected dependency
+  }
+}</pre>
+      <div class="mt-3 text-sm text-slate-700">This approach makes OrderProcessor easy to test because you can pass a mock ILogger from your unit test harness.</div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3"> 
+      <div class="p-4 bg-white card"> 
+        <div class="text-sm font-semibold text-slate-800">Property Injection</div>
+        <div class="text-sm text-slate-700">Useful for optional dependencies but less explicit. Example: public ILogger Logger { get; set; }</div>
+      </div>
+      <div class="p-4 bg-white card"> 
+        <div class="text-sm font-semibold text-slate-800">Method Injection</div>
+        <div class="text-sm text-slate-700">Pass dependency only to the method that needs it: void Process(ILogger logger) — good for transient collaborators.</div>
+      </div>
+      <div class="rounded-xl bg-slate-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Composition Root</div>
+        <div class="text-sm text-slate-700 mt-1">Centralize object creation at startup. This is where you decide which concrete implementations satisfy abstractions for the whole application.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

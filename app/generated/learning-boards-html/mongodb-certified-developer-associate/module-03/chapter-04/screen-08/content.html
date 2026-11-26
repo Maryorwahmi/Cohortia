@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex gap-4 h-full"> 
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col"> 
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-1">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Unique index on productId</div>
+      <div class="text-sm text-slate-600 mb-3">Create a unique index to prevent duplicate product identifiers.</div>
+
+      <pre class="p-3 bg-slate-50 rounded text-sm border card-border"><code>db.products.createIndex({ "productId": 1 }, { unique: true })
+
+// Attempt duplicate insert:
+db.products.insertOne({ "productId": "P001", "name": "Duplicate" })
+// Expect a duplicate key error and insertion failure</code></pre>
+
+      <div class="text-sm text-slate-600 mt-3">Verify indexes with getIndexes() and resolve existing duplicates before creating a unique index in a collection with legacy data.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col"> 
+      <div class="text-sm font-semibold text-slate-700 mb-2">Compound unique example</div>
+      <pre class="p-3 bg-slate-50 rounded text-sm border card-border"><code>// Ensure SKU + color combination is unique
+db.products.createIndex({ "sku": 1, "color": 1 }, { unique: true })</code></pre>
+
+      <div class="text-sm font-semibold text-slate-700 mt-3 mb-1">Misconception</div>
+      <div class="text-sm text-slate-600 mb-3">Unique indexes do not automatically deduplicate existing data. They reject conflicting inserts and updates; you must enforce or fix duplicates before creating the index.</div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div> 
+        <p class="text-xs font-medium text-slate-800">Use unique indexes to enforce important uniqueness constraints, but prepare data and handle duplicate errors gracefully in your application logic.</p> 
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

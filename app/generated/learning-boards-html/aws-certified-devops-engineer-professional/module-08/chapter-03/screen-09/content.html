@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Container image security</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Image build and scan pipeline</h3>
+      <div class="mt-4 grid grid-cols-3 gap-3 flex-1">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="font-semibold text-slate-800">1. Build</div>
+          <div class="text-sm text-slate-700 mt-1">CodeBuild creates the Docker image and tags it.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="font-semibold text-slate-800">2. Push</div>
+          <div class="text-sm text-slate-700 mt-1">Image is pushed to an ECR repository with scanning enabled.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="font-semibold text-slate-800">3. Scan & Gate</div>
+          <div class="text-sm text-slate-700 mt-1">ECR runs a scan and the pipeline checks results before promotion.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Example</div>
+        <div class="mt-2">If the scan reports a critical vulnerability in an OS package, configure the pipeline to fail the promotion stage and notify the team to rebuild with a patched base image.</div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operational notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Enable ECR image scanning on push.</li>
+        <li>Automate gating: fail promotions on critical/high CVEs.</li>
+        <li>Use Inspector-enhanced scanning for deeper coverage if available.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border p-3 bg-white">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">Relying solely on runtime WAF or host protections; scanning during build prevents deploying vulnerable artifacts in the first place.</div>
+      </div>
+    </div>
+  </div>
+</div>

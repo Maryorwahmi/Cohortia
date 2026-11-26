@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Network Security</span>
+    <span>›</span>
+    <span>Chapter Network Troubleshooting</span>
+    <span>›</span>
+    <span class="text-slate-700">firewalld</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Zones and commands</div>
+      <div class="mt-3 flex-1 overflow-hidden">
+        <div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <pre class="text-sm text-slate-700"># Check active zones
+sudo firewall-cmd --get-active-zones
+
+# Assign eth0 to public zone persistently
+sudo firewall-cmd --zone=public --change-interface=eth0 --permanent
+sudo firewall-cmd --reload
+
+# Add rich rule: allow SSH from a specific IP
+sudo firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.100" port port="22" protocol="tcp" accept' --permanent
+sudo firewall-cmd --reload</pre>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Checklist</div>
+            <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+              <li>Decide the appropriate zone for each interface.</li>
+              <li>Use services for common ports and rich rules for granular sources.</li>
+              <li>Reload after making permanent changes and verify with --list-all.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Zones give broad trust levels; rich rules let you narrow access. Always confirm persistence and test from allowed and denied sources.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example cards</div>
+      <div class="mt-3 flex-1">
+        <div class="grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Scenario</div>
+            <div class="text-sm text-slate-600 mt-2">Only allow SSH from the workstation and allow HTTP/HTTPS from anywhere. Implement using a rich rule and service additions respectively, then reload and verify.</div>
+          </div>
+
+          <div class="rounded-lg bg-[rgba(239,102,117,0.05)] p-3 border border-[rgba(239,102,117,0.08)]">
+            <div class="text-xs uppercase tracking-wider text-rose-700 font-bold">Pitfall</div>
+            <div class="text-sm text-slate-600 mt-2">Adding a temporary rule without --permanent will disappear on reboot and can lead to confusion during incident response.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Verify</div>
+            <div class="text-sm text-slate-600 mt-2">sudo firewall-cmd --list-all --zone=public and sudo firewall-cmd --direct --get-all-rules to inspect both rich and direct rules.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

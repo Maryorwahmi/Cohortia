@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CephFS & MDS</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">How CephFS works</div>
+      <p class="text-sm text-slate-600 mt-2">CephFS stores file data in RADOS pools while MDS daemons manage metadata — directories, inodes, and ACLs. This design separates fast path data I/O from metadata operations, enabling scale for different workload profiles.</p>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Operational notes</div>
+        <ul class="list-disc pl-4 mt-2">
+          <li>Deploy multiple MDS daemons for availability and load sharing.</li>
+          <li>Metadata pool sizing and PGs matter for metadata-heavy workloads.</li>
+          <li>Prefer the kernel client when possible for best performance.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use CephFS when applications require POSIX semantics and concurrent mounts; size MDS and metadata pools for expected metadata rates.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Commands to deploy CephFS</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2"># Deploy MDS daemons (example: two instances)
+sudo cephadm shell -- ceph orch apply mds myfs --placement="count=2"
+
+# Create pools needed for CephFS
+sudo cephadm shell -- ceph osd pool create myfs_metadata_pool 64 64
+sudo cephadm shell -- ceph osd pool create myfs_data_pool 128 128
+
+# Create the filesystem
+sudo cephadm shell -- ceph fs new myfs myfs_metadata_pool myfs_data_pool
+
+# Verify status
+sudo cephadm shell -- ceph fs ls
+sudo cephadm shell -- ceph fs status myfs</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

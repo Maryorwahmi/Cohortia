@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, "Roboto Mono", "Courier New", monospace; font-size:0.9rem; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">IaC Security • Terraform</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Insecure Terraform snippet</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm overflow-auto"><code>resource "aws_s3_bucket" "my_app_bucket" {
+  bucket = "my-insecure-app-bucket-12345"
+
+  # No public access blocks, no encryption
+}
+</code></pre>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Scanner findings</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc list-inside">
+          <li>Missing public access block: bucket may be publicly accessible.</li>
+          <li>Missing server-side encryption: stored objects are unencrypted at rest.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Fix IaC at source. Run the scanner in CI and block merges on high-risk misconfigurations.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Remediated Terraform snippet</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm overflow-auto"><code>resource "aws_s3_bucket" "my_app_bucket" {
+  bucket = "my-insecure-app-bucket-12345"
+
+  public_access_block {
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+</code></pre>
+
+        <div class="mt-3 text-sm text-slate-700">After these changes, an IaC scanner such as Checkov or Terrascan should mark the bucket as compliant. The pipeline gate can then allow the template to be applied.</div>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Some teams rely on post-deployment CSPM to find misconfigurations. This is necessary but not a substitute for blocking insecure IaC from being deployed in the first place.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

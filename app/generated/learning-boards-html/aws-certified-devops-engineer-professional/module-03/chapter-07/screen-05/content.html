@@ -1,0 +1,83 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Policy Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800">Policy walkthrough</div>
+      <p class="text-sm text-slate-600 mt-3">This policy groups permissions by resource type and scopes them where possible. Note Resource arrays and restricted action lists. Where precise ARNs are unavailable, add conditions or tags to limit impact.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:PutBucketPolicy",
+        "s3:DeleteBucket",
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::my-app-bucket-*",
+        "arn:aws:s3:::my-app-bucket-*/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:RunInstances",
+        "ec2:TerminateInstances",
+        "ec2:DescribeInstances",
+        "ec2:CreateSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:DeleteSecurityGroup"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateStack",
+        "cloudformation:UpdateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:ValidateTemplate",
+        "cloudformation:CreateChangeSet",
+        "cloudformation:ExecuteChangeSet"
+      ],
+      "Resource": "arn:aws:cloudformation:*:*:stack/MyWebAppStack-*"
+    }
+  ]
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-500">Tip: Replace any "Resource": "*" entries with narrower ARNs or add condition keys to limit regions or tags where possible.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example analysis</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5 space-y-2">
+        <li>S3 actions limited to my-app-bucket-* minimize accidental access to other buckets.</li>
+        <li>EC2 actions often require resource "*"; mitigate by restricting actions and using tagging and separate accounts.</li>
+        <li>CloudFormation actions scoped to stack ARNs reduce the risk of one deployment affecting other stacks.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card">
+        <div class="font-semibold">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-1">Leaving broad permissions during development and forgetting to narrow them before promoting to production.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

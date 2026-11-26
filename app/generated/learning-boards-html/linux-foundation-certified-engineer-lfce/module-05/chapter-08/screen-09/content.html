@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulated Connections</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">SMTP and TLS tests</h3>
+      <pre class="mt-3 p-3 rounded-md bg-slate-50 border text-sm"><code>telnet mail.example.com 25
+# EHLO your_client.com
+# MAIL FROM:<sender@your_client.com>
+# RCPT TO:<recipient@example.com>
+# DATA
+# Subject: Test
+#
+# This is a test message.
+# .
+# QUIT
+
+# STARTTLS test
+openssl s_client -connect mail.example.com:25 -starttls smtp -crlf
+# SMTPS test
+openssl s_client -connect mail.example.com:465 -crlf</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Record numeric SMTP responses. A 250 indicates success; 5xx indicates permanent failure. Use openssl to inspect certificates when TLS is involved.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">IMAP checks</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>telnet mail.example.com 143
+# a1 LOGIN username password
+# a2 LIST "" "*"
+# a3 LOGOUT
+
+# IMAPS
+openssl s_client -connect mail.example.com:993 -crlf</code></pre>
+
+      <div class="mt-3 rounded-lg bg-amber-50 p-3">
+        <div class="text-sm text-slate-800">Example: openssl s_client will print certificate validation errors. If the server presents a chain missing intermediates, remote MTAs or clients may reject your STARTTLS attempt.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use telnet for protocol-level reproduction and openssl s_client for TLS handshakes; both are essential to isolate client vs server issues.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

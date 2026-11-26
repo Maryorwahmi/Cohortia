@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, Menlo, monospace;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid rgba(226,232,240,0.9);} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring Zones and Assigning Interfaces</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="card rounded-xl p-4 h-2/3">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Code Walkthrough</div>
+        <div class="mt-2 text-sm text-slate-800">Example commands to create zones and assign interfaces. Use these as a template in configuration mode on an SRX.</div>
+        <pre class="code mt-3"># Enter configuration mode
+edit
+
+# Create security zones
+set security zones security-zone untrust
+set security zones security-zone trust
+set security zones security-zone dmz
+
+# Assign interfaces to zones and set host-inbound-traffic
+set security zones security-zone untrust interfaces ge-0/0/0.0 host-inbound-traffic system-services ping
+set security zones security-zone trust interfaces ge-0/0/1.0 host-inbound-traffic system-services all
+set security zones security-zone dmz interfaces ge-0/0/2.0 host-inbound-traffic system-services http
+
+# Commit the changes
+commit</pre>
+      </div>
+
+      <div class="p-3 rounded-xl card h-1/3">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc list-inside">
+          <li>Create named zones so policies can reference meaningful contexts.</li>
+          <li>Assign exact physical or logical interfaces to the appropriate zone name.</li>
+          <li>Set host-inbound-traffic to limit services the SRX accepts on those interfaces.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="card rounded-xl p-4 h-1/2">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Concrete example</div>
+        <div class="mt-2 text-sm text-slate-800">Assign your WAN link to untrust and allow ping to verify connectivity, but avoid enabling management services on that interface. Put your internal switch uplink in trust and keep host-inbound-traffic minimal to avoid exposing firewall management to user networks.</div>
+      </div>
+
+      <div class="card rounded-xl p-4 h-1/2">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-700">Common-mistake</div>
+        <div class="mt-2 text-sm text-slate-700">Forgetting to commit or leaving host-inbound-traffic too permissive can create unexpected exposure. Always verify after commit with show security zones.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code-panel{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,"Roboto Mono",monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Test structure</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border bg-white p-5">
+      <div class="text-sm font-bold text-slate-800 mb-2">Test skeleton</div>
+      <div class="code-panel rounded-lg p-3 bg-slate-50 border text-sm text-slate-800">
+        <pre><code>const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("Counter", function () {
+  let counter, owner, addr1, addr2;
+
+  beforeEach(async function () {
+    [owner, addr1, addr2] = await ethers.getSigners();
+    const Counter = await ethers.getContractFactory("Counter");
+    counter = await Counter.deploy();
+    await counter.deployed();
+  });
+
+  it("should have initial count of 0", async function () {
+    expect(await counter.getCount()).to.equal(0);
+  });
+});</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">This skeleton shows the standard pattern: retrieve signers, deploy the contract, and write short, focused it blocks for assertions.</div>
+    </div>
+
+    <div class="rounded-xl border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Practical tips</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li>Prefer fresh deployments in beforeEach for isolation.</li>
+        <li>Keep each test focused on a single observable outcome.</li>
+        <li>Use clear, descriptive test names that explain expected behavior.</li>
+      </ul>
+
+      <div class="mt-auto p-3 rounded-lg border bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Reusing the same contract across tests can hide stateful bugs and make failures dependent on earlier tests.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

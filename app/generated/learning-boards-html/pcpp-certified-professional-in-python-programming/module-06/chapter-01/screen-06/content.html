@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Comparison</span>
+    <span>›</span>
+    <span class='text-slate-700'>Queue implementations</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col'>
+      <div class='text-lg font-bold text-slate-800 mb-2'>Behavior and pitfalls</div>
+      <div class='text-sm text-slate-600 mb-3'>FIFO means order of arrival is preserved. List-based dequeue requires shifting and becomes expensive as size increases.</div>
+
+      <div class='rounded-lg bg-amber-50 p-3 mb-3'>
+        <div class='text-sm font-semibold text-amber-700'>When list fails</div>
+        <div class='text-sm text-slate-700 mt-2'>Using list.pop(0) costs O(n) because it needs to re-index elements. For long-running queues or frequent front removals this degrades performance.</div>
+      </div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Use collections.deque for FIFO operations to keep end operations constant-time and predictable under load.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800 mb-2'>Deque code example</div>
+      <div class='bg-slate-900 text-white rounded-lg overflow-hidden font-mono text-sm p-3' style='white-space:pre-wrap; tab-size:2;'>
+<pre><code>from collections import deque
+
+queue = deque()
+queue.append('Task1')
+queue.append('Task2')
+queue.append('Task3')
+
+if queue:
+  item = queue.popleft()
+  print('Dequeued:', item)
+</code></pre>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-600'>
+        <div class='font-semibold text-slate-800 mb-2'>Use cases</div>
+        <ul class='list-inside list-disc space-y-1'>
+          <li>Processing incoming tasks in arrival order</li>
+          <li>Breadth-first search traversals</li>
+          <li>Simple job schedulers and event dispatchers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

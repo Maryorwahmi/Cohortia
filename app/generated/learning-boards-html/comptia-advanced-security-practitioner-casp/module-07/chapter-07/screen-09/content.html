@@ -1,0 +1,43 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre.code{background:#0f1724;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Volatility Commands</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-900'>Command 1 — Process Listing</div>
+        <pre class='code' style='white-space:pre-wrap;tab-size:2'><code>vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 pslist</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Purpose: Lists running processes and helps spot unusual parent-child relationships.</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-900'>Command 2 — Network Scan</div>
+        <pre class='code' style='white-space:pre-wrap;tab-size:2'><code>vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 netscan</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Purpose: Reveals active and recent network connections tied to processes found in the memory image.</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-900'>Command 3 — Malfind</div>
+        <pre class='code' style='white-space:pre-wrap;tab-size:2'><code>vol.py -f SRV-WEB-001_memory.raw --profile=Win2012R2x64 malfind</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Purpose: Detects suspicious executable memory regions that may contain injected shellcode or hidden modules.</div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-900'>Concrete Walkthrough</div>
+        <div class='text-sm text-slate-600 mt-2'>If pslist shows powershell.exe spawned by a web server, note the PID and then run netscan to locate remote endpoints used by that PID. Run malfind on that PID to extract suspicious code regions for further static analysis.</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Check Your Understanding</div>
+        <div class='text-sm text-slate-700 mt-2'>Ask: If netscan shows an outbound connection but no corresponding process in pslist, what might that indicate about the attacker technique or timeline?</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-600'>Misconception</div>
+        <div class='text-sm text-rose-700 mt-2'>Do not assume a process name alone proves maliciousness—investigate parentage, memory contents, and network context to confirm.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

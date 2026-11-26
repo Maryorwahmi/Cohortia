@@ -1,0 +1,26 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">GET + Decode</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Fetch and decode</div>
+    <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code>URLSession.shared.dataTask(with: url) { data, response, error in
+  if let error = error { /* network error */; return }
+  guard let http = response as? HTTPURLResponse,
+        (200...299).contains(http.statusCode) else { /* status error */; return }
+  guard let data = data else { /* no data */; return }
+  do {
+    let post = try JSONDecoder().decode(Post.self, from: data)
+    // use post
+  } catch { /* decoding error */ }
+}.resume()</code></pre>
+
+    <div class="mt-4 text-sm text-slate-600">Example: fetching /posts/1 returns JSON for a single post; decode Post.self. If the API returns an array instead, decode([Post].self, from: data) to match the shape.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

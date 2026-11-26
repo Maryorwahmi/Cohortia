@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{ background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:12px; }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; font-size:13px; background:#0b1220; color:#dbeafe; padding:10px; border-radius:8px; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">TLS & ACLs</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-2xl font-extrabold text-slate-800">TLS and ACLs</h3>
+        <p class="text-sm text-slate-600 mt-1">Protect transport with TLS and restrict commands and keys with ACLs for least-privilege access.</p>
+      </div>
+      <div class="text-xs uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">Comparison</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">TLS (Transport Encryption)</div>
+        <p class="text-sm text-slate-700">Enable TLS when traffic crosses untrusted networks. TLS provides confidentiality and integrity so credentials and payloads are not visible to on-path attackers.</p>
+        <div class="mt-3 code"># redis.conf
+# enable TLS listeners and certificate paths
+# tls-port 6379
+# tls-cert-file /etc/redis/cert.pem
+# tls-key-file /etc/redis/key.pem
+# tls-ca-cert-file /etc/redis/ca.pem</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Why TLS</div>
+        <p class="text-sm text-slate-700">Without TLS, anyone on the network path can read or inject commands. TLS stops that class of attack but does not replace access control.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">ACLs (Authorization)</div>
+        <p class="text-sm text-slate-700">ACLs let you define users with explicit command and key permissions. Use ACLs to create per-service credentials that can only run required commands against allowed key patterns.</p>
+        <div class="mt-3 code"># Example ACL via ACL SETUSER
+ACL SETUSER myapp +@all -FLUSHALL -CONFIG ~mydata:* on >my_app_password</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Best Practices</div>
+        <ul class="text-sm text-slate-700 mt-2 space-y-1">
+          <li>Create per-app users and avoid a shared superuser password.</li>
+          <li>Combine TLS for confidentiality and ACLs for authorization.</li>
+          <li>Test denied commands to confirm ACLs behave as expected.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

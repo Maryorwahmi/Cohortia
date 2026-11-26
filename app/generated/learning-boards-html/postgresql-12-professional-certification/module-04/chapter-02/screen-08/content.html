@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre.code{background:#06121b;color:#f0fbff;border-radius:12px;padding:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">RETURNING for UPDATE and DELETE</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">UPDATE example from chapter</div>
+      <pre class="code mt-3"><code>UPDATE products
+SET price = price * 1.05
+WHERE category = 'Electronics'
+RETURNING product_id, name, price AS new_price, price * 1.05 AS old_price;
+</code></pre>
+      <div class="text-sm text-slate-600 mt-3">This example demonstrates returning computed columns. Note how expressions are evaluated against the updated row; plan accordingly if you need the pre-update value.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">DELETE with RETURNING</div>
+      <pre class="code mt-3"><code>DELETE FROM orders
+WHERE order_id = 123
+RETURNING *;
+</code></pre>
+      <div class="text-sm text-slate-600 mt-3">Returning * on DELETE is useful for recording the entire deleted row into an audit table or for undo flows.</div>
+    </div>
+    <div class="col-span-2 rounded-xl p-3 bg-white card-border mt-2">
+      <div class="text-sm font-bold text-slate-700">Practical note</div>
+      <p class="text-sm text-slate-600 mt-2">If you need both old and new values reliably, capture old values in a CTE before the UPDATE or use a data-modifying CTE pattern that returns needed columns for subsequent inserts.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

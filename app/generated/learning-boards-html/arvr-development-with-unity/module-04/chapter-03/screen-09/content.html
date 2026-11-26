@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-900">Pinch & Twist Gestures</div>
+      <div class="text-sm text-slate-600 mt-3">Detect two touches, store initial distance and angle, then apply relative transforms during move phases.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800 text-sm">Step 1: On two-touch begin store initialDistance and initialScale.</div>
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-800 text-sm">Step 2: On moved compute currentDistance and scaleFactor = current / initial.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800 text-sm">Step 3: Apply rotation delta from the change in angle between touch vectors.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800 text-sm">Step 4: Clamp localScale to a safe min/max range to protect UX.</div>
+      </div>
+    </div>
+
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">High-level pseudocode</div>
+      <div class="bg-slate-900 text-slate-100 rounded-lg p-3 mono" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo,monospace;">
+<pre><code>// On two-finger begin
+initialDistance = Distance(touch0.pos, touch1.pos)
+initialScale = placedObject.transform.localScale
+initialAngle = AngleBetween(touch0, touch1)
+
+// On moved
+currentDistance = Distance(touch0.pos, touch1.pos)
+scaleFactor = currentDistance / initialDistance
+placedObject.transform.localScale = initialScale * scaleFactor
+
+currentAngle = AngleBetween(touch0, touch1)
+angleDelta = currentAngle - initialAngle
+placedObject.transform.Rotate(0, -angleDelta, 0)
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">UX note: tune sensitivity so small finger jitter doesn't trigger large changes; use smoothing or dead zones as needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

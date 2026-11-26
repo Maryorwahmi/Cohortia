@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Method injection: AutoReprMetaclass</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card rounded-2xl p-4 shadow-sm min-h-0">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code example</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono',monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>class AutoReprMetaclass(type):
+  def __new__(mcs, name, bases, attrs):
+    if '__repr__' not in attrs:
+      def auto_repr(self):
+        attrs_str = ', '.join(f"{k}={getattr(self, k)!r}" for k in self.__dict__)
+        return f"{self.__class__.__name__}({attrs_str})"
+      attrs['__repr__'] = auto_repr
+    return super().__new__(mcs, name, bases, attrs)
+
+class MyData(metaclass=AutoReprMetaclass):
+  def __init__(self, x, y):
+    self.x = x
+    self.y = y
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border p-4 bg-slate-50 min-h-0">
+      <div class="text-sm font-bold text-slate-700">Explanation and example</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>The metaclass injects __repr__ only when the class has not provided one explicitly.</li>
+        <li>The injected method formats instance attributes from the object's dictionary for readable output.</li>
+        <li>Be careful about exposing sensitive data via auto-generated representations.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl bg-white border">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-2">An instance of MyData will print as MyData(x=10, y=20) without the author writing a repr method.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

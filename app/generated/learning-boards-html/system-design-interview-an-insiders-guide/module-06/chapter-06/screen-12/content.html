@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module Scalability & Reliability</span><span>›</span><span>Chapter 6.6</span><span>›</span><span class="text-slate-700">Complex Tasks & Results</span></div><div class="flex flex-col h-full w-full"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Advanced Task Design</div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Beyond Simple Addition: Complex Tasks and Result Retrieval</h1><p class="text-lg text-slate-700">Implementing Image Processing and Querying Task Outcomes</p></div><div class="flex flex-grow gap-6"><div class="flex-1 flex flex-col justify-between"><div class="bg-slate-800 rounded-xl shadow-lg p-5 mb-4 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># 1. Define a complex task in proj/tasks.py</div><pre><code class="language-python">import time
+from proj.celery import app
+
+@app.task
+def process_image(image_id, transformations):
+    """A more complex task simulating image processing."""
+    print(f"Processing image {image_id} with transformations: {transformations}")
+    time.sleep(5) # Simulate heavy image processing
+    processed_url = f"https://cdn.example.com/processed/{image_id}-{'-'.join(transformations)}.jpg"
+    print(f"Image {image_id} processed. URL: {processed_url}")
+    return {"image_id": image_id, "status": "completed", "url": processed_url}</code></pre></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Task Complexity</div><p class="text-xs font-medium text-slate-800">Tasks can accept multiple arguments and return complex data structures, which are then serialized and stored by the result backend.</p></div></div><div class="flex-1 flex flex-col justify-between"><div class="bg-slate-800 rounded-xl shadow-lg p-5 mb-4 font-mono text-sm text-slate-200 overflow-auto"><div class="text-amber-400 mb-2"># 2. Send task and retrieve result from client.py</div><pre><code class="language-python">from proj.tasks import process_image
+import time
+
+print("Sending image processing task...")
+
+async_result_image = process_image.delay("user_upload_123", ["resize_lg", "watermark"])
+print(f"Image processing task sent. Task ID: {async_result_image.id}")
+
+print("
+Waiting for results...")
+
+# Retrieve result (blocks until ready, with timeout)
+image_result = async_result_image.get(timeout=20)
+print(f"Image task result: {image_result}")</code></pre><div class="text-amber-400 mt-4 mb-2"># Client Output (Example)</div><pre><code class="language-text">Sending image processing task...
+Image processing task sent. Task ID: &lt;UUID&gt;
+
+Waiting for results...
+Image task result: {'image_id': 'user_upload_123', 'status': 'completed', 'url': 'https://cdn.example.com/processed/user_upload_123-resize_lg-watermark.jpg'}</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Method: `.get()`</div><p class="text-xs font-medium text-slate-800">The `.get()` method on an `AsyncResult` object allows the client to retrieve the task's return value from the result backend, optionally with a timeout.</p></div></div></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3 mt-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Celery tasks can handle complex logic and return structured results, which clients can retrieve using the `AsyncResult.get()` method from the configured result backend.</p></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

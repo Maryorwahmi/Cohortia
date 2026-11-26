@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@keyframes fadeInSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.animate-in{animation:fadeInSlideUp 0.6s ease-out forwards}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.1</span><span>›</span><span class="text-slate-700">Reconnaissance Tools</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-between"><div class="animate-in"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Reconnaissance Tools</div><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Deep Dive: SMB Enumeration</h2><p class="text-base text-slate-700 mb-6">Discovering users and shares with Nmap scripts and <code>enum4linux</code>.</p></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mb-4 animate-in" style="animation-delay:0.1s"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Nmap SMB Scripts</div><ul class="list-disc list-inside text-sm text-slate-800 space-y-1"><li><code>smb-enum-users.nse</code>: Attempts to enumerate users.</li><li><code>smb-enum-shares.nse</code>: Lists network shares.</li><li>Provides initial insights into user accounts and shared resources.</li></ul></div><div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mb-4 animate-in" style="animation-delay:0.2s"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Enum4linux Capabilities</div><ul class="list-disc list-inside text-sm text-slate-800 space-y-1"><li>Retrieves user lists, group lists, and share lists.</li><li>Often works without authentication (null sessions).</li><li>A comprehensive tool for initial AD recon.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 animate-in" style="animation-delay:0.3s"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Tools like Nmap scripts and <code>enum4linux</code> are essential for unauthenticated enumeration of SMB, revealing valuable user and share information.</p></div></div><div class="w-1/2 flex flex-col justify-center items-center bg-slate-900 rounded-2xl p-6 border border-slate-700 shadow-lg animate-in" style="animation-delay:0.4s"><div class="text-sm font-mono text-emerald-400 w-full mb-4" style="white-space: pre-wrap; tab-size: 2;"># Nmap scripts for SMB enumeration
+nmap --script smb-enum-users.nse,smb-enum-shares.nse -p 445 &lt;DC_IP&gt;
+
+# Enumerate users, groups, and shares with enum4linux
+enum4linux -a &lt;DC_IP&gt;</div><div class="bg-slate-800 p-4 rounded-lg w-full text-sm font-mono text-slate-200" style="white-space: pre-wrap; tab-size: 2;">... (Nmap output for SMB enumeration)
+
+... (enum4linux output)
+[+] Getting domain info for 192.168.1.100
+[+] Getting user info for 192.168.1.100
+        user:[Administrator] rid:[500]
+        user:[Guest] rid:[501]
+        user:[krbtgt] rid:[502]
+        user:[svc_web] rid:[1103]
+[+] Getting group info for 192.168.1.100
+[+] Getting share info for 192.168.1.100
+        Sharename       Type    Comment
+        --------        ----    -------
+        ADMIN$          Disk    Remote Admin
+        C$              Disk    Default share
+        NETLOGON        Disk    Logon server share
+        SYSVOL          Disk    Logon server share
+        Users           Disk    User Home Directories
+...</div><div class="mt-4 text-center text-xs text-slate-400">Output reveals enumerated users and shares.</div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

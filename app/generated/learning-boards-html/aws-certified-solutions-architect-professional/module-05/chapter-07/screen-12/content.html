@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cmd { background:#0f172a; color:#e6eef8; border-radius:8px; padding:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Roboto Mono, monospace; white-space:pre-wrap; tab-size:2 }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudTrail & Config</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full grid grid-cols-2 gap-4">
+    <div class="flex flex-col">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Create a trail and verify events</h3>
+      <p class="text-sm text-slate-600 mt-3">Use the CLI to make a multi-region trail, store logs in a dedicated S3 bucket, and search for PromoteReadReplica events to prove actions were logged.</p>
+
+      <div class="mt-4">
+        <div class="cmd">
+# 1. Create an S3 bucket for CloudTrail logs (ensure unique name)
+aws s3 mb s3://my-dr-audit-logs-ACCOUNT_ID --region us-east-1
+
+# 2. Create the CloudTrail trail
+aws cloudtrail create-trail \
+    --name my-dr-audit-trail \
+    --s3-bucket-name my-dr-audit-logs-ACCOUNT_ID \
+    --is-multi-region-trail \
+    --include-global-service-events \
+    --enable-logging \
+    --region us-east-1
+
+# 3. Verify PromoteReadReplica events
+aws cloudtrail lookup-events \
+    --lookup-attributes AttributeKey=EventName,AttributeValue=PromoteReadReplica \
+    --start-time $(date -v-1H +%s)
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="rounded-lg bg-slate-50 p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Explanation</div>
+        <ul class="text-sm text-slate-600 mt-2 pl-4 list-disc space-y-2">
+          <li>CloudTrail records API calls with parameters such as KmsKeyId; these are auditable events.</li>
+          <li>CloudWatch Logs centralize system and application logs for recovery diagnostics.</li>
+          <li>AWS Config records resource state and can flag non-compliant DR settings automatically.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Configuration and event logs are your primary audit evidence—enable them, secure them, and verify specific event types during DR drills.</p>
+      </div>
+    </div>
+  </div>
+</div>

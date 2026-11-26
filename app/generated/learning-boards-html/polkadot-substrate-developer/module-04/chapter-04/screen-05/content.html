@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;font-size:13px} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Using Config Items</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Dispatchable example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg"><code>&lt;!-- Escaped Rust example --&gt;
+#[weight = 10_000]
+pub fn do_something(origin, value: T::Balance) -&gt; DispatchResult {
+    let sender = ensure_signed(origin)?;
+    ensure!(value &gt;= T::MinTransferAmount::get(), Error::ValueTooLow);
+    let current_items = &lt;Items&lt;T&gt;&gt;::get(&sender).len();
+    ensure!(current_items &lt; T::MaxItemsPerUser::get() as usize, Error::TooManyItems);
+    Ok(())
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Notice how ensure! uses the Get trait for constants and how types are expressed as T::Balance so they match the runtime's concrete type.</div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Ensure checks use T::MinTransferAmount::get() to enforce runtime-provided thresholds.</li>
+        <li>Storage access like &lt;Items&lt;T&gt;&gt; is typed to the pallet's Config so maps carry correct AccountId and item types.</li>
+        <li>If you need mutable parameters after launch, expose storage and a governance-controlled setter rather than baking them into Config alone.</li>
+      </ul>
+
+      <div class="mt-auto grid grid-cols-1 gap-2">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Assuming all chains will use the same numeric width for Balance; rely on the Config trait bounds instead of casting arbitrarily.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

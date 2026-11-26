@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PEXPIRE / PTTL</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Millisecond timeout</div>
+      <div class="bg-slate-900 text-slate-50 rounded-lg p-3 term">
+<pre><code># Set a very short lock for 250 milliseconds
+SET resource:lock "locked"
+PEXPIRE resource:lock 250
+PTTL resource:lock   # returns remaining milliseconds</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        Use PEXPIRE when you need sub-second control. PTTL mirrors TTL but returns milliseconds. This helps reduce tiny race windows in short-lived operations like ephemeral locks or micro-batching windows.
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Pitfalls & practical notes</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Network latency can affect perceived expiry; the value stored is precise but your client may observe small delays.</li>
+        <li>When combining with INCR counters or rate limiting, ensure your token-bucket windows account for boundary cases.</li>
+        <li>Use PERSIST to cancel millisecond expirations when a key must be promoted to permanent storage.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Check your understanding</div>
+          <div class="text-sm text-slate-700">When would you prefer PEXPIRE over EXPIRE? Think short locks and precise rate windows where second precision is too coarse.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

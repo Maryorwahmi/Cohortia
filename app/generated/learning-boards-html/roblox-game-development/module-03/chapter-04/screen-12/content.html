@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2 }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Activity</div>
+      <pre class="mono"><code>-- Script placed inside "LaunchPad"
+local launchPad = script.Parent
+local launchCooldowns = {} -- Track cooldown per player
+
+local LAUNCH_FORCE = 100 -- Adjust for desired launch height
+local COOLDOWN_TIME = 1.5 -- Seconds
+
+local function onLaunchPadTouched(otherPart)
+  local character = otherPart.Parent
+  local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+  local player = game.Players:GetPlayerFromCharacter(character)
+
+  if humanoid and player then
+    local lastLaunchTime = launchCooldowns[player.UserId] or 0
+    if os.time() - lastLaunchTime < COOLDOWN_TIME then return end
+
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if hrp then
+      hrp.Velocity = Vector3.new(0, LAUNCH_FORCE, 0)
+      launchCooldowns[player.UserId] = os.time()
+      print(player.Name .. " launched!")
+    end
+  end
+end
+
+launchPad.Touched:Connect(onLaunchPadTouched)
+print("LaunchPad script initialized!")</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Guidance</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2">
+        <li>Ensure HRP exists before assigning Velocity.</li>
+        <li>Tune LAUNCH_FORCE and COOLDOWN_TIME to match gameplay balance.</li>
+        <li>Per-player tables avoid cross-player interference common with global booleans.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use per-player cooldowns when interactions should be independent across players.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Write-back caching</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">How it behaves</div>
+      <div class="bg-slate-50 p-3 rounded-md text-sm text-slate-700">Writes return success after updating cache; the cache later flushes the data to the primary database asynchronously.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">When to use</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 space-y-1">
+          <li>High write throughput scenarios where latency matters.</li>
+          <li>Workloads tolerant of brief persistence delay or occasional loss.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Primary Risk</div>
+          <p class="text-xs font-medium text-slate-800">Data loss if cache fails before asynchronous persistence completes. Mitigate with replication or durable logs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Operational mitigations</div>
+      <div class="grid gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="font-bold text-emerald-700 text-sm">Replication</div>
+          <div class="text-sm text-slate-700 mt-1">Replicate cache entries to another node to reduce single-node loss risk.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="font-bold text-slate-800 text-sm">Write-ahead logs</div>
+          <div class="text-sm text-slate-700 mt-1">Persist writes to a durable queue before acknowledging, then replay to DB asynchronously.</div>
+        </div>
+
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="font-bold text-blue-700 text-sm">Example</div>
+          <div class="text-sm text-slate-700 mt-1">High-throughput event ingestion can use write-back, accepting an operational plan for durability and replay on failure.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,Helvetica Neue,monospace;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Preventing Cypher Injection</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Code Walkthrough</div>
+        <h2 class="text-2xl font-bold text-slate-800 mt-1">Use parameters, not string concatenation</h2>
+      </div>
+
+      <div class="mt-3 flex-1">
+        <div class="text-sm text-slate-600">Unsafe example (do not use):</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">query = "MATCH (p:Person) WHERE p.name = '" + user_input + "' RETURN p"</pre>
+
+        <div class="text-sm text-slate-600 mt-3">Safe, parameterized example using a driver:</div>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-2">query = "MATCH (p:Person) WHERE p.name = $name RETURN p"
+params = {"name": user_input}
+result = session.run(query, params)</pre>
+
+        <div class="mt-3 text-sm text-slate-600">Explanation: the query text remains constant. The driver sends parameters separately so input cannot change query structure.</div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-xl bg-white p-3 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use parameters for all user input. This prevents injection and lets the DB cache plans.</p>
+        </div>
+        <div class="rounded-xl bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Escaping user strings is not a reliable substitute for parameterization across drivers and languages.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Practical checklist</div>
+      <ul class="list-disc pl-4 mt-2 text-sm text-slate-600 space-y-2">
+        <li>Audit code for any string concatenation into Cypher.</li>
+        <li>Refactor to parameterized queries passed via driver parameter bindings.</li>
+        <li>Log parameters separately from queries when debugging; never log raw user input in plain text.</li>
+        <li>Use least-privilege DB accounts for endpoints that accept user input.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example test</div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <p class="text-sm text-slate-600">Try malicious input like: name = "' RETURN p; DROP NODE" against both patterns in a test environment. The unsafe pattern will fail the test; the parameterized pattern will treat it as data and be safe.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .step { background:white; border:1px solid rgba(226,232,240,0.9); border-radius:12px; } .arrow { color:#2563eb; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">PgBouncer Failover</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="step p-4">
+        <div class="text-sm font-semibold text-slate-800">Step 1 — Primary failure</div>
+        <p class="text-sm text-slate-600 mt-2">HA manager detects primary unreachable via health checks and replication status.</p>
+      </div>
+
+      <div class="step p-4">
+        <div class="text-sm font-semibold text-slate-800">Step 2 — Promotion</div>
+        <p class="text-sm text-slate-600 mt-2">An available standby is elected and promoted to primary by the HA manager, ensuring only one node becomes primary.</p>
+      </div>
+
+      <div class="step p-4">
+        <div class="text-sm font-semibold text-slate-800">Step 3 — PgBouncer update</div>
+        <p class="text-sm text-slate-600 mt-2">HA manager or operator updates PgBouncer’s [databases] mapping to the new primary and reloads PgBouncer.</p>
+      </div>
+
+    </div>
+
+    <div class="flex-1 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Observability checks</div>
+      <ul class="list-disc ml-4 text-sm text-slate-600 space-y-1">
+        <li>Confirm HA manager logs show promotion and leader election.</li>
+        <li>Confirm PgBouncer reloaded and established connections to the new host.</li>
+        <li>Verify application reconnect behavior and absence of stale writes.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Reloading PgBouncer before the new primary is ready causes connection failures. Coordinate the promotion sequence and validate readiness before reloading.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto text-xs text-slate-500">Practice this flow in staging and capture timestamps for each phase to understand your RTO.</div>
+    </div>
+  </div>
+</div>

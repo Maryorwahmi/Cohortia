@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-600">Definition</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">What concurrent.futures provides</h3>
+    <p class="text-sm text-slate-600 mt-1">A higher-level interface that simplifies asynchronous execution using worker pools.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Definition and why it matters</div>
+      <p class="text-sm text-slate-600 mt-2">The module wraps threads and processes in executors that accept callables and return Future objects representing eventual results. This reduces boilerplate and centralizes lifecycle management.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700">Uniform interface for threads & processes</div>
+        <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">Context manager ensures clean shutdown</div>
+        <div class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">Futures provide result, exception, and completion state</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Executors abstract worker pools so you write less lifecycle code and focus on tasks, not threads or processes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-2 text-sm text-slate-700">Submitting download tasks with ThreadPoolExecutor:</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    futures = [executor.submit(download_url, url) for url in urls]
+    for fut in concurrent.futures.as_completed(futures):
+        result = fut.result()</code></pre>
+
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+        <ul class="mt-2 list-disc ml-5 text-sm text-slate-600">
+          <li>Executors simplify management but do not change when the GIL affects CPU-bound code.</li>
+          <li>You still need to handle exceptions that futures re-raise when calling result.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

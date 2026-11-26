@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Restore process</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border p-6 shadow-sm h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Process Flow</div>
+    <h3 class="text-2xl font-bold text-slate-800">Step-by-step restore checklist</h3>
+
+    <div class="mt-4 grid grid-cols-3 gap-3 h-full">
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">1. Stop Cassandra</div>
+        <div class="text-sm text-slate-600 mt-1">Ensure the service is down to avoid file conflicts during copy.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">2. Clear data directories</div>
+        <div class="text-sm text-slate-600 mt-1">Remove existing files for the target keyspace/table. Do not touch system keyspaces.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">3. Copy snapshot files</div>
+        <div class="text-sm text-slate-600 mt-1">Copy the base snapshot files from off-cluster storage into the data directory.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">4. Copy incremental SSTables</div>
+        <div class="text-sm text-slate-600 mt-1">If using incrementals, copy SSTables generated after the base snapshot into the directory.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">5. Start Cassandra</div>
+        <div class="text-sm text-slate-600 mt-1">Bring the node back online after file copy completes.</div>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3">
+        <div class="text-sm font-bold">6. Run nodetool refresh</div>
+        <div class="text-sm text-slate-600 mt-1">Make the copied SSTables visible to Cassandra without a full restart of the data layer.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3">
+        <div class="text-sm font-bold">7. Run nodetool repair</div>
+        <div class="text-sm text-slate-600 mt-1">Ensure the node is reconciled with other replicas so tombstones and missing writes are synchronized.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-rose-50 p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+      <div class="text-sm text-slate-700">Skipping repair can lead to inconsistent data and the resurrection of deleted rows. Always plan repair as a final step.</div>
+    </div>
+  </div>
+</div>

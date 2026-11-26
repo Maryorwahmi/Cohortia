@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Fee Calculation</div>
+      <div class="text-lg font-bold text-slate-900 mb-3">Estimate the network fee</div>
+      <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>cardano-cli transaction calculate-min-fee \
+  --tx-body-file nft_matx.draft \
+  --tx-in-count 1 \
+  --tx-out-count 1 \
+  --witness-count 2 \
+  --byron-witness-count 0 \
+  --protocol-params-file protocol.json \
+  --testnet-magic 1 > nft_fee.txt
+FEE_NFT=$(cat nft_fee.txt | awk '{ print $1 }')
+echo "Calculated NFT fee: $FEE_NFT lovelace"</code></pre>
+      <div class="mt-3 text-sm text-slate-800">Adjust witness-count to reflect the signing keys and scripts you will use when signing. Save and inspect nft_fee.txt to ensure the fee looks reasonable.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Compute change</div>
+      <div class="text-sm text-slate-800 mb-3">Derive the change output so the transaction balances before final build.</div>
+      <pre class="rounded-md bg-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>CHANGE_ADA_NFT=$(( $ADA_IN - $FEE_NFT - $MIN_ADA_REQUIRED_NFT ))
+if [ $CHANGE_ADA_NFT -lt 0 ]; then echo "Error: Insufficient ADA for NFT transaction."; exit 1; fi</code></pre>
+      <div class="mt-auto rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Always validate CHANGE_ADA_NFT is non-negative before building the final transaction to avoid failed builds or insufficient funds at sign time.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

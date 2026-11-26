@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .arrow{font-size:18px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">OrderCreated Flow</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="flex items-center gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">OrderService<br/><span class="text-xs">publishes OrderCreated</span></div>
+        <div class="text-slate-400 arrow">→</div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-700">orders topic<br/><span class="text-xs">durable, replayable</span></div>
+        <div class="text-slate-400 arrow">→</div>
+        <div class="flex gap-2">
+          <div class="p-3 rounded-lg bg-white card-border text-slate-700">InventoryService<br/><span class="text-xs text-slate-500">decrement stock</span></div>
+          <div class="p-3 rounded-lg bg-white card-border text-slate-700">NotificationService<br/><span class="text-xs text-slate-500">send email</span></div>
+          <div class="p-3 rounded-lg bg-white card-border text-slate-700">AnalyticsService<br/><span class="text-xs text-slate-500">record metrics</span></div>
+        </div>
+      </div>
+
+      <div class="mt-5 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold">Event Example</div>
+          <div class="text-sm text-slate-600 mt-1">OrderCreated: orderId, userId, items, totalAmount, timestamp, requestId (idempotency)</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3 text-amber-700">Operational Note: Configure retention for replay and create a dead-letter topic for failed events requiring manual resolution.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Checks & Examples</div>
+      <div class="text-sm text-slate-600">Idempotency key: use requestId to dedupe. Retry policy: exponential backoff with limited attempts, then move to dead-letter. Monitoring: alert on backlog growth in the orders topic.</div>
+
+      <div class="mt-auto rounded-lg bg-emerald-50 p-3 text-emerald-700">Key Takeaway: Model events and consumer actions explicitly so teams can evolve independently and replay historical events when needed.</div>
+    </div>
+  </div>
+</div>

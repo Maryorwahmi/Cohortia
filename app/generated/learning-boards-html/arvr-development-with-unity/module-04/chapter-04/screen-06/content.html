@@ -1,0 +1,85 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ARLightEstimator Code</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code Walkthrough</div>
+      <p class="text-sm text-slate-600 mt-3">This example subscribes to frameReceived and sets ambient and directional lighting using safe HasValue checks and scaling.</p>
+
+      <div class="mt-4 flex-1 overflow-hidden">
+        <div class="rounded-lg bg-slate-900 text-white p-3 h-full">
+          <pre><code>using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+
+public class ARLightEstimator : MonoBehaviour
+{
+    private ARCameraManager arCameraManager;
+
+    void Awake()
+    {
+        arCameraManager = GetComponent&lt;ARCameraManager&gt;();
+    }
+
+    void OnEnable()
+    {
+        arCameraManager.frameReceived += OnCameraFrameReceived;
+    }
+
+    void OnDisable()
+    {
+        arCameraManager.frameReceived -= OnCameraFrameReceived;
+    }
+
+    void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
+    {
+        if (eventArgs.lightEstimation.averageColorTemperature.HasValue)
+        {
+            RenderSettings.ambientLight = Color.white; // Map color temp to a Color in practice
+        }
+
+        if (eventArgs.lightEstimation.averageIntensityInLumens.HasValue)
+        {
+            Light sceneLight = FindObjectOfType&lt;Light&gt;();
+            if (sceneLight != null && sceneLight.type == LightType.Directional)
+            {
+                sceneLight.intensity = eventArgs.lightEstimation.averageIntensityInLumens.Value / 1000f; 
+            }
+        }
+    }
+}
+</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & Tips</div>
+      <ul class="text-sm text-slate-700 mt-3 list-disc pl-4">
+        <li>Always check HasValue before using light estimation fields.</li>
+        <li>Scale lumens to a Unity-friendly range; typical divisor values vary per scene.</li>
+        <li>Cache scene references and avoid heavy calls inside every frame callback.</li>
+        <li>Smooth updates with Lerp to avoid abrupt lighting changes.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Expose your Directional Light via inspector instead of using FindObjectOfType for better performance and reliability.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use frame events to drive lighting but map and smooth values so the scene changes are believable and stable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

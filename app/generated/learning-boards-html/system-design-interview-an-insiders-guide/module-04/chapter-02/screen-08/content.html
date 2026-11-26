@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm p-6 flex flex-col">
+    <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+    <h3 class="text-2xl font-bold text-slate-900">Redis example</h3>
+    <p class="mt-2 text-sm text-slate-700">Namespaced keys, string values, and storing serialized JSON.</p>
+    <div class="mt-4 flex gap-4 flex-1">
+      <div class="w-1/2 bg-slate-50 rounded-lg p-4 border overflow-auto">
+        <div class="font-semibold text-slate-900">Python example (conceptual)</div>
+        <pre class="mt-3 text-sm text-slate-700 bg-white p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+import redis
+import json
+
+# Connect to Redis
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+# Set a key-value pair
+r.set('user:1001:name', 'Alice Smith')
+r.set('user:1001:email', 'alice@example.com')
+
+# Store a more complex object as JSON
+user_profile = {
+  "id": 1002,
+  "name": "Bob Johnson",
+  "email": "bob@example.com",
+  "last_login": "2023-10-26T10:30:00Z"
+}
+r.set('user:1002:profile', json.dumps(user_profile))
+
+# Retrieve and deserialize
+retrieved = json.loads(r.get('user:1002:profile').decode('utf-8'))
+print(retrieved)
+        </pre>
+      </div>
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-lg p-3 bg-white border">
+          <div class="font-semibold text-slate-900">What this shows</div>
+          <div class="text-sm text-slate-700 mt-2">Use clear key naming conventions and client-side serialization. Redis returns the stored blob; parsing happens on the client. This preserves speed but limits server-side queryability.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 border">
+          <div class="font-semibold text-amber-700">When to avoid</div>
+          <div class="text-sm text-slate-700 mt-2">If you need to run queries over nested fields or indexes across fields, prefer a document store or maintain auxiliary indices.</div>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Redis is excellent for low-latency single-key operations; store structured objects as serialized blobs and plan separate systems for complex search.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

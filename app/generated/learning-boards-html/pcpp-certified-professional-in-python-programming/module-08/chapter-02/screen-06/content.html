@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Thread Safety</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-lg font-bold text-slate-800">Process: Protect shared resources</div>
+        <div class="text-sm text-slate-600 mt-2">Three pragmatic options: localize state, serialize access with locks, or use thread-safe queues for communication.</div>
+
+        <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+          <li>Identify shared mutable state accessed by multiple handlers.</li>
+          <li>Use threading.Lock for short critical sections to enforce atomicity.</li>
+          <li>Prefer queue.Queue for producer-consumer workflows to avoid manual locking.</li>
+          <li>Keep locks coarse enough to be correct but fine enough to avoid blocking other threads unnecessarily.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4 rounded-xl border border-slate-100 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Test concurrency with tools that simulate many simultaneous handlers; race conditions often only appear under load.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-sm font-semibold text-slate-700">Example scenario</div>
+      <div class="mt-3 text-sm text-slate-600">Suppose handlers update a global list of active usernames. Without a lock, two handlers adding simultaneously may corrupt list internals or lose entries. Wrap the mutation in a lock or send username updates through a queue processed by a single thread.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Locks and queues are simple, effective defenses; minimize shared state to reduce synchronization needs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Call vs Transaction</span>
+  </div>
+
+  <div class="flex gap-6 flex-grow">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">Read-only Call</div>
+      <div class="text-sm text-slate-700">Use for view or pure functions. Quick, no gas, returns decoded result.</div>
+      <pre class="bg-slate-50 p-3 rounded mt-3"><code>// Example: retrieve
+const value = await storageContract.methods.retrieve().call();
+console.log('Stored value:', value);</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">State-changing Transaction</div>
+      <div class="text-sm text-slate-700">Use .send() with gas and a from address. Requires signing and consumes gas.</div>
+      <pre class="bg-slate-50 p-3 rounded mt-3"><code>// Example: store
+await storageContract.methods.store(100).send({ from: userAddress });
+// Wait for receipt to confirm state change</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border p-3 bg-white card shadow-sm">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="p-3 bg-amber-50 rounded">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">When to Call</div>
+        <div class="text-sm text-slate-700">For diagnostics and UI reads without side effects.</div>
+      </div>
+      <div class="p-3 bg-rose-50 rounded">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">When to Send</div>
+        <div class="text-sm text-slate-700">When you intend to change state and accept gas costs.</div>
+      </div>
+      <div class="p-3 bg-emerald-50 rounded">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Tip</div>
+        <div class="text-sm text-slate-700">Always test with call before send to validate ABI and address.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

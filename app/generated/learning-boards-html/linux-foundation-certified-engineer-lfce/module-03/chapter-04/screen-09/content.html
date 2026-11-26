@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Samba fundamentals</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">What Samba provides</div>
+      <p class="text-sm text-slate-600">Samba exposes SMB/CIFS shares so Windows and other clients can list, connect, and read or write files using Samba users and optional domain integration. The server is driven by /etc/samba/smb.conf.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Example configuration</div>
+        <pre class="mt-1 p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># /etc/samba/smb.conf
+[global]
+    workgroup = WORKGROUP
+    server string = Samba Server %v
+    netbios name = SAMBASERVER
+    security = user
+    map to guest = Bad User
+
+[public]
+    comment = Public Share
+    path = /srv/samba/public
+    browseable = yes
+    read only = no
+    guest ok = yes
+    create mask = 0664
+    directory mask = 0775</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Operational tips</div>
+      <ul class="list-disc ml-5 mt-2 text-sm text-slate-600 space-y-2">
+        <li>Use testparm to validate smb.conf before restarting services.</li>
+        <li>Create Samba users separate from system accounts using smbpasswd -a.</li>
+        <li>Adjust create and directory mask so new files have expected permissions.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-slate-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Samba is a configuration-driven service; file permissions and SELinux still determine actual access regardless of share settings.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

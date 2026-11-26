@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Trending Pipeline</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Stream processing steps</div>
+      <ol class="list-decimal list-inside mt-3 text-sm text-slate-700 space-y-2">
+        <li>Post Service emits events to Kafka.</li>
+        <li>Stream processor extracts hashtags/keywords from each post event.</li>
+        <li>Processor updates counts within sliding windows (e.g., 5 minutes).</li>
+        <li>Top terms are stored in a Trending Cache (Redis) for fast reads.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">Example: a sudden burst of '#coffee' mentions in a 5-minute window produces a spike that moves '#coffee' into the top-K trending list stored with a short TTL so the UI shows fresh topics.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Challenges</div>
+      <ul class="text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>State volume: many distinct hashtags increase memory and storage needs for windows.</li>
+        <li>Noise and spam: require filtering or scoring to reduce irrelevant trends.</li>
+        <li>Geographic and temporal granularity: choose windows and partitions carefully for region-specific trends.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Sliding, windowed aggregation is the right model for trends; persistent cumulative counts do not capture what is trending now.</p>
+      </div>
+    </div>
+  </div>
+</div>

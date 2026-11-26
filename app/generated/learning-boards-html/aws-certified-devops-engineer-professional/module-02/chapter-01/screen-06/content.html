@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Fine-grained IAM policies for CodeCommit</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-bold">Policy design pattern</div>
+      <div class="text-sm text-slate-600 mt-2">Map actions to roles and repository resources to reduce privileges.</div>
+
+      <div class="mt-6 space-y-3 text-sm text-slate-700">
+        <div><strong>Principle:</strong> grant the minimum actions required to perform a task, scoped to repository ARNs and branch refs.</div>
+        <div><strong>Example mapping:</strong> Developers: codecommit:GitPull, codecommit:CreatePullRequest; Leads: codecommit:MergePullRequest.</div>
+        <div><strong>Use denies:</strong> explicitly deny codecommit:GitPush to master for developer group to prevent direct pushes.</div>
+      </div>
+
+      <div class="mt-6 bg-white rounded-lg p-4 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Scenario</div>
+        <div class="text-sm text-slate-700 mt-2">A team enforces Gitflow: only release managers can merge into master. Give feature authors push access to feature branches and PR creation rights, but deny push to master and require approvers for merges.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 grid grid-rows-3 gap-4">
+      <div class="rounded-xl p-4 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Policy snippet (illustrative)</div>
+        <div class="text-sm text-slate-600 mt-2">State resource ARNs that include the repository name and use conditions for branch refs. Combine Allow and Deny statements to protect critical refs.</div>
+      </div>
+
+      <div class="rounded-xl p-4 border border-[rgba(226,232,240,0.9)] bg-violet-50">
+        <div class="text-xs uppercase tracking-wider text-violet-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Relying solely on an admin role instead of building scoped policies. Broad policies make accidental destructive actions more likely.</div>
+      </div>
+
+      <div class="rounded-xl p-4 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-2">How would you prevent developers from pushing directly to master while still allowing them to create pull requests?</div>
+      </div>
+    </div>
+  </div>
+</div>

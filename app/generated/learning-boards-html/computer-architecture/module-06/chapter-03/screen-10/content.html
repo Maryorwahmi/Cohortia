@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Renaming Process Walkthrough</h3>
+    <p class="mt-1 text-sm text-slate-600">A step-by-step trace showing RAT updates and free-list allocations.</p>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Initial state</div>
+      <pre class="mt-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">RAT[R1] = P1
+RAT[R2] = P2
+RAT[R3] = P3
+Free list: P8, P9, P10, ...</pre>
+
+      <div class="mt-3 text-sm font-semibold text-slate-800">Instruction steps</div>
+      <ol class="mt-2 text-sm text-slate-600 list-decimal list-inside">
+        <li>ADD R1, R2, R3: read P2,P3; allocate P8; RAT[R1]=P8; old P1 saved.</li>
+        <li>SUB R4, R1, R5: read P8 (R1), P5; allocate P9; RAT[R4]=P9.</li>
+        <li>MUL R1, R6, R7: read P6,P7; allocate P10; RAT[R1]=P10; save P8.</li>
+      </ol>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Explanation and effects</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+        <li>All three destinations have distinct physical registers and can be written in parallel.</li>
+        <li>Consumers read the correct physical register depending on when they resolve sources.</li>
+        <li>Old physical registers are reclaimed on commit, avoiding premature reuse.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-md bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check your understanding</div>
+        <p class="mt-2 text-sm text-amber-700">How many physical registers are temporarily reserved after the third instruction executes but before any commit? Consider the allocated P8, P9, P10 and the old entries reserved for freeing.</p>
+      </div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Renaming lets multiple writes to the same architectural register proceed in parallel by allocating distinct physical registers and delaying frees until commit.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

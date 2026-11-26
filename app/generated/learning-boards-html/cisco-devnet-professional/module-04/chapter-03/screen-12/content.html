@@ -1,0 +1,27 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span><span>›</span><span>Chapter 4.3</span><span>›</span><span class="text-slate-700">Updating Interface Description (PATCH)</span></div><div class="flex flex-col lg:flex-row h-full gap-6"><div class="lg:w-1/2 flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Practical Example</div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Updating Interface Description (PATCH)</h2><p class="text-lg text-slate-700 mb-6">Performing granular configuration changes with Python `requests`.</p><div class="bg-white rounded-xl p-4 shadow-lg border border-slate-200 mb-6"><div class="font-semibold text-slate-800 mb-2">Function Breakdown</div><ul class="list-disc list-inside text-sm text-slate-600 space-y-1"><li><strong>Target URL:</strong> Same as GET, pointing to the specific interface resource.</li><li><strong>Payload for PATCH:</strong> Contains only the fields to be modified (e.g., <code>description</code>), structured according to the YANG model.</li><li><strong>HTTP PATCH Request:</strong> Uses <code>requests.patch()</code> to send the partial update.</li><li><strong>Status Check:</strong> <code>response.raise_for_status()</code> confirms successful execution or catches errors.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The PATCH method is ideal for making targeted, partial updates to existing configurations, requiring only the modified data in the payload.</p></div></div><div class="lg:w-1/2 flex flex-col justify-center items-center bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-700"><div class="text-lg font-semibold text-white mb-4">Python `update_interface_description` Function</div><pre class="bg-gray-800 text-white p-4 rounded-lg text-xs overflow-x-auto w-full" style="white-space: pre-wrap; tab-size: 2;"><code>def update_interface_description(interface_type, interface_name, new_description):
+    """Updates the description of a specific interface."""
+    url = f"{BASE_URL}/Cisco-IOS-XE-native:native/interface/{interface_type}={interface_name}"
+    
+    payload = {
+        interface_type: [
+            {
+                "name": interface_name,
+                "description": new_description
+            }
+        ]
+    }
+    
+    print(f"
+--- Attempting PATCH to: {url} with payload: ---")
+    print(json.dumps(payload, indent=2))
+
+    try:
+        response = requests.patch(url, auth=(USER, PASS), headers=HEADERS, data=json.dumps(payload), verify=False)
+        response.raise_for_status()
+        
+        print(f"Status Code: {response.status_code}")
+        print("Interface description updated successfully.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating interface description: {e}")
+        if response and response.text:
+            print(f"Response content: {response.text}")</code></pre><div class="mt-4 text-sm text-slate-400 text-center w-full"><p>This function uses a PATCH request to update only the description field of an interface.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

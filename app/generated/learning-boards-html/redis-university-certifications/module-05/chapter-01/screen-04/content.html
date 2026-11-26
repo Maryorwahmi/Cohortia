@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:16px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Master‑Replica Architecture</span>
+    </div>
+    <div class="flex gap-4 h-[62%]">
+      <div class="w-1/2 card p-5">
+        <div class="text-sm font-bold text-slate-900">Definition</div>
+        <p class="text-sm text-slate-700 mt-3">A master accepts all writes and streams updates to connected replicas. Replicas apply those updates and serve read requests. This design separates write responsibility from read scaling and redundancy.</p>
+        <div class="mt-4 grid gap-3">
+          <div class="p-3 rounded-lg bg-blue-50 text-blue-800">Master: authoritative writer, produces RDB snapshots and streams commands.</div>
+          <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Replica: receives snapshot, replays buffered and streamed commands, serves reads.</div>
+          <div class="p-3 rounded-lg bg-amber-50 text-amber-800">Use case: scale many read clients by distributing reads to replicas.</div>
+        </div>
+      </div>
+      <div class="w-1/2 card p-5">
+        <div class="text-sm font-bold text-slate-900">Example scenario</div>
+        <div class="mt-3 text-sm text-slate-700">A web app writes user profile updates to the master. Multiple web servers read profile data from replicas to reduce latency and protect the master from read spikes. If the replica lag is small, most reads return fresh data; if the replica lags, read operations may see slightly stale profiles.</div>
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Check your understanding</div>
+          <div class="p-3 rounded-lg bg-white border text-sm">Which operations must always go to the master to guarantee immediately visible writes? Write operations that require immediate visibility.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Treating replicas as instant backups and relying on them for strong consistency.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Route writes to master and send idempotent or eventually consistent reads to replicas.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-700 mt-2">Architecture defines where to send different traffic to balance performance and consistency.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">ConfigurationManager Lab</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter template</div>
+      <div class="rounded-lg bg-slate-50 border p-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;">
+<pre><code>import configparser
+import os
+
+class ConfigurationManager:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, config_file="config.ini"):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self, config_file="config.ini"):
+        if not self._initialized:
+            self.config = configparser.ConfigParser()
+            self.config_file = config_file
+            self._load_config()
+            self._initialized = True
+
+    def _load_config(self):
+        if os.path.exists(self.config_file):
+            self.config.read(self.config_file)
+            print(f"Configuration loaded from {self.config_file}")
+        else:
+            print(f"Warning: Config file '{self.config_file}' not found. Using empty configuration.")
+            self.config = configparser.ConfigParser()
+
+    def get_setting(self, section, key, default=None):
+        try:
+            return self.config.get(section, key)
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            print(f"Warning: Setting '{key}' not found in section '{section}'. Returning default: {default}")
+            return default
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Testing checklist</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700">
+        <li>Create a config.ini with database and API sections and values.</li>
+        <li>Instantiate ConfigurationManager("config.ini") and confirm values via get_setting.</li>
+        <li>Instantiate again with a different filename and confirm the same object is returned.</li>
+        <li>Test behavior when the specified file does not exist and confirm default handling.</li>
+      </ol>
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs text-slate-800">This lab ties together __new__, init guards, and robust error handling for a real, reusable configuration service.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

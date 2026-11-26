@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Blue/Green Deployment</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Pattern</div>
+      <p class="mt-2 text-sm text-slate-600">Run two identical environments. Deploy Green fully, test it, then shift production traffic from Blue to Green via ALB target groups or DNS.</p>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">AWS details</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>CodeDeploy configures target group pairs for ECS and EC2/ASG.</li>
+        <li>ALB listener rules or Route 53 can move traffic to the Green group.</li>
+        <li>AutoRollback can use CloudWatch alarms to revert to Blue if thresholds are breached.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-sm font-semibold text-slate-800">Concrete e-commerce example</div>
+        <p class="mt-2 text-sm text-slate-600">Deploy Product Catalog image to Green tasks. Shift a small Canary slice to Green for 15 minutes while monitoring error and latency alarms. If metrics are healthy, move 100% traffic; otherwise, switch back to Blue and terminate Green when resolved.</p>
+
+        <div class="mt-4 text-sm font-semibold text-slate-700">Common mistake</div>
+        <p class="mt-2 text-sm text-slate-600">Assuming switching traffic avoids DB migration risk — schema changes still need compatibility planning across Blue and Green.</p>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Use Blue/Green for critical services where instant rollback and validated green environments outweigh the cost of duplicate capacity.</p>
+      </div>
+    </div>
+  </div>
+</div>

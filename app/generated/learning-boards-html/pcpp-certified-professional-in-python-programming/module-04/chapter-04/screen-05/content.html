@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-lg font-bold text-slate-900">Event loop flow</h3>
+      <div class="mt-3 grid gap-3">
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-blue-700">1</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Register awaitable</div>
+            <div class="text-xs text-slate-600">A coroutine yields control with await. The loop stores its resume point.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-violet-700">2</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Run other ready coroutines</div>
+            <div class="text-xs text-slate-600">The loop executes coroutines that are ready while others wait for I/O.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="text-sm font-bold text-emerald-700">3</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Resume when awaitable completes</div>
+            <div class="text-xs text-slate-600">Once I/O completes, the loop schedules the paused coroutine to continue.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 text-sm text-slate-700">Analogy: the event loop is like a call center operator who puts callers on hold and returns to them when an external agent reports a result.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Annotation</div>
+      <div class="grid grid-cols-1 gap-3 h-full">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-slate-800">Ready queue</div>
+          <div class="text-xs text-slate-600 mt-1">Coroutines ready to run are queued until the loop dispatches them.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-bold text-slate-800">I/O watchers</div>
+          <div class="text-xs text-slate-600 mt-1">Underlying selectors or pollers notify the loop when sockets or timers fire.</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3 flex-1">
+          <div class="text-sm font-bold text-slate-800">Callback scheduling</div>
+          <div class="text-xs text-slate-600 mt-1">Completed awaitables schedule callbacks to resume the associated coroutine.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">Why would a long-running calculation inside a coroutine harm concurrency? Explain in one sentence.</p>
+      </div>
+    </div>
+  </div>
+</div>

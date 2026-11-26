@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.6</span>
+    <span>›</span>
+    <span class="text-slate-700">RAM: Scale by recursion</span>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 border" style="border-color:rgba(226,232,240,0.9); box-shadow:0 6px 18px rgba(15,23,42,0.03)">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-xl font-extrabold text-slate-800">RAM64 and the recursive pattern</h3>
+        <p class="text-sm text-slate-600 mt-2">Compose eight RAM8 chips to make RAM64. Split the 6-bit address into upper and lower halves for inter- and intra-chip selection.</p>
+      </div>
+      <div class="text-xs font-semibold text-slate-500">Pattern repeats for RAM512, RAM4K, RAM16K</div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-4">
+      <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-bold text-slate-800">Address split</div>
+        <div class="text-sm text-slate-700 mt-2">Lower 3 bits: index inside RAM8. Upper 3 bits: choose which RAM8 block is active in RAM64.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-bold text-slate-800">Write flow</div>
+        <div class="text-sm text-slate-700 mt-2">Upper bits DMux the write enable to one RAM8; inside that block lower bits select the register to write.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-bold text-slate-800">Read flow</div>
+        <div class="text-sm text-slate-700 mt-2">Lower bits select outputs from each RAM8; upper bits select which of those outputs becomes the RAM64 output.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+      <div class="text-sm text-slate-800 mt-2">Address 0b001011: upper 001 selects the second RAM8; lower 011 selects the fourth register inside that RAM8. Only that register receives the write enable and later drives the output when read.</div>
+    </div>
+
+    <div class="mt-4 rounded-lg p-3 bg-rose-50 border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Tip</div>
+      <div class="text-sm text-slate-700 mt-2">When wiring, label address bits clearly and draw upper vs lower partitions to avoid misrouting signals between levels.</div>
+    </div>
+  </div>
+</div>

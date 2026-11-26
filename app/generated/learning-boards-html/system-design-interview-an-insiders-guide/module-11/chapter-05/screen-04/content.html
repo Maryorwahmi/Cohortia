@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Ingestion Pipeline Overview</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+        <div class="text-xl font-bold text-slate-900 mt-2">Client → Gateway → Post Service → Queue</div>
+        <div class="text-sm text-slate-600 mt-2">Each step reduces coupling and improves resilience during spikes.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="p-3 rounded-lg bg-blue-50 text-blue-800">API Gateway: auth, routing, rate limiting, small validation.</div>
+          <div class="p-3 rounded-lg bg-violet-50 text-violet-800">Post Service: lightweight validation, assign time-based id, produce to queue.</div>
+          <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Message Queue: durable buffer, decoupling, persists until consumers process.</div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-md p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500">Example</div>
+            <div class="text-sm text-slate-700 mt-1">During a flash spike, the Post Service enqueues 50k messages per second and returns success to users while the queue smooths backend writes.</div>
+          </div>
+          <div class="rounded-md p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500">Common mistake</div>
+            <div class="text-sm text-slate-700 mt-1">Writing directly from the Post Service couples availability to database performance and risks cascading failures.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Pipeline Visual (annotated)</div>
+        <div class="mt-3 flex-1 flex flex-col justify-center">
+          <div class="grid grid-cols-4 gap-3 items-center">
+            <div class="p-3 rounded-lg bg-blue-50 text-blue-800 text-center">User Client</div>
+            <div class="p-3 rounded-lg bg-white border text-slate-700 text-center">API Gateway</div>
+            <div class="p-3 rounded-lg bg-violet-50 text-violet-800 text-center">Post Service</div>
+            <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800 text-center">Message Queue</div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 gap-2">
+            <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+              <p class="text-xs font-medium text-slate-800">Keep the critical path short: persist to a durable queue, then perform expensive operations asynchronously.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

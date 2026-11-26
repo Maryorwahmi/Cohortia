@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 10.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on: app.py</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl p-4 bg-white shadow-sm card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter template (abbreviated)</div>
+      <pre class="bg-slate-900 text-slate-100 rounded p-3 text-sm mt-3" style="white-space:pre-wrap; tab-size:2;"><code>import logging
+import json
+import re
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        for key, value in record.__dict__.items():
+            if key not in ['name','levelname','pathname','lineno','asctime','message','args','exc_info','exc_text','stack_info','filename','funcName','created','msecs','relativeCreated','thread','threadName','processName','process','module','levelno','msg']:
+                log_record[key] = value
+        return json.dumps(log_record)
+
+class PasswordRedactionFilter(logging.Filter):
+    def filter(self, record):
+        if re.search(r'password', record.getMessage(), re.IGNORECASE):
+            return False
+        return True
+
+# Root logger and handlers setup ... (see template)
+</code></pre>
+      <div class="mt-3 text-sm text-slate-700">This template shows the JsonFormatter and a simple redaction filter. Attach the redaction filter to the console handler and the JsonFormatter to the critical file handler, then emit simulated events to validate outputs.</div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl p-4 bg-white shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Test scenarios</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Emit a successful login with extra user_id -> appears in auth.log and console (if allowed).</li>
+        <li>Emit a failed login mentioning "password" -> filtered from console, still written to auth.log.</li>
+        <li>Emit a critical database error -> serialized to critical_events.json for alerts.</li>
+      </ol>
+
+      <div class="mt-4 rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800 mt-1">Run the three tests to confirm routing, redaction, and JSON serialization behave as intended.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

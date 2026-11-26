@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Apache Virtual Hosts</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Canonical VirtualHost example</div>
+      <pre class="mt-3 rounded-md bg-slate-50 p-3 text-xs overflow-auto border"><code>&lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@example.com
+    ServerName www.example.com
+    DocumentRoot /var/www/example.com/html
+    ErrorLog /var/log/httpd/example.com_error.log
+    CustomLog /var/log/httpd/example.com_access.log combined
+
+    &lt;Directory /var/www/example.com/html&gt;
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+
+# Enable site on Debian/Ubuntu: sudo a2ensite example.com.conf
+# Then: sudo systemctl reload apache2</code></pre>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Create /var/www/example.com/html/index.html, set chown and chmod so the web user can read files, enable the vhost and reload Apache.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">If ServerName is missing or mis-typed, Apache serves the first VirtualHost defined. Confirm the ServerName directive and enabled site symlink.</div>
+        </div>
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Define ServerName, set DocumentRoot ownership and permissions, test configuration with apachectl configtest, then reload safely.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Know typical config paths: /etc/httpd/ or /etc/apache2/ and sites-available/sites-enabled on Debian systems.</li>
+        <li>Use directory blocks to control overrides, indexes, and access permissions.</li>
+        <li>Log file paths help when diagnosing startup or runtime errors.</li>
+        <li>Run apachectl configtest to avoid syntax errors on reload.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-bold">Quick permission commands</div>
+        <div class="text-sm text-slate-700 mt-2">sudo chown -R www-data:www-data /var/www/example.com<br/>sudo chmod -R 755 /var/www/example.com</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

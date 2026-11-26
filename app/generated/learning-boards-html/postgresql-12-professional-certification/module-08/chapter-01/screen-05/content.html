@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Configuration</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">postgresql.conf: logging essentials</div>
+      <div class="text-sm text-slate-600 mt-2">Enable the collector, set destinations, and design filenames for rotation and analysis.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="rounded-md bg-slate-50 p-3 mb-3">
+          <div class="font-semibold">Parameters to set</div>
+          <ul class="text-xs text-slate-600 mt-2 list-disc pl-5 space-y-1">
+            <li>logging_collector = on</li>
+            <li>log_destination = 'stderr' (or csvlog for structured parsing)</li>
+            <li>log_directory = 'log' (relative to data directory)</li>
+            <li>log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'</li>
+            <li>log_rotation_age and log_rotation_size</li>
+          </ul>
+        </div>
+
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="font-semibold">Why it matters</div>
+          <div class="text-xs text-slate-600 mt-2">Without the collector and clear filenames, logs may be scattered or overwritten, and automated rotation becomes unreliable.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Example configuration</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Enable logging collector
+logging_collector = on
+
+# Log destination and directory
+log_destination = 'stderr'
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+
+# Rotation policy
+log_rotation_age = 1d
+log_rotation_size = 256MB
+      </pre>
+
+      <div class="mt-4">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Decide where logs live and how often they roll over before you need them for diagnosis.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

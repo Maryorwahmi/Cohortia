@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl p-4 bg-white shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">Refactor steps</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal pl-5 space-y-2">
+        <li>Remove the session-scoped shared repository fixture.</li>
+        <li>Introduce a pytest fixture that returns Mock() per test.</li>
+        <li>Split lifecycle test into focused tests using AAA.</li>
+        <li>Use mock assertions to verify repository interactions.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">Starter refactor snippet</div>
+      <pre class="mt-3 bg-slate-100 rounded p-3 text-sm text-slate-800 overflow-auto" style="white-space:pre-wrap; tab-size:2"><code>from unittest.mock import Mock
+import pytest
+from product_service import ProductService
+
+@pytest.fixture
+def mock_repository():
+    return Mock()
+
+@pytest.fixture
+def product_service(mock_repository):
+    return ProductService(mock_repository)
+
+def test_create_product_success(product_service, mock_repository):
+    # Arrange
+    product_id = "P001"
+
+    # Act
+    result = product_service.create_product(product_id, "Laptop", 1200.00)
+
+    # Assert
+    assert result["id"] == product_id
+    mock_repository.add.assert_called_once_with({"id": product_id, "name": "Laptop", "price": 1200.0})</code></pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Refactoring tests into small, mocked units improves speed and makes failures easier to act on.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

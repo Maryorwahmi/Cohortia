@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.col{border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:14px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Auth Methods</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 col bg-white shadow-sm">
+      <div class="font-bold text-slate-800">Method comparison</div>
+      <div class="mt-3 grid grid-cols-3 gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">trust</div>
+          <div class="text-xs text-slate-600 mt-1">Allows connection without a password when matched. Use only for local, controlled environments.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">md5</div>
+          <div class="text-xs text-slate-600 mt-1">Password-based authentication using MD5 hash. Widely supported by clients.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">scram-sha-256</div>
+          <div class="text-xs text-slate-600 mt-1">More secure password hashing. Prefer for modern deployments if clients support it.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-bold">Misconfiguration example</div>
+        <div class="mt-2">If pg_hba.conf contains 'trust' for a client but the team expects password auth, connections succeed without passwords when allowed, or if they send a password the server may still accept but this creates security risk. Conversely, if the server requires scram-sha-256 and the client only supports md5, authentication fails.</div>
+      </div>
+    </div>
+    <div class="col bg-white p-4 shadow-sm">
+      <div class="font-bold text-slate-800">Checks and fixes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Confirm client capability for scram or md5.</li>
+        <li>Match auth method in pg_hba.conf to client requirements.</li>
+        <li>Reload config and retest; watch for log messages describing failed auth attempts.</li>
+      </ul>
+    </div>
+  </div>
+</div>

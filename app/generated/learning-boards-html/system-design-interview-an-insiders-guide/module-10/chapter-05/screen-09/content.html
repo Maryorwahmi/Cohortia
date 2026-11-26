@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Late-arriving data</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex gap-6">
+    <div class="w-1/2 min-w-0">
+      <div class="text-sm font-semibold text-slate-800">Concepts to know</div>
+      <div class="mt-3 text-sm text-slate-600">Late-arriving events must be considered when maintaining aggregates. Use watermarks to bound the expected lateness and configure allowed lateness to accept late events for a window.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Watermarks</div>
+          <div class="text-sm text-slate-700 mt-1">Estimate a boundary in event time beyond which events are expected to be rare.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Allowed lateness</div>
+          <div class="text-sm text-slate-700 mt-1">A configured delay window during which late events still update a closed window's aggregate.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-sm font-semibold text-rose-700">Operational trade-off</div>
+          <div class="text-sm text-slate-700 mt-1">Longer allowed lateness improves accuracy but increases reprocessing and update churn on the materialized view.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Plan for late data: pick watermarks and allowed lateness consistent with your acceptable historical accuracy and update cost.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Scenario</div>
+      <div class="mt-3 rounded-lg bg-white card-border p-4 flex-1">
+        <p class="text-sm text-slate-600">If a login event for 10:01 arrives at 10:10 due to upstream delay and your allowed lateness is 15 minutes, the processor will accept the event, update the (date, country) state, and emit an upsert to correct the materialized view. If allowed lateness had been 5 minutes, the event would be treated as late beyond the window and might be stored separately for audit or ignored for that window's aggregate.</p>
+      </div>
+    </div>
+  </div>
+</div>

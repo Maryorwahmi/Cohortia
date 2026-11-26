@@ -1,0 +1,67 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex gap-4 h-full'>
+    <div class='w-2/3 card p-4 mono'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Hands-on Script</div>
+      <h3 class='text-2xl font-bold text-slate-900 mt-2'>Backup script example</h3>
+      <pre style='white-space:pre-wrap; tab-size:2' class='text-sm mt-3'>#!/bin/bash
+
+# Simple script to create a backup of a directory
+
+# Safety: Exit immediately if a command exits with a non-zero status.
+set -e
+# Safety: Treat unset variables as an error.
+set -u
+# Safety: The return value of a pipeline is the value of the last command to exit with a non-zero status.
+set -o pipefail
+
+SOURCE_DIR=$1
+BACKUP_DIR="backups"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+ARCHIVE_NAME="${SOURCE_DIR}_backup_${TIMESTAMP}.tar.gz"
+
+# Check if a source directory was provided
+if [ -z "$SOURCE_DIR" ]; then
+  echo "Usage: $0 <directory_to_backup>"
+  exit 1
+fi
+
+# Check if the source directory exists
+if [ ! -d "$SOURCE_DIR" ]; then
+  echo "Error: Source directory '$SOURCE_DIR' does not exist."
+  exit 1
+fi
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
+
+echo "Creating backup of '$SOURCE_DIR' to '$BACKUP_DIR/$ARCHIVE_NAME'..."
+
+# Create a compressed archive
+tar -czf "$BACKUP_DIR/$ARCHIVE_NAME" "$SOURCE_DIR"
+
+echo "Backup complete: $BACKUP_DIR/$ARCHIVE_NAME"
+</pre>
+    </div>
+
+    <div class='w-1/3 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-800'>Explanation</div>
+        <ul class='text-sm text-slate-600 mt-2 list-disc pl-5'>
+          <li>Timestamping prevents name collisions and records when backups were taken.</li>
+          <li>mkdir -p ensures the backups folder exists without error if already present.</li>
+          <li>Quoted variables like "$SOURCE_DIR" handle spaces safely.</li>
+        </ul>
+      </div>
+
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-800'>Testing tip</div>
+        <div class='text-sm text-slate-600 mt-2'>Run the script on a small test folder, inspect the archive with tar -tzf, and only then point it at production data.</div>
+      </div>
+
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-rose-600'>Common mistake</div>
+        <div class='text-sm text-slate-700 mt-2'>Not checking for the presence of the source directory leads to confusing tar errors. Always validate inputs and exit with helpful messages.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

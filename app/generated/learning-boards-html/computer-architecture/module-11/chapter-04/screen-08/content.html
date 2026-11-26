@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class='text-slate-700'>Spinlocks vs Mutexes</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 flex flex-col gap-3 card p-4'>
+      <div class='text-sm font-bold text-slate-800'>Spinlock</div>
+      <ul class='mt-2 space-y-2 text-sm text-slate-700'>
+        <li>Busy-waits in a loop until the lock is free.</li>
+        <li>Low latency for short critical sections because no context switch.</li>
+        <li>Wastes CPU cycles and power if the wait is long.</li>
+      </ul>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-rose-700'>Misconception</div>
+      <p class='text-sm text-slate-700 mt-1'>Spinlocks are not always faster; on long waits or heavy contention they degrade throughput.</p>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3 card p-4'>
+      <div class='text-sm font-bold text-slate-800'>Mutex</div>
+      <ul class='mt-2 space-y-2 text-sm text-slate-700'>
+        <li>Blocks the waiting thread and yields CPU to the scheduler.</li>
+        <li>Efficient when the lock holds for longer durations.</li>
+        <li>Involves context-switch overhead and wake-up latency.</li>
+      </ul>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-amber-700'>Pro Tip</div>
+      <p class='text-sm text-slate-700 mt-1'>For mixed workloads, consider adaptive locks that spin briefly then block if not acquired.</p>
+    </div>
+  </div>
+
+  <div class='mt-4 grid grid-cols-3 gap-3'>
+    <div class='p-3 card'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Scenario</div>
+      <div class='text-sm text-slate-700 mt-1'>Short critical section: spinlock is likely best.</div>
+    </div>
+    <div class='p-3 card'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Scenario</div>
+      <div class='text-sm text-slate-700 mt-1'>Long critical section or IO: use mutex to avoid wasting CPU.</div>
+    </div>
+    <div class='p-3 card'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Experiment</div>
+      <div class='text-sm text-slate-700 mt-1'>Measure acquisitions per second with different critical section lengths to choose appropriately.</div>
+    </div>
+  </div>
+</div>

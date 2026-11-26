@@ -1,0 +1,83 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size:2; font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Producer-Consumer Code</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-4 rounded-xl bg-white card-border shadow-sm h-full overflow-hidden">
+        <div class="text-sm font-bold text-slate-800 mb-2">Provided C++ example</div>
+        <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto h-full"><code>&lt;!-- Escaped C++ code --&gt;
+#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;queue&gt;
+#include &lt;mutex&gt;
+#include &lt;condition_variable&gt;
+#include &lt;chrono&gt;
+
+std::queue&lt;int&gt; data_queue;
+std::mutex mtx;
+std::condition_variable cv;
+bool finished = false;
+
+void producer() {
+  for (int i = 0; i &lt; 10; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::unique_lock&lt;std::mutex&gt; lock(mtx);
+    data_queue.push(i);
+    std::cout &lt;&lt; "Producer produced: " &lt;&lt; i &lt;&lt; std::endl;
+    lock.unlock();
+    cv.notify_one();
+  }
+  std::unique_lock&lt;std::mutex&gt; lock(mtx);
+  finished = true;
+  lock.unlock();
+  cv.notify_all();
+}
+
+void consumer(int id) {
+  while (true) {
+    std::unique_lock&lt;std::mutex&gt; lock(mtx);
+    cv.wait(lock, []{ return !data_queue.empty() || finished; });
+
+    if (finished && data_queue.empty()) break;
+
+    int data = data_queue.front();
+    data_queue.pop();
+    std::cout &lt;&lt; "Consumer " &lt;&lt; id &lt;&lt; " consumed: " &lt;&lt; data &lt;&lt; std::endl;
+    lock.unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+}
+
+int main() { /* ... */ }</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Explanation of key lines</div>
+        <ul class="text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>unique_lock required by wait() so the mutex can be atomically unlocked while sleeping.</li>
+          <li>wait(lock, predicate) re-checks the condition after wake to survive spurious wakeups.</li>
+          <li>unlock then notify avoids immediate contention on the mutex.</li>
+          <li>notify_all after finished lets all consumers see the shutdown condition and exit.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 p-4 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Concrete debugging tips</div>
+        <ol class="text-sm text-slate-700 list-decimal pl-4 space-y-2">
+          <li>Set breakpoints inside the predicate to ensure correct evaluation under wakeups.</li>
+          <li>Temporarily increase sleeps to inspect interleavings and ensure no busy loops appear.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

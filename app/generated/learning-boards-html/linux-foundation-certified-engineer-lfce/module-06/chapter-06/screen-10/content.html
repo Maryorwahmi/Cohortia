@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre {white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-800">Key File Creation and Automated Unlocking</div>
+    <div class="text-sm text-slate-600 mt-1">Create a protected key file, add it as a LUKS key, and verify unlock and recovery workflows.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Example commands</div>
+      <pre class="mt-3 rounded bg-slate-900 text-slate-100 p-3 text-sm"><code># Generate a 256-byte key file from secure randomness
+sudo dd if=/dev/urandom of=/root/luks_keyfile bs=1 count=256
+sudo chmod 0400 /root/luks_keyfile
+
+# Add the key file to an available slot (prompts for existing passphrase)
+sudo cryptsetup luksAddKey /dev/sdb1 /root/luks_keyfile
+
+# Test unlocking with the key file
+sudo cryptsetup luksOpen /dev/sdb1 mysecretdata --key-file /root/luks_keyfile
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Always secure the key file with strict permissions and consider removable media or network-based services for storage.</div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white border" style="border-color: rgba(226,232,240,0.9); min-height:360px;">
+      <div class="font-bold text-slate-800">Simulate loss and recovery</div>
+      <div class="mt-2 text-sm text-slate-600">Remove the key file to simulate loss, then unlock with the passphrase to confirm you can recover and add a replacement key. This confirms your redundancy plan works before relying on automation.</div>
+
+      <div class="mt-4 font-bold text-slate-800">Security reminder</div>
+      <div class="mt-2 text-sm text-rose-600">Do not store the key file on the encrypted disk itself; an attacker with the disk would gain both encryption and key material.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Key files enable automation but require separate, secure storage and testing of recovery before deployment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

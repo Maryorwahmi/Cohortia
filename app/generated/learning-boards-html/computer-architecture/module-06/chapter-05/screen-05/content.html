@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Store-to-Load Forwarding</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xl font-bold text-slate-800">Forwarding process</div>
+      <div class="text-sm text-slate-600 mt-2">Steps the processor follows when issuing a load.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-blue-50 text-blue-700 w-8 h-8 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Compute addresses</div>
+            <div class="text-xs text-slate-600 mt-1">The load and prior stores compute effective addresses; the LSQ tracks address-known bits.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 text-violet-700 w-8 h-8 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Associative check</div>
+            <div class="text-xs text-slate-600 mt-1">The load compares its address against all prior store addresses in the LSQ to find the most recent match.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-emerald-50 text-emerald-700 w-8 h-8 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Forward or access memory</div>
+            <div class="text-xs text-slate-600 mt-1">If a matching store with available data is found, forward it; otherwise read from cache/memory.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-700">Concrete assembly example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">
+SW R1, 0x1000(R0)    # pending store writes 0xABCD
+LW R2, 0x1000(R0)    # load should receive 0xABCD via forwarding
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">The LSQ entry for the store contains the data 0xABCD; when the load issues, it finds that entry and reads the value without accessing the cache.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Forwarding allows loads to observe pending store data and avoids unnecessary memory accesses while preserving program order semantics.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

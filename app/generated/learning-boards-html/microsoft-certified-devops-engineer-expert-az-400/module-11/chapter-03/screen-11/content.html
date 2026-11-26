@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span><span>›</span><span>Chapter 3</span><span>›</span><span class="text-slate-700">Azure Policy Examples</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col"><span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Policy Example</span><h2 class="text-3xl font-bold text-slate-900 mb-2">Azure Policy for Tagging and SKU Restriction</h2><p class="text-base text-slate-700 mb-6">Implementing governance rules with policy definitions.</p><div class="bg-slate-800 rounded-xl p-4 text-white font-mono text-sm overflow-auto h-full min-h-0" style="tab-size: 2; white-space: pre-wrap;"><code><pre>// Example Azure Policy definition (conceptual, usually JSON)
+// Policy to audit untagged resources
+{
+  "if": {
+    "field": "tags",
+    "exists": "false"
+  },
+  "then": {
+    "effect": "audit"
+  }
+}
+
+// Policy to restrict VM SKUs
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      {
+        "not": {
+          "field": "Microsoft.Compute/virtualMachines/sku.name",
+          "in": [
+            "Standard_B1s",
+            "Standard_B2s",
+            "Standard_D2s_v3"
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+    "effect": "deny"
+  }
+}</pre></code></div></div><div class="flex-1 flex flex-col justify-center bg-slate-50 rounded-2xl p-6 shadow-inner border border-slate-200"><h3 class="text-xl font-bold text-slate-800 mb-4">Policy Rules Explained</h3><div class="bg-white rounded-xl p-4 shadow-md border border-slate-200 mb-3"><h4 class="text-lg font-semibold text-slate-800">Audit Untagged Resources</h4><p class="text-sm text-slate-600">This policy identifies resources that are missing any tags. The 'audit' effect reports non-compliance without blocking deployment, allowing for initial visibility and remediation.</p></div><div class="bg-white rounded-xl p-4 shadow-md border border-slate-200 mb-3"><h4 class="text-lg font-semibold text-slate-800">Restrict VM SKUs</h4><p class="text-sm text-slate-600">This policy ensures that only approved VM sizes (e.g., cost-effective B-series or D-series v3) can be deployed. The 'deny' effect prevents the creation of any VM outside this approved list.</p></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3 mb-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Example Scenario</div><p class="text-xs font-medium text-slate-800">A team attempts to deploy a 'Standard_E64s_v3' VM. The 'Restrict VM SKUs' policy, with its 'deny' effect, immediately blocks the deployment, preventing an expensive resource from being provisioned.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Azure Policy provides granular control over resource deployments, enabling both auditing for visibility and denial for strict enforcement of cost governance rules.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

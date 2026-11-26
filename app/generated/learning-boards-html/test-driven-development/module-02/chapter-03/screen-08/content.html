@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .compare{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Per-test vs Class-level</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 compare shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Per-test (setUp/tearDown)</div>
+      <div class="text-sm text-slate-700 mt-2">Runs before and after every test method; guarantees a fresh state for each test.</div>
+      <div class="mt-4 text-sm grid gap-2">
+        <div class="p-2 rounded bg-blue-50 text-blue-700">Isolation: strong</div>
+        <div class="p-2 rounded bg-amber-50 text-amber-700">Performance: slower for expensive setup</div>
+        <div class="p-2 rounded bg-emerald-50 text-emerald-700">Use when tests mutate state</div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 compare shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Class-level (setUpClass/tearDownClass)</div>
+      <div class="text-sm text-slate-700 mt-2">Runs once per TestCase class. Good for expensive, read-only resources shared across tests.</div>
+      <div class="mt-4 text-sm grid gap-2">
+        <div class="p-2 rounded bg-violet-50 text-violet-700">Isolation: weaker if shared resource is mutated</div>
+        <div class="p-2 rounded bg-amber-50 text-amber-700">Performance: faster for expensive setup</div>
+        <div class="p-2 rounded bg-rose-50 text-rose-600">Use only for immutable or read-only resources</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl bg-white p-4 compare shadow-sm">
+    <div class="text-sm font-bold text-slate-800">Example: class-level pattern</div>
+    <pre class="mt-2 text-sm">class TestExpensiveSetup(unittest.TestCase):
+  @classmethod
+  def setUpClass(cls):
+    cls.shared_resource = "Database Connection Object"
+
+  @classmethod
+  def tearDownClass(cls):
+    del cls.shared_resource
+</pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

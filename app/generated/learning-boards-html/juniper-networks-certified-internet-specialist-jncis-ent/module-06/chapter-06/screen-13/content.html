@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Lab Walkthrough</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[calc(100%-64px)]">
+      <div class="card p-5">
+        <div class="text-sm font-bold text-slate-800">Scenario summary</div>
+        <div class="text-sm text-slate-600 mt-2">R1 (AS 65000) peers with R2 (ISP A, AS 100) and R3 (ISP B, AS 200). R1 advertises 192.168.100.0/24 to both ISPs. Goal: prefer R2 for outbound, make R3 prefer a less desired path inbound.</div>
+        <div class="mt-4 text-sm font-bold text-slate-700">Step-by-step</div>
+        <ol class="list-decimal pl-4 mt-2 text-sm text-slate-600">
+          <li>Create import policy PREFER_ISP_A to set local-preference 200 and attach to group from ISP A.</li>
+          <li>Create export policy PREPEND_AS_TO_ISP_B to as-path-prepend "65000 65000" and attach to group to ISP B.</li>
+          <li>Announce 192.168.100.0/24 via network or static routing and verify with show commands.</li>
+        </ol>
+      </div>
+      <div class="card p-5 flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-bold text-slate-800">Junos configuration snippets</div>
+          <pre class="mt-2 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap;tab-size:2"><code># Prefer ISP A for outbound
+set policy-options policy-statement PREFER_ISP_A term 1 then local-preference 200
+set protocols bgp group TO_ISP_A import PREFER_ISP_A
+
+# Make ISP B see a longer path
+set policy-options policy-statement PREPEND_AS_TO_ISP_B term 1 then as-path-prepend "65000 65000"
+set protocols bgp group TO_ISP_B export PREPEND_AS_TO_ISP_B</code></pre>
+        </div>
+        <div class="mt-4">
+          <div class="text-sm font-bold text-slate-700">Verification</div>
+          <div class="text-sm text-slate-600 mt-1">Run show route protocol bgp &lt;prefix&gt; detail on R1 and ask R3 for show route receive-protocol bgp &lt;R1_IP&gt; to confirm the prepended AS_PATH.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

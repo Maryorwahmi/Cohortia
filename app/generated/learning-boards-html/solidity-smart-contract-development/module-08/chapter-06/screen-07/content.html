@@ -1,0 +1,41 @@
+<div data-theme='light' class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg'>
+  <style>pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>Greeter.sol</span>
+  </div>
+
+  <div class='p-4 bg-white card shadow-sm h-full'>
+    <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-1'>Contract snippet</div>
+    <pre class='code p-3 rounded-md bg-slate-50 border border-slate-100'>// contracts/Greeter.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Greeter {
+  string public name;
+  string private greeting;
+
+  event GreetingUpdated(address indexed updater, string oldGreeting, string newGreeting, uint timestamp);
+
+  constructor(string memory _name, string memory _greeting) {
+    name = _name;
+    greeting = _greeting;
+  }
+
+  function greet() public view returns (string memory) {
+    return string(abi.encodePacked(greeting, ", ", name, "!"));
+  }
+
+  function setGreeting(string memory _newGreeting) public {
+    string memory _oldGreeting = greeting;
+    greeting = _newGreeting;
+    emit GreetingUpdated(msg.sender, _oldGreeting, _newGreeting, block.timestamp);
+  }
+}
+</pre>
+    <div class='mt-3 text-sm text-slate-700'>After deployment, verify the transaction receipt includes the GreetingUpdated log and update your frontend ABI so the event signature decodes correctly.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

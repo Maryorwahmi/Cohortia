@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <div class="text-2xl font-bold text-slate-900">Look function (C++)</div>
+    <div class="text-sm text-slate-600 mt-1">Forward input deltas to the controller to rotate view.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Full snippet</div>
+      <pre class="mt-3 bg-slate-50 rounded p-3 card-border text-sm"><code>// In AMyPlayerPawn.cpp, within the Look function:
+void AMyPlayerPawn::Look(const FInputActionValue& Value)
+{
+  FVector2D LookAxisVector = Value.Get&lt;FVector2D&gt;();
+
+  if (Controller && (LookAxisVector.X != 0.0f || LookAxisVector.Y != 0.0f))
+  {
+    AddControllerYawInput(LookAxisVector.X);
+    AddControllerPitchInput(LookAxisVector.Y);
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Invert Y in the input mapping if you want typical inverted mouse behavior; avoid double-negation in code.</li>
+        <li>Clamp pitch using the camera's spring arm or controller constraints to prevent camera flipping.</li>
+        <li>Small sensitivity multipliers can be applied in mapping or before passing to the controller for tuning.</li>
+      </ul>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Example</div>
+        <div class="text-sm text-slate-700 mt-2">If LookAxisVector.X is 2.0 from input scaling, calling AddControllerYawInput with that value rotates the controller immediately by that delta amount for the frame.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

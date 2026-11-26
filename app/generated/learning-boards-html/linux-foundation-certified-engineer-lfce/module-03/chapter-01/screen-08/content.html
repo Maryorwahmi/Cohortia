@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Reverse lookup</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card p-4 shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">db.192.168.10 (example)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+; /var/named/db.192.168.10
+$TTL 86400
+@       IN      SOA     ns1.example.com. admin.example.com. (
+                        2023102701 ; Serial
+                        3600       ; Refresh
+                        1800       ; Retry
+                        604800     ; Expire
+                        86400 )    ; Minimum TTL
+@       IN      NS      ns1.example.com.
+@       IN      NS      ns2.example.com.
+100     IN      PTR     ns1.example.com.
+101     IN      PTR     www.example.com.
+102     IN      PTR     mail.example.com.
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white card p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Notes & validation</div>
+      <div class="mt-3 text-sm text-slate-600">Reverse records use the final octet as the owner name inside the in-addr.arpa zone. Test with: dig -x 192.168.10.102 @192.168.10.100</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border card">
+        <div class="text-sm font-semibold text-slate-800">Why PTR matters</div>
+        <div class="text-sm text-slate-700 mt-2">Many mail servers and logging systems require a reverse lookup for trust and accurate records. Missing PTRs can trigger rejections.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Reversing octets incorrectly or naming the zone incorrectly will cause the reverse lookup to fail. Double-check the in-addr.arpa ordering.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

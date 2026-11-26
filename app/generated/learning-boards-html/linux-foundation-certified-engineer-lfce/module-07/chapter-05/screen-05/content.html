@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;padding:12px;background:#0b1220;color:#dbeafe;border-radius:8px} .card-border{border:1px solid rgba(226,232,240,0.95)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Generate Keys</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col h-full">
+      <div class="text-sm font-semibold text-slate-800">Command walkthrough</div>
+      <pre># Example: Generating an Ed25519 key pair
+ssh-keygen -t ed25519 -C "prod_server_key"
+# Follow prompts, enter a strong passphrase
+
+# Older example (RSA 4096)
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+# Protect private key
+chmod 600 ~/.ssh/id_ed25519
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Note: choose Ed25519 for modern systems. Always add a passphrase to encrypt the private key on disk. If you need automation without passphrases, use restricted accounts with Match blocks instead of leaving keys unprotected.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col h-full">
+      <div class="text-sm font-semibold text-slate-800">Using ssh-agent</div>
+      <div class="text-sm text-slate-600 mt-2">Load keys into memory for the session so you avoid repeated passphrase prompts while keeping your private key encrypted on disk.</div>
+      <pre># Start agent and add key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+# Then connect normally:
+ssh -p 2222 testuser@remote_host</pre>
+
+      <div class="mt-3 text-sm text-slate-700">Misconception check: ssh-agent does not remove the need for a passphrase; it merely stores decrypted keys in memory after you enter the passphrase once. If an attacker gains access to your unlocked session, they could use the agent, so lock screens and manage agent lifetimes appropriately.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Mixins</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Mixins example (from chapter)</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-lg overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2;"><code>class JSONSerializerMixin:
+    def to_json(self):
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+
+class LoggableMixin:
+    def log_action(self, action):
+        print(f"[{self.__class__.__name__}] {action}")
+
+class User(JSONSerializerMixin, LoggableMixin):
+    def __init__(self, username, email):
+        self.username = username
+        self.email = email
+        self._private_data = "secret"
+
+    def register(self):
+        self.log_action(f"User {self.username} registered.")</code></pre>
+        <div class="mt-3 text-sm text-slate-600">The User class gains serialization and logging without adding those behaviors directly to its base class. Notice that private fields are excluded by the serializer's convention.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div class="grid gap-3">
+        <div class="rounded-xl bg-amber-50 p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">Composition over inheritance</div>
+          <div class="text-sm text-slate-600 mt-1">Mixins promote composable behaviors instead of building deep 'is-a' hierarchies.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">State in mixins</div>
+          <div class="text-sm text-slate-600 mt-1">If a mixin has state, document it and ensure its __init__ uses super to preserve MRO order.</div>
+        </div>
+
+        <div class="rounded-xl bg-emerald-50 p-3 card-border">
+          <div class="text-xs font-semibold text-slate-800">Practical tip</div>
+          <div class="text-sm text-slate-600 mt-1">Keep mixins small and focused: serialization, logging, validation are good examples.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use mixins to add focused capabilities. Respect MRO and avoid making mixins the main base class for object identity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

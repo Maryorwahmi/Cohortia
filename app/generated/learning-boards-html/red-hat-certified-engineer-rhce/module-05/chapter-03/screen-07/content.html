@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Creating a Bond Master</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Task structure</div>
+      <p class="mt-2 text-sm text-slate-600">Define a connection of type bond with conn_name and ifname matching the master name. Include ip4, gw4, dns4, and the desired mode. Use state: present and autoconnect: yes to make it persistent and startable.</p>
+
+      <div class="mt-4 text-sm text-slate-700 bg-slate-50 p-3 rounded">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;font-size:13px;">
+---
+- name: Ensure bond master connection exists and is configured
+  community.general.nmcli:
+    conn_name: "{{ bond_name }}"
+    type: bond
+    ifname: "{{ bond_name }}"
+    ip4: "{{ bond_ip }}"
+    gw4: "{{ bond_gw }}"
+    dns4: "{{ bond_dns }}"
+    mode: "{{ bond_mode }}"
+    state: present
+    autoconnect: yes
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Validation steps</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Activate the connection with state: activated to bring it up immediately.</li>
+        <li>Run ip -4 addr show dev bond0 to confirm the IP appears on the master.</li>
+        <li>Use cat /proc/net/bonding/bond0 to inspect mode and active slave.</li>
+      </ul>
+
+      <div class="mt-4 text-xs text-slate-500">Tip: Place variables for bond name, mode, and IP in vars to reuse tasks across hosts and networks.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

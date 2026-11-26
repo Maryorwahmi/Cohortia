@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <style>    
+    .step { background:#fff; border:1px solid rgba(226,232,240,0.9); border-radius:12px; padding:12px; }  
+    pre.code{ background:#071327; color:#dbeafe; padding:10px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
+  </style>  
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>    
+    <span>›</span>    
+    <span>Chapter 5.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">Hands-on Activity: Full Lab Steps</span>  
+  </div>  
+
+  <div class="grid grid-cols-2 gap-6 h-full">    
+      <div class="step">        
+        <div class="text-sm font-semibold text-slate-800">Step 1 — Prepare directory</div>        
+        <pre class="code mt-3"><code>sudo mkdir -p /etc/postfix/certs
+sudo chmod 700 /etc/postfix/certs/</code></pre>      
+      </div>    
+
+      <div class="step">        
+        <div class="text-sm font-semibold text-slate-800">Step 2 — Generate cert & key</div>        
+        <pre class="code mt-3"><code>sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/postfix/certs/postfix.key \
+  -out /etc/postfix/certs/postfix.crt</code></pre>      
+      </div>    
+
+      <div class="step">        
+        <div class="text-sm font-semibold text-slate-800">Step 3 — Secure files</div>        
+        <pre class="code mt-3"><code>sudo chmod 600 /etc/postfix/certs/postfix.key
+sudo chmod 644 /etc/postfix/certs/postfix.crt
+sudo chown root:root /etc/postfix/certs/postfix.key /etc/postfix/certs/postfix.crt</code></pre>      
+      </div>    
+
+      <div class="step">        
+        <div class="text-sm font-semibold text-slate-800">Step 4 — Configure Postfix</div>        
+        <pre class="code mt-3"><code># add to /etc/postfix/main.cf
+smtpd_tls_security_level = may
+smtpd_tls_cert_file = /etc/postfix/certs/postfix.crt
+smtpd_tls_key_file = /etc/postfix/certs/postfix.key</code></pre>      
+      </div>    
+
+      <div class="step col-span-2">        
+        <div class="text-sm font-semibold text-slate-800">Step 5 — Reload and verify</div>        
+        <pre class="code mt-3"><code>sudo systemctl reload postfix
+postconf -n | grep -i tls
+openssl s_client -connect mail.your_domain.com:25 -starttls smtp</code></pre>      
+      </div>    
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

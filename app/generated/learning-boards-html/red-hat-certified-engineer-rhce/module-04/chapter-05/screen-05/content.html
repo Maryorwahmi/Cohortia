@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code-pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Create a Logical Volume</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Playbook example</div>
+      <div class="text-sm text-slate-700 mt-2">This is a compact pattern: create LV, format, make mount point, mount persistently.</div>
+
+      <pre class="code-pre mt-4 p-3 rounded bg-slate-50 border">---
+- name: Create and configure Logical Volumes
+  hosts: lvm_servers
+  become: yes
+  tasks:
+    - name: Create a 20GB Logical Volume named 'app_lv' in 'data_vg'
+      community.general.lvol:
+        vg: data_vg
+        lv: app_lv
+        size: 20G
+        state: present
+      register: lv_creation_result
+
+    - name: Format /dev/data_vg/app_lv with XFS
+      community.general.filesystem:
+        dev: /dev/data_vg/app_lv
+        fstype: xfs
+        force: no
+
+    - name: Ensure mount point /app_data exists
+      ansible.builtin.file:
+        path: /app_data
+        state: directory
+        mode: '0755'
+
+    - name: Mount /dev/data_vg/app_lv to /app_data and ensure fstab entry
+      ansible.posix.mount:
+        path: /app_data
+        src: ">>>USE UUID FROM blkid<<<"
+        fstype: xfs
+        opts: defaults,noatime
+        state: mounted</pre>
+
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation and tips</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Register creation results to inspect changed state and device path.</li>
+        <li>Prefer using UUID in fstab for robustness; obtain it via a blkid command registered to a variable.</li>
+        <li>Leave some free space in the VG for future extensions or snapshots.</li>
+        <li>Run lvdisplay and lsblk to verify device creation before formatting when cautious.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Use 100%FREE when you want to consume all VG free space, but avoid it in production where future growth may be needed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

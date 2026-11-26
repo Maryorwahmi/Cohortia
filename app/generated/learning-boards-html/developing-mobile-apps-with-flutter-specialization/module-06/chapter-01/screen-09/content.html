@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Widget test example</span>
+  </div>
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Widget test pattern</h3>
+      <div class="mt-4 flex-1 overflow-hidden">
+        <div class="rounded-lg bg-slate-900 text-slate-100 p-3 h-full">
+          <pre><code>// test/widget/login_button_test.dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
+import 'package:your_app_name/widgets/login_button.dart'; // replace package name
+
+void main() {
+  testWidgets('LoginButton shows spinner when pressed', (WidgetTester tester) async {
+    bool called = false;
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: LoginButton(onPressed: () async { called = true; }),
+      ),
+    ));
+
+    // Tap the button
+    await tester.tap(find.byType(LoginButton));
+    await tester.pump();
+
+    // Expect a loading indicator to appear
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+}
+</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-5 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes</div>
+      <div class="text-xs text-slate-600 mt-2">Wrap widgets with MaterialApp or required parents. Use tester.pump for animations and tester.tap to simulate input.</div>
+      <div class="mt-4 rounded-lg p-3 bg-white border">
+        <div class="text-xs font-semibold text-slate-700">Common pitfall</div>
+        <div class="text-xs text-slate-600 mt-1">Missing parent widgets cause exceptions unrelated to the widget logic—add MaterialApp or MediaQuery as needed.</div>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-700 mt-1">Widget tests give fast UI assurance for components when correctly wrapped and isolated from external services.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="p-4 bg-white card border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-900">Abstract LogHandler</div>
+      <div class="text-sm text-slate-700 mt-3">Core fields: successor reference and configured level. Core methods: SetNext and HandleRequest.</div>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded-lg overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>public abstract class LogHandler
+{
+    protected LogHandler _successor; // next handler
+    protected LogLevel _level;       // threshold
+
+    public LogHandler(LogLevel level)
+    {
+        _level = level;
+    }
+
+    public LogHandler SetNext(LogHandler successor)
+    {
+        _successor = successor;
+        return successor; // fluent wiring
+    }
+
+    public void HandleRequest(LogLevel level, string message)
+    {
+        if (level >= _level)
+        {
+            WriteMessage(message);
+        }
+
+        if (_successor != null)
+        {
+            _successor.HandleRequest(level, message);
+        }
+    }
+
+    protected abstract void WriteMessage(string message);
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="p-4 bg-white card border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation and choices</div>
+      <div class="text-sm text-slate-600 mt-2">This implementation processes if level meets threshold, then forwards regardless. That lets multiple handlers act. If you need only one handler to process, change forwarding to be conditional when not processed.</div>
+
+      <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+        <div class="text-sm font-semibold text-amber-700">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-1">Sending Critical will trigger ConsoleLogger, FileLogger, and EmailLogger if each writes and still forwards.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Decide whether handlers should forward after processing or only when they skip processing; align the choice with system requirements.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

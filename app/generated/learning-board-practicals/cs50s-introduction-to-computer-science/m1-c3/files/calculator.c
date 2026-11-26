@@ -8,21 +8,16 @@ int main(void)
     printf("Enter the first integer: ");
     scanf("%i", &num1);
 
-    // Prompt user for the second number and read it
+    // Prompt user for the second integer and read it
     printf("Enter the second integer: ");
     scanf("%i", &num2);
 
     // Calculate and print the sum
     printf("Sum: %i\n", num1 + num2);
 
-    // Calculate and print the difference
-    printf("Difference: %i\n", num1 - num2);
-
-    // Calculate and print the product
-    printf("Product: %i\n", num1 * num2);
-
-    // Calculate and print the floating-point quotient (with type casting)
-    printf("Quotient: %.2f\n", (float)num1 / num2);
+    // TODO: Calculate and print the difference
+    // TODO: Calculate and print the product
+    // TODO: Calculate and print the floating-point quotient (remember type casting!)
 
     return 0;
 }

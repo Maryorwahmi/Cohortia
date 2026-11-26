@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Instruction Scheduling</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">What scheduling is</h3>
+        <p class="text-sm text-slate-600 mt-3">Reordering to increase parallelism while preserving correctness and honoring hardware limits.</p>
+        <div class="mt-4 space-y-2">
+          <div class="rounded-lg bg-slate-50 p-3 card">
+            <div class="text-sm font-semibold text-slate-800">Dependencies to respect</div>
+            <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+              <li>Read-after-write (RAW): producer before consumer.</li>
+              <li>Write-after-read (WAR): write after a prior read where reordering could overwrite needed data.</li>
+              <li>Write-after-write (WAW): preserve write order for final value.</li>
+            </ul>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold text-slate-800">Resource constraints</div>
+            <div class="text-sm text-slate-600 mt-2">Functional units and bundle width limit how many instructions can be issued per cycle.</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Good schedules follow dependencies and make effective use of available functional units without causing excessive spills.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Dependency graph example</div>
+        <div class="mt-3 grid grid-cols-2 gap-4 flex-1">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="text-xs font-semibold uppercase text-slate-500">Instructions</div>
+            <pre class="mt-2">t1 = load a[i]
+t2 = mul t1, b[i]
+t3 = add sum, t2
+store sum</pre>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-xs font-semibold uppercase text-slate-500">Graph notes</div>
+            <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+              <li>Edges: load→mul (RAW), mul→add (RAW), add→store (RAW).</li>
+              <li>Independent loads could be scheduled earlier if no aliasing.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-3">
+          <div class="rounded-xl p-3 bg-white card">
+            <div class="text-sm font-semibold">Concrete example</div>
+            <div class="text-xs text-slate-600 mt-2">A 3-instruction sequence with RAW edges cannot be shortened without parallel resources or independent work.</div>
+          </div>
+          <div class="rounded-xl p-3 bg-white card">
+            <div class="text-sm font-semibold">Common misconception</div>
+            <div class="text-xs text-slate-600 mt-2">Legal reordering isn't always better if it increases register live ranges and causes spills.</div>
+          </div>
+          <div class="rounded-xl p-3 bg-white card">
+            <div class="text-sm font-semibold">Try this</div>
+            <div class="text-xs text-slate-600 mt-2">Look for independent memory operations that can fill otherwise idle slots.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

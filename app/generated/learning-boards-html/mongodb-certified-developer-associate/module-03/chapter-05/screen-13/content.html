@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Module 4 › Chapter 3.5 › Lab Walkthrough</div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-2xl font-bold text-slate-900">Lab steps</div>
+      <div class="text-sm text-slate-600 mt-1">Follow these steps in your shell connected to the app_logs database.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold">1. Insert sample data</div>
+          <div class="text-sm text-slate-600 mt-1">Run the provided insertMany block in the starter code to populate logEntries with sample timestamps and levels.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold">2. Create sparse unique index on userId</div>
+          <div class="text-sm text-slate-600 mt-1">This enforces uniqueness only for documents that have userId.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold">3. Create TTL index on timestamp</div>
+          <div class="text-sm text-slate-600 mt-1">Set expireAfterSeconds to 604800 to expire entries older than seven days.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-semibold">4. Query and explain</div>
+          <div class="text-sm text-slate-600 mt-1">Find ERROR logs for a user in the last 24 hours and run explain("executionStats"). Expect IXSCAN and low examined counts after indexing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Starter code (TODOs)</div>
+        <pre class="mt-2" style="background:#0b1220;color:#e6eef8;padding:10px;border-radius:8px;font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2">use app_logs;
+
+db.logEntries.drop(); // Clear collection for fresh start
+
+// Insert sample data
+db.logEntries.insertMany([
+    { "_id": ObjectId(), "timestamp": new Date(Date.now() - 86400000 * 8), "level": "INFO", "message": "Old log entry", "userId": "user123" },
+    { "_id": ObjectId(), "timestamp": new Date(Date.now() - 86400000 * 0.5), "level": "INFO", "message": "User logged in", "userId": "user456" },
+    { "_id": ObjectId(), "timestamp": new Date(Date.now() - 86400000 * 0.2), "level": "ERROR", "message": "Database connection failed", "userId": "user123" },
+    { "_id": ObjectId(), "timestamp": new Date(Date.now() - 86400000 * 0.1), "level": "WARN", "message": "High CPU usage" },
+    { "_id": ObjectId(), "timestamp": new Date(Date.now() - 86400000 * 0.05), "level": "ERROR", "message": "API endpoint not found", "userId": "user456" },
+    { "_id": ObjectId(), "timestamp": new Date(), "level": "INFO", "message": "Application started" }
+]);
+
+// TODO: Create sparse unique index on userId
+// TODO: Create TTL index on timestamp with expireAfterSeconds: 604800
+
+// TODO: Write a query to find ERROR logs for user123 within last 24 hours and run explain("executionStats")
+</pre>
+        <div class="mt-3 text-sm text-slate-600">Keep your answers in the shell and verify with explain. Use indexStats afterwards to confirm usage.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-white border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab checkpoint</div>
+        <p class="text-sm text-slate-800">After completing the steps, your explain output should show IXSCAN and significantly lower totalDocsExamined for the target query.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

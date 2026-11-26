@@ -1,0 +1,99 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0f172a;color:#e6eef8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px;border-radius:8px;overflow:auto;border:1px solid rgba(226,232,240,0.9);white-space:pre-wrap;tab-size:2}</style>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-900">Simulating Block Hashing</h3>
+      <p class="text-sm text-slate-600 mt-2">Use the script to observe how a tampered transaction changes a block hash and breaks the chain link.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Starter code</div>
+        <div class="code">
+&lt;pre&gt;&lt;code&gt;import hashlib
+import json
+import time
+
+def calculate_hash(block_data):
+  # Ensure data is consistently formatted and encoded
+  block_string = json.dumps(block_data, sort_keys=True).encode('utf-8')
+  return hashlib.sha256(block_string).hexdigest()
+
+# --- Block 1 Data ---
+block1_data = {
+  "index": 0,
+  "timestamp": time.time(),
+  "transactions": [
+    {"sender": "Alice", "recipient": "Bob", "amount": 5.0},
+    {"sender": "Charlie", "recipient": "David", "amount": 10.0}
+  ],
+  "previous_hash": "0" * 64, # Genesis block has no previous hash
+  "nonce": 0
+}
+
+block1_hash = calculate_hash(block1_data)
+print(f"Block 1 Hash: {block1_hash}
+")
+
+# --- Block 2 Data ---
+block2_data = {
+  "index": 1,
+  "timestamp": time.time(),
+  "transactions": [
+    {"sender": "Eve", "recipient": "Frank", "amount": 2.5},
+    {"sender": "Grace", "recipient": "Heidi", "amount": 7.0}
+  ],
+  "previous_hash": block1_hash, # This links Block 2 to Block 1
+  "nonce": 0
+}
+
+block2_hash = calculate_hash(block2_data)
+print(f"Block 2 Hash: {block2_hash}
+")
+
+# --- Experiment: Tamper with Block 1 ---
+print("--- Attempting to tamper with Block 1 ---")
+tampered_block1_data = {
+  "index": 0,
+  "timestamp": block1_data["timestamp"],
+  "transactions": [
+    {"sender": "Alice", "recipient": "Bob", "amount": 500.0}, # Changed amount!
+    {"sender": "Charlie", "recipient": "David", "amount": 10.0}
+  ],
+  "previous_hash": "0" * 64,
+  "nonce": 0
+}
+
+tampered_block1_hash = calculate_hash(tampered_block1_data)
+print(f"Tampered Block 1 Hash: {tampered_block1_hash}")
+
+print(f"Does Block 2's previous_hash still match the tampered Block 1's hash? {block2_data['previous_hash'] == tampered_block1_hash}")
+&lt;/code&gt;&lt;/pre&gt;
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Use consistent serialization (sort_keys=True) when hashing so comparisons between nodes are reliable.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation & Reflection</div>
+      <div class="mt-3 rounded-lg p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">What you will observe</div>
+        <div class="text-sm text-slate-600 mt-2">The printed original and tampered hashes will differ drastically. The comparison will show that Block 2's stored previous_hash no longer equals the tampered Block 1's hash, verifying how tampering breaks chaining.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">If you serialize data inconsistently, hashes will differ even without tampering. Always keep formatting consistent when comparing hashes across nodes.</div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This simple script demonstrates the central immutability principle: a single change alters fingerprints and breaks the cryptographic chain.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

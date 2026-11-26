@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">__new__ Singleton</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800 mb-2">Code example</div>
+      <div class="rounded-lg bg-slate-50 border p-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;">
+<pre><code>class Singleton:
+    _instance = None  # Class variable to hold the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self.data = {}
+            self._initialized = True
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">This code stores the instance in _instance and prevents __init__ from re-running via an _initialized attribute.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation cards</div>
+      <div class="grid grid-cols-1 gap-3 flex-grow">
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Allocation control</div>
+          <div class="text-sm text-slate-700 mt-1">__new__ controls allocation. Returning a stored instance prevents creating multiple objects.</div>
+        </div>
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Init guard</div>
+          <div class="text-sm text-slate-700 mt-1">Use _initialized or similar to avoid re-running expensive initialization in __init__.</div>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <div class="text-xs text-slate-800">Forgetting the init guard causes repeated setup and surprising state changes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

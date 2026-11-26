@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; tab-size:2; } .panel { border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 panel shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-lg font-bold text-slate-900 mt-2">Swap partition steps</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700">
+        <li>Create a partition and set type to Linux swap (MBR type 82 or GPT 8200).</li>
+        <li>Initialize the partition: sudo mkswap /dev/sdb2.</li>
+        <li>Activate: sudo swapon /dev/sdb2.</li>
+        <li>Verify: free -h and swapon -s.</li>
+        <li>Persist: add UUID=... none swap defaults 0 0 to /etc/fstab.</li>
+      </ol>
+      <div class="mt-4 text-sm text-slate-600"><div class="font-semibold text-slate-800">Pitfall</div><p class="mt-2">Do not add the partition to fstab before running mkswap. Initialization is required for the kernel to recognize swap format.</p></div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 panel shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Terminal walkthrough</div>
+      <pre class="mt-3 mono"># After partitioning and finding /dev/sdb2
+sudo mkswap /dev/sdb2
+sudo swapon /dev/sdb2
+# Verify
+free -h
+swapon -s
+# Get UUID and add to fstab
+sudo blkid /dev/sdb2
+# In /etc/fstab
+# UUID=1111-2222-3333-4444 none swap defaults 0 0</pre>
+      <div class="mt-3 text-sm text-slate-600">Use blkid to find a stable UUID. Testing with mount -a after editing fstab is a safe way to validate the entry without rebooting.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

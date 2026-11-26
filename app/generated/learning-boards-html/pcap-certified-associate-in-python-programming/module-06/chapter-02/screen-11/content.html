@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">Authorization Decorator</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Starter code</div>
+      <pre class="code p-3 rounded bg-slate-100 border">from functools import wraps
+
+current_user_permissions = {"read", "write"}
+
+def requires_permission(permission_level):
+  def decorator_requires_permission(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+      if permission_user_has_access(permission_level):
+        return func(*args, **kwargs)
+      else:
+        print(f"Access Denied: Requires '{permission_level}' permission.")
+        return None
+    return wrapper
+  return decorator_requires_permission
+
+# Helper
+def permission_user_has_access(required_permission):
+  return required_permission in current_user_permissions
+</pre>
+
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="font-semibold">How to test</div>
+        <ul class="list-disc pl-5 mt-2 space-y-2 text-sm">
+          <li>Decorate a function that prints or returns a value and call it with different permission sets.</li>
+          <li>Confirm that when permission is missing, the function does not run and a message appears.</li>
+          <li>Add permissions and verify the function runs and returns the expected result.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Notes</div>
+      <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-sm font-bold text-amber-700">Edge cases</div>
+        <div class="text-xs text-slate-700 mt-1">Consider raising exceptions instead of printing in library code. Ensure consistent return types for callers expecting values.</div>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-sm font-bold text-emerald-700">Extension</div>
+        <div class="text-xs text-slate-700 mt-1">You can extend this pattern to check roles, time windows, or rate limits by adjusting the helper or adding more checks in the wrapper.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

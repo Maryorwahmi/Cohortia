@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div>
+    <div class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">Definition</div>
+    <div class="text-2xl font-bold text-slate-800">docker-compose — define multi-container apps</div>
+    <div class="text-sm text-slate-600 mt-2">A YAML file that declares services, networks, and volumes, enabling you to start and stop the entire stack together.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm mono">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Example docker-compose.yml</div>
+      <div class="rounded p-3 bg-slate-50 card-border overflow-hidden">
+        <pre class="text-sm">version: '3.8'
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./html:/usr/share/nginx/html:ro
+    networks:
+      - my-app-network
+    restart: always
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - my-app-network
+
+networks:
+  my-app-network:
+    driver: bridge
+
+volumes:
+  db_data:</pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Key notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>docker-compose up -d reads this file, creates services, networks, and volumes, and runs them in detached mode.</li>
+        <li>docker-compose down stops and removes the resources defined in the file; remember that volumes persist unless explicitly removed.</li>
+        <li>depends_on controls start ordering but not service readiness; use health checks if you need readiness gating.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Compose files codify multi-service deployments. Keep secrets out of the file in production and use named volumes for persistent data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

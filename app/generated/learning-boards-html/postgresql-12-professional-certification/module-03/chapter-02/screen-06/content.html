@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .step{background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">ALL TABLES & Defaults</span>
+  </div>
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+      <div class="mt-3 space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-lg bg-white border">1. Grant on existing tables: GRANT SELECT ON ALL TABLES IN SCHEMA app_data TO reporting_user;</div>
+        <div class="p-3 rounded-lg bg-white border">2. Set defaults for future objects: ALTER DEFAULT PRIVILEGES FOR ROLE deployer IN SCHEMA app_data GRANT SELECT ON TABLES TO reporting_user;</div>
+        <div class="p-3 rounded-lg bg-white border">3. Verify by creating a table as the deployer role and checking privileges.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-600">Remember: ALTER DEFAULT PRIVILEGES applies to objects created by a specific role. If objects are created by different roles, set defaults for each creator role.</div>
+    </div>
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example</div>
+      <pre class="mt-3 p-3 bg-[#0b1220] text-[#e6edf3] rounded-lg" style="font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2"><code>GRANT SELECT ON ALL TABLES IN SCHEMA app_data TO reporting_user;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE deployer IN SCHEMA app_data
+  GRANT SELECT ON TABLES TO reporting_user;</code></pre>
+      <div class="mt-3 rounded-lg bg-amber-50 p-2 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pitfall</div>
+        <div class="text-xs text-slate-700">ALL TABLES affects existing tables only. Always use ALTER DEFAULT PRIVILEGES for future objects.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

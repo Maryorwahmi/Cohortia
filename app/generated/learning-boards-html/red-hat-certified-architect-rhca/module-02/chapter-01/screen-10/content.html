@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: EEs</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Build an EE locally</h3>
+      <p class="text-sm text-slate-700 mt-3">Below are conceptual commands and definition files you would use to create and test an Execution Environment locally.</p>
+      <div class="mt-4 overflow-auto rounded-lg bg-slate-900 p-4 text-sm text-white" style="max-height:40%;">
+        <pre><code># ee.yml
+---
+version: 1
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTIONS_PATH: "/usr/share/ansible/collections"
+dependencies:
+  galaxy: collections/requirements.yml
+  python: requirements.txt
+
+# collections/requirements.yml
+collections:
+  - community.general
+  - ansible.posix
+
+# requirements.txt
+jmespath
+
+# Build (conceptual)
+ansible-builder build -f ee.yml -t my-custom-ee:latest
+
+# Run a playbook with the custom EE
+ansible-navigator run hello_world.yml -i inventory.ini --ee my-custom-ee:latest</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & tips</div>
+      <div class="mt-3 flex-1">
+        <div class="rounded-lg p-4 bg-slate-50 mb-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What happens during build</div>
+          <div class="text-sm text-slate-700 mt-2">ansible-builder assembles collections and Python deps into an image. Validate the image locally, then publish to Automation Hub for enterprise use.</div>
+        </div>
+
+        <div class="rounded-lg p-4 bg-slate-50 mb-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common pitfall</div>
+          <div class="text-sm text-slate-700 mt-2">Forgetting to include OS packages needed by collections; always test the playbook in the built image before publishing.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Local EE builds let you validate runtime behavior—mirror Hub policies to minimize surprises when publishing to Automation Hub.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

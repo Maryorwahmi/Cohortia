@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@keyframes fadeInSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.animate-in{animation:fadeInSlideUp 0.6s ease-out forwards}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.2</span><span>›</span><span class="text-slate-700">Gathering Junos Facts with Ansible</span></div><div class="flex flex-col flex-grow"><div class="flex items-start mb-6"><div class="flex-shrink-0"><span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 animate-in" style="animation-delay:0.1s">Practical Example</span></div><div class="ml-4"><h2 class="text-3xl font-extrabold text-slate-900 mb-1 leading-tight animate-in" style="animation-delay:0.2s">Gathering Junos Facts with Ansible</h2><p class="text-lg text-slate-600 animate-in" style="animation-delay:0.3s">Retrieving Operational Data from Network Devices</p></div></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col space-y-4"><div class="p-6 bg-slate-800 text-white rounded-2xl shadow-lg border border-slate-700 flex-grow font-mono text-sm overflow-auto animate-in" style="animation-delay:0.4s; white-space: pre-wrap; tab-size: 2;"><h3 class="text-lg font-bold text-blue-400 mb-2">Inventory File (<code>inventory.ini</code>)</h3><pre><code class="language-ini">[junos_routers]
+router1 ansible_host=192.168.1.1 ansible_user=juniper_user
+router2 ansible_host=192.168.1.2 ansible_user=juniper_user
+
+[junos_routers:vars]
+ansible_network_os=junos
+ansible_connection=netconf</code></pre></div><div class="p-6 bg-slate-800 text-white rounded-2xl shadow-lg border border-slate-700 flex-grow font-mono text-sm overflow-auto animate-in" style="animation-delay:0.5s; white-space: pre-wrap; tab-size: 2;"><h3 class="text-lg font-bold text-blue-400 mb-2">Playbook (<code>get_junos_facts.yml</code>)</h3><pre><code class="language-yaml">---
+- name: Gather facts from Junos devices
+  hosts: junos_routers
+  gather_facts: no
+  connection: netconf
+
+  tasks:
+    - name: Get Junos device facts
+      juniper.device.junos_facts:
+        gather_subset:
+          - config
+          - interfaces
+          - hardware
+          - default
+      register: junos_device_facts
+
+    - name: Display Junos hostname and version
+      debug:
+        msg: "Hostname: {{ junos_device_facts.facts.hostname }}, Junos Version: {{ junos_device_facts.facts.version }}"</code></pre></div></div><div class="w-1/2 flex flex-col space-y-4"><div class="p-6 bg-white rounded-2xl shadow-lg border border-slate-200 flex-grow animate-in" style="animation-delay:0.6s"><h3 class="text-xl font-bold text-slate-900 mb-3">Explanation of Steps</h3><ul class="list-disc list-inside text-base text-slate-700 space-y-2"><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span><strong>Inventory:</strong> Defines target devices and connection variables.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span><strong>Playbook:</strong> Targets <code>junos_routers</code> group, disables default fact gathering.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span><strong><code>junos_facts</code>:</strong> Module to collect specific subsets of Junos device data.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span><strong><code>register</code>:</strong> Stores module output for later use.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span><strong><code>debug</code>:</strong> Prints desired facts to the console.</span></li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 animate-in" style="animation-delay:0.7s"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The <code>junos_facts</code> module, combined with a well-defined inventory, provides a powerful way to programmatically retrieve and display critical operational data from your Junos devices.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

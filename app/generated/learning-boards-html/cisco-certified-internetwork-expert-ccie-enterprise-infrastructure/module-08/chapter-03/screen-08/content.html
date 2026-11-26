@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Apply & Verify CoPP</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Attachment</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Apply the policy to the control-plane</h3>
+      <p class="text-sm text-slate-600 mt-3">Use control-plane service-policy input <policy-name> and then use show policy-map control-plane for verification.</p>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm"><code>control-plane
+ service-policy input PM_CONTROL_PLANE</code></pre>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="font-semibold text-slate-800">What to inspect</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>Matched packets per class</li>
+          <li>Policed or dropped packet counts</li>
+          <li>Whether drops align with expected test events or real spikes</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Example output (abstracted)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm overflow-auto"><code>Policy Map PM_CONTROL_PLANE
+ Class CM_SSH
+  packets: 1200, drops: 2
+ Class CM_OSPF
+  packets: 4500, drops: 0
+ Class CM_DEFAULT_CP
+  packets: 7000, drops: 120</code></pre>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="font-semibold text-amber-700">Interpretation</div>
+        <div class="text-sm text-slate-700 mt-2">Non-zero drops in the default class suggest unknown control-plane traffic is being limited; evaluate whether those packets are malicious or legitimate before changing policies.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

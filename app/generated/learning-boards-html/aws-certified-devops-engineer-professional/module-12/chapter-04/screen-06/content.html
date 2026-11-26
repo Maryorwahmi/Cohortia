@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process</span>
+    <span>›</span>
+    <span class="text-slate-700">Instrumenting Lambda</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Attach AWSXRayDaemonWriteAccess to the execution role.</li>
+        <li>Enable Active tracing in Lambda configuration.</li>
+        <li>Configure xray_recorder and create subsegments inside the handler.</li>
+        <li>Add annotations for searchability and add_exception for errors.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on activity</div>
+        <div class="text-sm text-slate-700 mt-1">Deploy the sample Lambda, set the S3 bucket env var, invoke it several times, and observe traces in X-Ray.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Lambda starter code (visual)</div>
+      <pre class="mt-3 rounded bg-slate-900 text-slate-100 p-3"><code>import boto3
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.aws.client import patch_all
+
+xray_recorder.configure(service='XRayTracedFunction')
+xray_recorder.begin_segment('LambdaInit')
+try:
+  patch_all()
+finally:
+  xray_recorder.end_segment()</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">During the handler create a subsegment for S3 operations and annotate success or failure so traces show the business context you need.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Annotate identifiers you will filter on later, and avoid adding very large metadata objects to every trace.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

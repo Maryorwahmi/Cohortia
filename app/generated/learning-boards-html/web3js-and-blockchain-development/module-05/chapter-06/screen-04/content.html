@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Error Handling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Robust Error Handling</h3>
+      <p class="text-sm text-slate-600 mt-3">Classify and convert provider errors into concise user actions and rollback steps. Avoid vague messages.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-semibold text-slate-800">Common classes</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+            <li>Wallet rejections — ask user to approve the tx</li>
+            <li>Insufficient funds — show gas estimate and top-up advice</li>
+            <li>Reverts — parse revert reason when available</li>
+            <li>Network errors — retry/backoff and show status</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Misconception</div>
+          <p class="text-sm text-slate-600 mt-2">Not all errors include meaningful text. Treat parsing as best-effort and always provide a fallback message with a support link or retry option.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Normalize provider errors into user actions and centralize parsing to avoid scattered logic across components.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example — parse transaction errors</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace; tab-size:2; white-space:pre-wrap;"><code>try {
+  await myContract.methods.doSomething().send({ from: accounts[0] });
+} catch (error) {
+  if (error.message.includes("User denied transaction signature")) {
+    setError("Transaction rejected by user in MetaMask.");
+  } else if (error.message.includes("insufficient funds")) {
+    setError("Insufficient Ether in your wallet for gas.");
+  } else if (error.message.includes("revert")) {
+    const match = error.message.match(/revert: (.*)/);
+    const reason = match ? match[1] : "Transaction reverted without specific reason.";
+    setError(`Transaction failed: ${reason}`);
+  } else {
+    setError(`An unexpected error occurred: ${error.message}`);
+  }
+  console.error("Transaction error:", error);
+}</code></pre>
+
+      <div class="mt-4">
+        <div class="text-sm text-slate-600">Store a previous state when you optimistically update, and always revert to it if the normalized error indicates a failed transaction. Centralized utilities make this straightforward to reuse across the app.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

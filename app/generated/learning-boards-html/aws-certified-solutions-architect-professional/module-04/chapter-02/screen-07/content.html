@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">MGN CLI</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold">Common CLI sequence</div>
+      <div class="text-sm text-slate-600 mt-2">Use these commands to inspect, test, and cut over a source server.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded-md border text-sm">
+# 1. List source servers discovered by MGN
+aws mgn describe-source-servers
+
+# Expected output includes sourceServerID and dataReplicationInfo
+
+# 2. (Console or script) Configure launch settings or a launch template
+# Example: set instance type t3.large for the target
+
+# 3. Launch a test instance
+aws mgn start-test-launch --source-server-ids s-1234567890abcdef0
+
+# 4. Perform cutover after validation
+aws mgn start-cutover --source-server-ids s-1234567890abcdef0
+      </pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+          <div class="text-sm text-slate-700 mt-2">Check system logs, application endpoints, and network reachability after test launch.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Rollback plan</div>
+          <div class="text-sm text-slate-700 mt-2">Ensure DNS and traffic cutover steps can be reverted, and document a clear rollback path.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Test launch checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4">
+        <li>Confirm replication state is CONTINUOUS and lag is acceptable.</li>
+        <li>Verify instance boots and services start correctly.</li>
+        <li>Test integrations like databases and DNS resolution.</li>
+        <li>Document any configuration drift and fix before cutover.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat test launches as the critical gate. Multiple validation runs under realistic conditions reduce cutover risk substantially.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

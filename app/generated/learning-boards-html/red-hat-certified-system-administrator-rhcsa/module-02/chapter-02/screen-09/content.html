@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 bg-white rounded-xl border p-4" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">SUID, SGID, sticky — behavior and use</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <p>SUID (4): executable runs with owner privileges. Example: passwd needs elevated access to update secure files.</p>
+        <p>SGID (2): executable runs with group privileges; directory SGID makes new files inherit parent group.</p>
+        <p>Sticky bit (1): on directories prevents users from deleting files they do not own.</p>
+      </div>
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-slate-100 rounded p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"># set SUID on a script (use with caution)
+sudo chmod 4755 /usr/local/bin/dummy
+
+# set SGID on shared dir so children inherit group
+sudo chmod 2770 /project/data
+
+# set sticky bit on uploads
+sudo chmod 1777 /shared_uploads</pre>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border p-4" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-900">Security notes</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">
+          <div class="text-xs font-semibold">Risk</div>
+          <div class="text-xs text-slate-700 mt-1">SUID/SGID programs can be exploited; avoid setting them on writable files or unknown binaries.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800">
+          <div class="text-xs font-semibold">Audit</div>
+          <div class="text-xs text-slate-700 mt-1">Regularly run find commands to list SUID/SGID files and review whether they are required.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800">
+          <div class="text-xs font-semibold">Checklist</div>
+          <div class="text-xs text-slate-700 mt-1">When adding special bits, confirm purpose, review code ownership, and test least-privilege behavior.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory Management</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full min-h-0">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col min-h-0">
+      <div class="text-xl font-bold text-slate-800">Common allocation sources</div>
+      <div class="text-sm text-slate-600 mt-2">Frequent instantiation, string concatenation, temporary collections, and hidden LINQ allocations.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-white border rounded-xl">
+          <div class="text-sm font-semibold text-slate-800">Avoid in Update()</div>
+          <div class="text-xs text-slate-600 mt-1">Cache references and reuse objects instead of creating new ones each frame.</div>
+        </div>
+
+        <div class="p-3 bg-white border rounded-xl">
+          <div class="text-sm font-semibold text-slate-800">Use StringBuilder</div>
+          <div class="text-xs text-slate-600 mt-1">For repeated string concatenation, StringBuilder reduces temporary string allocations.</div>
+        </div>
+
+        <div class="p-3 bg-white border rounded-xl">
+          <div class="text-sm font-semibold text-slate-800">Watch LINQ</div>
+          <div class="text-xs text-slate-600 mt-1">LINQ queries and lambda closures can allocate; prefer explicit loops in hot paths.</div>
+        </div>
+
+        <div class="p-3 bg-slate-50 border rounded-xl">
+          <div class="text-sm font-semibold text-slate-800">Pre-allocate</div>
+          <div class="text-xs text-slate-600 mt-1">Give List and Dictionary an initial capacity to avoid repeated growth allocations.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Reduce unpredictable allocations during gameplay. Pool often-instantiated objects and profile to find allocation causes.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Practical pattern: object pool</div>
+      <div class="text-sm text-slate-600 mt-2">Create a pool that pre-instantiates a fixed number of objects. When you need an instance, reuse a disabled object and reset its state. Return it to the pool instead of Destroy.</div>
+
+      <div class="mt-4 p-3 bg-white border rounded-xl">
+        <div class="text-sm font-semibold text-slate-800">When to call GC.Collect()</div>
+        <div class="text-xs text-slate-600 mt-1">Only in controlled moments such as loading screens where a short pause is acceptable and predictable.</div>
+      </div>
+
+      <div class="mt-4 p-3 bg-slate-50 border rounded-xl text-sm">
+        <div class="font-semibold text-slate-800">Check your understanding</div>
+        <div class="text-xs text-slate-600 mt-1">If your profiler shows repeated allocations tied to UI updates, which two strategies should you consider first? (Answer: cache UI elements and reuse or pool UI objects; avoid string allocations during layout.)</div>
+      </div>
+    </div>
+  </div>
+</div>

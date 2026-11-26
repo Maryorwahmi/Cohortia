@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-8 bg-white rounded-2xl p-5 shadow-sm card-border">
+      <div class="text-xl font-bold text-slate-800">Lab scenario: R1 ↔ R2</div>
+      <div class="text-sm text-slate-600 mt-2">Follow these tasks to practice configuration, verification, and troubleshooting.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Starter configuration templates</div>
+        <div class="mt-3 bg-slate-50 rounded-lg p-3 border card-border">
+          <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;margin:0;font-size:13px;">
+# On Router R1 (AS 64501)
+edit
+set interfaces ge-0/0/0 unit 0 family inet address 192.168.1.1/30
+set routing-options autonomous-system 64501
+set protocols bgp group EBGP_LINK type external
+set protocols bgp group EBGP_LINK neighbor 192.168.1.2 peer-as 64502
+commit and-quit
+
+# On Router R2 (AS 64502)
+edit
+set interfaces ge-0/0/0 unit 0 family inet address 192.168.1.2/30
+set routing-options autonomous-system 64502
+set protocols bgp group EBGP_LINK type external
+set protocols bgp group EBGP_LINK neighbor 192.168.1.1 peer-as 64501
+commit and-quit
+          </pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Lab steps</div>
+        <ol class="mt-2 list-decimal list-inside text-sm text-slate-600">
+          <li>Apply configuration on both routers and commit.</li>
+          <li>Ping the neighbor IP from each side to confirm reachability.</li>
+          <li>Run run show bgp summary and run show bgp neighbor on each router to verify Established.</li>
+          <li>Introduce an error: change peer-as on R1 to an incorrect AS and commit, observe state changes, then revert.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Expected observations</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside">
+        <li>Successful ping before BGP completes.</li>
+        <li>show bgp summary moves to Establ when both sides match AS and reachability is present.</li>
+        <li>An incorrect peer-as results in OpenSent/OpenConfirm or repeated errors until fixed.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Safety note</div>
+          <p class="text-xs font-medium text-slate-800">Perform these changes in a lab or maintenance window. Incorrect BGP configuration can impact routing beyond the test routers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

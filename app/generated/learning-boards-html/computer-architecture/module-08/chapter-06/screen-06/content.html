@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">ARM MTE</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold text-slate-900">ARM Memory Tagging Extension — Process</div>
+    <div class="mt-2 text-sm text-slate-700">MTE assigns tags to 16-byte memory granules and to pointer high bits and checks them on access.</div>
+
+    <div class="flex gap-3 mt-4 h-full">
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-xl bg-white p-3 card-border flex-grow">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Steps</div>
+          <ol class="mt-2 text-sm text-slate-700 list-decimal list-inside space-y-2">
+            <li>Allocator tags a memory granule with a 4-bit value when it is given to a program.</li>
+            <li>Pointers carry a 4-bit tag in their high bits representing expected tag.</li>
+            <li>On memory access hardware compares pointer tag and granule tag.</li>
+            <li>Mismatches cause a fault, catching reuse or cross-granule overwrites.</li>
+          </ol>
+        </div>
+
+        <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">MTE is a pragmatic middle ground: wide deployment is possible because overhead is low, though it does not close every gap.</div>
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-xl bg-white p-3 card-border flex-grow">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-2">Allocate block A tagged 3. Free A. Allocate block B at same location but allocator assigns tag 7. An old pointer to A still carries tag 3; hardware raises a tag-mismatch fault when the old pointer is used, preventing unintended access.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Check your understanding</div>
+          <div class="text-sm text-slate-700 mt-2">Design two short tests: one that triggers a tag mismatch and one intra-granule overflow that MTE would miss. Observing the fault in the first proves MTE is active; the second highlights its limits.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

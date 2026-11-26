@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto;font-family:ui-monospace,monospace;white-space:pre-wrap}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">AWS CDK (Python example)</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">CDK snippet</div>
+      <div class="mt-3 code flex-1">
+<pre><code>from aws_cdk import (
+    Stack,
+    aws_lambda as _lambda,
+    aws_apigateway as apigw,
+    aws_dynamodb as dynamodb,
+    CfnOutput
+)
+from constructs import Construct
+
+class MyServerlessAppStack(Stack):
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+
+        table = dynamodb.Table(
+            self, "MyServerlessTable",
+            partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+            read_capacity=1,
+            write_capacity=1
+        )
+
+        api_function = _lambda.Function(
+            self, "MyApiFunction",
+            runtime=_lambda.Runtime.PYTHON_3_9,
+            handler="app.lambda_handler",
+            code=_lambda.Code.from_asset("my_api_function"),
+            environment={"TABLE_NAME": table.table_name}
+        )
+
+        table.grant_read_write_data(api_function)
+
+        api = apigw.LambdaRestApi(self, "MyApi", handler=api_function, proxy=True)
+
+        CfnOutput(self, "ApiEndpoint", value=api.url_for_path("/items"))
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm border card-border flex flex-col">
+      <div class="font-bold text-lg text-slate-800">When to choose CDK</div>
+      <div class="text-sm text-slate-600 mt-3">Choose CDK when you need programmatic patterns, custom constructs, or when many resources share similar configuration. It reduces duplication through code abstractions.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">synth & deploy</div>
+          <div class="text-sm text-slate-600 mt-1">cdk synth generates CloudFormation; cdk deploy performs the deployment.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Inspect synthesized templates</div>
+          <div class="text-sm text-slate-600 mt-1">Always review the CloudFormation output to confirm resource and permission shapes before deploying to production.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

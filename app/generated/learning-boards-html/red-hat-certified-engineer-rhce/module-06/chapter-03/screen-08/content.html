@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploying the automation key — full playbook</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm border card-border h-full overflow-auto">
+    <div class="text-lg font-bold">Playbook template</div>
+    <div class="text-sm text-slate-600 mt-2">A short playbook that ensures the user exists and deploys a restricted key.</div>
+
+    <pre class="mt-4 p-4 bg-black/5 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+---
+- name: Deploy SSH key for automation user
+  hosts: web_servers
+  become: true
+
+  vars:
+    automation_user: ansible_svc
+    automation_public_key_path: ~/.ssh/ansible_svc_key.pub
+
+  tasks:
+    - name: Ensure automation user exists
+      ansible.builtin.user:
+        name: "{{ automation_user }}"
+        state: present
+
+    - name: Deploy public key for automation user with restricted options
+      ansible.posix.authorized_key:
+        user: "{{ automation_user }}"
+        state: present
+        key: "{{ lookup('file', automation_public_key_path) }}"
+        key_options: 'no-port-forwarding'
+    </pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-slate-50 p-3 border card-border">
+        <div class="text-sm font-semibold">Why lookup('file')?</div>
+        <div class="text-sm text-slate-700 mt-2">It reads the public key content on the control node so the playbook doesn't contain the literal key string and stays readable and safe for version control when handled properly.</div>
+      </div>
+
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">After running, inspect /home/ansible_svc/.ssh/authorized_keys and test ssh -i pointing to the private key path on the control node.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

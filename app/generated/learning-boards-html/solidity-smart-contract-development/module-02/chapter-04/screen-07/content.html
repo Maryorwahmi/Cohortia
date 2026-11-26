@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Copy vs Reference</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Bad: Unnecessary copy</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+function getNumbersSumBad() public view returns (uint) {
+  uint[] memory tempNumbers = numbers; // copies storage->memory (expensive)
+  uint sum = 0;
+  for (uint i = 0; i &lt; tempNumbers.length; i++) {
+    sum += tempNumbers[i];
+  }
+  return sum;
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This copies the whole array into memory, which may be costly for large arrays and is unnecessary for read-only aggregation.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Good: Iterate storage directly</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+function getNumbersSumGood() public view returns (uint) {
+  uint sum = 0;
+  for (uint i = 0; i &lt; numbers.length; i++) {
+    sum += numbers[i]; // reads directly from storage slots
+  }
+  return sum;
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">Iterating the storage array avoids copying and reduces gas when only reading values.</div>
+
+      <div class="mt-4 rounded-lg border card-border p-3 bg-white">
+        <div class="font-semibold text-slate-700">Check your code</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+          <li>Search for assignments from storage to memory for large arrays or structs.</li>
+          <li>Prefer storage references when you need to edit mapping entries in place.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

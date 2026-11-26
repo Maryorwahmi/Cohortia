@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">Math.divide — long division</span>
+  </div>
+  <div class="flex gap-6 flex-grow">
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-900">Algorithm steps</h3>
+      <ol class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Check divisor = 0 -> call Sys.error(3).</li>
+        <li>Normalize signs and work with absolute values.</li>
+        <li>For i from highest bit down to 0: set temp = divisor &lt;&lt; i; if temp &lt;= dividend then set quotient bit and subtract temp from dividend.</li>
+        <li>Apply recorded sign to quotient and return.</li>
+      </ol>
+      <div class="mt-4 rounded-lg bg-white border p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-2">77 / 5: shift 5 up to 64 (5&lt;&lt;3), subtract 64 -> remainder 13, set bit 3, then handle lower bits to form quotient 15 with remainder 2.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-900">Code snippet</h3>
+      <pre class="bg-slate-900 text-slate-50 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>function int divide(int x, int y) {
+  var int q, i, temp;
+  if (y = 0) {
+    do Sys.error(3);
+  }
+  if ((x &lt; 0) &amp; (y &gt; 0)) { return -Math.divide(-x, y); }
+  if ((x &gt; 0) &amp; (y &lt; 0)) { return -Math.divide(x, -y); }
+  if ((x &lt; 0) &amp; (y &lt; 0)) { return Math.divide(-x, -y); }
+
+  let q = 0;
+  let i = 15;
+  while (~(i &lt; 0)) {
+    let temp = (y &lt;&lt; i);
+    if (temp &lt; (x + 1)) {
+      let q = q + (1 &lt;&lt; i);
+      let x = x - temp;
+    }
+    let i = i - 1;
+  }
+  return q;
+}</code></pre>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-bold text-slate-800">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Using repeated subtraction by original divisor is too slow for large dividends.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-emerald-50">
+          <div class="text-xs font-bold text-slate-800">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Handle division-by-zero early and standardize sign handling to reuse the positive-case algorithm.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

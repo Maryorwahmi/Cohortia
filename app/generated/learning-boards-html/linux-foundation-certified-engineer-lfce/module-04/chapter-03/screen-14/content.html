@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-5 card-border h-full flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Assessment Idea</div>
+    <h3 class="text-xl font-bold text-slate-900">Diagnose missing client IP</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Symptoms</div>
+        <div class="text-sm text-slate-600 mt-2">Backend logs show requests coming from the proxy server IP rather than the original client addresses.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Root cause</div>
+        <div class="text-sm text-slate-600 mt-2">proxy_set_header directives are missing or misconfigured in the Nginx location block that forwards requests.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Fix</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;</pre>
+      </div>
+
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">After adding headers, run nginx -t, reload, then curl and check backend logs for the original client IP entries.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Passing client headers to backends is essential for correct logging and security-related logic; proxy_set_header is the directive to check.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

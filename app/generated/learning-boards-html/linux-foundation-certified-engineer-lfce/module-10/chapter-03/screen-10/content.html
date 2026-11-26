@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Process · Tuning</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">vm.swappiness</h3>
+      <p class="text-sm text-slate-700 mt-2">Controls kernel swapping behavior; tune carefully and monitor effects.</p>
+
+      <pre class="mt-3 bg-slate-100 text-slate-900 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+    # Check current swappiness
+    cat /proc/sys/vm/swappiness
+
+    # Temporarily set swappiness to 10
+    sudo sysctl vm.swappiness=10
+
+    # Persistently set in /etc/sysctl.conf
+    echo "vm.swappiness = 10" | sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+      </pre>
+
+      <div class="mt-3 text-xs text-slate-600">After changing, run vmstat and free -h while exercising your workload to observe si/so and available changes.</div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-xs text-slate-600 mt-2">You lower swappiness from 60 to 10 on a database server and observe less swap activity under peak load, improving latency. However, if cache-sensitive workloads require freed pages, watch for increased disk reads.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-xs font-bold uppercase text-rose-700">Misconception</div>
+          <div class="text-xs text-slate-700 mt-1">Lower swappiness always improves performance. It depends on workload and cache needs.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-xs font-bold uppercase text-emerald-700">Pro tip</div>
+          <div class="text-xs text-slate-700 mt-1">Make temporary changes first and monitor vmstat si/so before persisting to sysctl.conf.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Swappiness tuning is a measured trade-off; reduce it to keep active processes in RAM but verify effects under load.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

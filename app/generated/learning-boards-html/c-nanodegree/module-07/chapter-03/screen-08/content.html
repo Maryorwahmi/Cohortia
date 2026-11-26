@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size:2; font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">std::promise & std::future</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">How they relate</div>
+        <div class="text-sm text-slate-700">A promise sets either a value or an exception. The associated future is retrieved by calling promise.get_future() and can block on get() to receive the result. Use this pair for single, one‑time results between threads.</div>
+
+        <div class="mt-4 p-3 rounded-lg bg-emerald-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Behavior notes</div>
+          <div class="text-sm text-slate-700 mt-2">get() blocks until the value or exception is set. get() can be called only once; calling it again is an error.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="p-3 rounded-xl bg-white card-border shadow-sm">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">When to use</div>
+          <div class="text-sm text-slate-700">For one-off tasks where a single result is produced asynchronously, such as computing a value on a background thread and returning it to the requester.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="p-5 rounded-xl bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800 mb-2">Concrete example</div>
+        <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto"><code>// promise/future pattern (excerpt)
+std::promise&lt;int&gt; p;
+std::future&lt;int&gt; f = p.get_future();
+std::thread t([&p]{ int r = calculate_sum(10,20); p.set_value(r); });
+// Main thread can do other work...
+int sum = f.get(); // blocks until promise set_value
+</code></pre>
+      </div>
+
+      <div class="mt-4 p-5 rounded-xl bg-white card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Misuse to avoid</div>
+        <div class="text-sm text-slate-700">Do not use promise/future for frequent updates. If you need many results over time, prefer a queue protected by a mutex and signaled with condition variables.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

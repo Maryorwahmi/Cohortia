@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Failback</span>
+  </div>
+
+  <div class="flex gap-6 h-[calc(100%-40px)]">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">What to check before failback</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Confirm any new data written in the promoted account has been replicated or reconciled to the original primary.</li>
+        <li>Verify replication status and lag metrics so you avoid missing transactions.</li>
+        <li>Plan application reconnection and expect a brief downtime during promotion.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Failback command (conceptual)</div>
+        <pre class="mt-3 text-sm bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>-- In the original primary account, once ready
+ALTER FAILOVER GROUP my_app_fg PRIMARY;</code></pre>
+        <div class="text-xs text-slate-500 mt-2">This returns writability to the original primary; the promoted account's copies become read-only again.</div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3 border-l-4 border-l-rose-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Pitfall</div>
+        <div class="text-sm text-slate-700">Failing to reconcile writes made during failover can create conflicts. Treat failback as a controlled operation requiring checks and coordination.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Plan for data parity and reconfiguration when failing back. Execute checks and treat failback like a second failover with its own runbook.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

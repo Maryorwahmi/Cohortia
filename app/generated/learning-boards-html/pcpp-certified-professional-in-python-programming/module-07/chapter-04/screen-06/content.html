@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;white-space:pre-wrap;tab-size:2;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.4</span>
+      <span>›</span>
+      <span class="text-slate-700">object_hook</span>
+    </div>
+    <h4 class="text-xl font-bold text-slate-900">object_hook and reconstructing objects</h4>
+    <p class="text-sm text-slate-600 mt-1">Use object_hook to map decoded dictionaries back to Python instances when a type marker is present.</p>
+  </div>
+
+  <div class="mt-4 flex gap-4 h-full">
+    <div class="w-1/2 card">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Decoder example</div>
+      <pre class="code"><code>import json
+import datetime
+from decimal import Decimal
+
+def advanced_object_hook(dct):
+  if '__class__' in dct and dct['__class__'] == 'Product':
+    return ProductForJSON(
+      dct['name'],
+      Decimal(dct['price']),
+      dct['quantity'],
+      datetime.datetime.fromisoformat(dct['last_updated']),
+      set(dct['tags'])
+    )
+  if 'created_at' in dct and isinstance(dct['created_at'], str):
+    try:
+      dct['created_at'] = datetime.datetime.fromisoformat(dct['created_at'])
+    except ValueError:
+      pass
+  return dct
+</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+          <li>object_hook runs for each JSON object literal (each dict), not for primitives.</li>
+          <li>Use explicit markers to make reconstruction unambiguous and safe.</li>
+          <li>Convert strings back into datetimes and Decimals within the hook to restore types.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">If you rely on value patterns only (for example checking for ISO-like strings everywhere) you risk false positives. Prefer object markers where possible.</div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">object_hook is powerful for rebuilding objects, but it works best with explicit type markers and careful conversions to avoid ambiguity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

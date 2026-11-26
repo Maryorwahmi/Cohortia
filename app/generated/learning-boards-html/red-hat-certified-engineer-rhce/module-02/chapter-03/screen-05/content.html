@@ -1,0 +1,45 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .step {background:linear-gradient(90deg,#f8fafc,white)}</style>
+  <div class="mb-4">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Definition & Scope</div>
+    <h3 class="text-2xl font-bold text-slate-800">Variable scopes in Ansible</h3>
+    <p class="text-sm text-slate-600 mt-2">Understand where to place values and the role each scope plays in deployment patterns.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Process: Choose a scope</div>
+      <ol class="text-sm text-slate-700 list-decimal ml-5 space-y-3">
+        <li>Start with group_vars for sensible environment or role defaults that apply to many hosts.</li>
+        <li>Use host_vars for per-host exceptions or identifiers that must differ per machine.</li>
+        <li>Use playbook vars for defaults tied to a specific play's intent and not reusable elsewhere.</li>
+        <li>Use extra-vars for deliberate overrides at runtime, such as CI/CD pipelines or one-off runs.</li>
+      </ol>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Prefer group_vars for environment defaults and reserve extra-vars for explicit overrides to avoid accidental changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">Examples</div>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold">Playbook vars (vars:)</div>
+          <div class="mt-1">Set a default app_version for this play only.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold">host_vars/host1.example.com.yml</div>
+          <pre class="mt-2 bg-white p-2 rounded"><code>username: devops_user1
+user_comment: "First DevOps User"</code></pre>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold">Extra-vars example</div>
+          <pre class="mt-2 bg-white p-2 rounded"><code>ansible-playbook play.yml -e "nginx_port=80 app_env=production"</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

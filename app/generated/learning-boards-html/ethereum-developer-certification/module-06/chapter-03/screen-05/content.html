@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} .arrow{color:#2563eb;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Reentrancy</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xl font-bold text-slate-800">What is reentrancy?</div>
+      <div class="text-sm text-slate-600 mt-2">An attacker re-enters a contract while its state is inconsistent, causing repeated effects.</div>
+
+      <div class="mt-4 flex-1">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="font-semibold text-slate-800">Process: How an exploit runs</div>
+          <ol class="mt-2 text-sm text-slate-600 list-decimal list-inside space-y-2">
+            <li>Attacker deposits or manipulates state to enable withdrawal.</li>
+            <li>Attacker calls withdraw; contract sends Ether via external call.</li>
+            <li>Attacker’s fallback calls withdraw again before balance is updated.</li>
+            <li>Repeat until funds are drained or gas runs out.</li>
+          </ol>
+        </div>
+
+        <div class="mt-4 rounded-lg bg-rose-50 p-3 border card-border">
+          <div class="font-semibold text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-800 mt-1">Relying solely on gas-limited transfers is fragile; network changes or future language updates can alter assumptions.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always ensure state is consistent before external interactions or use a reentrancy guard to block nested calls.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800">Concrete example (scenario)</div>
+      <div class="text-sm text-slate-600 mt-2">A vulnerable withdraw function that transfers Ether before setting balances allows an attacker’s fallback to call withdraw repeatedly and drain the contract.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+          <ul class="mt-2 text-sm text-slate-600 space-y-2">
+            <li>Why does updating balances before transfer stop the attack?</li>
+            <li>How would you write a unit test that simulates a reentrant call?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-slate-50 p-3 rounded-lg border card-border text-sm">
+        <div class="font-semibold text-slate-800">Analogy</div>
+        <div class="text-sm text-slate-600 mt-1">Think of the contract as a vault that should lock a user’s ledger entry before handing over cash; handing cash first leaves the ledger unlocked for repeat withdrawals.</div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Chaincode Upgrade</span>
+  </div>
+
+  <div class="flex gap-6 flex-1">
+    <div class="w-2/3 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example commands (simplified)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 text-xs"><code># 1. Package new chaincode
+peer lifecycle chaincode package mycc.tar.gz --path ./mycc --lang golang --label mycc_1.1
+
+# 2. Install on each peer
+peer lifecycle chaincode install mycc.tar.gz
+
+# 3. Query installed to get package ID
+peer lifecycle chaincode queryinstalled
+
+# 4. Approve definition for your org (increment sequence)
+peer lifecycle chaincode approveformyorg -o orderer.example.com:7050 --channelID mychannel --name mycc --version 1.1 --package-id <PACKAGE_ID> --sequence 2 --tls --cafile $ORDERER_CA
+
+# 5. Commit the new definition (after approvals)
+peer lifecycle chaincode commitchanneldefinition -o orderer.example.com:7050 --channelID mychannel --name mycc --version 1.1 --sequence 2 --tls --cafile $ORDERER_CA --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $PEER0_ORG1_CA</code></pre>
+
+      <div class="mt-3 text-xs text-slate-400">Run these steps in staging first and validate the committed definition before production execution.</div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Checklist</div>
+        <ul class="text-sm text-slate-700 mt-2">
+          <li>• Package with updated label.</li>
+          <li>• Install on necessary peers.</li>
+          <li>• Coordinate approvals across orgs.</li>
+          <li>• Commit and validate functions.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Chaincode upgrades require packaging, distributed installation, organization approvals, and a committed definition for the channel to use the new code.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

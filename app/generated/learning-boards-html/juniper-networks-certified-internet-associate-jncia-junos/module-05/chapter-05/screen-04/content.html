@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Source & Destination Matching</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card p-4 h-1/2">
+        <div class="text-sm font-bold text-slate-900">How it works</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Match examines packet IP headers against a prefix or a named address-set.</li>
+          <li>Address-sets are defined once and referenced across filters for reuse.</li>
+          <li>Specific host matches should precede broader subnet matches to ensure correct behavior.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4 h-1/2">
+        <div class="text-sm font-bold text-slate-900">Concrete example</div>
+        <div class="mt-2 text-sm text-slate-700 mono">
+          Example configuration snippet you will use as a template:
+
+          set policy-options address-set MANAGEMENT-HOSTS address 192.168.1.10/32
+          set policy-options address-set MANAGEMENT-HOSTS address 192.168.1.11/32
+          set firewall family inet filter MY-FILTER term 1 from source-address-set MANAGEMENT-HOSTS
+          set firewall family inet filter MY-FILTER term 1 then accept
+
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-700">Placing a general subnet-accept before a host-discard or host-accept will mask the specific intent. Always order specific terms first.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold text-slate-900">Key takeaway</div>
+        <div class="mt-2 text-sm text-slate-700">Address-sets make filters concise and easier to update. Keep term order deliberate to preserve specificity.</div>
+      </div>
+    </div>
+  </div>
+</div>

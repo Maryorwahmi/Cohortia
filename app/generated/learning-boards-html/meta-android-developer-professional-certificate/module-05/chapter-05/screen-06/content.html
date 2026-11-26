@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">RecyclerView</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm overflow-auto" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">Code Pattern: Lightweight onBind</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>class TaskViewHolder(val binding: ItemBinding): RecyclerView.ViewHolder(binding.root) {
+  fun bind(task: Task) {
+    binding.title.text = task.title
+    binding.dueDate.text = task.formattedDate // precomputed
+    imageLoader.load(task.imageUrl).into(binding.image)
+  }
+}</code></pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-700">Note: date formatting and other heavy transformations should happen before the adapter receives the list. Use DiffUtil for efficient updates and let your image loader handle decoding and caching.</div>
+    </div>
+    <div class="flex-1 bg-white rounded-2xl border p-5 shadow-sm overflow-auto" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation & Example</div>
+      <ul class="text-sm text-slate-700 ml-3 list-disc space-y-2">
+        <li>Precompute display strings to avoid work in onBind.</li>
+        <li>Use libraries like Glide or Coil to handle images off the main thread and to cache results.</li>
+        <li>Use DiffUtil to update only changed items instead of redrawing the whole list.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Make the adapter the cheapest possible path from model to view and delegate heavy work elsewhere.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600">
+        <li>Verify disks on the managed node with lsblk.</li>
+        <li>Create a playbook using community.general.lvg with vg and pvs.</li>
+        <li>Run ansible-playbook with become privileges and register results.</li>
+        <li>Verify with pvdisplay and vgdisplay after the run.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Starter playbook</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="min-height:160px">
+        <pre><code>---
+- name: Create an LVM Volume Group
+  hosts: your_target_host
+  become: yes
+  tasks:
+    - name: Ensure 'app_vg' Volume Group exists and includes /dev/sdb and /dev/sdc
+      community.general.lvg:
+        vg: app_vg
+        pvs:
+          - /dev/sdb
+          - /dev/sdc
+        state: present
+      register: vg_status
+
+    - name: Display Volume Group status
+      ansible.builtin.debug:
+        var: vg_status</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Verify</div>
+      <div class="text-sm text-slate-800 mt-1">After the playbook runs, confirm with ansible ad-hoc commands or login and run sudo pvdisplay and sudo vgdisplay app_vg to validate that the PVs and VG exist and the capacity is correct.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

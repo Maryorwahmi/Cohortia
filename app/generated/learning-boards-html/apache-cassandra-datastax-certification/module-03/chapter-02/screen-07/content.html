@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Clustering Columns</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-5 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Comparison: ORDER BY behavior</div>
+      <div class="text-sm text-slate-600 mt-2">Clustering order controls on-disk sorting and read retrieval order.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div class="text-sm font-bold text-slate-800">Ascending (default)</div>
+          <div class="text-sm text-slate-700 mt-1">Rows are stored from oldest to newest when used with timestamps as clustering columns.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">Descending</div>
+          <div class="text-sm text-slate-700 mt-1">Use WITH CLUSTERING ORDER BY (col DESC) to store and return newest-first without client reversal.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick clustering columns and order to match common range and sorted queries so reads remain server-side efficient.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col card p-5">
+      <div class="text-sm font-bold text-slate-700">Concrete CQL</div>
+      <div class="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0"><code>CREATE TABLE user_profiles.user_activity_by_month (
+  user_id UUID,
+  activity_month INT,
+  activity_id TIMEUUID,
+  activity_type TEXT,
+  PRIMARY KEY ((user_id, activity_month), activity_id)
+) WITH CLUSTERING ORDER BY (activity_id DESC);</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Here activity_id is a TIMEUUID clustering column ordered DESC so queries for recent activities return newest first without extra work.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider" style="color:#b45309">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Clustering order does not change partition placement; it only affects ordering inside partitions.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

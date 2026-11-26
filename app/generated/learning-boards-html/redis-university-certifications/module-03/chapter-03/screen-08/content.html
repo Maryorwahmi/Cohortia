@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">AOF Rewriting</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Rewrite process</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-2">Fork child → write compact AOF → replace</h2>
+      <p class="text-sm text-slate-600 mt-3">BGREWRITEAOF compacts the append-only file by creating a new file with the minimal commands necessary to rebuild the current dataset.</p>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">The child process reads memory and writes a new optimized AOF file that removes redundant commands.</div>
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">On success, Redis atomically replaces the old AOF with the new file. This reduces disk usage and speeds replay at restart.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Practical tip</div>
+          <div class="text-sm text-slate-600 mt-1">Trigger BGREWRITEAOF during low traffic periods. Monitor CPU and I/O because forks and rewrites use resources.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Command example</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+# Trigger a manual AOF rewrite
+BGREWRITEAOF
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">Use BGREWRITEAOF to prevent appendonly.aof from growing without bound and to keep recovery time reasonable.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

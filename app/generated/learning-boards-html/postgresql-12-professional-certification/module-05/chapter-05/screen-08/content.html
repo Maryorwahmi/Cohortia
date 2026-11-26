@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Plain vs Tar formats</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-6 border" style="border-color:var(--slate-100);">
+      <div class="text-lg font-bold text-slate-800">Plain (default)</div>
+      <div class="text-sm text-slate-600 mt-2">Creates directory structure identical to PGDATA for direct restore.</div>
+
+      <div class="mt-4 text-sm">
+        <ul class="list-disc ml-5 text-slate-600 space-y-2">
+          <li>Restore: copy files into PGDATA and start server.</li>
+          <li>Use when you have the same filesystem layout and want immediate file-level access.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border flex flex-col" style="border-color:var(--slate-100);">
+      <div class="text-lg font-bold text-slate-800">Tar (-F tar)</div>
+      <div class="text-sm text-slate-600 mt-2">Produces a single tar archive file, which is convenient for transport and compression.</div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <ul class="list-disc ml-5 space-y-2">
+          <li>Good for moving backups between sites or storing in object storage.</li>
+          <li>Requires extraction into an empty PGDATA target for restore.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <pre class="text-xs bg-slate-50 p-3 rounded">pg_basebackup -h localhost -U postgres -D /mnt/pg_backups/base_backup_20210930.tar -F tar -P</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

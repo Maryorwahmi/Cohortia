@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Partial Updates (Doc)</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Targeted Field Updates with <code>_update</code> API</h2>
+      <p class="text-lg text-slate-700 mb-6">Modifying specific fields using the <code>doc</code> approach.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Partial update using the 'doc' approach</div>
+        <div class="text-blue-400 mb-2"># Only update the 'price' and 'available' fields for product_101</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X POST "localhost:9200/products/_update/product_101?pretty" -H 'Content-Type: application/json' -d'
+{
+  "doc": {
+    "price": 59.99,
+    "available": false
+  }
+}
+'</code></pre>
+        <div class="text-emerald-400 mt-4 mb-2"># Expected Response Snippet:</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">{
+  "_index": "products",
+  "_id": "product_101",
+  "_version": 3, <span class="text-slate-500"># Version increments</span>
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">How it Works</div>
+        <p class="text-sm font-medium text-slate-800">The `_update` API fetches the existing document, merges the provided `doc` object, and then re-indexes the modified document.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Efficiency Gain</div>
+        <p class="text-sm font-medium text-slate-800">Reduces network payload by only sending changed fields, making it more efficient than full document replacement for minor updates.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Use Case</div>
+        <p class="text-sm font-medium text-slate-800">Ideal for updating a small number of fields, like a product's price or availability status, without touching other data.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the `_update` API with `doc` for simple, efficient partial updates to specific fields.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

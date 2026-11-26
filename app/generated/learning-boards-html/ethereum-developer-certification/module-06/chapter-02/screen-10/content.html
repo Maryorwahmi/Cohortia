@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; tab-size:2; font-size:13px;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Process Flow</div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 card p-4">
+      <h3 class="text-lg font-bold text-slate-800">Initialization steps</h3>
+      <ol class="text-sm text-slate-600 mt-3 list-decimal pl-5 space-y-2">
+        <li>Deploy implementation contract (constructor runs here).</li>
+        <li>Deploy proxy pointing to implementation address.</li>
+        <li>Call initializer on the proxy to set state in proxy storage.</li>
+        <li>Lock initializer with Initializable modifiers to avoid multiple runs.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Code pattern</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded">function initialize(string memory name, string memory symbol) public initializer {
+  __ERC20_init(name, symbol);
+  __Ownable_init();
+  __UUPSUpgradeable_init();
+}
+</pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Gotcha</div>
+      <div class="text-sm text-slate-600 mt-2">Constructors on implementation do not initialize proxy state. Always call initializer through proxy and protect it with initializer modifiers.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Use reinitializer with a version number only when adding new state in a patch so initialization remains controlled and auditable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

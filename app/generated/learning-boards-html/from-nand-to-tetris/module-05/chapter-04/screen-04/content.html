@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white border border-slate-100 p-4 shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-xl font-bold text-slate-900">The three VM flow commands</div>
+      <div class="text-sm text-slate-600 mt-2">Precise semantics and a short example to ground meaning.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">
+          <div class="text-sm font-semibold">Label</div>
+          <div class="text-sm text-slate-700 mt-1">Declares a position in code to target with jumps; no stack effect.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">
+          <div class="text-sm font-semibold">Goto</div>
+          <div class="text-sm text-slate-700 mt-1">Unconditional transfer: subsequent execution continues at the label.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-700">
+          <div class="text-sm font-semibold">If-Goto</div>
+          <div class="text-sm text-slate-700 mt-1">Pops the top-of-stack; if non-zero, it jumps to the label; otherwise it falls through.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white border border-slate-100 p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example</div>
+      <pre class="mt-2 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">push local 0    // x
+push local 1    // y
+gt              // x > y?
+if-goto IF_TRUE
+// else block
+push local 1
+push local 0
+sub
+pop local 1
+goto IF_END
+label IF_TRUE
+// if block
+push local 0
+push local 1
+sub
+pop local 0
+label IF_END</pre>
+
+      <div class="mt-3 grid grid-cols-1 gap-2">
+        <div class="rounded-xl p-3 border border-slate-100 bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">If-goto does not keep the condition on the stack; it consumes it. Forgetting this leads to extra values that break later stack-based ops.</div>
+        </div>
+        <div class="mt-2">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">These three simple commands — mark, unconditional jump, conditional pop-and-jump — compose to produce all higher-level branching and loops.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

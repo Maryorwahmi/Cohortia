@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-100">Definition</span>
+      <span class="text-slate-700">Kafka Sink Connector Config</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900">Connector configuration example</h3>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full mt-4">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800">Why mappings matter</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Field mappings determine which message fields land in which Cassandra columns.</li>
+        <li>Contact points and local DC setting guide efficient write routing.</li>
+        <li>Misaligned schemas cause silent failures or rejected writes.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-rose-50 p-3">
+        <div class="text-xs font-bold text-rose-700">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-1">Not handling schema evolution or assuming message shapes remain static leads to ingestion failures when producers change payloads.</p>
+      </div>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Conceptual properties file</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code># kafka-connect-cassandra-sink.properties
+name=cassandra-sink-connector
+connector.class=com.datastax.kafka.connect.CassandraSinkConnector
+tasks.max=1
+
+topics=iot_sensor_data,user_activity_logs
+contactPoints=cassandra-node1,cassandra-node2
+loadBalancing.localDc=datacenter1
+port=9042
+keyspace=iot_data
+
+table.iot_sensor_data=sensor_readings
+table.user_activity_logs=user_events
+
+field.mapping.iot_sensor_data=sensor_id=value.sensorId,timestamp=value.timestamp,temperature=value.temperature
+field.mapping.user_activity_logs=user_id=value.userId,event_type=value.eventType,event_time=value.eventTime
+</code></pre>
+      <div class="mt-3 text-xs text-slate-500">Test with sample JSON messages and inspect connector logs for mapping errors before rolling out.</div>
+    </div>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Treat connector config as code. Validate mappings and schema compatibility in staging to avoid production failures.</p>
+    </div>
+    <div class="rounded-xl bg-white p-3 card-border">
+      <div class="text-xs font-bold text-slate-700">Check your understanding</div>
+      <p class="text-sm text-slate-600 mt-1">If you add an order_events topic, also add table.order_events and a corresponding field.mapping entry that maps order fields to Cassandra columns.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-hidden flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Troubleshooting DHCP failures and helper-addresses</h3>
+      <p class="text-sm text-slate-600 mt-2">Verify VLAN membership, router subinterface, and helper address before changing server scopes.</p>
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-700">Show Commands</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc ml-5">
+          <li>show vlan brief</li>
+          <li>show interfaces <int> switchport</li>
+          <li>show ip interface</li>
+          <li>show ip dhcp binding</li>
+        </ul>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always confirm the helper address and path to the DHCP server before altering pools.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Configuration Example</div>
+      <pre class="mt-2 p-3 rounded-lg bg-slate-100">
+! Switch A (access port)
+SwitchA(config)# interface GigabitEthernet0/1
+SwitchA(config-if)# switchport mode access
+SwitchA(config-if)# switchport access vlan 20
+SwitchA(config-if)# no shutdown
+
+! Router R1 subinterface (problematic initially)
+RouterR1(config)# interface GigabitEthernet0/0.20
+RouterR1(config-subif)# encapsulation dot1Q 20
+RouterR1(config-subif)# ip address 10.0.20.1 255.255.255.0
+RouterR1(config-subif)# no shutdown
+
+! Fix: add helper address
+RouterR1(config-subif)# ip helper-address 192.168.1.50
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">After configuring the helper address, verify with show ip interface GigabitEthernet0/0.20 and then test the client obtaining an IP. On the DHCP server use show ip dhcp binding to confirm assignment or debug ip dhcp server packet to watch the transaction.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

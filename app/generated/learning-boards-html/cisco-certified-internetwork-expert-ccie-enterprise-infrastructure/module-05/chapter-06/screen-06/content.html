@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-6/12 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+      <div class="text-lg font-bold text-slate-900">CBWFQ: classes, policy maps, guarantees</div>
+      <div class="text-sm text-slate-600 mt-2">Define class maps to match DSCP, ports, or other criteria; in the policy map give each class a bandwidth guarantee.</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>• Classes receive a configured minimum bandwidth when congested.</li>
+        <li>• Excess capacity is shared proportionally among classes.</li>
+        <li>• Unmatched traffic goes to class-default.</li>
+      </ul>
+    </div>
+
+    <div class="w-6/12 p-4 flex flex-col">
+      <div class="card p-3 flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Configuration example</div>
+        <pre class="text-sm bg-slate-50 p-3 rounded">policy-map CONGESTION_POLICY
+ class VOICE_TRAFFIC
+  bandwidth 128  # Guaranteed 128 kbps
+ class VIDEO_TRAFFIC
+  bandwidth 512  # Guaranteed 512 kbps
+ class class-default
+  fair-queue</pre>
+        <div class="mt-3 text-sm text-slate-600">This policy-map guarantees minima for voice and video and uses fair-queueing for remaining traffic. Remember to apply the policy to an interface output and set the interface bandwidth so QoS calculations are correct.</div>
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">CBWFQ lets you express minimum guarantees per class; plan allocations to avoid over-commit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

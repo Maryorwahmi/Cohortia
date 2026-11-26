@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Pipelining in Python</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Starter code</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>import redis
+r = redis.Redis(decode_responses=True)
+
+# Pipelined SETs
+pipe = r.pipeline()
+for i in range(100):
+  pipe.set(f"key:{i}", f"value:{i}")
+pipe.execute()
+
+# Pipelined GETs
+pipe = r.pipeline()
+for i in range(100):
+  pipe.get(f"key:{i}")
+results = pipe.execute()
+print(f"Fetched {len(results)} keys.")</code></pre>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Measurement advice</div>
+      <div class="text-sm text-slate-600">Run sequential and pipelined variants and measure elapsed wall-clock time. The pipeline should substantially reduce time where network latency is non-trivial. Monitor memory when increasing batch sizes.</div>
+      <div class="mt-4 rounded-md p-3 bg-slate-50 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Practical tip</div>
+        <div class="text-sm text-slate-600">Start with batches of 100–1000 commands. Tune based on latency, memory, and server/client resource limits.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

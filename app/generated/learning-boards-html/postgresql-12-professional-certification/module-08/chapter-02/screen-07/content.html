@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Join strategies and trade-offs</h3>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Nested Loop Join</div>
+          <div class="text-sm text-slate-600 mt-1">Good for small outer sets or highly selective inner indexes; watch for high loops on inner nodes.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-bold text-violet-700">Hash Join</div>
+          <div class="text-sm text-slate-700 mt-1">Builds a hash on the smaller table and probes with the larger; efficient for large joins if memory permits.</div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Merge Join</div>
+          <div class="text-sm text-slate-700 mt-1">Requires sorted inputs; efficient for pre-sorted data or when sorting is cheaper than hashing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example indicator</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm text-slate-800 mt-3" style="white-space:pre-wrap; tab-size:2;">-- If inner node shows high loops in EXPLAIN ANALYZE, nested loop may be repeating work
+EXPLAIN (ANALYZE, BUFFERS) SELECT ... FROM a JOIN b ON a.key = b.key;</pre>
+      <p class="text-sm text-slate-600 mt-2">If loops are large and actual time is high, consider whether statistics or work_mem are causing the planner to pick nested loops over hash or merge joins.</p>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming the planner always picks the best algorithm without verifying actual loops and times; always validate with EXPLAIN ANALYZE.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

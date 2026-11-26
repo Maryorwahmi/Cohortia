@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Product catalog lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Starter code and TODO</div>
+      <pre class="mt-3"><code>import redis
+import json
+import time
+
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+PRODUCT_DB = {
+  "prod:001": {"id": "prod:001", "name": "Wireless Headphones", "price": 99.99},
+  "prod:002": {"id": "prod:002", "name": "Mechanical Keyboard", "price": 129.99},
+}
+
+
+def fetch_product_from_db(product_id):
+  print(f"--- DB: Fetching product {product_id} from primary database...")
+  time.sleep(1.5)
+  return PRODUCT_DB.get(product_id)
+
+
+def get_product_details(product_id, cache_ttl=30):
+  """
+  TODO: Implement Cache-Aside retrieval.
+  Steps:
+  1. Try r.get on cache:product:{product_id}
+  2. If present, return json.loads(value)
+  3. If missing, fetch_product_from_db and if found r.setex the serialized value
+  4. Return the product data or None
+  """
+  cache_key = f"cache:product:{product_id}"
+  cached_data = None  # TODO: replace with actual Redis GET
+  if cached_data:
+    print(f"--- CACHE: Hit for {product_id}!")
+    return json.loads(cached_data)
+
+  print(f"--- CACHE: Miss for {product_id}. Fetching from DB...")
+  product_data = fetch_product_from_db(product_id)
+
+  if product_data:
+    # TODO: store in Redis with TTL using r.setex
+    print(f"--- CACHE: Stored {product_id} in cache with TTL {cache_ttl}s.")
+
+  return product_data</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Follow the TODO comments to implement cache GET and SETEX. Run the provided test calls: initial fetch, repeated fetch, manual invalidation, and fetch after update.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Validation steps</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Call get_product_details for prod:001 and observe DB fetch then cache store message.</li>
+        <li>Call get_product_details for prod:001 again and observe a cache hit message.</li>
+        <li>Simulate update by changing PRODUCT_DB and run r.delete(cache_key) then call again to see DB fetch and updated data.</li>
+        <li>Optionally cache negative results for prod:999 with a short TTL to avoid repeated DB hits.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Implementing the Cache-Aside pattern in code and testing expiry/invalidation clarifies trade-offs and operational behaviors you will encounter in production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

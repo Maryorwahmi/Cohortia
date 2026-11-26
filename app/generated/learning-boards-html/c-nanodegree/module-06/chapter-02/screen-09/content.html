@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .box { border-radius:12px; border:1px solid rgba(226,232,240,0.9); padding:12px; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Smart pointers</span>
+    </div>
+    <div class="flex gap-4 h-full">
+      <div class="w-1/2 flex flex-col">
+        <div class="text-xl font-bold text-slate-900">Smart pointers implement RAII</div>
+        <div class="text-sm text-slate-600 mt-2">unique_ptr for exclusive ownership, shared_ptr for shared ownership; both call delete when their lifetime ends.</div>
+        <div class="mt-4 grid gap-3">
+          <div class="box bg-white">
+            <div class="text-sm font-semibold text-slate-800">std::unique_ptr</div>
+            <div class="text-xs text-slate-500 mt-1">Exclusive ownership; destructor calls delete on the managed pointer when it goes out of scope.</div>
+          </div>
+          <div class="box bg-white">
+            <div class="text-sm font-semibold text-slate-800">std::shared_ptr</div>
+            <div class="text-xs text-slate-500 mt-1">Shared ownership; resource is destroyed when the last owner is destroyed.</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-1/2 flex flex-col">
+        <div class="rounded-xl border bg-white p-4 shadow-sm">
+          <div class="text-sm font-semibold text-slate-800">Concrete usage</div>
+          <pre class="text-xs text-slate-700 mt-2" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">std::unique_ptr&lt;MyResource&gt; res = std::make_unique&lt;MyResource&gt;(1);
+res->doWork(); // If exception is thrown, res's destructor still runs and deletes the object.
+
+std::shared_ptr&lt;MyResource&gt; s1 = std::make_shared&lt;MyResource&gt;(2);
+{
+  auto s2 = s1; // shared ownership, destructor runs when last shared_ptr is destroyed
+}</pre>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Smart pointers provide RAII semantics for dynamic memory and prevent leaks during exceptions.</p>
+          </div>
+          <div class="rounded-lg border bg-white p-3">
+            <div class="text-xs font-semibold text-slate-700">Misuse warning</div>
+            <div class="text-xs text-slate-500 mt-1">Do not delete memory managed by a smart pointer elsewhere; prefer one ownership model per resource.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

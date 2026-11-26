@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2; border-radius:0.5rem;}</style>
+  <div class="card p-4 h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Create parent and child partitions</h3>
+    <div class="flex-1 grid grid-cols-2 gap-4">
+      <div class="p-3 bg-slate-50 rounded">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Parent table</div>
+        <pre class="mono p-3 bg-white border">CREATE TABLE daily_sales (
+  sale_id SERIAL,
+  sale_date DATE NOT NULL,
+  region TEXT NOT NULL,
+  amount NUMERIC(10,2)
+) PARTITION BY RANGE (sale_date);</pre>
+      </div>
+      <div class="p-3 bg-slate-50 rounded">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Child partitions</div>
+        <pre class="mono p-3 bg-white border">CREATE TABLE daily_sales_2023_01 PARTITION OF daily_sales
+FOR VALUES FROM ('2023-01-01') TO ('2023-02-01');
+
+CREATE TABLE daily_sales_2023_02 PARTITION OF daily_sales
+FOR VALUES FROM ('2023-02-01') TO ('2023-03-01');
+
+CREATE TABLE daily_sales_default PARTITION OF daily_sales DEFAULT;</pre>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example insert</div>
+        <pre class="mono p-2 bg-slate-50">INSERT INTO daily_sales (sale_date, region, amount) VALUES
+('2023-01-15','East',100.50);
+</pre>
+      </div>
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs text-slate-700">Missing a DEFAULT partition causes insert errors for unexpected values.</p>
+      </div>
+      <div class="p-3 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs text-slate-800">Create child partitions ahead of time and include a DEFAULT to avoid ingestion failures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

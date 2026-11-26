@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full grid grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl p-5 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Setup</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; line-height:1.4;">
+CREATE DATABASE test_db_backup;
+
+CREATE TABLE large_table (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  description TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Insert 100,000 rows (example using generate_series)
+INSERT INTO large_table (name, description)
+SELECT
+  'Item ' || generate_series,
+  md5(random()::text) || md5(random()::text) || md5(random()::text)
+FROM generate_series(1, 100000);
+      </pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Commands</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; line-height:1.4;">
+pg_dump -U postgres -F p test_db_backup &gt; /tmp/test_db_logical_backup.sql
+pg_dump -U postgres -F c -f /tmp/test_db_logical_backup.custom test_db_backup
+
+pg_basebackup -U postgres -D /tmp/test_db_physical_backup -F tar -X stream -P
+
+# Compare sizes
+du -sh /tmp/test_db_logical_backup.sql /tmp/test_db_logical_backup.custom /tmp/test_db_physical_backup
+      </pre>
+    </div>
+
+    <div class="col-span-2 mt-3 rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Reflection</div>
+      <div class="text-sm text-slate-700 mt-2">Record the sizes and note what each backup contains. Restore the logical dump to confirm schema and row counts. For the physical backup, extract and verify the PGDATA layout. These checks confirm both content and consistency.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

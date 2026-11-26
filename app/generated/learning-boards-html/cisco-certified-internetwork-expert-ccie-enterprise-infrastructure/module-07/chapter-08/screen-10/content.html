@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>
+    .panel { border:1px solid rgba(226,232,240,0.9); background:#fff; border-radius:12px; padding:16px; }
+    .snippet { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; white-space: pre-wrap; tab-size:2; }
+  </style>
+
+  <div class="mb-3"> 
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> 
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 7.8</span>
+      <span>›</span>
+      <span class="text-slate-700">Collector Setup</span>
+    </div>
+  </div>
+
+  <div class="panel h-full flex flex-col"> 
+    <div class="text-xs uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">Collector responsibilities and flow</h3>
+    <div class="text-sm text-slate-600 mb-3">Collectors are more than gateways; they validate, normalize, and optionally aggregate telemetry before forwarding.</div>
+
+    <div class="grid grid-cols-2 gap-4 mb-3 h-full"> 
+      <div class="rounded p-3 bg-slate-50"> 
+        <div class="font-bold">Accept streams</div>
+        <div class="text-xs text-slate-600 mt-1">Bind to a gNMI port, authenticate devices, and accept subscriptions.</div>
+      </div>
+      <div class="rounded p-3 bg-blue-50"> 
+        <div class="font-bold">Parse & normalize</div>
+        <div class="text-xs text-slate-600 mt-1">Decode GPB/JSON, normalize timestamps, and map fields for storage.</div>
+      </div>
+      <div class="rounded p-3 bg-violet-50"> 
+        <div class="font-bold">Enrich & aggregate</div>
+        <div class="text-xs text-slate-600 mt-1">Optional aggregation reduces retention volume; enrichment adds metadata for queries.</div>
+      </div>
+      <div class="rounded p-3 bg-emerald-50"> 
+        <div class="font-bold">Forward & persist</div>
+        <div class="text-xs text-slate-600 mt-1">Forward to a broker or a time-series database like InfluxDB for dashboards.</div>
+      </div>
+    </div>
+
+    <div class="mb-3"> 
+      <div class="text-sm font-bold mb-1">Telegraf example (conceptual)</div>
+      <div class="snippet rounded p-3 bg-slate-100">[[inputs.gnmi]]
+  bind_address = ":57500"
+  username = "admin"
+  password = "cisco"
+
+[[outputs.influxdb]]
+  urls = ["http://localhost:8086"]
+  database = "telemetry_data"</div>
+    </div>
+
+    <div class="rounded p-3 bg-rose-50 mb-3"> 
+      <div class="text-sm font-bold">Common mistake</div>
+      <div class="text-xs text-slate-600 mt-1">Treating the collector as stateless. In production, handle reconnections, malformed payloads, and scaling issues.</div>
+    </div>
+
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Design collectors to validate, normalize, and buffer data; plan for authentication, TLS, and high availability.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">vmail User and Mailbox Layout</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Procedure</div>
+      <h3 class="text-2xl font-bold mt-2 text-slate-900">Create vmail user and prepare /var/vmail</h3>
+      <p class="mt-3 text-sm text-slate-700">Create a dedicated group and user, create the mailbox base, and set ownership so Dovecot and Postfix can access maildirs.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Commands</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2">sudo groupadd -g 5000 vmail
+sudo useradd -u 5000 -g vmail -s /sbin/nologin -d /var/vmail vmail
+sudo mkdir -p /var/vmail
+sudo chown -R vmail:vmail /var/vmail</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pitfall</div>
+          <p class="mt-2 text-sm text-slate-700">If /var/vmail is owned by root or a conflicting UID exists, Dovecot or LMTP delivery may fail with permission denied errors.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use a dedicated vmail user with a recorded UID/GID and secure ownership on /var/vmail for safe virtual mailbox hosting.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Analogy</div>
+        <p class="mt-2 text-sm text-slate-700">Think of vmail as a locked mailroom key assigned to a non-login account used only for mailbox storage.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Check</div>
+        <p class="mt-2 text-sm text-slate-700">Verify ownership with ls -ld /var/vmail and ensure UID 5000 matches your Postfix virtual_minimum_uid setting.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

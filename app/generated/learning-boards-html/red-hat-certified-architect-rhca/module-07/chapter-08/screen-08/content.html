@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Migration Techniques</span>
+  </div>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 bg-white rounded-xl p-4 card shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pre-copy</div>
+      <h4 class="font-bold text-lg text-slate-900 mt-2">Iterative memory copy</h4>
+      <p class="text-sm text-slate-700 mt-2">Memory pages are copied while the VM runs; repeated until dirty pages are minimal for a short cutover.</p>
+      <ul class="list-disc pl-4 mt-3 text-sm text-slate-700">
+        <li>Pros: predictable, fewer page faults after cutover</li>
+        <li>Cons: can take long for highly dirty VMs</li>
+      </ul>
+    </div>
+    <div class="col-span-6 bg-white rounded-xl p-4 card shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Post-copy</div>
+      <h4 class="font-bold text-lg text-slate-900 mt-2">Resume on destination then fetch pages</h4>
+      <p class="text-sm text-slate-700 mt-2">Pause briefly to transfer CPU state, resume on destination, and fetch memory pages on demand.</p>
+      <ul class="list-disc pl-4 mt-3 text-sm text-slate-700">
+        <li>Pros: shorter pause during cutover</li>
+        <li>Cons: higher latency from page faults and recovery risk</li>
+      </ul>
+    </div>
+    <div class="col-span-12 mt-3 flex gap-3">
+      <div class="flex-1 rounded-lg p-3 bg-slate-50 border">
+        <div class="font-bold text-slate-800">Example</div>
+        <p class="text-sm text-slate-700 mt-2">For a web server with moderate memory churn, pre-copy is usually safe. For a VM with very large dirty memory churn, post-copy can shorten the pause but introduce latency after migration.</p>
+      </div>
+      <div class="w-1/3 rounded-lg p-3 bg-emerald-50 border">
+        <div class="font-bold text-emerald-700">Check Your Understanding</div>
+        <p class="text-sm text-slate-700 mt-2">Name one workload attribute that would push you to prefer post-copy over pre-copy.</p>
+      </div>
+    </div>
+  </div>
+</div>

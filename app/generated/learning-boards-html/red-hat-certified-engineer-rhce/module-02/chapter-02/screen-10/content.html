@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition / Safety Note</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">When to use shell and command</h3>
+      <p class="text-sm text-slate-600 mt-2">Shell and command execute arbitrary commands but do not guarantee idempotency; use them sparingly and with checks.</p>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="font-semibold text-rose-700">Risks</div>
+          <p class="mt-1">Non-idempotent behavior, security/execution risks, and noisy changed results when used instead of modules.</p>
+        </div>
+
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="font-semibold text-emerald-700">When acceptable</div>
+          <p class="mt-1">When no module exists and you include explicit checks to enforce idempotency or to avoid repeated effects.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold">Example and contrast</div>
+      <div class="mt-2 text-sm text-slate-700">Prefer:</div>
+      <div class="mt-2 mono text-xs bg-slate-50 rounded p-3 card-border" style="white-space:pre-wrap; tab-size:2;"># Preferred: use user module to create a user idempotently
+- name: Create user
+  ansible.builtin.user:
+    name: myuser
+    state: present
+</div>
+      <div class="mt-2 text-sm text-slate-700">Avoid unguarded shell commands that always run and report changed on every playbook execution.</div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Quick tip</div>
+        <p class="text-sm text-slate-600 mt-1">If you must use shell, wrap it with a check or a when condition that verifies the desired state first to simulate idempotency.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">get...Extra()</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Core retrieval patterns</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc ml-4 space-y-2">
+          <li>getStringExtra returns a nullable String; use ?: for a default.</li>
+          <li>getIntExtra and getBooleanExtra require a default parameter to return when key is missing.</li>
+          <li>Use the exact same key string used for putExtra to retrieve the value.</li>
+        </ul>
+
+        <div class="mt-4 rounded-md bg-white p-3 card-border">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500">Misconception</div>
+          <div class="text-xs text-slate-700 mt-1">Assuming getStringExtra never returns null leads to crashes when you dereference without a fallback.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always provide a default or null-safe fallback when reading extras.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Code walkthrough</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm text-slate-800 card-border"><code>// In SecondActivity.kt
+// Assume USER_NAME_KEY is accessible
+class SecondActivity : AppCompatActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_second)
+
+    val displayNameTextView: TextView = findViewById(R.id.display_name_text_view)
+
+    val userName = intent.getStringExtra(USER_NAME_KEY) ?: "Guest"
+    displayNameTextView.text = "Hello, $${'{' }userName}${'}'}!"
+  }
+}</code></pre>
+
+        <div class="mt-3 rounded-md bg-amber-50 p-3">
+          <div class="text-xs text-slate-700">Try this: remove the extra in the sender and confirm SecondActivity shows the fallback text instead of crashing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

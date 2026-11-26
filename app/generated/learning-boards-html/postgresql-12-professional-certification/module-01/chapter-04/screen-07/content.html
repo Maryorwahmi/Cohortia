@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Create Roles & DB</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800">Code example (run as postgres superuser)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>-- Connect to psql as postgres superuser first
+CREATE ROLE myapp_user WITH LOGIN PASSWORD 'YourSecurePassword123' VALID UNTIL '2025-01-01';
+CREATE DATABASE myapp_db OWNER myapp_user;
+GRANT ALL PRIVILEGES ON DATABASE myapp_db TO myapp_user;
+\c myapp_db myapp_user -- Connect to the new database as the new user
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price NUMERIC(10, 2)
+);
+\dt
+\q</code></pre>
+      <div class="mt-4 text-sm text-slate-600">Run these commands and then test connecting with psql -U myapp_user -d myapp_db to verify the account can perform expected tasks. Adjust privileges to follow least privilege until the application requires more access.</div>
+    </div>
+    <div class="w-1/3 rounded-xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800">Scenario</div>
+      <div class="text-sm text-slate-600 mt-2">You need an app to store product records. Create myapp_user and myapp_db, own the DB with the role, and create a products table as a smoke test.</div>
+      <div class="mt-4 font-bold text-sm text-slate-800">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-1">Creating a role without granting ownership or privileges results in permission denied errors when the application attempts database operations.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why this matters</div>
+          <p class="text-xs font-medium text-slate-800">Assigning ownership reduces operational friction and clearly separates superuser tasks from application operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

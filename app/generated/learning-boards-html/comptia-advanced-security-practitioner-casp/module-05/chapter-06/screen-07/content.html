@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#f8fafc}
+    .code {background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+    pre{white-space:pre-wrap;tab-size:2}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Openssl DH Simulation</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Run the openssl sequence to confirm shared secrets</div>
+
+      <div class="mt-4 code">
+        <pre><code># Part 1: Generate Diffie-Hellman parameters (typically done once per group)
+openssl dhparam -out dhparams.pem 2048
+
+# Part 2: Simulate Alice's side
+openssl genpkey -paramfile dhparams.pem -out alice_private.pem
+openssl pkey -in alice_private.pem -pubout -out alice_public.pem
+
+# Part 3: Simulate Bob's side
+openssl genpkey -paramfile dhparams.pem -out bob_private.pem
+openssl pkey -in bob_private.pem -pubout -out bob_public.pem
+
+# Part 4: Alice computes the shared secret
+openssl pkeyutl -derive -inkey alice_private.pem -peerpubkey bob_public.pem -out alice_shared_secret.bin
+
+# Part 5: Bob computes the shared secret
+openssl pkeyutl -derive -inkey bob_private.pem -peerpubkey alice_public.pem -out bob_shared_secret.bin
+
+# Part 6: Verify that the shared secrets are identical
+cmp alice_shared_secret.bin bob_shared_secret.bin && echo "Shared secrets match!" || echo "Shared secrets DO NOT match!"
+</code></pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border">
+        <div class="text-sm font-semibold">Operational notes</div>
+        <div class="text-sm text-slate-600 mt-2">Protect private files with strict permissions, run in an isolated lab, and derive usable keys by hashing or using a KDF on the binary secret before use in encryption.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Why this matters</div>
+      <div class="text-sm text-slate-600 mt-3">This hands-on flow is the concrete verification that DH-derived secrets match on both sides without exchanging private keys, and it mirrors the exact process used in many TLS and SSH implementations.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconfiguration trap</div>
+        <div class="text-sm text-slate-700 mt-2">Leaving private PEM files accessible or failing to zeroize derived secrets increases the chance of compromise and defeats the lab's security purpose.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

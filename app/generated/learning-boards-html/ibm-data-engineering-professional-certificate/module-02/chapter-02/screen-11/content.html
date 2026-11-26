@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">HAVING Clause</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-h-0">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full shadow-sm flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">HAVING: filter by aggregates</h3>
+        <p class="text-sm text-slate-600 mt-2">Use HAVING when your filter depends on aggregate results produced by GROUP BY.</p>
+
+        <div class="mt-4 bg-slate-50 p-3 rounded-md border border-[rgba(226,232,240,0.9)] overflow-auto flex-1">
+          <div class="text-sm font-medium text-slate-700">Examples</div>
+          <pre class="mt-3 text-sm bg-white p-3 rounded-md border overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>-- Departments with average salary &gt; 70000
+SELECT DepartmentID, AVG(Salary) AS AverageDepartmentSalary
+FROM Employees
+GROUP BY DepartmentID
+HAVING AVG(Salary) &gt; 70000;
+
+-- Departments with more than 1 employee
+SELECT DepartmentID, COUNT(*) AS NumberOfEmployees
+FROM Employees
+GROUP BY DepartmentID
+HAVING COUNT(*) &gt; 1;</code></pre>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-1/2 min-h-0">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full shadow-sm flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Guidance</div>
+        <div class="mt-3 text-sm text-slate-600">Use WHERE to reduce rows first, then GROUP BY, then HAVING to filter the grouped summaries. This order ensures correctness and efficiency.</div>
+
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+            <div class="text-sm text-slate-700 mt-2">Find departments with average salary above 70000, then order by average salary and limit to top results for a report.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border-l-4 border-l-rose-500">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-2">Trying to write HAVING conditions inside WHERE or expecting WHERE to see aggregate values—this will not work.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">HAVING filters group-level summaries; use it after GROUP BY to restrict aggregated results.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

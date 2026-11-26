@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring a Team Master</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Team creation snippet</div>
+      <div class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;">
+- name: Ensure team master connection exists and is configured
+  community.general.nmcli:
+    conn_name: "{{ team_name }}"
+    type: team
+    ifname: "{{ team_name }}"
+    ip4: "{{ team_ip }}"
+    gw4: "{{ team_gw }}"
+    dns4: "{{ team_dns }}"
+    runner: activebackup
+    state: present
+    autoconnect: yes
+        </pre>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">Runner selection influences link probing and failover behavior; activebackup is a safe starting point for redundancy.</p>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Verification</div>
+      <p class="mt-2 text-sm text-slate-600">Use teamdctl &lt;teamname&gt; state to inspect which port teamd considers active, and ip a to check the master IP. Automation should include these checks so you can detect mismatches quickly.</p>
+
+      <div class="mt-4 bg-white p-3 rounded-lg border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Team runners provide runtime flexibility; include verification steps in playbooks to confirm correct behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

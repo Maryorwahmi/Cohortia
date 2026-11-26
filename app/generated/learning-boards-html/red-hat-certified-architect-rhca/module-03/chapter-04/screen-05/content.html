@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Reading a DeploymentConfig</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code walkthrough</div>
+      <div class="flex-1 overflow-hidden">
+        <pre class="rounded-md bg-slate-900 text-slate-100 p-4 h-full"><code>apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: my-webapp
+spec:
+  replicas: 3
+  strategy:
+    type: Rolling
+  template:
+    spec:
+      containers:
+      - name: my-webapp
+        image: quay.io/myuser/my-webapp:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      from:
+        kind: ImageStreamTag
+        name: my-webapp:latest
+        namespace: my-project</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation & checks</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700">
+        <li><strong>Replicas & selector:</strong> ensures desired number of pods and proper service targeting.</li>
+        <li><strong>Resources:</strong> requests guide the scheduler; limits prevent noisy neighbor problems.</li>
+        <li><strong>Probes:</strong> liveness restarts unhealthy containers; readiness prevents serving traffic early.</li>
+        <li><strong>ImageChange trigger:</strong> links ImageStream updates to automatic rollouts after builds.</li>
+        <li><strong>Common mistake:</strong> no requests or no readiness probe causes unstable traffic routing.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-amber-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+          <div class="text-sm text-slate-800">Adjust initialDelaySeconds for slow startup apps and observe rollout stability.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

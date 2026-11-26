@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Playbook Walkthrough</span>
+  </div>
+
+  <div class="bg-white rounded-2xl border p-6 shadow-sm h-full overflow-hidden">
+    <div class="text-lg font-bold text-slate-900">Example tasks</div>
+    <pre class="mt-3 text-sm bg-slate-900 text-white p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">- name: Display database password (for demonstration only)
+  ansible.builtin.debug:
+    msg: "Database Password: {{ db_password }}"
+  # In production, use no_log: true instead of printing secrets
+
+- name: Simulate configuration file creation with sensitive data
+  ansible.builtin.copy:
+    content: |
+      [database]
+      password={{ db_password }}
+      [api]
+      key={{ app_api_key }}
+    dest: /tmp/app_config.conf
+    mode: '0600'
+</pre>
+
+    <div class="mt-4 text-sm text-slate-700">
+      <div class="font-semibold">Safety checklist</div>
+      <ul class="list-disc pl-5 mt-2 space-y-2">
+        <li>Replace debug prints with no_log: true for sensitive tasks.</li>
+        <li>Ensure destination files use restrictive modes like 0600.</li>
+        <li>Remove any ephemeral output and avoid storing decrypted data in shared logs.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

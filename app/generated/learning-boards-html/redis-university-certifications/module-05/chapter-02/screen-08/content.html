@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Failover Steps</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700">
+        <li>Sentinels detect SDOWNs and reach quorum, marking the master ODOWN.</li>
+        <li>Sentinels elect a leader among themselves to coordinate failover.</li>
+        <li>The leader chooses the best replica by replication offset and priority.</li>
+        <li>The leader promotes the replica and instructs others to follow it.</li>
+        <li>Sentinels update their configs and notify clients of the new master.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example commands</div>
+        <div class="text-sm text-slate-700 mt-2">Promotion uses commands equivalent to REPLICAOF NO ONE on the promoted replica and REPLICAOF &lt;new_master_ip&gt; &lt;new_master_port&gt; on others.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Selection considerations</div>
+      <div class="text-sm text-slate-600 mt-2">Sentinel prefers replicas that are up-to-date and eligible by configuration; replicas with lag or higher priority numbers may be deprioritized.</div>
+
+      <div class="mt-6 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Failover timeout</div>
+          <div class="text-sm text-slate-700 mt-1">failover-timeout limits how long promotion and reconfiguration may take.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Parallel syncs</div>
+          <div class="text-sm text-slate-700 mt-1">parallel-syncs controls how many replicas sync with the new master at once to avoid overload.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on CLI</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Verify SSM managed status</div>
+      <div class="text-sm text-slate-700 mb-3">Confirm the instance appears in Fleet Manager or use the CLI to check managed instance inventory before sending commands.</div>
+
+      <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700 overflow-auto">
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular,Menlo,monospace"># Send an inspection command
+aws ssm send-command \
+  --instance-ids "i-xxxxxxxxxxxxxxxxx" \
+  --document-name "AWS-RunShellScript" \
+  --parameters 'commands=["ip a"]' \
+  --comment "Check network interface eth0" \
+  --output json
+
+# Capture the CommandId from response and then:
+aws ssm list-command-invocations \
+  --command-id "cmd-xxxxxxxxxxxxxxxxx" \
+  --details \
+  --query "CommandInvocations[0].CommandPlugins[0].Output" \
+  --output text</pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">For a configuration change that must persist, include persistence steps in the script and verify with a follow-up invocation or by checking the file where the setting was saved.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-1/2">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Example change</div>
+        <div class="text-sm text-slate-700">Increase a kernel parameter temporarily using send-command, then persist it by appending to /etc/sysctl.conf in the same document if desired.</div>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-1/2">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Audit</div>
+        <div class="text-sm text-slate-700">Check CloudTrail and CloudWatch Logs for command execution records to maintain an audit trail of who executed what and the resulting outputs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card p-6 shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+      <div class="text-2xl font-bold text-slate-800">X-Ray SDK + Daemon</div>
+      <div class="text-sm text-slate-600 mt-2">SDK instruments and emits segments; the daemon buffers and uploads them to the X-Ray service.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">Flow</div>
+          <div class="text-sm text-slate-600 mt-1">Application → X-Ray SDK → UDP → X-Ray daemon → X-Ray service.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">IAM requirement</div>
+          <div class="text-sm text-slate-600 mt-1">Daemon's role needs xray:PutTraceSegments and xray:PutTelemetryRecords or the managed AWSXRayDaemonWriteAccess policy.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Operational tip</div>
+        <p class="text-xs font-medium text-slate-800">Ensure AWS_XRAY_DAEMON_ADDRESS points to the running daemon and that network/firewall rules allow UDP to the daemon port.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example CloudFormation snippet (daemon role)</div>
+
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">
+Resources:
+  XRayDaemonRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: ...
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+
+  XRayInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref XRayDaemonRole
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref XRayInstanceProfile
+      UserData: |
+        # install and start the X-Ray daemon
+</pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-white card">
+        <div class="text-sm font-semibold text-slate-800">Checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+          <li>Install and start the daemon on the host.</li>
+          <li>Set SDK environment variables to reach the daemon.</li>
+          <li>Confirm IAM role includes X-Ray write permissions.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

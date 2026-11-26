@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Sensor Adapter & Facade</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Starter Code</div>
+      <pre class="bg-slate-900 text-white rounded-md p-3 text-sm"><code>from abc import ABC, abstractmethod
+
+# Adaptee
+class LegacyCelsiusSensor:
+  def get_celsius_temp(self) -> float:
+    return 25.0
+
+# Target Interface
+class FahrenheitSensor(ABC):
+  @abstractmethod
+  def get_fahrenheit_temp(self) -> float:
+    pass
+
+# Adapter implementation (example from chapter)
+class CelsiusToFahrenheitAdapter(FahrenheitSensor):
+  def __init__(self, celsius_sensor: LegacyCelsiusSensor):
+    self._celsius_sensor = celsius_sensor
+
+  def get_fahrenheit_temp(self) -> float:
+    celsius = self._celsius_sensor.get_celsius_temp()
+    fahrenheit = (celsius * 9/5) + 32
+    return fahrenheit
+
+# Facade components
+class HumiditySensor:
+  def get_humidity(self) -> float:
+    return 60.0
+
+class PressureSensor:
+  def get_pressure(self) -> float:
+    return 1012.5
+
+class WeatherStationFacade:
+  def __init__(self, temp_sensor: FahrenheitSensor, hum_sensor: HumiditySensor, press_sensor: PressureSensor):
+    self._temp_sensor = temp_sensor
+    self._hum_sensor = hum_sensor
+    self._press_sensor = press_sensor
+
+  def get_current_weather(self) -> str:
+    temp = self._temp_sensor.get_fahrenheit_temp()
+    humidity = self._hum_sensor.get_humidity()
+    pressure = self._press_sensor.get_pressure()
+    return (f"Current Weather: Temperature {temp:.2f}°F, "
+            f"Humidity {humidity:.1f}%, Pressure {pressure:.1f} hPa")</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Checks & Examples</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <div>- Confirm conversion: 25°C → 77.00°F.</div>
+        <div>- Call get_current_weather() and verify string formatting and values.</div>
+        <div>- Test missing sensor data handling and avoid adding extra domain logic into adapters.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This activity ties adapter translation and facade aggregation into a compact integration scenario you can run and test.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Comparison</span>
+      <span>›</span>
+      <span class="text-slate-700">Transactions vs Batched Writes</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[62vh]">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Transactions</div>
+        <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2">
+          <li>Read documents, then decide and write.</li>
+          <li>Automatic retries on conflicts.</li>
+          <li>Use for conditional updates like counters or transfers.</li>
+        </ul>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+        <div class="rounded-md bg-slate-50 p-3 card-border text-sm">
+          <pre><code>// transferFunds uses runTransaction to read balances and update both accounts.</code></pre>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Batched Writes</div>
+        <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2">
+          <li>Group multiple writes and commit together.</li>
+          <li>No reads inside the batch; can't retry based on reads.</li>
+          <li>Efficient for bulk deletes or updates where current values aren't needed.</li>
+        </ul>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+        <div class="rounded-md bg-slate-50 p-3 card-border text-sm">
+          <pre><code>WriteBatch batch = _firestore.batch();
+for (String id in todoIds) {
+  DocumentReference todoRef = _firestore.collection('todos').doc(id);
+  batch.delete(todoRef);
+}
+await batch.commit();</code></pre>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-600">
+          <p>Tip: prefer batches for non-dependent bulk operations and transactions for conditional correctness when reads matter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

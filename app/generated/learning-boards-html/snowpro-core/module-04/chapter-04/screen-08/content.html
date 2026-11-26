@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">LOGIN_HISTORY: investigate sign-ins</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Query example</div>
+      <pre class="rounded-md bg-slate-50 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>SELECT
+  event_timestamp,
+  user_name,
+  client_ip,
+  reported_client_type,
+  is_success
+FROM
+  SNOWFLAKE.ACCOUNT_USAGE.LOGIN_HISTORY
+WHERE
+  is_success = TRUE
+ORDER BY
+  event_timestamp DESC
+LIMIT 10;
+</code></pre>
+
+      <div class="mt-3 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold text-slate-800">Practical checks</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+          <li>Compare client_ip against known corporate ranges.</li>
+          <li>Look for repetition of failed attempts before a success.</li>
+          <li>Flag logins from unusual client types or geographies.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-sm font-semibold text-emerald-700">Concrete scenario</div>
+        <div class="text-sm text-slate-700 mt-1">A sudden success from an unfamiliar IP followed by high-privilege queries may indicate compromised credentials; use QUERY_HISTORY to follow the trail.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-rose-50 p-3 card-border">
+        <div class="text-sm font-semibold text-rose-700">Misconception check</div>
+        <div class="text-sm text-slate-700 mt-1">Don't ignore successful logins; they can reveal compromise when paired with subsequent query activity.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Use LOGIN_HISTORY to create an access timeline and correlate logins with later data activity for a complete investigation.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">SELinux Modes</span>
+    </div>
+    <div class="flex h-[72vh] gap-4">
+      <div class="w-1/2 card p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Modes Explained</div>
+        <ul class="text-sm text-slate-600 list-disc pl-4">
+          <li><strong>Enforcing</strong> — policy enforced and violations blocked and logged.</li>
+          <li><strong>Permissive</strong> — violations logged but not blocked; for diagnostics.</li>
+          <li><strong>Disabled</strong> — SELinux enforcement is off; not recommended.</li>
+        </ul>
+        <div class="mt-3 text-sm text-slate-700">Check mode: <code class="text-xs">sestatus</code>. Temporarily set permissive for debugging, then return to enforcing after fixes.</div>
+      </div>
+      <div class="w-1/2 card p-4 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Troubleshooting Workflow</div>
+        <div class="text-sm text-slate-700 mb-2">1) Reproduce denial in permissive. 2) Gather AVC entries. 3) Decide relabel or module. 4) Apply change. 5) Return to enforcing and verify.</div>
+        <pre class="p-3 bg-slate-50 border rounded"># Check mode
+sestatus
+# Temporarily set permissive (appropriate for test)
+sudo setenforce 0
+# Return to enforcing
+sudo setenforce 1</pre>
+        <div class="mt-auto text-xs text-slate-600">Misconception: setting permissive on production is safe — it will hide active policy violations. Use permissive only on isolated testing or short windows with clear monitoring.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

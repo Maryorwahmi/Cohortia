@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Parts of type(name, bases, dict)</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="text-sm font-semibold text-slate-800">name</div>
+          <div class="text-sm text-slate-700 mt-1">A string used for class.__name__ and representation; choose readable identifiers for debugging.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="text-sm font-semibold text-slate-800">bases</div>
+          <div class="text-sm text-slate-700 mt-1">A tuple of base classes that determines inheritance and MRO. Always pass a tuple, e.g., (object,).</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50">
+          <div class="text-sm font-semibold text-slate-800">dict</div>
+          <div class="text-sm text-slate-700 mt-1">A mapping of names to attributes, methods, and descriptors. Functions here become bound methods on instances.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example</div>
+      <pre class="mono text-sm mt-3 p-3 bg-slate-50 rounded card-border" style="white-space:pre-wrap; tab-size:2;"># Build a small class with a property
+def _get_full(self):
+  return f"{self.first} {self.last}"
+
+Person = type('Person', (object,), {
+  'first': 'John',
+  'last': 'Doe',
+  'full_name': property(_get_full)
+})
+
+p = Person()
+print(p.full_name)  # John Doe
+</pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Tips</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600">
+          <li>Use descriptors in the dict to create computed or validated attributes.</li>
+          <li>Remember that class decorators run after the metaclass has created the class.</li>
+          <li>Validate the dict content if you build classes from untrusted sources.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

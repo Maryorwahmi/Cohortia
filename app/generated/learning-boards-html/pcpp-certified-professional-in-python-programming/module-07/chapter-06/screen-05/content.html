@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Reading config</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-700 mt-2">Create, read, and inspect</h3>
+      <p class="text-sm text-slate-600 mt-3">Use ConfigParser() then call read('path'). Validate file presence to avoid silent misses and use section checks before indexing.</p>
+
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:0.9rem;">
+import configparser
+import os
+
+config = configparser.ConfigParser()
+config_file_path = 'app_settings.ini'
+if not os.path.exists(config_file_path):
+  # create a minimal file as an example
+  config['DEFAULT'] = {'debug_mode': 'no', 'log_level': 'INFO'}
+  config['Server'] = {'host': '127.0.0.1', 'port': '8080'}
+  with open(config_file_path, 'w') as f:
+    config.write(f)
+
+# Read the file and inspect
+read_files = config.read(config_file_path)
+print('Read files:', read_files)
+print('Server host:', config['Server']['host'])
+</pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-700 mt-2">Use read() and print the list it returns to confirm which files were loaded.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Gotcha</div>
+          <div class="text-sm text-slate-700 mt-2">read() ignores missing files silently. Avoid assuming the file was present without checking the return value or filesystem.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical tips</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Check os.path.exists before calling read when you must guarantee a file is present.</li>
+        <li>Prefer config.get with fallback instead of direct indexing when a key may be missing.</li>
+        <li>Load from multiple paths: system-wide, user config, and working directory, in that order.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always verify which files were read and guard access to sections and options to avoid runtime errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

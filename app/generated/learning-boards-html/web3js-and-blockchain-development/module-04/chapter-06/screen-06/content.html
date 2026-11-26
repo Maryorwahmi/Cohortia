@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">Signing & sending</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800">Signing and sending a transaction</h3>
+    <p class="text-sm text-slate-600 mt-1">Terminal-style script that signs locally and broadcasts a transaction to Ganache.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 overflow-auto" style="min-height:0;">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Core code excerpt</div>
+      <pre class="text-sm rounded-md bg-slate-900 text-slate-100 p-3" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; line-height:1.4; max-height:50vh; overflow:auto;">
+const Web3 = require('web3');
+const web3 = new Web3('http://127.0.0.1:7545');
+
+const simpleStorageABI = [ /* ... ABI ... */ ];
+const simpleStorageAddress = '0x...';
+
+async function writeToContract() {
+  const simpleStorage = new web3.eth.Contract(simpleStorageABI, simpleStorageAddress);
+  const accounts = await web3.eth.getAccounts();
+  const senderAddress = accounts[0];
+  const senderPrivateKey = '0x...';
+
+  const initialData = await simpleStorage.methods.getData().call();
+  const newData = 42;
+  const nonce = await web3.eth.getTransactionCount(senderAddress, 'pending');
+  const estimatedGas = await simpleStorage.methods.setData(newData).estimateGas({ from: senderAddress });
+  const gasLimit = Math.round(estimatedGas * 1.1);
+  const gasPrice = await web3.eth.getGasPrice();
+
+  const txObject = {
+    from: senderAddress,
+    to: simpleStorageAddress,
+    data: simpleStorage.methods.setData(newData).encodeABI(),
+    gasPrice: gasPrice,
+    gasLimit: gasLimit,
+    nonce: nonce,
+  };
+
+  const signedTx = await web3.eth.accounts.signTransaction(txObject, senderPrivateKey);
+  const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+  console.log('Status:', receipt.status);
+}
+
+writeToContract();
+      </pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation bullets</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>• Use getTransactionCount(sender, 'pending') to calculate nonce when multiple transactions may be pending.</li>
+        <li>• estimateGas on the method gives a tailored gas figure for that call and parameters.</li>
+        <li>• Always sign with the correct private key; placeholders will cause the script to abort.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete example</div>
+        <div class="rounded-lg bg-blue-50 p-3 text-xs text-blue-700">Run with newData = 42 to succeed, then set newData = 1500 to trigger a require(_data &lt; 1000) and observe a revert.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Log nonce and gas values during development to verify they match expectations before broadcasting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

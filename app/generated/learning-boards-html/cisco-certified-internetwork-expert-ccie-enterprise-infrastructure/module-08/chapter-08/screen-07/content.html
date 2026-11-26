@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Define Exporter, Monitor, and Apply to Interface</div>
+    <div class="text-sm text-slate-600 mt-1">From exporter to interface: ensure delivery and activation of flow data.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Exporter + Monitor snippet</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>flow exporter FNF_EXPORTER
+ destination 192.168.10.30
+ transport udp 2055
+ source GigabitEthernet0/0/0
+!
+flow monitor FNF_MONITOR
+ record FNF_SECURITY_RECORD
+ exporter FNF_EXPORTER
+ cache timeout active 60
+!
+interface GigabitEthernet0/0/1
+ ip flow monitor FNF_MONITOR input
+ ip flow monitor FNF_MONITOR output</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="font-semibold">Verification commands</div>
+        <ul class="list-disc pl-4">
+          <li>show flow monitor FNF_MONITOR cache</li>
+          <li>show flow monitor FNF_MONITOR statistics</li>
+          <li>confirm collector is receiving exported records</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Operational notes</div>
+      <div class="text-sm text-slate-600 space-y-2">
+        <div>Use a loopback as exporter source for consistent source IPs, and ensure the loopback is routable to the collector.</div>
+        <div>Re-use exporters for multiple monitors if they share the same destination to reduce config duplication.</div>
+        <div>Monitor CPU and memory after enabling; scale slowly across interfaces.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Confirm both device-side statistics and collector ingestion before scaling FNF across many interfaces.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

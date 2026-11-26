@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.term{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Counter + Profile</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Step-by-step</div>
+        <ol class="list-decimal list-inside text-sm text-slate-600 space-y-2">
+          <li>Initialize a daily counter: use SETEX homepage:views 86400 0 to set value and TTL atomically.</li>
+          <li>Increment on each visit: INCRBY homepage:views 1 and confirm with GET and TTL.</li>
+          <li>Create a user hash: HSET user:456 name "John Doe" email "john.doe@example.com" age 30 city "New York".</li>
+          <li>Simulate logins: HSET user:456 login_count 0 then HINCRBY user:456 login_count 1.</li>
+          <li>Inspect and modify fields: HGET, HMGET, HDEL, and HGETALL as needed.</li>
+        </ol>
+
+        <div class="mt-4 text-sm text-slate-600">After running these steps, consider how these choices behave under high concurrency and at scale: atomic increments and grouped hashes let you avoid locks and reduce key count.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Starter CLI</div>
+        <div class="term">
+<pre><code>redis-cli> SETEX homepage:views 86400 0
+OK
+redis-cli> INCRBY homepage:views 1
+(integer) 1
+
+redis-cli> HSET user:456 name "John Doe" email "john.doe@example.com" age 30 city "New York"
+(integer) 4
+redis-cli> HINCRBY user:456 login_count 1
+(integer) 1
+redis-cli> HGETALL user:456</code></pre>
+        </div>
+
+        <div class="mt-3 text-sm text-slate-600">Work through the commands, then try concurrent increments in separate terminals to see Redis atomicity in action. Note any nil responses to missing fields and handle them accordingly.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Reflection</div>
+        <div class="text-sm text-slate-600">Which fields are frequently updated? Those belong in the hash. Which are large and rarely changed? Consider separate keys for those.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

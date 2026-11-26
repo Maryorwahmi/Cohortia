@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Pre-commit hook</div>
+      <div class="text-sm text-slate-600 mt-3">Script runs pytest. Non-zero exit aborts commit; zero allows it.</div>
+      <div class="mt-4 text-sm text-slate-700 font-semibold">Steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-1">
+        <li>Create .git/hooks/pre-commit and make it executable.</li>
+        <li>Run pytest --fail-fast --strict-markers inside the script.</li>
+        <li>Check pytest exit status and exit 1 on failure to block commit.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Concrete hook example</div>
+      <pre class="mt-3 p-3 rounded bg-slate-50 text-sm"><code># Save this file as .git/hooks/pre-commit
+#!/bin/sh
+
+echo "Running tests before commit..."
+
+pytest --fail-fast --strict-markers
+
+if [ $? -ne 0 ]; then
+  echo "ERROR: Tests failed! Aborting commit."
+  exit 1
+else
+  echo "All tests passed. Committing changes."
+  exit 0
+fi</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Make it executable with chmod +x .git/hooks/pre-commit. The exit 1 prevents the commit when tests fail.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

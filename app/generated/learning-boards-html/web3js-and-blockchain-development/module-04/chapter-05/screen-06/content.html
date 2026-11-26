@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">SimpleStorage Read</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-lg font-bold">Starter script (visual)</div>
+      <pre class="mt-3 rounded-lg bg-black text-white p-3 overflow-auto"><code>const Web3 = require('web3');
+const web3 = new Web3('http://127.0.0.1:7545');
+
+const simpleStorageABI = [ /* ABI for SimpleStorage */ ];
+const simpleStorageAddress = '0x...';
+
+async function readContractData() {
+  if (simpleStorageAddress === '0x...') {
+    console.error('ERROR: Please deploy and update the address.');
+    return;
+  }
+
+  const simpleStorage = new web3.eth.Contract(simpleStorageABI, simpleStorageAddress);
+  const currentData = await simpleStorage.methods.getData().call();
+  const contractOwner = await simpleStorage.methods.owner().call();
+  console.log('Current stored data:', currentData);
+  console.log('Contract Owner:', contractOwner);
+}
+
+readContractData();</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-bold">Expected console output (example)</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs text-slate-700">--- Interacting with Smart Contract (Read) ---</div>
+        <div class="text-sm text-slate-800 mt-2">Current stored data: 100
+Contract Owner: 0x1234...abcd</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Leaving the placeholder address causes the script to exit or throw. Always confirm the deployed address.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

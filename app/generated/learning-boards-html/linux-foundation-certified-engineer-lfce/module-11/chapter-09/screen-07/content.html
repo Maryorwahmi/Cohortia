@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6edf3;padding:12px;border-radius:10px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Ansible failures</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full min-h-0">
+    <div class="col-span-7 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Connectivity & Inventory vs Playbook Logic</h3>
+      <p class="text-sm text-slate-600 mt-3">Use quick connectivity checks first, then move to verbose runs and module isolation to narrow down the cause.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-white rounded-lg border card-border">
+          <div class="text-sm font-semibold text-slate-800">Connectivity / Inventory</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-1">
+            <li>ansible all -m ping to test reachability</li>
+            <li>Check SSH keys, ansible_user, ansible_host entries</li>
+            <li>Use -vvv to inspect SSH handshake and auth</li>
+          </ul>
+        </div>
+        <div class="p-3 bg-white rounded-lg border card-border">
+          <div class="text-sm font-semibold text-slate-800">Playbook Logic</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-1">
+            <li>Run modules ad-hoc to validate behavior</li>
+            <li>Check for missing dependencies on managed host</li>
+            <li>Use ansible-lint to find style and syntax issues</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <pre class="code"><code># connectivity quick test
+ansible all -i inventory.ini -m ping
+
+# verbose playbook run
+ansible-playbook -i inventory.ini playbook.yaml -vvv
+</code></pre>
+      </div>
+
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete tip</div>
+      <p class="text-sm text-slate-700 mt-3">If ansible all -m ping fails but SSH to the host succeeds, compare the connection user and key used by Ansible and the manual SSH session; inventory variables often diverge from expectations.</p>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Checkpoint</div>
+          <p class="text-xs font-medium text-slate-800">Decide whether to fix the network/credentials or the playbook based on quick ad-hoc tests and verbose output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

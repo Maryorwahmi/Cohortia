@@ -1,0 +1,70 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>Socket Example</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white p-6 shadow-sm border card-border flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Server-side (server.py)</div>
+      <pre class='bg-slate-900 text-slate-100 rounded-lg p-4 overflow-auto text-sm' style='white-space:pre-wrap;tab-size:2;'>
+# Server-side (server.py)
+import socket
+
+HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+PORT = 65432        # Port to listen on (non-privileged ports are &gt; 1023)
+
+def start_server():
+  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    print(f"Server listening on {HOST}:{PORT}")
+    conn, addr = s.accept() # Blocks until a client connects
+    with conn:
+      print(f"Connected by {addr}")
+      data = conn.recv(1024) # Receive up to 1024 bytes
+      print(f"Received from client: {data.decode()}")
+      response_message = f"Hello, client! I received your message: '{data.decode()}'"
+      conn.sendall(response_message.encode()) # Send response back
+      print("Response sent.")
+
+# To run: python server.py (in one terminal)
+# start_server()
+      </pre>
+    </div>
+
+    <div class='rounded-2xl bg-white p-6 shadow-sm border card-border flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Client-side (client.py)</div>
+      <pre class='bg-slate-900 text-slate-100 rounded-lg p-4 overflow-auto text-sm' style='white-space:pre-wrap;tab-size:2;'>
+# Client-side (client.py)
+import socket
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+def start_client():
+  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    try:
+      s.connect((HOST, PORT)) # Connect to the server
+      message = "Hello from Cohortia client!"
+      s.sendall(message.encode()) # Send data
+      print(f"Sent to server: {message}")
+      data = s.recv(1024) # Receive response
+      print(f"Received from server: {data.decode()}")
+    except ConnectionRefusedError:
+      print(f"Connection refused. Is the server running on {HOST}:{PORT}?")
+
+# To run: python client.py (in another terminal after starting server)
+# start_client()
+      </pre>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>The server waits and responds; the client initiates and consumes, illustrating the request-response roles clearly.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Door Button Example</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">Door Button: Make a Door Open on Click</div>
+    <div class="text-sm text-slate-600 mt-1">A common interactive pattern using MouseClick and player context.</div>
+  </div>
+
+  <div class="mt-6 grid grid-cols-2 gap-6 h-[68%]">
+    <div class="bg-white rounded-2xl border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800 mb-2">Script (place inside the DoorButton Part)</div>
+      <pre class="code">-- Script placed inside a Part named "DoorButton"
+local button = script.Parent
+local clickDetector = button:FindFirstChild("ClickDetector")
+if not clickDetector then
+  warn("DoorButton is missing a ClickDetector!")
+  return
+end
+local door = game.Workspace:FindFirstChild("MyGameDoor")
+if not door then
+  warn("Door 'MyGameDoor' not found in Workspace!")
+  return
+end
+local function onButtonClicked(player)
+  print(player.Name .. " clicked the door button!")
+  door.Transparency = 1
+  door.CanCollide = false
+  task.wait(3)
+  door.Transparency = 0
+  door.CanCollide = true
+  print("Door closed.")
+end
+clickDetector.MouseClick:Connect(onButtonClicked)
+print("Door button script initialized!")</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-4 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation & checks</div>
+      <ul class="list-disc ml-4 text-sm text-slate-700">
+        <li>Find ClickDetector and the door; warn and exit if missing to prevent errors.</li>
+        <li>MouseClick receives player, which you can log or use for player-specific changes.</li>
+        <li>Changing Transparency and CanCollide simulates opening and closing.</li>
+      </ul>
+      <div class="mt-auto text-xs text-slate-500">Consider adding guards to prevent overlapping open/close cycles if multiple players click rapidly.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+    <p class="text-sm font-medium text-slate-800">Use clear existence checks and the player argument to create reliable interactive elements that respond to specific players during testing and play.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

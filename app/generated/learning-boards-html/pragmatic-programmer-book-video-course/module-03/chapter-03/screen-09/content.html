@@ -1,0 +1,99 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>
+    .code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap;tab-size:2}
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class='flex h-full gap-4'>
+    <div class='w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Code Walkthrough</div>
+      <div class='text-2xl font-bold text-slate-900 mt-2'>Tracer Bullet — Flask Task App</div>
+      <div class='text-sm text-slate-700 mt-3'>The code below is a minimal, runnable example that proves the request → app → DB → response path.</div>
+      <div class='mt-4'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>app.py (conceptual)</div>
+        <div class='code' role='code'>
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3
+
+app = Flask(__name__)
+DATABASE = 'tracer_bullet_tasks.db'
+
+def get_db_connection():
+  conn = sqlite3.connect(DATABASE)
+  conn.row_factory = sqlite3.Row
+  return conn
+
+def init_db():
+  conn = get_db_connection()
+  conn.execute('''
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      description TEXT NOT NULL
+    )
+  ''')
+  conn.commit()
+  conn.close()
+
+with app.app_context():
+  init_db()
+
+@app.route('/')
+def index():
+  conn = get_db_connection()
+  tasks = conn.execute('SELECT * FROM tasks').fetchall()
+  conn.close()
+  return render_template('index.html', tasks=tasks)
+
+@app.route('/add_task', methods=('POST',))
+def add_task():
+  if request.method == 'POST':
+    description = request.form['description']
+    if description:
+      conn = get_db_connection()
+      conn.execute('INSERT INTO tasks (description) VALUES (?)', (description,))
+      conn.commit()
+      conn.close()
+  return redirect(url_for('index'))
+
+if __name__ == '__main__':
+  app.run(debug=True)
+        </div>
+      </div>
+    </div>
+    <div class='flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Template snippet</div>
+      <div class='text-sm text-slate-700 mt-2'>The HTML template renders tasks. This completes the round trip so you can see what was stored.</div>
+      <div class='mt-3'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>templates/index.html (conceptual)</div>
+        <div class='code'>
+&lt;!DOCTYPE html&gt;
+&lt;html lang='en'&gt;
+&lt;head&gt;
+  &lt;meta charset='utf-8'&gt;
+  &lt;title&gt;Tasks&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;My Tasks&lt;/h1&gt;
+  &lt;form action='/add_task' method='post'&gt;
+    &lt;input type='text' name='description' placeholder='New task description' required&gt;
+    &lt;button type='submit'&gt;Add Task&lt;/button&gt;
+  &lt;/form&gt;
+  &lt;ul&gt;
+    {% for task in tasks %}
+      &lt;li&gt;{{ task.description }}&lt;/li&gt;
+    {% else %}
+      &lt;li&gt;No tasks yet!&lt;/li&gt;
+    {% endfor %}
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </div>
+      </div>
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>This runnable example proves the full stack and becomes the baseline for further features and tests.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

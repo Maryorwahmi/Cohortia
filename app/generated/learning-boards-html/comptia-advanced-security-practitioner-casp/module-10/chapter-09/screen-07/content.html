@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f1724;color:#d1d5db;padding:12px;border-radius:8px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="p-4 bg-white rounded-2xl card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Circuit Breaker</div>
+      <div class="text-sm text-slate-600 mt-3">Detect failing dependencies and stop calls to them until they recover, providing a fallback to avoid resource exhaustion.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">When to use</div>
+          <div class="text-sm text-slate-600 mt-1">Use when remote calls can fail or return slowly and retries would worsen the situation.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3 mt-3">
+          <div class="font-semibold text-slate-800">Monitoring</div>
+          <div class="text-sm text-slate-600 mt-1">Track open/half-open/closed states and request rejections as alerts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-white rounded-2xl card-border shadow-sm flex flex-col">
+      <div class="font-bold text-slate-800">Pseudocode Example</div>
+      <div class="text-sm text-slate-600 mt-2">A decorated call returns a fallback when the circuit is open.</div>
+
+      <pre class="code mt-3" style="white-space:pre-wrap;tab-size:2;">// Pseudocode for a circuit breaker
+CircuitBreaker cb = CircuitBreaker.of("myService", CircuitBreakerConfig.ofDefaults());
+Supplier&lt;String&gt; decorated = CircuitBreaker.decorateSupplier(cb, () -&gt; myService.callExternalApi());
+
+try {
+  String result = decorated.get();
+} catch (CallNotPermittedException e) {
+  // Circuit is open: return cached result or default
+}</pre>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="font-semibold">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Don't rely on long blocking retries; without a breaker, retries amplify failures and increase latency.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

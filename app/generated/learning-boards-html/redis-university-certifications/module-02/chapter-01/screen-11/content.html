@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Common Pitfalls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Warning</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Avoid inefficient patterns</h3>
+      <p class="text-sm text-slate-600 mt-3">Common mistakes lead to performance problems. Model data to match access patterns.</p>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <ul class="list-disc list-inside">
+          <li>Rewriting large JSON strings for small updates causes memory churn.</li>
+          <li>HGETALL on huge hashes consumes bandwidth and CPU.</li>
+          <li>TTL applies to keys, not fields inside a hash; plan expirations accordingly.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example anti-pattern</div>
+      <div class="bg-slate-50 rounded-lg p-3 mt-3 flex-1 overflow-auto">
+        <pre class="text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+# BAD: update a field by rewriting the whole JSON string
+GET user:1000
+# parse JSON, change email
+SET user:1000 "{...updated json...}"
+
+# BETTER: use a hash and update the email field
+HSET user:1000 email "new@example.com"
+        </pre>
+        <p class="text-xs text-slate-600 mt-2">Choosing the hash avoids fetching and serializing the full document for a single field change.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Model for field-level updates and avoid broad commands that return or rewrite entire objects when not necessary.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

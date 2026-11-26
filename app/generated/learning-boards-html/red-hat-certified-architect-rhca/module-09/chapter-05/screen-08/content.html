@@ -1,0 +1,40 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Stateless vs Stateful</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Stateless (Apache)</div>
+      <ul class='text-sm text-slate-700 list-disc list-inside mt-3 space-y-2'>
+        <li>No transactional state in local files; content can be shared or synced.</li>
+        <li>Primary needs: SharedFS availability and health URL for monitoring.</li>
+        <li>Less strict fencing requirements but still test for race conditions.</li>
+      </ul>
+
+      <div class='rounded-lg p-3 bg-blue-50 mt-4'>
+        <div class='font-semibold text-blue-700'>Lab check</div>
+        <div class='text-xs mt-2'>Verify index.html is served via VirtualIP after failover and statusurl returns 200.</div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Stateful (MariaDB)</div>
+      <ul class='text-sm text-slate-700 list-disc list-inside mt-3 space-y-2'>
+        <li>Datadir contains transactional files that must remain consistent.</li>
+        <li>Use shared storage or replication; stonith fencing is mandatory to avoid corruption.</li>
+        <li>Longer start timeouts and careful monitor intervals are typical.</li>
+      </ul>
+
+      <div class='rounded-lg p-3 bg-violet-50 mt-4'>
+        <div class='font-semibold text-violet-700'>Lab check</div>
+        <div class='text-xs mt-2'>After failover, confirm MariaDB starts and clients can connect to VirtualIP_DB and see the same data.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.code{background:#0f1724;color:#e6edf3;padding:12px;border-radius:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">What is a Future?</div>
+      <div class="rounded-xl bg-white p-4 card-border flex-1">
+        <div class="text-sm text-slate-600">A Future represents a value that will be available later and can be completed manually with set_result or set_exception. It is the primitive for bridging non-async code and callback APIs into asyncio.</div>
+        <div class="mt-4 code" style="white-space:pre-wrap; tab-size:2;"><pre><code># callback integration example
+import asyncio
+
+def callback_done(fut, data):
+  fut.set_result(data)
+
+async def wait_for_callback(loop):
+  fut = loop.create_future()
+  # imaginary_register_callback(lambda data: callback_done(fut, data))
+  result = await fut
+  return result</code></pre></div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Key points</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4 space-y-2">
+            <li>Task is a subclass of Future and is used for coroutines.</li>
+            <li>Use Future when you must complete the awaitable manually from callbacks or external events.</li>
+            <li>Always set a result or exception to avoid hanging awaiters.</li>
+          </ul>
+        </div>
+        <div class="mt-4 grid gap-2">
+          <div class="rounded-lg border-l-4 border-l-rose-500 bg-rose-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+            <p class="text-xs font-medium text-slate-800">Never leave a Future unresolved. If a callback is missed or an error occurs before set_result, awaiting code will block indefinitely.</p>
+          </div>
+          <div class="rounded-lg bg-white p-2 border card-border text-xs text-slate-600">
+            <div class="font-semibold">Debug tip</div>
+            <div class="mt-1">Use future.done() and add_done_callback to inspect completion and observe exceptions when a Future fails.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

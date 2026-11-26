@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Remember Me Login</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter snippet</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+const USERNAME_KEY = 'rememberedUsername'
+const REMEMBER_FLAG = 'rememberMeFlag'
+
+async function loadRememberedUser() {
+  try {
+    const storedUsername = await AsyncStorage.getItem(USERNAME_KEY)
+    const storedFlag = await AsyncStorage.getItem(REMEMBER_FLAG)
+    if (storedFlag === 'true' && storedUsername) {
+      setUsername(storedUsername)
+      setRememberMe(true)
+    }
+  } catch (e) { console.error(e) }
+}
+
+async function handleLogin() {
+  if (rememberMe) {
+    await AsyncStorage.setItem(USERNAME_KEY, username)
+    await AsyncStorage.setItem(REMEMBER_FLAG, 'true')
+  } else {
+    await AsyncStorage.removeItem(USERNAME_KEY)
+    await AsyncStorage.removeItem(REMEMBER_FLAG)
+  }
+}
+      </pre>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & checklist</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Store the username only when the user opts in.</li>
+        <li>Use a dedicated flag key so intent is explicit and easy to check.</li>
+        <li>Call removeItem to clear previous values when the user opts out.</li>
+        <li>Test across full app restart to ensure persistence works as expected.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">Why is storing a remember flag helpful compared to checking for a non-empty username key alone?</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

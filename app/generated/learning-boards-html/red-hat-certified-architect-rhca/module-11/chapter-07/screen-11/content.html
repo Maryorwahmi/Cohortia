@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre.code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
+  </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on: Site-to-site Lab</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Starter script (SiteA-Gateway)</div>
+      <pre class="code bg-slate-50 rounded-md p-3 mt-3"># Install
+sudo dnf install strongswan -y
+
+# Enable IP forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ip-forward.conf
+
+# Configure ipsec.conf and ipsec.secrets as shown in the chapter</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Verification commands</div>
+      <pre class="code bg-slate-50 rounded-md p-3 mt-3"># On gateways
+sudo ipsec status
+journalctl -u strongswan -f
+
+# From internal host on 10.0.1.0/24
+ping 10.0.2.10</pre>
+
+      <div class="mt-3 text-sm text-slate-700">If the ping fails, first check ipsec status for a negotiated SA, then review strongSwan logs for policy mismatches, and verify the PSK matches on both sides. Confirm internal hosts use their gateway as default route.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

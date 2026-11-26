@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step commands</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-xs"><code>sudo pcs property set maintenance-mode=true
+sudo pcs resource create VirtualIP ocf:heartbeat:IPaddr2 ip=192.168.1.100 cidr_netmask=24 op monitor interval=10s
+sudo pcs resource create SharedFS ocf:heartbeat:Filesystem device="/dev/sdb1" directory="/mnt/data" fstype="xfs" op monitor interval=20s
+sudo pcs constraint colocation add VirtualIP with SharedFS INFINITY
+sudo pcs constraint order SharedFS then VirtualIP
+sudo pcs property set maintenance-mode=false
+sudo pcs status
+sudo pcs status resources
+sudo pcs constraint</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Testing failover</div>
+      <div class="text-xs text-slate-600 mt-2">Move resources manually or stop Pacemaker on the active node to simulate failure. For example: sudo pcs resource move VirtualIP node2.example.com. Observe that SharedFS and VirtualIP move together when colocation and order are correct.</div>
+
+      <div class="mt-4 bg-rose-50 rounded-md p-3 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Checklist</div>
+        <ul class="text-xs text-slate-700 mt-2 list-disc ml-4">
+          <li>Device formatted and mount point created on all nodes</li>
+          <li>Constraints present and verified</li>
+          <li>Maintenance mode used for safe configuration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

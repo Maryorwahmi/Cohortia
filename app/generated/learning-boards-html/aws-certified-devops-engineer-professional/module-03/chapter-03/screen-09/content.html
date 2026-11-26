@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Account Tagger</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Lambda code (summary)</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-2" style="white-space:pre-wrap; tab-size:2"># Handler reads OwnerEmail and tags account root ARN
+# Uses resourcegroupstaggingapi.tag_resources to add OwnerEmail
+# Sends success/failure using cfnresponse
+# Ensure Role grants tag:TagResources and tag:UntagResources</pre>
+
+      <div class="mt-4 text-sm text-slate-700">Note: The physical resource id should be stable across updates so CloudFormation can map updates to the same custom resource instance.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Template excerpt</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-2" style="white-space:pre-wrap; tab-size:2">Resources:
+  AccountTaggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns: [arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole]
+      Policies:
+        - PolicyName: AccountTaggingPolicy
+          PolicyDocument: ...
+
+  AccountTaggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: account-tagger-lambda.handler
+      Runtime: python3.9
+      Code: S3 location
+
+  AccountTaggerCustomResource:
+    Type: Custom::AccountTagger
+    Properties:
+      ServiceToken: !GetAtt AccountTaggerLambda.Arn
+      OwnerEmail: !Ref OwnerEmail</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

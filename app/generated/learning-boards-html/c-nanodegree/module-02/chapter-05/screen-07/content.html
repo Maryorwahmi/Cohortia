@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Stream I/O</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border card shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">operator&lt;&lt; and operator&gt;&gt; (friend non-members)</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const Vector2D&amp; vec) {
+  os &lt;&lt; "(" &lt;&lt; vec.x &lt;&lt ", " &lt;&lt; vec.y &lt;&lt ")";
+  return os;
+}
+
+friend std::istream&amp; operator&gt;&gt;(std::istream&amp; is, Vector2D&amp; vec) {
+  char paren, comma;
+  is &gt;&gt; paren &gt;&gt; vec.x &gt;&gt; comma &gt;&gt; vec.y &gt;&gt; paren; // expects (x, y)
+  return is;
+}
+</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Supporting notes</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 mt-2">
+        <li>Return the stream to allow chaining with other I/O operations.</li>
+        <li>Keep input parsing simple and document the expected format, e.g. (x, y).</li>
+        <li>Use friend only when necessary to access private members; prefer public getters if available.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded-lg bg-white border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">Printing a Vector2D with the print function now yields a human-readable pair like (1.0, 2.0) without extra helper calls.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-white border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">operator&gt;&gt; must not perform complex validation silently; keep behavior predictable for callers.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm font-medium text-slate-800 mt-1">Implement stream operators as non-members that return the stream reference for chaining and clarity.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

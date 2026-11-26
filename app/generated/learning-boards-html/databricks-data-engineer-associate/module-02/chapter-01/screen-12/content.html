@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: JSON Load</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-lg font-bold text-slate-800">Starter steps</div>
+      <ol class="mt-3 list-decimal ml-5 space-y-2 text-sm text-slate-700">
+        <li>Create sample_users.json locally with two JSON lines and upload to /FileStore/tables/ via the UI.</li>
+        <li>Create a new Python notebook and attach to a running cluster.</li>
+        <li>Run the code below to load and inspect the DataFrame.</li>
+      </ol>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded text-sm"><code># Starter code to load JSON
+json_path = "/FileStore/tables/sample_users.json"
+try:
+  users_df = spark.read.option("inferSchema","true").json(json_path)
+  print("DataFrame Schema:")
+  users_df.printSchema()
+  print("First rows:")
+  users_df.show(5)
+except Exception as e:
+  print(f"An error occurred: {e}")
+  print("Ensure the file is uploaded and your cluster is running.")
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-700">Expected outcomes and checks</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>printSchema shows inferred column types such as id as integer and name as string.</li>
+        <li>show displays the two user rows from the sample file.</li>
+        <li>If an error appears, confirm the notebook attachment and DBFS path spelling.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Reflect</div>
+        <div class="text-sm text-slate-800">How would you change this process for larger datasets and production schedules? Consider partitioning and an explicit schema.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

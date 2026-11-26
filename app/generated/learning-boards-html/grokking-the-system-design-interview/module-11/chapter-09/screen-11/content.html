@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">User Data Sharding</div>
+      <div class="text-sm text-slate-600 mt-1">Use user_id to co-locate profile and social data for efficient single-user queries.</div>
+      <div class="mt-4 flex-1">
+        <div class="text-sm text-slate-700">• Primary sharding key: user_id. This groups a user's profile, friend list, and settings on the same shard.</div>
+        <div class="text-sm text-slate-700">• Multi-user queries (e.g., list of friends' profiles) require cross-shard reads; mitigate via fanout, denormalization, or caching.</div>
+        <div class="text-sm text-slate-700">• Example: store small friend profile snippets inside the friend list record to avoid many remote lookups for common UI renders.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Misconception: user_id sharding makes all social queries cheap. Reality: social graph queries often cross shards and need special handling.</div>
+    </div>
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card-border flex-1">
+        <div class="text-sm font-semibold text-slate-800">Handling multi-user reads</div>
+        <div class="text-sm text-slate-700 mt-3">Options include client-side parallel fanout to shards, denormalizing small profile data into friend lists, or heavy caching of popular profiles to reduce shard calls.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Pro Tip</div>
+          <div class="text-sm text-slate-800 mt-1">Measure average friend list size to choose between denormalization and parallel fanout.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">Blindly denormalizing everything increases update complexity when profiles change frequently.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">ERD → Schema</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Guideline</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Create tables for each entity and underline PK.</li>
+        <li>Add FK columns on the many side for 1:N relationships.</li>
+        <li>Create junction tables for M:N and include association attributes.</li>
+        <li>Set NULL/NOT NULL according to optionality.</li>
+      </ul>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Visual Example (schema sketch)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space: pre-wrap; tab-size: 2;">
+CREATE TABLE Users (
+  user_id SERIAL PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Posts (
+  post_id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES Users(user_id),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP
+);
+
+CREATE TABLE Enrollment (
+  student_id INT NOT NULL REFERENCES Students(student_id),
+  course_id INT NOT NULL REFERENCES Courses(course_id),
+  enrolled_on DATE,
+  PRIMARY KEY (student_id, course_id)
+);
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Class-based implementation</span>
+    </div>
+
+    <div class="flex h-[78%] gap-6">
+      <div class="w-1/2 h-full">
+        <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+          <div class="text-sm font-bold text-slate-800">Abstract Observer & Examples</div>
+          <pre class="mono mt-3 text-sm bg-slate-50 p-3 rounded h-[60%] overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>from abc import ABC, abstractmethod
+
+class Observer(ABC):
+  @abstractmethod
+  def update(self, subject, *args, **kwargs):
+    pass
+
+class Investor(Observer):
+  def __init__(self, name: str):
+    self.name = name
+    self.portfolio = {}
+
+  def update(self, subject, stock_symbol: str, price: float):
+    print(f"Investor {self.name}: Received update for {stock_symbol}. New price: ${price:.2f}")
+    self.portfolio[stock_symbol] = price
+    if price < 100:
+      print("Consider buying.")</code></pre>
+        </div>
+      </div>
+
+      <div class="w-1/2 h-full">
+        <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+          <div class="text-sm font-bold text-slate-800">StockTicker subject (excerpt)</div>
+          <pre class="mono mt-3 text-sm bg-slate-50 p-3 rounded h-[60%] overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>class StockTicker:
+  def __init__(self, symbol: str):
+    self._symbol = symbol
+    self._price = 0.0
+    self._observers = []
+
+  def attach(self, observer: Observer):
+    if observer not in self._observers:
+      self._observers.append(observer)
+
+  def _notify(self):
+    for observer in list(self._observers):
+      observer.update(self, self._symbol, self._price)
+
+  @property
+  def price(self) -> float:
+    return self._price
+
+  @price.setter
+  def price(self, new_price: float):
+    if self._price != new_price:
+      self._price = new_price
+      self._notify()</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

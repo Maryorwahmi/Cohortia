@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Indexing Pipeline</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Indexing steps</div>
+      <ol class="list-decimal list-inside mt-3 text-sm text-slate-700 space-y-2">
+        <li>Post Service emits a post-created event to Kafka.</li>
+        <li>Search Indexer consumes events and applies transformations.</li>
+        <li>Indexer writes the flattened document to Elasticsearch.</li>
+        <li>Search Service queries Elasticsearch and enriches results from caches or DBs.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-slate-50 p-3">
+        <div class="text-xs font-semibold text-slate-600">Example document written by the indexer</div>
+        <pre class="mt-2 bg-white p-3 rounded text-sm text-slate-700" style="white-space:pre-wrap;tab-size:2;">{
+  "post_id": "timeuuid-of-post",
+  "user_id": "uuid-of-author",
+  "username": "john_doe",
+  "content": "Just had an amazing coffee! #coffee #morningvibes",
+  "hashtags": ["coffee", "morningvibes"],
+  "created_at": "2023-03-15T10:30:00Z",
+  "likes_count": 123
+}</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Common mistake: indexing asynchronously without handling out-of-order events. Use event versioning or idempotent writes to ensure the indexed state matches source of truth.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Operational cards</div>
+      <div class="grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Transformations</div>
+          <div class="text-sm text-slate-600 mt-2">Flatten nested fields, extract hashtags, normalize case, and remove unwanted fields before indexing.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Idempotency</div>
+          <div class="text-sm text-slate-600 mt-2">Use stable document ids and versioning so retrying or replaying events does not corrupt the index.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-emerald-50">
+          <div class="text-xs uppercase tracking-wider text-emerald-700 font-bold">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Design the indexer to be transform-first, idempotent, and observable so search remains accurate and timely.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

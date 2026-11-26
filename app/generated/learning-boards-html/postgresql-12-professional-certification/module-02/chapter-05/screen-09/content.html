@@ -1,0 +1,44 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-[rgba(16,185,129,0.08)]'>Process Flow</span>
+    <span>›</span>
+    <span class='text-slate-700'>REINDEX Strategies</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-sm font-bold text-slate-800'>Commands</div>
+      <div class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;'>
+<pre><code>-- Rebuild a specific index (may block)
+REINDEX INDEX idx_customers_email;
+
+-- Rebuild a table's indexes (can block)
+REINDEX TABLE customers;
+
+-- Rebuild an index without blocking writes
+REINDEX INDEX CONCURRENTLY idx_customers_email;
+</code></pre>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-700 space-y-2'>
+        <div>• Non-concurrent REINDEX may acquire exclusive locks and block DML.</div>
+        <div>• REINDEX CONCURRENTLY builds a new index and swaps it in, reducing blocking but using more resources.</div>
+        <div>• Test on a staging environment to estimate duration and temp space requirements.</div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Decision checklist</div>
+      <ul class='mt-3 text-sm text-slate-700 space-y-2'>
+        <li>• Is the index heavily bloated and impacting queries? Consider REINDEX.</li>
+        <li>• Do you need continuous availability? Prefer REINDEX CONCURRENTLY for individual indexes.</li>
+        <li>• Can you schedule a maintenance window? A full REINDEX TABLE or DATABASE might be acceptable then.</li>
+      </ul>
+
+      <div class='mt-auto rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700'>Common Mistake</div>
+        <div class='text-sm text-slate-700 mt-2'>Running REINDEX DATABASE without checking active load and temporary disk usage can cause severe performance impact.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

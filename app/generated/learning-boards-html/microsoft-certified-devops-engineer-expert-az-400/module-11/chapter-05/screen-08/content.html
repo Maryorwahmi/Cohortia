@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span><span>›</span><span>Chapter 5</span><span>›</span><span class="text-slate-700">Code Walkthrough</span></div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Azure Functions CI/CD: Deploy Stage</h2><p class="text-lg text-slate-700 mb-6">Using `AzureFunctionApp@2` for Seamless Releases</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-xl p-4 flex-grow overflow-auto" style="tab-size: 2; white-space: pre-wrap;"><pre><code class="language-yaml text-slate-200"># Conceptual Azure DevOps YAML for Azure Function App CI/CD
+
+# ... (Build Stage omitted for brevity)
+
+- stage: Deploy
+  displayName: 'Deploy Function App'
+  dependsOn: Build
+  jobs:
+  - deployment: DeployFunction
+    displayName: 'Deploy to Azure'
+    environment: 'Production'
+    pool:
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureFunctionApp@2
+            displayName: 'Deploy Azure Function App'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              appType: 'functionApp'
+              appName: $(functionAppName)
+              resourceGroupName: $(resourceGroupName)
+              package: '$(Pipeline.Workspace)/drop/$(functionAppName).zip'
+              # Use a deployment slot for safer deployments:
+              # slotName: 'staging'
+              # deployOnDedicatedAppServicePlan: true # If using a dedicated plan</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Explanation</div><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><strong>`dependsOn: Build`:</strong> Ensures the deployment stage only runs after a successful build.</li><li><strong>`AzureFunctionApp@2` Task:</strong> The core task for deploying Azure Function Apps.</li><li><strong>`azureSubscription`:</strong> Specifies the Azure service connection for authentication.</li><li><strong>`appName`, `resourceGroupName`:</strong> Identify the target Azure Function App.</li><li><strong>`package`:</strong> Points to the ZIP artifact created in the Build stage.</li><li><strong>`slotName` (Optional):</strong> Enables deployment to a specific slot (e.g., 'staging') for Blue/Green deployments.</li></ul></div><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Why it Matters</div><p class="text-sm text-slate-700">Automated deployment ensures that new function versions are consistently and reliably pushed to Azure. Using deployment slots is a critical best practice for minimizing downtime and risk during updates, allowing for thorough testing before production rollout.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The Deploy stage, powered by `AzureFunctionApp@2` and deployment slots, is essential for safe, automated, and continuous delivery of Azure Functions, ensuring high availability and reliability.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

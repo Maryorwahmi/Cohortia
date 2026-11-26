@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Cache-Aside in Python</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Starter code (read-only)</div>
+      <pre class="mt-3"><code>import redis
+import json
+import time
+
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+# Simulate a slow database call
+def fetch_product_from_db(product_id):
+  print(f"--- DB: Fetching product {product_id} from primary database...")
+  time.sleep(1.5)  # Simulate latency
+  # Return a simulated product or None
+  return PRODUCT_DB.get(product_id)
+
+
+def get_product_details(product_id, cache_ttl=30):
+  cache_key = f"cache:product:{product_id}"
+
+  # 1. Try to get product details from Redis cache
+  cached_data = r.get(cache_key)
+  if cached_data:
+    print(f"--- CACHE: Hit for {product_id}!")
+    return json.loads(cached_data)
+
+  # 2. Cache miss: Fetch from the simulated database
+  print(f"--- CACHE: Miss for {product_id}. Fetching from DB...")
+  product_data = fetch_product_from_db(product_id)
+
+  if product_data:
+    # 3. If found in DB, store in Redis cache with TTL
+    r.setex(cache_key, cache_ttl, json.dumps(product_data))
+    print(f"--- CACHE: Stored {product_id} in cache with TTL {cache_ttl}s.")
+
+  return product_data</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">This code shows GET, conditional DB fetch, and SETEX. Run the function twice to see a miss then a hit. To test expiry, wait for the TTL or delete the key and call again.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example output and notes</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>First call prints DB fetch and "Stored" message; subsequent call prints "CACHE: Hit".</li>
+        <li>Use clear keys like cache:product:prod-001 to avoid collisions.</li>
+        <li>Consider caching negative results with a short TTL to prevent repeated DB hits for non-existent items.</li>
+        <li>Avoid very long TTLs for rapidly changing data; prefer explicit invalidation on updates.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-sm text-slate-700">When updating a product, delete the cache key right after the database write to prevent serving stale information.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

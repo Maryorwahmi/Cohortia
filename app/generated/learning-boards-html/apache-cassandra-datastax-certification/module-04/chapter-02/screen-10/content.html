@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Design From Queries</div>
+      <div class="text-sm text-slate-600 mt-2">A stepwise approach to select partition and clustering keys.</div>
+
+      <ol class="mt-4 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>List primary queries and required filters.</li>
+        <li>Choose a partition key that matches the required WHERE clauses and gives enough cardinality.</li>
+        <li>Choose clustering columns to order rows for range queries or sorting needs.</li>
+        <li>Evaluate partition size and potential hotspots; add composite keys or buckets if necessary.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-bold">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Trying to model all queries in one table leads to complex, inefficient designs; prefer one table per access pattern when needed.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-xl p-4 card-border">
+      <div class="text-sm font-bold">Examples to try</div>
+      <div class="mt-2 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold">Query: latest posts for a user</div>
+          <div class="text-sm text-slate-600 mt-1">PRIMARY KEY ((user_id), post_id) WITH CLUSTERING ORDER BY (post_id DESC)</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-bold">Query: readings for device sensor in time range</div>
+          <div class="text-sm text-slate-600 mt-1">PRIMARY KEY ((device_id, sensor_type), reading_time)</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always validate a proposed key against the actual queries and expected data volumes before you accept it as final.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Securing SSH</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Code walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">SSHv2 with RSA keys</h3>
+      <pre class="mt-3 mono bg-slate-50 p-3 rounded-md text-sm">
+ip domain name cohortia.local
+crypto key generate rsa modulus 2048
+ip ssh version 2
+username admin privilege 15 secret StrongSecret!
+line vty 0 4
+ transport input ssh
+ login local
+      </pre>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Verification</div>
+        <ul class="list-disc pl-4 mt-2 text-sm text-slate-600">
+          <li>Confirm rsa key size and SSH version via show commands.</li>
+          <li>Attempt key-based auth from a client and confirm password auth behavior.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+      <p class="text-sm text-slate-600 mt-2">Encrypted management prevents credential theft and session tampering. Keys reduce replay and brute-force risk. Disabling older protocol versions reduces cryptographic attack surface.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-2">Forgetting to set the domain name prevents key generation on many devices. Also, leaving password-based login enabled without lockout allows brute-force attempts.</p>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+          <p class="text-xs font-medium text-slate-800">Generate an RSA key, enable SSHv2, and test a key-based login from a lab client to confirm the flow.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

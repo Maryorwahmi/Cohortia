@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">root_squash & anonuid</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Why root_squash exists</div>
+      <p class="text-sm text-slate-600">Mapping client root to an anonymous user prevents a compromised client root account from gaining server root access. This is a fundamental protection for multi-host environments.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="text-sm font-semibold text-slate-800">root_squash</div>
+          <div class="text-sm text-slate-600 mt-1">Maps client UID 0 to an anonymous UID/GID so client root does not become server root.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-rose-50 border">
+          <div class="text-sm font-semibold text-rose-700">no_root_squash</div>
+          <div class="text-sm text-slate-600 mt-1">Allows client root to preserve root privileges on the server — use for trusted hosts only.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="text-sm font-semibold text-slate-800">anonuid / anongid</div>
+          <div class="text-sm text-slate-600 mt-1">Pick the UID/GID that squashed requests will use to align permissions with a designated account.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">/data/projects 192.168.40.0/24(rw,sync,no_subtree_check,root_squash,anonuid=1000,anongid=1000)</pre>
+      <p class="text-sm text-slate-600 mt-2">Here, squashed root maps to UID 1000, so squashed requests act as that user rather than nfsnobody. This gives controlled access without exposing server root.</p>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use anonuid/anongid to give squashed operations predictable permissions; treat no_root_squash as an exception for trusted hosts only.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

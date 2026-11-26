@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">std::shared_ptr</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 flex-1">
+    <div class="col-span-7 rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-sm font-bold text-slate-700">How reference counting works</div>
+      <p class="text-sm text-slate-600 mt-2">Each shared_ptr points to a control block that tracks how many shared_ptrs and weak_ptrs reference the object. When the last shared_ptr is destroyed, the object is deleted.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When to use</div>
+        <ul class="mt-2 list-disc list-inside text-sm text-slate-600">
+          <li>When multiple independent owners need a shared resource.</li>
+          <li>When lifetime cannot be determined by a single scope.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-violet-50 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-1">Concrete example</div>
+        <pre class="text-sm bg-white p-3 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// Create and copy
+std::shared_ptr&lt;MyResource&gt; a = std::make_shared&lt;MyResource&gt;(10);
+std::shared_ptr&lt;MyResource&gt; b = a; // use_count increases
+{
+  std::shared_ptr&lt;MyResource&gt; c = a; // use_count increases again
+}
+// use_count decreases when c is destroyed
+</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Trade-offs & pitfalls</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600">
+        <li>Overhead from reference counting and control block allocations.</li>
+        <li>Risk of cyclic references if bidirectional shared_ptrs are used.</li>
+        <li>Prefer make_shared to allocate control block and object together.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Use shared_ptr when true shared ownership is needed, but remain mindful of cycles and allocation costs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Notification Gateway</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Delivery flow (high level)</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+        <li>Notification Service generates notification and publishes to internal topic or RPC.</li>
+        <li>Notification Gateway instance looks up user_id → active socket mapping.</li>
+        <li>If socket exists, gateway pushes notification over WebSocket.</li>
+        <li>If no socket, fall back to push gateways or rely on persisted history.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">Ensure gateway instances either maintain sticky sessions or use a shared mapping store so any instance can route messages correctly. Redis or an internal connection registry are common approaches for mapping lookups.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Explanation bullets</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Use pub/sub to broadcast notifications across gateway cluster when necessary.</li>
+        <li>Avoid single-instance state; prefer distributed lookup or sticky routing to preserve connections.</li>
+        <li>Design fallback behavior so users who are offline still receive push notifications or see persisted history.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-md bg-slate-50 p-3 text-sm">Concrete scenario: the Notification Service publishes a message for user_id X. A gateway instance that holds X's socket receives it from Redis Pub/Sub and writes the JSON down the socket for near-instant display.</div>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Design gateways with distributed mapping or pub/sub so live delivery remains reliable as you scale.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

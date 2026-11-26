@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: configure and verify static and default routes</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Scenario</div>
+      <p class="text-sm text-slate-700 mt-2">R1 must reach 192.168.50.0/24 via next-hop 10.0.0.2 and use 10.0.0.1 as its default gateway. Add a floating route via 10.0.0.6 with preference 10.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <pre class="text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">user@R1# edit
+user@R1# set routing-options static route 192.168.50.0/24 next-hop 10.0.0.2
+user@R1# set routing-options static route 0.0.0.0/0 next-hop 10.0.0.1
+user@R1# set routing-options static route 192.168.50.0/24 next-hop 10.0.0.6 preference 10
+user@R1# commit and-quit
+user@R1> show route protocol static
+user@R1> show route 192.168.50.0/24</pre>
+        <div class="text-xs text-slate-600 mt-2">Follow these commands sequentially during the lab and inspect which route is active after commit.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-600">What to observe</div>
+      <ul class="text-sm text-slate-700 list-disc pl-4 mt-2 space-y-2">
+        <li>Which next-hop is active for 192.168.50.0/24 after commit.</li>
+        <li>Whether ping to 10.0.0.2 succeeds, confirming reachability.</li>
+        <li>After simulating primary failure, that the floating route via 10.0.0.6 becomes active.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs text-slate-800">Lab practice confirms configuration and reveals failover behavior when primary next-hops become unreachable.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

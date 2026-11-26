@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudWatch Logs Architecture</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Structure and intent</div>
+      <div class="text-sm text-slate-600 mt-2">How log groups and streams represent ownership and sequence.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Log Group</div>
+          <div class="text-sm text-slate-600 mt-1">Logical container for related streams. Apply retention and access policies here.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Log Stream</div>
+          <div class="text-sm text-slate-600 mt-1">A sequence of timestamped events from one source, such as an instance or function.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Log Event</div>
+          <div class="text-sm text-slate-600 mt-1">A timestamp and a message. Metric filters inspect the message for patterns.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl p-3 border-l-4 border-l-amber-500 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <div class="text-sm text-slate-800">Using a single log group for unrelated systems, which makes retention and access control blunt instruments and risks deleting important history.</div>
+        </div>
+
+        <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-sm text-slate-800">Design groups by ownership and retention, streams by source, and keep filter use in mind when grouping.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Architecture Visual</div>
+      <div class="mt-4 grid gap-4">
+        <div class="rounded-xl p-4 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Example mapping</div>
+          <div class="text-sm text-slate-600 mt-2">/aws/webapp/access → streams per instance ID; /aws/db/errors → streams per host.</div>
+        </div>
+
+        <div class="rounded-xl p-4 bg-white card-border mono">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Log event sample</div>
+          <pre class="text-sm leading-snug mt-2" style="white-space:pre-wrap; tab-size:2">[timestamp] 2026-09-25T12:34:56Z - 203.0.113.12 "GET /index.html" 200 512
+[timestamp] 2026-09-25T12:35:01Z - 203.0.113.12 "GET /missing" 404 123
+[timestamp] 2026-09-25T12:35:10Z - 203.0.113.12 "POST /api" 500 2048
+</pre>
+        </div>
+
+        <div class="rounded-xl p-3 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-800">Why this matters</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc pl-4">
+            <li>Retention policies are applied at the log group, so plan group boundaries accordingly.</li>
+            <li>Streams make source-level ordering and troubleshooting easier.</li>
+            <li>Metric filters operate on events; clear grouping helps filter scope and manage costs.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

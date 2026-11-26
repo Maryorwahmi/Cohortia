@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px;padding:12px} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;white-space:pre-wrap;tab-size:2;} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Custom JSONEncoder</span>
+    </div>
+    <h4 class="text-xl font-bold text-slate-900">Custom JSONEncoder: a practical pattern</h4>
+    <p class="text-sm text-slate-600 mt-1">An encoder centralizes type conversions so json.dumps can serialize complex objects without errors.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card h-full overflow-hidden">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code example</div>
+      <pre class="code mono"><code>import json
+import datetime
+from decimal import Decimal
+
+class AdvancedEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, datetime.datetime):
+      return obj.isoformat()
+    if isinstance(obj, Decimal):
+      return str(obj)
+    if hasattr(obj, 'to_json_dict'):
+      return obj.to_json_dict()
+    return json.JSONEncoder.default(self, obj)
+</code></pre>
+      <div class="mt-3 text-sm text-slate-700">This encoder converts datetimes to ISO strings, Decimals to strings, and defers custom objects to their to_json_dict method. Keep the mapping explicit to avoid leaking internals.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+          <li>default is called only for objects the base encoder cannot handle.</li>
+          <li>Return primitive types: str, int, float, list, dict, or None for JSON compatibility.</li>
+          <li>Use explicit conversion methods on classes to control shape and fields.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-2">A ProductForJSON instance returns a dict with __class__ = Product, name, price as string, quantity, last_updated ISO string, and tags as a list. That dictionary is safe to include inside larger payloads.</div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">Centralize serialization rules in an encoder and prefer explicit to_json_dict methods for custom classes to ensure stable, safe JSON output.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

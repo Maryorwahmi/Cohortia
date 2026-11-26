@@ -1,0 +1,91 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">CustomLogger Activity</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-4 overflow-auto">
+      <div class="text-lg font-bold text-slate-900">Starter code — Android</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">// android/.../CustomLoggerModule.java
+package com.yourprojectname;
+
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import androidx.annotation.NonNull;
+import android.util.Log;
+
+public class CustomLoggerModule extends ReactContextBaseJavaModule {
+    CustomLoggerModule(ReactApplicationContext context) {
+        super(context);
+    }
+
+    @NonNull
+    @Override
+    public String getName() {
+        return "CustomLogger";
+    }
+
+    @ReactMethod
+    public void logMessage(String message) {
+        Log.d("ReactNativeCustomLog", message);
+    }
+}
+      </pre>
+
+      <div class="text-lg font-bold text-slate-900 mt-4">Starter code — iOS</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">// ios/YourProjectName/CustomLogger.h
+#import &lt;React/RCTBridgeModule.h&gt;
+
+@interface CustomLogger : NSObject &lt;RCTBridgeModule&gt;
+@end
+
+// ios/YourProjectName/CustomLogger.m
+#import "CustomLogger.h"
+#import &lt;React/RCTLog.h&gt;
+
+@implementation CustomLogger
+
+RCT_EXPORT_MODULE();
+
+RCT_EXPORT_METHOD(logMessage:(NSString*)message) {
+  RCTLogInfo(@"ReactNativeCustomLog: %@", message);
+}
+
+@end
+      </pre>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">JS Starter</div>
+      <pre class="bg-slate-50 p-3 rounded-md border text-sm">const CustomLogger = NativeModules.CustomLogger;
+
+if (CustomLogger) {
+  CustomLogger.logMessage('Test message');
+} else {
+  // Fallback for non-native environments
+}
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Steps</div>
+        <ol class="mt-2 list-decimal pl-5 space-y-2">
+          <li>Create native files and ensure package names and target membership match your project.</li>
+          <li>Add the module to MyAppPackage on Android and rebuild the app.</li>
+          <li>Add files to your Xcode target on iOS and rebuild.</li>
+          <li>Call logMessage from JavaScript and verify Logcat or Xcode console output.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Key takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">This activity confirms end-to-end native integration and teaches safe registration and testing practices.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

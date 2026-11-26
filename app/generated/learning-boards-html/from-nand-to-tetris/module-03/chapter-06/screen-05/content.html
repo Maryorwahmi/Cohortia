@@ -1,0 +1,34 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.pane{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:1rem;padding:14px;}</style>
+  <div>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Architecture</span>
+      <span class='text-slate-700'>CPU Interface</span>
+    </div>
+    <div class='text-xl font-bold text-slate-900'>CPU Inputs & Outputs</div>
+    <div class='mt-4 flex gap-4 h-64'>
+      <div class='w-1/2 pane'>
+        <div class='text-sm font-bold text-slate-900'>Formal interface</div>
+        <pre class='mt-2 text-sm text-slate-700 whitespace-pre-wrap' style='font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; tab-size:2;'>&lt;!-- Representation for clarity --&gt;
+CHIP CPU {
+  IN inM[16], instruction[16], reset;
+  OUT outM[16], writeM, addressM[15], pc[15];
+}
+        </pre>
+        <div class='mt-2 text-xs text-slate-600'>inM and outM carry 16-bit data; addressM chooses which memory word the CPU accesses.</div>
+      </div>
+      <div class='w-1/2 pane'>
+        <div class='text-sm font-bold text-slate-900'>Why each signal matters</div>
+        <ul class='mt-2 text-sm text-slate-700 list-disc pl-5 space-y-2'>
+          <li>writeM: when high, causes Memory to store outM at addressM; check this to validate writes.</li>
+          <li>pc: selects the next ROM address; control logic chooses increment, load, or reset.</li>
+          <li>inM: the only way the CPU reads memory contents; stale inM yields incorrect ALU inputs.</li>
+        </ul>
+      </div>
+    </div>
+    <div class='mt-4 pane'>
+      <div class='text-xs font-bold uppercase text-slate-700'>Common-mistake</div>
+      <div class='mt-2 text-sm text-slate-700'>Confusing addressM bit-width or miswiring writeM can silently prevent writes without other visible errors. Always observe these signals in early tests.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

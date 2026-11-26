@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#f8fafc'>
+  <div class='card p-4' style='border-radius:1rem;border:1px solid rgba(226,232,240,0.9);background:#fff'>
+    <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Hands-on Lab</div>
+    <h3 class='text-xl font-bold text-slate-800'>Terminal demo: role setup and verification</h3>
+    <p class='text-sm text-slate-600 mt-2'>Run the following commands as a superuser in psql to reproduce the chapter example and verify access.</p>
+
+    <pre class='mt-4 p-3 bg-slate-50 rounded-md text-sm text-slate-800' style='white-space:pre-wrap; tab-size:2;'>-- Step 1: Create a sample table
+CREATE TABLE public.sensitive_data (
+  id SERIAL PRIMARY KEY,
+  data TEXT
+);
+INSERT INTO public.sensitive_data (data) VALUES ('Secret A'), ('Secret B');
+
+-- Step 2: Create database
+CREATE DATABASE project_db;
+
+-- Step 3: Create project_admin (can connect and create inside project_db)
+CREATE ROLE project_admin WITH LOGIN PASSWORD 'ProjectAdminPass!';
+GRANT CONNECT ON DATABASE project_db TO project_admin;
+GRANT CREATE ON DATABASE project_db TO project_admin;
+
+-- Step 4: Create read_only_access with NOINHERIT NOLOGIN
+CREATE ROLE read_only_access WITH NOINHERIT NOLOGIN;
+GRANT SELECT ON public.sensitive_data TO read_only_access;
+
+-- Step 5: Create analyst_bob and make member
+CREATE ROLE analyst_bob WITH LOGIN PASSWORD 'AnalystBobPass!';
+GRANT read_only_access TO analyst_bob;
+
+-- Verification as analyst_bob:
+-- SELECT * FROM public.sensitive_data; -- should FAIL
+-- SET ROLE read_only_access; -- assume privileges
+-- SELECT * FROM public.sensitive_data; -- should SUCCEED
+-- RESET ROLE; -- revert
+</pre>
+
+    <div class='mt-4 grid grid-cols-2 gap-3'>
+      <div class='p-3 rounded-md border bg-white'>
+        <div class='text-xs font-bold text-slate-700'>Example outcome</div>
+        <div class='text-sm text-slate-600 mt-2'>Fails before SET ROLE, succeeds after — demonstrating explicit privilege adoption.</div>
+      </div>
+      <div class='p-3 rounded-md border bg-white'>
+        <div class='text-xs font-bold text-slate-700'>Pro Tip</div>
+        <div class='text-sm text-slate-600 mt-2'>Use a non-production environment to practice, and never leave sample credentials in production logs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

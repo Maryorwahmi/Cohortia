@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Manual Passing</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 border card overflow-auto">
+      <div class="text-xs font-semibold text-slate-600">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Manual prop passing</h3>
+      <p class="text-sm text-slate-600 mt-3">This example shows initializers passed through multiple parents to reach a small child.</p>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded"><code>// Root creates and passes
+struct RootView: View {
+  @StateObject var auth = AuthenticationManager()
+  var body: some View {
+    ParentA(auth: auth)
+  }
+}
+
+struct ParentA: View {
+  let auth: AuthenticationManager
+  var body: some View { ParentB(auth: auth) }
+}
+
+struct ParentB: View {
+  let auth: AuthenticationManager
+  var body: some View { ProfileButton(auth: auth) }
+}
+
+struct ProfileButton: View {
+  let auth: AuthenticationManager
+  var body: some View { Text(auth.isLoggedIn ? "Profile" : "Sign in") }
+}
+</code></pre>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white p-5 border card">
+      <div class="text-sm font-semibold text-slate-700">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside space-y-2">
+        <li>Each intermediate view stores and forwards the same reference.</li>
+        <li>Renaming or changing the manager API requires touching multiple views.</li>
+        <li>Refactoring the view tree often forces boilerplate updates.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800 mt-1">If many views need the same object, environment-based provision reduces boilerplate and error surface.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

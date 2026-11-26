@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;} .panel{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Flask logging</span>
+    </div>
+    <div class="grid grid-cols-12 gap-4 h-[72vh]">
+      <div class="col-span-7 panel">
+        <div class="font-bold text-slate-800">Starter code (excerpt)</div>
+        <pre class="mt-3 p-3 rounded bg-slate-50 border border-slate-100"><code>from flask import Flask, request, jsonify, g
+import logging
+import json
+import uuid
+import random
+
+app = Flask(__name__)
+
+class JsonFormatter(logging.Formatter):
+  def format(self, record):
+    log_entry = {
+      "timestamp": self.formatTime(record, self.datefmt),
+      "level": record.levelname,
+      "message": record.getMessage(),
+      "service_name": getattr(record, 'service_name', 'unknown-service'),
+      "correlation_id": getattr(record, 'correlation_id', 'N/A'),
+      "user_id": getattr(record, 'user_id', 'anonymous'),
+      **getattr(record, 'extra_context', {})
+    }
+    return json.dumps(log_entry)
+</code></pre>
+        <div class="text-sm text-slate-600 mt-3">Note how extra_context is merged so middleware can inject correlation_id and user_id for every record.</div>
+      </div>
+      <div class="col-span-5 panel flex flex-col">
+        <div class="font-bold text-slate-800">Operational notes</div>
+        <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+          <li>Ensure the formatter is attached to your handler and handlers are added to the app logger.</li>
+          <li>Generate or propagate correlation_id at the entry point and add it to logger context.</li>
+          <li>Avoid logging sensitive fields; mask them before they reach the formatter.</li>
+        </ul>
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Adding a JSON formatter without injecting request context yields structured logs but limited traceability; include correlation and user fields for full value.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

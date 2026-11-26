@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Common Automation Actions</span>
+  </div>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 rounded-2xl bg-white p-5 border' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-lg font-bold text-slate-800'>Typical actions</div>
+      <div class='mt-4 grid gap-3'>
+        <div class='p-3 rounded-lg bg-slate-50 border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-semibold text-slate-800'>aws:runCommand</div>
+          <div class='text-xs text-slate-600 mt-1'>Runs shell or PowerShell commands on managed instances. Use for service restarts, status checks, and patching.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-semibold text-slate-800'>aws:changeInstanceState</div>
+          <div class='text-xs text-slate-600 mt-1'>Change EC2 state to stop, start, or ensure Running. Useful for instance-level remediation like reboots.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-semibold text-slate-800'>aws:executeAwsApi</div>
+          <div class='text-xs text-slate-600 mt-1'>Call AWS service APIs directly for tasks not covered by higher-level actions. Capture outputs for conditional logic.</div>
+        </div>
+      </div>
+    </div>
+    <div class='flex-1 rounded-2xl bg-white p-5 border' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-semibold text-slate-800'>Process example</div>
+      <div class='text-xs text-slate-600 mt-2'>A three-step remediation: check service health, attempt restart via aws:runCommand, and if the host is unhealthy, call aws:changeInstanceState.</div>
+      <div class='mt-4 space-y-3 text-sm text-slate-700'>
+        <div class='p-3 rounded-lg bg-blue-50'>
+          <div class='font-semibold'>Step 1 — Health check</div>
+          <div class='text-xs mt-1'>Use aws:runCommand to run a status script and capture an output flag.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-amber-50'>
+          <div class='font-semibold'>Step 2 — Restart service</div>
+          <div class='text-xs mt-1'>If unhealthy, use aws:runCommand to restart; set TimeoutSeconds and onFailure to Abort or Continue as appropriate.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-rose-50'>
+          <div class='font-semibold'>Step 3 — Instance action</div>
+          <div class='text-xs mt-1'>If service fails after restart, use aws:changeInstanceState to reboot or recreate the instance safely.</div>
+        </div>
+      </div>
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Common Mistake</div>
+          <p class='text-xs font-medium text-slate-800'>Granting automations broad privileges to call any API. Instead, give only the specific actions the runbook requires and test in staging.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

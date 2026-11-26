@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">chain_spec.rs Walkthrough</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Step 1 — Remove SudoConfig</div>
+      <p class="mt-2 text-sm text-slate-700">Locate the SudoConfig block in genesis and remove it or set key: None so no pre-defined sudo key exists in genesis.</p>
+      <div class="mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Typical snippet to remove</div>
+        <pre class="mt-2 p-3" style="white-space: pre-wrap; tab-size: 2;"><code>pallet_sudo::GenesisConfig {
+    key: Some(root_key),
+},</code></pre>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Step 2 — Add bootnodes & adjust balances</div>
+      <div class="mt-2 text-sm text-slate-700">Replace boot_nodes: None with a placeholder vector and reduce development balances to realistic amounts in pallet_balances::GenesisConfig.</div>
+      <div class="mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bootnode example</div>
+        <pre class="mt-2 p-3" style="white-space: pre-wrap; tab-size: 2;"><code>boot_nodes: Some(vec!["/ip4/127.0.0.1/tcp/30333/p2p/Qm...".into()]),</code></pre>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-3">Balance example</div>
+        <pre class="mt-2 p-3" style="white-space: pre-wrap; tab-size: 2;"><code>// from 1 << 60 to a realistic value
+("") => 1_000_000_000_000_000_000_000,</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-2xl p-3 bg-white card-border">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Build & run</div>
+    <pre class="mt-2 p-3" style="white-space: pre-wrap; tab-size: 2;"><code>cargo build --release
+./target/release/node-template --chain local --alice --validator</code></pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

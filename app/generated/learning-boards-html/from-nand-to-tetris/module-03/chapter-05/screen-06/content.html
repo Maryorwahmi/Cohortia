@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.field{background:#f8fafc;border-radius:10px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700">Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Decode</span>
+    </div>
+    <h3 class="text-2xl font-bold mt-3">Decoding A vs C</h3>
+    <p class="text-sm text-slate-600 mt-1">Check bit 15 to choose the instruction format and then extract control fields for C-instructions.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Decode rule</div>
+      <div class="mt-3 grid gap-3">
+        <div class="p-3 field">
+          <div class="text-sm font-semibold">A-instruction (bit15 = 0)</div>
+          <div class="text-xs text-slate-600 mt-1">Remaining 15 bits are a literal value to load into A.</div>
+        </div>
+        <div class="p-3 field">
+          <div class="text-sm font-semibold">C-instruction (bit15 = 1)</div>
+          <div class="text-xs text-slate-600 mt-1">Contains a-bit, comp bits, dest bits, and jump bits used during execute.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold text-slate-500 uppercase">C-instruction fields</div>
+        <div class="grid grid-cols-2 gap-2 mt-3">
+          <div class="p-2 rounded bg-violet-50">
+            <div class="text-xs font-semibold">a-bit</div>
+            <div class="text-xs text-slate-600 mt-1">Selects ALU second input: A or M.</div>
+          </div>
+          <div class="p-2 rounded bg-blue-50">
+            <div class="text-xs font-semibold">comp</div>
+            <div class="text-xs text-slate-600 mt-1">ALU operation to perform.</div>
+          </div>
+          <div class="p-2 rounded bg-amber-50">
+            <div class="text-xs font-semibold">dest</div>
+            <div class="text-xs text-slate-600 mt-1">Where to store ALU result: A, D, and/or M.</div>
+          </div>
+          <div class="p-2 rounded bg-emerald-50">
+            <div class="text-xs font-semibold">jump</div>
+            <div class="text-xs text-slate-600 mt-1">Condition for loading PC from A using ALU flags.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Mixing up a-bit and jump bits; remember the a-bit chooses ALU input, jump bits use flags to decide PC behavior.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Write decoded fields next to a C-instruction to clarify what will execute and which destinations will be affected.</p>
+      </div>
+    </div>
+  </div>
+</div>

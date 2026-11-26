@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Starter commands (practice in non-production)</div>
+      <pre class="bg-slate-900 text-white rounded p-3 mt-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Add data
+redis-cli SET user:1:name "Alice"
+redis-cli HSET product:101 name "Laptop" price 1200 stock 50
+redis-cli LPUSH log:events "Server started" "User logged in"
+
+# Trigger snapshot
+redis-cli BGSAVE
+
+# After completion copy dump
+cp /var/lib/redis/dump.rdb /tmp/redis_backup/dump.rdb
+
+# Simulate data loss
+redis-cli FLUSHALL
+# Verify keys are gone
+redis-cli GET user:1:name
+
+# Stop, restore dump, restart
+sudo systemctl stop redis
+cp /tmp/redis_backup/dump.rdb /var/lib/redis/dump.rdb
+sudo systemctl start redis
+
+# Verify recovery
+redis-cli GET user:1:name
+      </pre>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Checks and pitfalls</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Confirm BGSAVE completed before copying dump.rdb. Use server logs or INFO persistence.</li>
+        <li>Ensure file permissions and ownership are correct before restart.</li>
+        <li>Measure restore time and memory use; large datasets need planning.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+        <p class="text-xs font-medium text-slate-800">Run the full cycle in a disposable VM and confirm the restored keys match the originals.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

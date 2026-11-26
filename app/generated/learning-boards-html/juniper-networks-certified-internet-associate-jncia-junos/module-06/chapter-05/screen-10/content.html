@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Phase 2 Rekeying</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Phase 2 Sequence</div>
+      <ol class="mt-3 space-y-3 text-sm text-slate-700">
+        <li><span class="font-bold text-blue-700">1.</span> Match an IPsec proposal that defines ESP/AH, encryption and integrity algorithms.</li>
+        <li><span class="font-bold text-blue-700">2.</span> Optionally negotiate Perfect Forward Secrecy with a DH group for a fresh key exchange.</li>
+        <li><span class="font-bold text-blue-700">3.</span> Agree on a lifetime for the IPsec SA and create the tunnel that will protect traffic.</li>
+        <li><span class="font-bold text-blue-700">4.</span> When lifetime nears expiry, the peers perform rekeying to renew the SA.</li>
+      </ol>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-400">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why Lifetimes Matter</div>
+          <div class="text-sm text-slate-800">Lifetimes limit exposure from a compromised key. Shorter lifetimes increase rekeying but reduce risk.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-violet-50 border-l-4 border-l-violet-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">PFS Advantage</div>
+          <div class="text-sm text-slate-800">PFS ensures new DH exchange for each SA so compromise of one key cannot decrypt others.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Common Misstep</div>
+        <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500 text-sm text-slate-800">Setting mismatched lifetimes or disabling PFS on one peer while enabled on the other will cause Phase 2 negotiations to fail.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example Negotiation</div>
+      <div class="mt-3 text-sm text-slate-700">Peer A proposes: ESP / AES-256-CBC / HMAC-SHA-256 / PFS group14 / lifetime 3600s. Peer B must accept an identical proposal and either accept PFS group14 or fail the match. If both accept, an IPsec SA is created and traffic flows over the secured tunnel.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Verification Tip</div>
+          <div class="text-sm text-slate-800">Use the device's SA show commands to verify active lifetimes and whether PFS is applied for a given SA.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">
+        <div class="font-bold text-slate-700 mb-1">Check Your Understanding</div>
+        <div>If Phase 2 fails, list the three top items you would compare on both peers: proposal algorithms, PFS setting, and lifetime values.</div>
+      </div>
+    </div>
+  </div>
+</div>

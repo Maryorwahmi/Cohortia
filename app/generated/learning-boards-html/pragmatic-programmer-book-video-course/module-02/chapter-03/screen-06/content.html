@@ -1,0 +1,79 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Abstraction as a Strategy</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+        <div class="text-lg font-bold text-slate-800">Abstraction — step-by-step</div>
+        <div class="mt-3 grid gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center font-bold">1</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Identify the boundary</div>
+              <div class="text-xs text-slate-600 mt-1">Find where business logic touches vendor APIs: storage, auth, queues.</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-md bg-violet-50 text-violet-700 flex items-center justify-center font-bold">2</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Define a small interface</div>
+              <div class="text-xs text-slate-600 mt-1">Limit methods to what business code needs, e.g., upload_file, download_file.</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center font-bold">3</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Implement adapters</div>
+              <div class="text-xs text-slate-600 mt-1">Create concrete classes for each vendor and a local stub for testing.</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">4</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Inject the implementation</div>
+              <div class="text-xs text-slate-600 mt-1">Use configuration or dependency injection so swapping is a single change.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Example</div>
+        <div class="text-xs text-slate-600 mt-2">UserManager depends on IFileStorage. Both AWSS3Storage and LocalFileStorage implement that interface. Changing storage requires only swapping the instance passed to UserManager.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Implementation snapshot</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code>class IFileStorage:
+  def upload_file(self, file_content: bytes, filename: str) -&gt; str: ...
+  def download_file(self, filename: str) -&gt; bytes: ...
+
+class UserManager:
+  def __init__(self, storage_service: IFileStorage):
+    self.storage = storage_service
+
+  def upload_user_avatar(self, user_id, avatar_data, filename):
+    path = f"avatars/{user_id}/{filename}"
+    return self.storage.upload_file(avatar_data, path)
+</code></pre>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Small, focused interfaces plus adapter implementations buy the option to switch providers cheaply.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

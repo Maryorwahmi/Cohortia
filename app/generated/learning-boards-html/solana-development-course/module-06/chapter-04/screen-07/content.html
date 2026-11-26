@@ -1,0 +1,78 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Counter Test Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Example test sequence</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">it("Is initialized!", async () =&gt; {
+  const payer = provider.wallet.publicKey;
+
+  await program.methods
+    .initialize()
+    .accounts({
+      counterAccount: counterAccount.publicKey,
+      user: payer,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .signers([counterAccount])
+    .rpc();
+
+  const account = await program.account.counter.fetch(counterAccount.publicKey);
+  assert.equal(account.count.toNumber(), 0);
+});
+
+it("Increments the counter!", async () =&gt; {
+  await program.methods.increment().accounts({
+    counterAccount: counterAccount.publicKey,
+    user: provider.wallet.publicKey,
+  }).rpc();
+  const account = await program.account.counter.fetch(counterAccount.publicKey);
+  assert.equal(account.count.toNumber(), 1);
+});
+
+it("Fails to increment if wrong user signs", async () =&gt; {
+  const maliciousUser = anchor.web3.Keypair.generate();
+  try {
+    await program.methods.increment().accounts({
+      counterAccount: counterAccount.publicKey,
+      user: maliciousUser.publicKey,
+    }).signers([maliciousUser]).rpc();
+    assert.fail("Should have failed with unauthorized error");
+  } catch (error) {
+    assert.include(error.message, "A has_one constraint was violated");
+  }
+});</pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Explanation cards</div>
+        <div class="mt-3 grid gap-2">
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="font-semibold">Signing rules</div>
+            <div class="text-sm text-slate-700 mt-1">When creating accounts, include the new Keypair in signers. When verifying authorization, test with both valid and invalid signers.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Failure diagnosis</div>
+            <div class="text-sm text-slate-700 mt-1">Read Anchor error messages for constraints or custom program errors; they often direct you to the violated check.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+            <div class="text-sm text-slate-700 mt-1">Negative tests are as important as positive ones; they prove protection logic works when it should reject actions.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,72 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>
+    :root{--card-border:rgba(226,232,240,0.9);}  
+    .code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px}
+  </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Pipelining and Transactions</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-7/12'>
+      <div class='rounded-2xl bg-white border p-5 shadow-sm h-full' style='border-color:var(--card-border)'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Code Walkthrough</div>
+        <h3 class='text-2xl font-bold text-slate-800'>Pipelining vs Transactions</h3>
+        <p class='text-sm text-slate-600 mt-3'>Pipelining batches commands to reduce network RTT. Transactions group commands for atomic execution but not rollback on semantic errors. Use Lua scripts for safe server-side checks.</p>
+
+        <div class='mt-4 space-y-3'>
+          <div class='rounded-lg p-3 bg-slate-50'>
+            <div class='text-sm font-semibold text-slate-800'>Example: pipeline (pseudo client)</div>
+            <pre class='code'># Client sends many SETs without waiting for each reply
+MULTISET_PIPELINE:
+SET key:1 value1
+SET key:2 value2
+SET key:3 value3
+... (sent as one network batch)
+# Server processes and replies for each
+</pre>
+          </div>
+
+          <div class='rounded-lg p-3 bg-white border' style='border-color:var(--card-border)'>
+            <div class='text-sm font-semibold text-slate-800'>Example: atomic decrement via Lua</div>
+            <pre class='code'>-- KEYS[1] = item:123:stock
+-- ARGV[1] = qty
+local current = tonumber(redis.call('GET', KEYS[1]))
+local qty = tonumber(ARGV[1])
+if current and current >= qty then
+  return redis.call('DECRBY', KEYS[1], qty)
+else
+  return -1
+end</pre>
+            <div class='text-xs text-slate-600 mt-2'>Run with: EVAL 'script' 1 item:123:stock 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-5/12 flex flex-col gap-3'>
+      <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color:var(--card-border)'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Best Practices</div>
+        <ul class='text-sm text-slate-600 list-disc pl-5 space-y-2'>
+          <li>Pipeline independent commands to reduce latency.</li>
+          <li>Use MULTI/EXEC when a group must run together but accept that there is no rollback for semantic failures.</li>
+          <li>Prefer Lua scripts for server-side atomic checks and updates.</li>
+        </ul>
+      </div>
+
+      <div class='rounded-lg bg-rose-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Pitfall</div>
+        <div class='text-sm text-slate-600'>Pipelining without thinking about consistency can mask ordering assumptions. Transactions without checks can still execute failing commands.</div>
+      </div>
+
+      <div class='rounded-lg bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+        <p class='text-sm text-slate-800 mt-1'>Use pipelining for throughput, and Lua or WATCH+MULTI for atomic, check-and-set updates.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center justify-between">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <div class="text-sm text-slate-500">Script snippets and a policy example</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Linux hardening snippet</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Disable password authentication for SSH
+sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+# Disable root login
+sudo sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config
+# Restart SSH
+sudo systemctl restart sshd
+# Ensure firewalld is enabled
+sudo systemctl enable firewalld --now
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+      </pre>
+      <div class="text-xs text-slate-500 mt-2">Insert this into your image build or configuration management system rather than running interactively on production instances.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border overflow-auto">
+      <div class="text-sm font-bold text-slate-800">S3 bucket policy snippet</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::your-sensitive-bucket/*",
+      "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+    }
+  ]
+}
+      </pre>
+      <div class="text-xs text-slate-500 mt-2">Replace the bucket ARN and combine this with a block-public-access setting to prevent accidental exposure.</div>
+    </div>
+
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

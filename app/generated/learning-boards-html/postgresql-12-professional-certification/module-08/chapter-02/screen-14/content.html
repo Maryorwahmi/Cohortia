@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assessment</div>
+      <h3 class="text-lg font-bold text-slate-900 mt-2">Question 1: LIKE '%.com' with B-tree present</h3>
+      <div class="mt-3 text-sm text-slate-600">Why Seq Scan? Because a leading wildcard prevents B-tree use. Proposed fix: enable pg_trgm and create a GIN trigram index, then ANALYZE and re-check.</div>
+
+      <h3 class="text-lg font-bold text-slate-900 mt-4">Question 2: Estimated 10 vs Actual 10,000</h3>
+      <div class="mt-3 text-sm text-slate-600">This discrepancy signals stale statistics. Run ANALYZE on the table to refresh statistics, then re-run EXPLAIN ANALYZE and see whether the planner chooses a better plan.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Answer checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+        <li class="mb-2">Identify non-sargable patterns and choose index types accordingly.</li>
+        <li class="mb-2">Refresh statistics with ANALYZE before changing plans.</li>
+        <li class="mb-2">Always verify changes with EXPLAIN ANALYZE and BUFFERS when diagnosing I/O.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always pair diagnosis with a verification step so your proposed fix produces measurable improvement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

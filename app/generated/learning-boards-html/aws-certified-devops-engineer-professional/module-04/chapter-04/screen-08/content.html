@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">InstallNginxLinux</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">YAML document (create in SSM Documents console)</div>
+      <div class="mt-3 code" style="white-space:pre-wrap;tab-size:2;font-size:13px">
+schemaVersion: '2.2'
+description: Install and start Nginx on Amazon Linux.
+parameters:
+  action:
+    type: String
+    description: (Optional) The action to perform (install, uninstall).
+    default: install
+mainSteps:
+- action: aws:runShellScript
+  name: installNginx
+  precondition:
+    StringEquals:
+    - platformType
+    - Linux
+  inputs:
+    runCommand:
+    - | 
+      #!/bin/bash
+      if [ "{{action}}" == "install" ]; then
+        sudo yum update -y
+        sudo amazon-linux-extras install nginx1 -y
+        sudo systemctl enable nginx
+        sudo systemctl start nginx
+        echo "Nginx installed and started."
+      elif [ "{{action}}" == "uninstall" ]; then
+        sudo systemctl stop nginx
+        sudo systemctl disable nginx
+        sudo yum remove nginx -y
+        echo "Nginx uninstalled."
+      else
+        echo "Invalid action specified: {{action}}"
+        exit 1
+      fi
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Authoring tips</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5 mt-3 space-y-2">
+        <li>Keep documents idempotent so re-running is safe.</li>
+        <li>Add preconditions to avoid running on incorrect platforms.</li>
+        <li>Include parameters with sensible defaults and validation.</li>
+        <li>Test on a single instance and inspect output logs before scaling.</li>
+      </ul>
+      <div class="mt-3 text-sm text-slate-700">Misconception: automation scripts are one-off. Treat documents as versioned, testable artifacts with clear rollback/uninstall paths.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

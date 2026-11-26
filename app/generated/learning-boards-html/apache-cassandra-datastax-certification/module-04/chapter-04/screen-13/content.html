@@ -1,0 +1,65 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <style>.code{background:#0f172a;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Financial Transactions Lab</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Schema and sample data</div>
+      <pre class="mt-3 code" style="white-space:pre-wrap;tab-size:2"><code>CREATE KEYSPACE IF NOT EXISTS financial_data
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+USE financial_data;
+
+CREATE TABLE IF NOT EXISTS transactions_by_account_monthly (
+  account_id uuid,
+  transaction_month text,
+  transaction_time timestamp,
+  transaction_id uuid,
+  amount decimal,
+  type text,
+  PRIMARY KEY ((account_id, transaction_month), transaction_time, transaction_id)
+) WITH CLUSTERING ORDER BY (transaction_time DESC);
+
+CREATE TABLE IF NOT EXISTS transactions_by_id (
+  transaction_id uuid PRIMARY KEY,
+  account_id uuid,
+  transaction_time timestamp,
+  amount decimal,
+  type text
+);</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Inserts and queries</div>
+      <pre class="mt-3 code" style="white-space:pre-wrap;tab-size:2"><code>-- Insert sample
+INSERT INTO transactions_by_account_monthly (account_id, transaction_month, transaction_time, transaction_id, amount, type)
+VALUES (a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11, '2023-10', '2023-10-26 14:00:00+0000', b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12, 100.50, 'deposit');
+
+INSERT INTO transactions_by_id (transaction_id, account_id, transaction_time, amount, type)
+VALUES (b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12, a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11, '2023-10-26 14:00:00+0000', 100.50, 'deposit');
+
+-- Query monthly bucket
+SELECT transaction_id, transaction_time, amount, type
+FROM transactions_by_account_monthly
+WHERE account_id = a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11 AND transaction_month = '2023-10';
+
+-- Query by id
+SELECT account_id, transaction_time, amount, type
+FROM transactions_by_id
+WHERE transaction_id = c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13;</code></pre>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Two tables give efficient access for both monthly range queries and single-transaction lookups; maintain both during writes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

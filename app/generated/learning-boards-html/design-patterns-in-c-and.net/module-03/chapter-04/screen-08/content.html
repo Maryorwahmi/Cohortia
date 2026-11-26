@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Client without Facade</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-12">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-lg font-bold text-slate-800">Client orchestrating services directly</div>
+        <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg code"><code>// ClientWithoutFacade example (conceptual)
+public class ClientWithoutFacade
+{
+  public void PlaceOrder(string customerId, string productId, int quantity, double amount)
+  {
+    InventoryService inventory = new InventoryService();
+    PaymentGateway payment = new PaymentGateway();
+    NotificationService notification = new NotificationService();
+    OrderTrackingService orderTracking = new OrderTrackingService();
+
+    if (inventory.CheckStock(productId, quantity))
+    {
+      if (payment.ProcessPayment(customerId, amount))
+      {
+        inventory.UpdateStock(productId, quantity);
+        string orderId = orderTracking.GenerateOrderId(customerId);
+        orderTracking.UpdateOrderStatus(orderId, "Processing");
+        notification.SendOrderConfirmation(customerId, orderId);
+        Console.WriteLine($"Order {orderId} placed successfully by client without facade.");
+      }
+      else
+      {
+        Console.WriteLine("Payment failed.");
+      }
+    }
+    else
+    {
+      Console.WriteLine("Out of stock.");
+    }
+  }
+}
+</code></pre>
+        <div class="mt-3 text-sm text-slate-600">This code pattern spreads orchestration responsibility across clients. Centralizing it in a facade reduces duplication, simplifies tests, and isolates changes to subsystem APIs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

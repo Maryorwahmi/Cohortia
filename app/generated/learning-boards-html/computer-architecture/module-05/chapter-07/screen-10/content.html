@@ -1,0 +1,39 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Hands-on CPI</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col gap-3'>
+      <div class='text-xs font-bold uppercase text-slate-500'>Problem</div>
+      <div class='text-sm text-slate-700 mt-2'>Workload: 20% branches. Predictor accuracy: test 90%, 95%, 99%. Branch penalty on mispredict: 15 cycles. Without speculation stall per branch: 2 cycles. Processor can execute 4 instructions per cycle.</div>
+
+      <pre class='mt-3'># steps (illustrative calculation):
+Base CPI without stalls = 1 / IPC = 1 / 4 = 0.25
+No-speculation branch penalty = branch_freq × stall = 0.20 × 2 = 0.40
+Effective CPI without speculation = 0.25 + 0.40 = 0.65
+
+With speculation:
+Per-branch expected penalty = (1 - accuracy) × 15
+Per-instruction penalty = branch_freq × per-branch penalty
+Add to base CPI 0.25 to get effective CPI.
+
+Compare effective CPIs to compute speedup = CPI_no_spec / CPI_with_spec</pre>
+    </div>
+
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col gap-3'>
+      <div class='text-xs font-bold uppercase text-slate-500'>Concrete numbers</div>
+      <div class='text-sm text-slate-700 mt-2'>For accuracy = 0.90: per-branch penalty = 1.5 cycles, per-instruction = 0.20 × 1.5 = 0.30, CPI = 0.25 + 0.30 = 0.55. Speedup = 0.65 / 0.55 ≈ 1.18. For 0.95 and 0.99 compute similarly to observe improved speedup but diminishing returns.</div>
+
+      <div class='mt-auto rounded-lg bg-emerald-50 p-3'>
+        <div class='text-xs font-bold uppercase text-emerald-700'>Key takeaway</div>
+        <div class='text-sm text-slate-800 mt-1'>Small improvements in accuracy can give noticeable speedups for branch-heavy workloads, but the gains taper as other limits dominate.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

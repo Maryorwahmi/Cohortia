@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-bg{background:#0b1220;color:#e6eef8;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Instancing PackedScene</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-lg font-bold">Spawn pattern</div>
+      <div class="text-sm text-slate-700 mt-3">Export a PackedScene variable and use instantiate() to create new coin instances. Add them to the tree and set their position before the physics step runs.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50">
+        <div class="text-sm font-semibold">Checklist</div>
+        <ul class="mt-2 list-disc pl-4 text-sm text-slate-700">
+          <li>Ensure PackedScene is assigned in the inspector.</li>
+          <li>Instantiate, add_child, set position, connect collected signal.</li>
+          <li>Test spawn positions and signal delivery.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="text-sm font-semibold mb-2">Code (visual)</div>
+      <div class="code-bg overflow-auto">
+        <pre style="white-space:pre-wrap;tab-size:2"><code># In a GameManager.gd
+@export var coin_scene: PackedScene # Drag your Coin.tscn here in the Inspector
+
+func _ready() -> void:
+    spawn_coin(Vector2(100, 100))
+    spawn_coin(Vector2(200, 150))
+
+func spawn_coin(position: Vector2) -> void:
+    if coin_scene:
+        var new_coin = coin_scene.instantiate() # Create an instance of the coin scene
+        get_parent().add_child(new_coin) # Add it to the current scene's root or a specific node
+        new_coin.position = position
+        new_coin.connect("collected", _on_coin_collected)
+
+func _on_coin_collected() -> void:
+    print("Player collected a coin!")
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-white card-border shadow-sm">
+        <div class="text-xs text-slate-600">Editor note: use get_parent() or a dedicated collectibles parent node so your scene tree stays organized.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

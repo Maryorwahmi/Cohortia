@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">POST Construction</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600">Process</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Build a POST request</h3>
+      <ol class="mt-4 list-decimal list-inside text-sm text-slate-600 space-y-2">
+        <li>Create a URL and URLRequest(url:).</li>
+        <li>Set request.httpMethod = "POST".</li>
+        <li>Encode your Codable object with JSONEncoder.</li>
+        <li>Assign encoded Data to request.httpBody.</li>
+        <li>Set headers like Content-Type and Authorization as needed.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Using GET or leaving out Content-Type leads to server misinterpretation or rejection of the JSON body.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Compact code pattern</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code>var request = URLRequest(url: apiURL)
+request.httpMethod = "POST"
+request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+let jsonData = try JSONEncoder().encode(post)
+request.httpBody = jsonData
+// then URLSession.shared.dataTask(with: request) ...</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Scenario: When sending a new post, userId and title must match server expectations. Forgetting Content-Type often causes a 400 response because the server cannot parse the body.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { border: 1px solid rgba(226,232,240,0.9); background: #fff; border-radius: 14px; }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Partitioning vs File Size</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[calc(100%-48px)]">
+    <div class="flex flex-col gap-4">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2">Quick Comparison</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 border rounded-lg bg-blue-50">
+            <div class="text-sm font-semibold text-slate-800">Many small files</div>
+            <div class="text-xs text-slate-700 mt-2">High metadata overhead, slower jobs, more API calls and cost.</div>
+          </div>
+          <div class="p-3 border rounded-lg bg-emerald-50">
+            <div class="text-sm font-semibold text-slate-800">Few large files</div>
+            <div class="text-xs text-slate-700 mt-2">Better throughput but less parallelism; too-large files reduce concurrency.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Heuristics</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>Target Parquet file sizes in the tens to hundreds of MB for many Spark jobs.</li>
+          <li>Partition by predictable, low-to-moderate cardinality columns such as year/month or category.</li>
+          <li>Compact small files regularly and avoid partitioning on high-cardinality fields like transaction_id.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2">Cost & Query Impact</div>
+        <p class="text-sm text-slate-700">Partition pruning reduces the bytes scanned which lowers compute time and cost. Columnar formats enable column pruning and predicate pushdown, further reducing I/O.</p>
+
+        <div class="mt-3">
+          <div class="rounded-xl p-3 bg-slate-50 border">Example: Querying last month's sales only reads year/month partitions, skipping older months and saving time.</div>
+        </div>
+      </div>
+
+      <div class="card p-3 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs text-slate-800">Design partitions and file sizes intentionally for your query patterns. Monitor and iterate after measuring actual job performance.</p>
+      </div>
+    </div>
+  </div>
+</div>

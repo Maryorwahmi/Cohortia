@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">MSET / MGET</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Group key operations to save round trips</h3>
+      <p class="text-sm text-slate-600 mt-3">MSET and MGET bundle multiple keys into a single request. Use them when related keys are read or written together.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Notes</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+          <li>MGET returns values in the same order as keys were requested.</li>
+          <li>MSET performs the sets atomically across provided keys.</li>
+          <li>Prefer MGET when you need many small related values at once.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border border-amber-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <p class="text-sm text-slate-800 mt-1">MSET is atomic only for the set operation; it is not a multi-command transaction with rollback semantics for other commands.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Live CLI example</div>
+      <div class="bg-slate-50 rounded-lg p-3 mt-3 flex-1 overflow-auto">
+        <pre class="text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+MSET user:config:theme "dark" user:config:language "en"
+MGET user:config:theme user:config:language
+        </pre>
+        <p class="text-xs text-slate-600 mt-2">MSET writes both keys atomically. MGET returns values in the order requested, so mapping to fields is simple.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Group related reads and writes with MGET and MSET to reduce latency and keep operations concise.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

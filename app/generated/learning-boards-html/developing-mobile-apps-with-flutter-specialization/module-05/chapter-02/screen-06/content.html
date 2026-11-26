@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Email/Password Code</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card overflow-hidden">
+      <div class="text-sm font-semibold text-slate-700">Registration example</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>// Example for Email/Password Registration
+import 'package:firebase_auth/firebase_auth.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
+Future<void> registerWithEmailPassword(String email, String password) async {
+  try {
+    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    print('User registered: ${userCredential.user?.email}');
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'weak-password') {
+      print('The password provided is too weak.');
+    } else if (e.code == 'email-already-in-use') {
+      print('The account already exists for that email.');
+    } else {
+      print('Registration error: ${e.message}');
+    }
+  } catch (e) {
+    print(e);
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card overflow-hidden">
+      <div class="text-sm font-semibold text-slate-700">Sign-in example</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>// Example for Email/Password Login
+Future<void> signInWithEmailPassword(String email, String password) async {
+  try {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    print('User signed in: ${userCredential.user?.email}');
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      print('No user found for that email.');
+    } else if (e.code == 'wrong-password') {
+      print('Wrong password provided for that user.');
+    } else {
+      print('Login error: ${e.message}');
+    }
+  } catch (e) {
+    print(e);
+  }
+}
+</code></pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-2">Display friendly messages for each FirebaseAuthException code instead of raw exception text to help users recover.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

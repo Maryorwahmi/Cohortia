@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)}
+    .code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter Final Lab</span>
+      <span>›</span>
+      <span class="text-slate-700">SELinux Contexts</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-lg font-bold text-slate-800">Define and apply file contexts</div>
+        <div class="mt-3 code bg-slate-50 p-3 rounded-lg">
+          <pre><code>- name: Set correct SELinux context for /srv/webapp on webserver1
+  ansible.posix.sefcontext:
+    target: "/srv/webapp(/.*)?"
+    setype: httpd_sys_content_t
+    state: present
+  when: inventory_hostname == 'webserver1'
+  notify: Restore SELinux contexts on webserver1
+
+# Handler (defined under handlers)
+- name: Restore SELinux contexts on webserver1
+  ansible.builtin.command: restorecon -Rv /srv/webapp
+  when: inventory_hostname == 'webserver1'
+</code></pre>
+        </div>
+
+        <div class="mt-3 text-sm text-slate-700">
+          - After applying sefcontext, always run restorecon to update on-disk labels.
+          <br>- Verify with: <span class="font-mono">ls -Zd /srv/webapp/index.html</span> to confirm the type is httpd_sys_content_t.
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common pitfall</div>
+        <p class="text-xs font-medium text-slate-800">A 403 Forbidden despite running httpd and opening firewalld mostly indicates SELinux prevents file access. Fix contexts, don't disable SELinux in production.</p>
+      </div>
+    </div>
+
+    <div class="col-span-1 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Quick checks</div>
+        <ul class="mt-2 text-sm text-slate-700 ml-3 list-disc">
+          <li>ls -Zd &lt;file&gt;</li>
+          <li>restorecon -Rv &lt;dir&gt;</li>
+          <li>audit2allow review when denials exist</li>
+        </ul>
+      </div>
+
+      <div class="rounded-2xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Why it matters</div>
+        <div class="text-sm text-slate-800 mt-1">SELinux enforces mandatory access control. Correct contexts allow services to safely access resources without loosening global policies.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

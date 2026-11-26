@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Validating Addresses and Numeric Inputs</span>
+  </div>
+
+  <div class="flex gap-6 h-[82%]">
+    <div class="w-1/2 card rounded-2xl p-5">
+      <div class="text-xs uppercase font-bold text-slate-500">Address Input</div>
+      <div class="mt-3 text-sm text-slate-700">Checks: 0x prefix, 42 characters, optional EIP-55 checksum to catch typos. UX: show truncated address for confirmation, provide paste helpers, and show validation inline.</div>
+
+      <div class="mt-4 p-3 rounded border bg-white">
+        <div class="text-sm font-semibold">Example rule</div>
+        <pre class="mt-2 p-2 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Basic address check
+const isLikelyAddress = (s) =&gt; s && s.startsWith('0x') && s.length === 42;
+        </pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded border bg-rose-50 text-rose-700">
+        <div class="text-xs font-bold uppercase">Mistake to avoid</div>
+        <div class="mt-2 text-sm">Accepting any 42-char string without checksum or confirmation leads to irreversible asset loss.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card rounded-2xl p-5">
+      <div class="text-xs uppercase font-bold text-slate-500">Numeric Input</div>
+      <div class="mt-3 text-sm text-slate-700">Checks: positive integer, no decimals if not permitted, reasonable upper bound. UX: unit selector, inline conversion hints, and blocking submission on invalid input.</div>
+
+      <div class="mt-4 p-3 rounded border bg-white">
+        <div class="text-sm font-semibold">Example rule</div>
+        <pre class="mt-2 p-2 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Ensure whole number and positive
+function isValidUint(value) {
+  return /^\d+$/.test(String(value)) && BigInt(value) &gt;= 0n;
+}
+        </pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded border bg-emerald-50 text-emerald-700">
+        <div class="text-xs font-bold uppercase">Pro tip</div>
+        <div class="mt-2 text-sm">Add a unit selector to clarify whether the amount is in ETH, Gwei, or a token's smallest unit.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

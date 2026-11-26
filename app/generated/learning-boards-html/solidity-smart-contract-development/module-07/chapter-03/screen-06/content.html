@@ -1,0 +1,38 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:white;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#334155;font-weight:700;} </style>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='label'>Process Flow</div>
+      <div class='text-2xl font-bold text-slate-800 mt-2'>Initiate → Confirm</div>
+      <div class='text-sm text-slate-600 mt-3'>deploy() initiates the on-chain creation; deployed() waits for the mining confirmation that makes the contract address usable.</div>
+
+      <div class='mt-4 rounded-xl border border-var(--slate-border) p-3'>
+        <pre><code>// pattern to capture both identifiers
+const token = await MyToken.deploy('Name','SYM');
+console.log('deploy tx hash:', token.deployTransaction.hash);
+await token.deployed();
+console.log('contract address:', token.address);
+</code></pre>
+      </div>
+    </div>
+
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Explanation and common pitfalls</div>
+      <ul class='mt-3 list-disc list-inside text-sm text-slate-600'>
+        <li>deploy() returns a Contract object immediately, but the blockchain state may not include it until mined.</li>
+        <li>deployed() resolves when the deployment transaction is mined and the address is valid for interaction.</li>
+        <li>On public testnets confirmation times vary; always await deployed() before calling contract methods.</li>
+      </ul>
+
+      <div class='mt-4 rounded-lg bg-rose-50 p-3'>
+        <div class='text-sm font-bold text-rose-700'>Common mistake</div>
+        <div class='text-sm text-slate-700 mt-1'>Skipping await deployed() leads to failed interactions because the contract may not yet exist at the address you expect.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Always await the confirmation step to guarantee the blockchain has recorded the new contract before proceeding.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

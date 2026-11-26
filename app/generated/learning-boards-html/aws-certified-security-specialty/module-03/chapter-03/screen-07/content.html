@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RDS Encryption</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-lg font-bold text-slate-800">RDS Encryption — Constraints</div>
+      <div class="text-sm text-slate-600 mt-1">Encryption applies to the instance and its related artifacts but cannot be enabled in place.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold text-slate-800">What is encrypted</div>
+          <div class="text-sm text-slate-600 mt-1">Storage, automated backups, snapshots, and read replicas are encrypted when the instance is encrypted.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold text-slate-800">Migration pattern</div>
+          <div class="text-sm text-slate-600 mt-1">Snapshot the unencrypted DB, copy the snapshot enabling encryption with a CMK, and restore a new encrypted instance.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="font-semibold text-slate-800">Cross-region considerations</div>
+          <div class="text-sm text-slate-600 mt-1">Ensure destination region has an appropriate CMK or re-encrypt during snapshot copy; manage key availability for read replicas.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">You cannot turn on RDS encryption after creation; use snapshot copy to create an encrypted replacement instance.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="text-sm font-semibold text-slate-700">Scenario — migrating with minimal downtime</div>
+      <div class="text-xs text-slate-500 mt-1">Use snapshots combined with a short cutover window.</div>
+
+      <div class="mt-4 bg-slate-50 rounded-lg p-3">
+        <div class="text-sm text-slate-700">Process: take a final snapshot, copy it with encryption enabled, restore the encrypted instance, perform final data sync if needed, update application endpoints or perform DNS switch during a planned maintenance window to minimize downtime.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Attempting to enable encryption directly on an existing unencrypted RDS instance instead of using the snapshot-copy-restore method.</p>
+      </div>
+    </div>
+  </div>
+</div>

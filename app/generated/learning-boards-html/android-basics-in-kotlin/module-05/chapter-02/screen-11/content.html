@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Starter Code Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-[72vh]">
+    <div class="card p-6">
+      <div class="text-sm font-semibold text-slate-800">Activity overview</div>
+      <p class="text-sm text-slate-600 mt-2">Implement a Switch for enable notifications and an EditText for preferred greeting name. Read on startup, save on change.</p>
+
+      <div class="mt-4 p-3 rounded-md bg-blue-50 border">
+        <div class="font-semibold">Behavior to implement</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-5 space-y-1">
+          <li>Load saved values in onCreate and set UI state.</li>
+          <li>Save Switch changes immediately with apply.</li>
+          <li>Save EditText on focus loss or a save action with apply.</li>
+        </ul>
+      </div>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This pattern keeps the UI consistent and preferences persistent across app restarts.</p>
+      </div>
+    </div>
+
+    <div class="card p-6 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Starter code (simplified)</div>
+      <div class="mt-3 p-3 bg-white border rounded-md" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre class="whitespace-pre-wrap" style="tab-size:2; font-size:13px;">import android.content.Context
+import android.os.Bundle
+import android.preference.PreferenceManager
+import android.widget.EditText
+import android.widget.Switch
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+  private lateinit var notificationSwitch: Switch
+  private lateinit var greetingNameEditText: EditText
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
+
+    notificationSwitch = findViewById(R.id.notification_switch)
+    greetingNameEditText = findViewById(R.id.greeting_name_edittext)
+
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+    val enableNotifications = sharedPreferences.getBoolean("enable_notifications", true)
+    val greetingName = sharedPreferences.getString("greeting_name", "User")
+
+    notificationSwitch.isChecked = enableNotifications
+    greetingNameEditText.setText(greetingName)
+
+    notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
+      sharedPreferences.edit().putBoolean("enable_notifications", isChecked).apply()
+    }
+
+    greetingNameEditText.setOnFocusChangeListener { _, hasFocus ->
+      if (!hasFocus) {
+        val newName = greetingNameEditText.text.toString()
+        sharedPreferences.edit().putString("greeting_name", newName).apply()
+      }
+    }
+  }
+}
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold">Notes</div>
+        <div class="mt-2">Use constant keys and test first-run behavior. This starter demonstrates the most common read-on-start and save-on-change workflow.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

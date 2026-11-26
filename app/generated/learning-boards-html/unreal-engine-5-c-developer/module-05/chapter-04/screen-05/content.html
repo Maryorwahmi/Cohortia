@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Expose C++ State</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Goal</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Let Blueprints read and call C++</div>
+      <div class="mt-3 text-sm text-slate-700">Expose variables with UPROPERTY(BlueprintReadOnly) and expose getters/actions with UFUNCTION. Keep getters pure and side-effect free.</div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border border-slate-100 mono">
+        <pre style="white-space:pre-wrap; tab-size:2; margin:0">// AMyCharacter.h (excerpt)
+UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+float CurrentHealth;
+
+UFUNCTION(BlueprintPure, Category = "Health")
+float GetHealthPercentage() const;
+
+UFUNCTION(BlueprintCallable, Category = "Health")
+void Heal(float HealAmount);</pre>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-600">Note: BlueprintPure is for getters without execution pins; BlueprintCallable appears with execution pins and is used for actions like Heal.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example mapping</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li><strong>CurrentHealth</strong> → UPROPERTY(BlueprintReadOnly) for direct reading in Graphs.</li>
+        <li><strong>GetHealthPercentage</strong> → UFUNCTION(BlueprintPure) for binding to ProgressBar.Percent.</li>
+        <li><strong>Heal</strong> → UFUNCTION(BlueprintCallable) so OnClicked can invoke it from UMG.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Making everything BlueprintCallable is not ideal; prefer clear separation between read-only getters and mutating actions for clarity and safety.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">std::atomic basics</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+        <div class="text-sm font-semibold text-slate-900">What is std::atomic?</div>
+        <div class="text-sm text-slate-600 mt-2">A template that provides atomic operations on fundamental types. It makes common operations indivisible without an explicit lock.</div>
+        <ul class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>load() — atomic read</li>
+          <li>store() — atomic write</li>
+          <li>fetch_add()/fetch_sub() — perform arithmetic and return old value</li>
+          <li>exchange() — replace and return old value</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">Concrete example</div>
+        <pre class="bg-slate-100 rounded p-3"><code>#include &lt;atomic&gt;
+std::atomic&lt;int&gt; atomic_counter(0);
+// Many threads:
+atomic_counter.fetch_add(1);
+int v = atomic_counter.load();
+</code></pre>
+        <div class="text-xs text-slate-500 mt-2">Use the API directly for explicit ordering and portability.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card shadow-sm h-2/3">
+        <div class="text-sm font-semibold text-slate-900">Example card</div>
+        <div class="text-sm text-slate-600 mt-2">Reference counting: call fetch_add when acquiring a reference and fetch_sub when releasing, returning the previous count to decide when to free resources.</div>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Pro tip</div>
+        <div class="text-sm text-amber-900">Prefer explicit fetch_* and load/store calls to make memory order arguments visible in code review and to avoid accidental portability issues.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Atomic APIs give you safe, lock-free primitives for per-variable updates; choose operations that also return the values you need.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

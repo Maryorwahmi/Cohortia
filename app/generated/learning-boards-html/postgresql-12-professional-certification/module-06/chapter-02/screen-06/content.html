@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">GiST, SP-GiST and GIN</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Which specialized index to choose</h3>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="text-sm font-bold text-violet-700">GiST</div>
+          <div class="text-xs text-slate-700 mt-1">Use for geometric, range, and full-text needs that benefit from flexible tree operators like overlaps.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="text-sm font-bold text-violet-700">SP-GiST</div>
+          <div class="text-xs text-slate-700 mt-1">Best when data partitions into non-overlapping subspaces such as quadtrees for spatial indexing.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="text-sm font-bold text-blue-700">GIN</div>
+          <div class="text-xs text-slate-700 mt-1">An inverted index for multi-valued columns: arrays, JSONB, and full-text element searches.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-sm font-bold text-slate-800">B-tree (contrast)</div>
+          <div class="text-xs text-slate-700 mt-1">Not suitable for indexing elements inside arrays or JSON documents; choose GIN instead.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold">Concrete example</div>
+      <div class="text-xs text-slate-700 mt-2">For documents with tags stored as TEXT[] use GIN: CREATE INDEX idx_documents_tags_gin ON documents USING GIN (tags); This indexes each tag element so lookups using ANY or containment operators are fast.</div>
+
+      <div class="mt-4 text-xs text-slate-600">Misconception: trying to model arrays as single values and indexing with B-tree will not speed element lookups.</div>
+    </div>
+  </div>
+</div>

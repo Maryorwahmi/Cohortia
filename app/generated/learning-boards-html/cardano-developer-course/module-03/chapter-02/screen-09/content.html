@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff}.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}.mono{font-family:ui-monospace,monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Calculate fee</div>
+      <div class="mono card p-3 mt-2 text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>cardano-cli transaction calculate-min-fee \
+  --tx-body-file matx.draft \
+  --tx-in-count 1 \
+  --tx-out-count 1 \
+  --witness-count 2 \
+  --byron-witness-count 0 \
+  --protocol-params-file protocol.json \
+  --testnet-magic 1 &gt; fee.txt
+FEE=$(cat fee.txt | awk '{ print $1 }')
+
+CHANGE_ADA=$(( ADA_IN - FEE - MIN_ADA_REQUIRED ))
+if [ $CHANGE_ADA -lt 0 ]; then echo "Error: Insufficient ADA for transaction."; exit 1; fi
+
+cardano-cli transaction build-raw \
+  --fee $FEE \
+  --tx-in $TX_IN \
+  --tx-out "$(cat payment.addr) + $CHANGE_ADA lovelace + $AMOUNT_TO_MINT $ASSET" \
+  --mint "$AMOUNT_TO_MINT $ASSET" \
+  --minting-script-file policy.script \
+  --out-file matx.raw</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 p-4 flex flex-col">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc ml-4">
+          <li>Use correct witness count for signing keys and scripts.</li>
+          <li>Compute CHANGE_ADA and validate it is non-negative.</li>
+          <li>Rebuild matx.raw with the computed fee and change.</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 card p-3 border-l-4 border-l-rose-500 bg-rose-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+        <div class="text-xs text-slate-800">Mismatched witness count or forgetting to include the policy script during signing will break the transaction after fee calculation.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div data-theme='light' class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg'>
+  <style>pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class='text-slate-700'>useEffect Pattern</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='p-4 bg-white card shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-1'>Pattern</div>
+      <pre class='code p-3 rounded-md bg-slate-50 border border-slate-100'>useEffect(() =&gt; {
+  if (!greeterContract) return;
+  const listener = (updater, oldGreeting, newGreeting, timestamp, event) =&gt; {
+    setLatestEvent({ updater, oldGreeting, newGreeting, timestamp: new Date(Number(timestamp) * 1000).toLocaleString() });
+    fetchContractData(greeterContract);
+  };
+
+  greeterContract.on('GreetingUpdated', listener);
+
+  return () =&gt; greeterContract.off('GreetingUpdated', listener);
+}, [greeterContract]);
+</pre>
+      <div class='mt-3 text-sm text-slate-700'>This creates the listener only when greeterContract changes and removes it on unmount or change.</div>
+    </div>
+
+    <div class='p-4 bg-white card shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-1'>Pitfalls</div>
+      <ul class='list-disc ml-4 mt-2 text-sm text-slate-700'>
+        <li>Anonymous handlers inside useEffect prevent reliable removal.</li>
+        <li>Adding listeners on every render causes duplicate callbacks.</li>
+        <li>Heavy synchronous work in listener increases UI lag; keep it light.</li>
+      </ul>
+
+      <div class='mt-auto p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Pro tip</div>
+        <div class='text-xs font-medium text-slate-800'>If you re-create the listener for new props, remove the previous one first in the same effect to avoid overlap.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

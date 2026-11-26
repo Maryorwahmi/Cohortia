@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">What is speculative and out-of-order execution?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Speculative & out-of-order execution</h3>
+      <p class="text-sm text-slate-600 mt-3">Processors guess branch outcomes and reorder independent instructions to keep pipelines busy. These optimizations change microarchitectural structures that are not part of the architectural state.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Microarchitectural state</div>
+          <p class="text-sm text-slate-700 mt-1">Cache lines, branch predictor entries, and TLB contents are examples of state that speculation can alter and that attackers can measure.</p>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Key misconception</div>
+          <p class="text-sm text-slate-700 mt-1">Rollback restores registers and memory, but it does not undo cache loads or predictor updates. That leftover state is the channel.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Speculation improves speed by guessing, but those guesses can leave persistent microarchitectural footprints that leak information.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+      <p class="text-sm text-slate-600 mt-2">Imagine a CPU predicts a branch and speculatively executes a load from an address that is normally protected. That load brings a cache line into L1. Even when the CPU detects the misprediction and discards architectural results, the cache line is still hot. An attacker times accesses to probe arrays to see which line is fast and thus infer the secret value.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">How an attacker observes the state</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600">
+          <li>Train predictors with in-bounds behavior.</li>
+          <li>Trigger a transient (speculative) access to secret data.</li>
+          <li>Use the secret to index a probe array, pulling a specific cache line into cache.</li>
+          <li>Measure access times to probe array entries to find the hot line.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check your understanding</div>
+        <p class="text-sm text-slate-600 mt-2">Which microarchitectural structures are likely to remain modified after a misprediction, and how might each be observed by an attacker?</p>
+      </div>
+    </div>
+  </div>
+</div>

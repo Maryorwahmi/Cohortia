@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--violet:#7b42e8;--slate-100:rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border shadow-sm" style="border-color:var(--slate-100)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tooling</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">AWS CDK (example)</div>
+      <div class="text-sm text-slate-600 mt-3">Define infrastructure with code and synthesize to CloudFormation for deployment.</div>
+      <div class="mt-4">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold" style="color:var(--violet)">Why use CDK</div>
+          <div class="text-sm text-slate-800">Encapsulate patterns as reusable constructs and reduce YAML/JSON boilerplate.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 border shadow-sm overflow-auto" style="border-color:var(--slate-100)">
+      <div class="text-sm font-bold text-slate-700">CDK Python example</div>
+      <pre class="mt-3 rounded bg-slate-50 p-3 text-sm"><code>from aws_cdk import (
+  aws_s3 as s3,
+  core as cdk
+)
+
+class MyS3Stack(cdk.Stack):
+  def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
+    super().__init__(scope, construct_id, **kwargs)
+
+    s3.Bucket(self, "MyOperationalBucket",
+      versioned=True,
+      removal_policy=cdk.RemovalPolicy.DESTROY  # For demo, be careful in production!
+    )
+
+app = cdk.App()
+MyS3Stack(app, "OperationalExcellenceS3Stack")
+app.synth()  # Synthesizes into CloudFormation</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This code synthesizes to a CloudFormation template that can be reviewed and deployed. Keep synth output under source control in pipelines for review with change sets.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-violet-700 bg-violet-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--violet)">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">CDK helps teams express infrastructure using familiar languages while retaining CloudFormation safety and deployment semantics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

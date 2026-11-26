@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-xl font-bold text-slate-800">Analyzing Access Logs</div>
+      <div class="text-sm text-slate-600 mt-3">Use access logs for per-request visibility and to correlate timestamps and response codes with CloudWatch metrics.</div>
+
+      <div class="mt-5 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">ALB logs: client IP, request time, elb_status_code, target_status_code, request processing time.</div>
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">NLB logs: connection status, source/destination IP and ports, bytes transferred.</div>
+      </div>
+
+      <div class="mt-5">
+        <div class="text-sm font-bold text-slate-800">Athena query example</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded text-sm" style="white-space:pre-wrap; tab-size:2"><code>SELECT elb_status_code, target_status_code, count(*) as cnt
+FROM alb_logs
+WHERE load_balancer = 'cohortia-web-alb' AND date BETWEEN '2023-01-01' AND '2023-01-01'
+GROUP BY elb_status_code, target_status_code
+ORDER BY cnt DESC;
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-96 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">Investigation tips</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Filter logs to the metric spike window for precise correlation.</li>
+        <li>Look for client IPs generating many errors to detect abuse or misconfiguration.</li>
+        <li>Compare elb_status_code and target_status_code to locate the origin of the error.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Relying only on aggregated metrics can miss per-request anomalies and intermittent failures visible only in the access logs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

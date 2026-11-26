@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Assessment Scenario</span>
+    <span>›</span>
+    <span class="text-slate-700">EventBridge to Slack & PagerDuty</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white card rounded-xl p-4">
+      <div class="text-sm font-semibold text-slate-800">Rule 1 — Action failures to Slack</div>
+      <pre><code>{
+  "source": ["aws.codepipeline"],
+  "detail-type": ["CodePipeline Action Execution State Change"],
+  "detail": { "pipeline": ["ProductionWebAppPipeline"], "state": ["FAILED"] }
+}</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Target: Lambda that posts to Slack or an SNS topic connected to Slack integration. Use this for detailed action-level context.</div>
+    </div>
+
+    <div class="bg-white card rounded-xl p-4">
+      <div class="text-sm font-semibold text-slate-800">Rule 2 — Pipeline failures to PagerDuty</div>
+      <pre><code>{
+  "source": ["aws.codepipeline"],
+  "detail-type": ["CodePipeline Pipeline Execution State Change"],
+  "detail": { "pipeline": ["ProductionWebAppPipeline"], "state": ["FAILED"] }
+}</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Target: Lambda or SNS topic that forwards to PagerDuty. Use for critical, high-severity incidents and escalation.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Separate rules enable different routing, formatting, and escalation for action-level issues and full pipeline outages.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

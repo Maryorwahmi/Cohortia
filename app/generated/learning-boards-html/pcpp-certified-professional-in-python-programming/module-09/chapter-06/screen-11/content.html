@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Delete: Remove Rows</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl border p-4 bg-white mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">DELETE example</div>
+      <pre class="mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>with Session() as session:
+  user_to_delete = session.query(User).filter_by(name='Charlie').first()
+  if user_to_delete:
+    session.delete(user_to_delete)
+    session.commit()
+    print(f"Deleted user: {user_to_delete}")
+  else:
+    print('Charlie not found for deletion.')
+
+  # Verify deletion
+  deleted_charlie = session.query(User).filter_by(name='Charlie').first()
+  if deleted_charlie is None:
+    print('Charlie not found in database (successfully deleted).')</code></pre>
+    </div>
+
+    <div class="rounded-xl border p-4 bg-white">
+      <div class="text-sm font-semibold text-slate-800">Notes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Commit after delete to finalize removal.</li>
+        <li>Verify with follow-up queries to ensure deletion succeeded.</li>
+        <li>Consider soft deletes for auditability instead of permanent deletion.</li>
+      </ul>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">Delete by marking the instance with session.delete and commit. Verify results and be thoughtful about cascading and soft-delete patterns.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

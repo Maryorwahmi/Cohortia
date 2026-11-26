@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Create Delta Tables</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">DataFrame API example</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Example: Creating a Delta table from a DataFrame
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
+dummy_data = [
+  ("Laptop", 1200, "Electronics", 1080.0),
+  ("Mouse", 25, "Electronics", 22.5),
+  ("Monitor", 300, "Electronics", 270.0)
+]
+transformed_df = spark.createDataFrame(dummy_data, schema=["item","price","category","discounted_price"])
+
+delta_table_path = "/delta/products_delta"
+transformed_df.write \
+  .format("delta") \
+  .mode("overwrite") \
+  .save(delta_table_path)
+
+spark.sql(f"CREATE TABLE IF NOT EXISTS products_delta USING DELTA LOCATION '{delta_table_path}'")
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">This pattern separates physical storage from catalog registration, giving you control over table naming and locations across environments.</div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Spark SQL example</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-- Example: create using SQL
+-- CREATE TABLE IF NOT EXISTS sales_by_category (
+--   category STRING,
+--   total_sales DOUBLE
+-- ) USING DELTA LOCATION '/delta/sales_by_category_delta';
+      </pre>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Assuming a path write always becomes a metastore table. Register explicitly when you need a named table in queries.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Write a DataFrame with format("delta") to create data and a log. Register the location if you need a metastore table.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-600">Unit Tests (Mock)</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Guidelines</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Mock external repository methods only.</li>
+        <li>Test validation and error flows deterministically.</li>
+        <li>Assert only essential interactions to avoid brittle tests.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example (pytest + unittest.mock)</div>
+      <pre class="bg-slate-100 text-slate-900 rounded-lg p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+from unittest.mock import Mock
+import pytest
+
+# Assume ProductService and Product classes are imported
+
+def test_create_product_valid_calls_repo_add():
+  mock_repo = Mock()
+  service = ProductService(repository=mock_repo)
+  product = service.create_product('p1', 'Widget', 9.99)
+  mock_repo.add.assert_called_once()
+  assert product.id == 'p1'
+
+def test_create_product_invalid_price_raises():
+  mock_repo = Mock()
+  service = ProductService(repository=mock_repo)
+  with pytest.raises(ValueError):
+    service.create_product('p2', 'Gadget', 0)
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

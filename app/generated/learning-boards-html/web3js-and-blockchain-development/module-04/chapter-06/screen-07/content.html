@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Comparison</span>
+      <span class="text-slate-700">Payable vs direct transfer</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800">Payable function calls vs direct Ether transfers</h3>
+    <p class="text-sm text-slate-600 mt-1">Understand the behavioral and safety differences for including value in contract calls.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4">
+      <div class="font-bold text-slate-800">Payable function</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>• Marked payable in Solidity to accept Ether with execution.</li>
+        <li>• Include value in send or txObject when calling the method.</li>
+        <li>• Example: myContract.methods.deposit().send({ from, value: web3.utils.toWei('0.5','ether') })</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4">
+      <div class="font-bold text-slate-800">Direct Ether transfer</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>• Sends Ether to an address without invoking a contract function logic path.</li>
+        <li>• If the recipient is a contract, its fallback/receive function runs; if absent or not payable to accept value as expected, the transfer may fail.</li>
+        <li>• Always confirm the contract's intended acceptance pattern before sending value.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">If you send value to a non-payable function, the transaction reverts and gas is consumed.</div>
+    <div class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">Design the UX to ask for explicit confirmation of amounts and display revert reasons when possible.</div>
+  </div>
+</div>

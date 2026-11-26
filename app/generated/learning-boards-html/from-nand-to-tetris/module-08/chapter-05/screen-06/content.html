@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+      <span>›</span>
+      <span class="text-slate-700">Memory Module</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 h-full card p-4">
+      <div class="text-sm font-bold text-slate-800">What Memory provides</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>Allocate(size):</strong> reserve a contiguous block of words and return its base address.</li>
+        <li><strong>Free(address):</strong> release a previously allocated block so it can be reused.</li>
+        <li><strong>Stability:</strong> addresses remain valid until freed; freed memory must not be used.</li>
+      </ul>
+      <div class="mt-3 text-xs text-slate-500">Test: run MemoryTest and then a stress loop that allocates and frees repeatedly to reveal leaks.</div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-3">
+      <div class="card p-3 h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <p class="mt-2 text-sm text-slate-600">When the game allocates a board: Array calls Memory.allocate(size). Memory returns pointer X. The compiled code stores and manipulates data at X. If Memory.free(X) is later called, any subsequent read at X is undefined. Reproduce such errors by looping allocate/free and then checking the board contents after re-allocation.</p>
+      </div>
+
+      <div class="card p-3 h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-600">Treating freed memory as implicitly zeroed or preserved. Memory reuses blocks; do not rely on prior contents after allocation.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Pipeline Parallelism</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col gap-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700 px-2 py-1 rounded-md bg-blue-100 inline-block w-fit">Core Concept</div>
+      <h2 class="text-3xl font-bold text-slate-800">Running Jobs Concurrently</h2>
+      <p class="text-base text-slate-600 leading-relaxed">Parallelism allows independent pipeline tasks to execute simultaneously, drastically cutting down total execution time.</p>
+      <div class="flex flex-col gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 shadow-sm">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Leverage default parallel job execution and matrix strategies to maximize concurrency and minimize pipeline runtimes.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3 shadow-sm">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-sm font-medium text-slate-800">Over-reliance on sequential job execution or incorrectly defining dependencies can negate the benefits of parallelism.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col gap-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 px-2 py-1 rounded-md bg-slate-100 inline-block w-fit">Example</div>
+      <h3 class="text-xl font-bold text-slate-800">Parallel Job Execution</h3>
+      <div class="bg-slate-800 rounded-xl p-4 shadow-lg overflow-hidden">
+        <pre class="text-xs font-mono text-white whitespace-pre-wrap" style="tab-size: 2;"># Azure Pipelines Example
+jobs:
+- job: BuildBackend
+  displayName: 'Build Backend API'
+  steps:
+  - script: echo "Building backend..."
+
+- job: BuildFrontend
+  displayName: 'Build Frontend UI'
+  dependsOn: [] # Runs in parallel with BuildBackend
+  steps:
+  - script: echo "Building frontend..."
+
+- job: RunLinting
+  displayName: 'Run Code Linting'
+  dependsOn: [] # Runs in parallel with others
+  steps:
+  - script: echo "Running linter..."
+</pre>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800 mt-4">Matrix Jobs</h3>
+      <div class="bg-slate-800 rounded-xl p-4 shadow-lg overflow-hidden">
+        <pre class="text-xs font-mono text-white whitespace-pre-wrap" style="tab-size: 2;"># GitHub Actions Example
+jobs:
+  TestMatrix:
+    strategy:
+      matrix:
+        node_version: ['16.x', '18.x']
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node_version }}
+    - run: npm install
+    - run: npm test
+</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

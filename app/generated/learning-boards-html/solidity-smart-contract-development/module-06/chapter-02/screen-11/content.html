@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Assessment Idea</div>
+    <div class="text-xl font-bold text-slate-800 mt-2">Verify withdraw reverts on insufficient balance</div>
+
+    <div class="mt-4 text-sm text-slate-600">Arrange a contract state with balances[msg.sender] equal to 100, then attempt withdraw(200) and assert the call reverts with the message "Insufficient balance". Finally, re-check the balance is unchanged.</div>
+
+    <div class="mt-4">
+      <pre class="p-3 bg-slate-50 rounded-lg text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+await expect(myContract.connect(owner).withdraw(200))
+  .to.be.revertedWith("Insufficient balance");
+
+expect(await myContract.balances(owner.address)).to.equal(100);
+      </pre>
+    </div>
+
+    <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Assert precise revert messages and verify invariants to ensure safe failure behavior.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

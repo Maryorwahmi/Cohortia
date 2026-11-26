@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Reflexive ACLs</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-[calc(100%-64px)]">
+    <div class="col-span-7 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Pattern</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Reflect on outbound, reference inbound</h3>
+      <p class="text-sm text-slate-600 mt-2">Outbound ACL entries with reflect create temporary inbound entries that allow return traffic only for initiated sessions.</p>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-md border border-[rgba(226,232,240,0.9)] font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>ip access-list extended INSIDE_OUT
+ permit ip 192.168.1.0 0.0.0.255 any reflect WEB_SESSION
+ permit ip any any
+!
+ip access-list extended OUTSIDE_IN
+ evaluate WEB_SESSION
+ permit icmp any any echo-reply
+ deny ip any any log
+</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">How to apply</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+          <li>Apply INSIDE_OUT on the outbound interface (out).</li>
+          <li>Apply OUTSIDE_IN on the inbound interface (in) and include evaluate <span class="font-mono">WEB_SESSION</span>.</li>
+          <li>Watch dynamic entries with show ip access-lists after initiating sessions.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <p class="text-xs text-slate-700 mt-1">Reflexive ACLs are not a replacement for a stateful firewall for complex application inspection; they are a router-based method to allow return traffic while blocking unsolicited inbound flows.</p>
+      </div>
+
+      <div class="mt-2">
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs text-slate-800 mt-1">Use reflexive ACLs to permit return traffic for outbound-initiated sessions and avoid broad static inbound permits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

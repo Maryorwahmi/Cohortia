@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">PKI architecture</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm uppercase tracking-wider text-slate-600 font-bold">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">PKI components and role separation</div>
+      <p class="text-sm text-slate-600 mt-3">A secure PKI splits duties to limit risk. The root CA is the ultimate trust anchor; intermediates handle issuance; RAs validate identities; repositories and responders share or attest status.</p>
+
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg><span><strong>Root CA:</strong> offline trust anchor that signs intermediates.</span></li>
+        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/></svg><span><strong>Intermediate CA:</strong> operational signer for end-entity certificates.</span></li>
+        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 00-8 0v5"/></svg><span><strong>RA:</strong> verifies requester identity and forwards validated CSRs.</span></li>
+        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3-7 3 14 3-7h4"/></svg><span><strong>Repository/Responder:</strong> publish certificates/CRLs and answer OCSP queries.</span></li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Separate duties so the root stays inert and operations run from intermediates and RAs. That reduces scope and supports recovery.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm text-slate-600">Architecture diagram (card-first)</div>
+      <div class="mt-3 flex gap-3 h-full">
+        <div class="w-1/2 flex flex-col gap-3">
+          <div class="rounded-xl bg-blue-50 p-4">
+            <div class="text-sm font-semibold text-blue-700">Root CA (offline)</div>
+            <div class="text-xs text-slate-600 mt-2">Signs intermediate CA certificates. Kept offline and securely backed up.</div>
+          </div>
+
+          <div class="rounded-xl bg-white p-4 card-border">
+            <div class="text-sm font-semibold text-slate-800">Intermediate CA (online)</div>
+            <div class="text-xs text-slate-600 mt-2">Performs issuance and can be revoked or replaced without touching the root.</div>
+          </div>
+
+          <div class="rounded-xl bg-white p-4 card-border">
+            <div class="text-sm font-semibold text-slate-800">Registration Authority</div>
+            <div class="text-xs text-slate-600 mt-2">Validates identity, collects CSRs, and queues issuance tasks for the CA.</div>
+          </div>
+        </div>
+
+        <div class="w-1/2 flex flex-col gap-3">
+          <div class="rounded-xl bg-emerald-50 p-4">
+            <div class="text-sm font-semibold text-emerald-700">Repository</div>
+            <div class="text-xs text-slate-600 mt-2">Publishes certificates and CRLs for retrieval by clients or administrators.</div>
+          </div>
+
+          <div class="rounded-xl bg-white p-4 card-border flex-1">
+            <div class="text-sm font-semibold text-slate-800">OCSP Responder</div>
+            <div class="text-xs text-slate-600 mt-2">Answers real-time revocation queries; supports stapling to improve client performance.</div>
+            <div class="mt-3 text-xs text-slate-600">Misconception: OCSP replaces CRLs entirely. Contrast: OCSP is real-time but depends on responder availability and design choices.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

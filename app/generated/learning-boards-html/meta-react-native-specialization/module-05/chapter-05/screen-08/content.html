@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">iOS: ToastExample</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-4 overflow-auto">
+      <div class="text-lg font-bold text-slate-900">ToastExample.h</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">// ios/YourProjectName/ToastExample.h
+#import &lt;React/RCTBridgeModule.h&gt;
+
+@interface ToastExample : NSObject &lt;RCTBridgeModule&gt;
+@end
+      </pre>
+
+      <div class="text-lg font-bold text-slate-900 mt-4">ToastExample.m</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">// ios/YourProjectName/ToastExample.m
+#import "ToastExample.h"
+#import &lt;React/RCTLog.h&gt; // For logging to Xcode console
+#import &lt;UIKit/UIKit.h&gt; // For UIAlertController
+
+@implementation ToastExample
+
+RCT_EXPORT_MODULE();
+
+- (NSDictionary *)constantsToExport {
+  return @{ @"DURATION_SHORT": @(0.5), @"DURATION_LONG": @(2.0) };
+}
+
+RCT_EXPORT_METHOD(show:(NSString*)message duration:(double)duration) {
+  RCTLogInfo(@"Showing iOS Alert: %@ with duration: %f", message, duration);
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"React Native Alert"
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}];
+    [alert addAction:defaultAction];
+
+    UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    [rootViewController presentViewController:alert animated:YES completion:nil];
+
+    if (duration > 0) {
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [alert dismissViewControllerAnimated:YES completion:nil];
+      });
+    }
+  });
+}
+
+@end
+      </pre>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Notes</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>• RCT_EXPORT_MODULE makes the Objective‑C class visible to JavaScript with its class name by default.</li>
+        <li>• Use constantsToExport to surface static values to JS.</li>
+        <li>• Always dispatch UI updates to the main queue using dispatch_async(dispatch_get_main_queue(), ...).</li>
+        <li>• If using C++ bindings, consider Objective‑C++ files and bridging headers as needed.</li>
+      </ul>
+
+      <div class="mt-4 bg-amber-50 rounded-xl p-3 text-sm text-slate-800">Concrete scenario: Use an iOS alert for immediate user feedback coming from native sensors or background services exposed by your module.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Export minimal, well-documented methods and ensure target membership in Xcode so the module is compiled into your app bundle.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

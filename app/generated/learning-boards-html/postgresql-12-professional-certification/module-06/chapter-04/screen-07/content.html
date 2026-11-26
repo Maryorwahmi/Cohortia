@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable pg_stat_statements</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Configuration</div>
+      <pre class="text-sm mt-3 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># postgresql.conf
+shared_preload_libraries = 'pg_stat_statements'
+
+-- After restart, in the target database:
+CREATE EXTENSION pg_stat_statements;</pre>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold text-slate-800">How aggregation works</div>
+        <p class="text-sm text-slate-700 mt-2">The extension normalizes statement patterns so that the same query shape with different literals is counted together. This reduces noise and surfaces patterns that matter most by total time or call volume.</p>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Requires server restart because it is a shared library preload.</li>
+        <li>Consumes some memory and CPU; enable judiciously in production during investigation or permanently if needed.</li>
+        <li>Run representative load after enabling to collect meaningful metrics.</li>
+      </ul>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Enable the extension correctly, let it collect data, then query for top consumers to guide optimization.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

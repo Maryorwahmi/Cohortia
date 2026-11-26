@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">R1 Configuration</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Code template (R1)</div>
+      <div class="mt-3 text-sm text-slate-700 bg-slate-900 text-white rounded-lg p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>! Assume IKEv2 and IPsec profiles are configured
+interface Tunnel10
+ ip address 10.255.255.4 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source GigabitEthernet0/1 ! R1's public IP 198.51.100.1
+ tunnel destination 203.0.113.1
+ tunnel mode gre ip
+ crypto ipsec profile COHORTIA_IPSEC_PROFILE_R1R3
+ ip ospf cost 10
+
+router ospf 1
+ network 10.255.255.4 0.0.0.3 area 0
+ network 192.168.1.0 0.0.0.255 area 0</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Explanation</div>
+      <ul class="list-disc list-inside mt-3 text-sm text-slate-700">
+        <li>MTU 1400 and MSS 1360 reduce fragmentation when GRE and IPsec add headers.</li>
+        <li>OSPF networks include the tunnel and internal LAN to advertise routes across the VPN.</li>
+        <li>IPsec profile attaches configured crypto parameters and policies to the tunnel.</li>
+      </ul>
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Lab tip</div>
+        <div class="text-sm text-slate-800 mt-2">Verify with show crypto ipsec sa, show ip ospf neighbor, and traceroute to confirm path preference before failing the primary tunnel.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

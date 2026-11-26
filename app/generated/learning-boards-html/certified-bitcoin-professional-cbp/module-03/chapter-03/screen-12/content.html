@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Simulating Proof-of-Work (Python)</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1 min-h-0">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-full overflow-hidden">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+        <div class="mt-2 text-sm text-slate-800">A simplified script builds a test string from sample block data and a nonce, then computes SHA-256 until the hexadecimal hash starts with the difficulty prefix.</div>
+
+        <pre class="mt-4 rounded-lg bg-slate-900 text-slate-100 p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace; font-size:13px;">
+import hashlib
+import time
+
+def find_proof_of_work(block_header, difficulty_prefix):
+  nonce = 0
+  start_time = time.time()
+  print(f"Searching for a hash starting with '{difficulty_prefix}'...")
+
+  while True:
+    test_string = f"{block_header}{nonce}".encode('utf-8')
+    current_hash = hashlib.sha256(test_string).hexdigest()
+
+    if current_hash.startswith(difficulty_prefix):
+      end_time = time.time()
+      print(f"Found nonce: {nonce}")
+      print(f"Resulting hash: {current_hash}")
+      print(f"Time taken: {end_time - start_time:.2f} seconds")
+      return nonce, current_hash
+    nonce += 1
+
+# simplified_block_data = "CohortiaCBPBlock3.3"
+# difficulty_target = "0000"
+# find_proof_of_work(simplified_block_data, difficulty_target)
+        </pre>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white border p-3">
+            <div class="text-xs font-bold text-slate-500">Experiment</div>
+            <div class="text-sm text-slate-800 mt-1">Change the difficulty prefix from '0000' to '00000' to observe increased run time.</div>
+          </div>
+          <div class="rounded-lg bg-white border p-3">
+            <div class="text-xs font-bold text-slate-500">Safety note</div>
+            <div class="text-sm text-slate-800 mt-1">Be careful with very strict targets; they may take a long time on a normal CPU.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-full flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">What to observe</div>
+        <ul class="text-sm text-slate-600 mt-2 list-inside list-disc space-y-2">
+          <li>How many nonces it takes to find a match.</li>
+          <li>How elapsed time changes with difficulty prefixes.</li>
+          <li>Why faster hardware lowers time but doesn't change the brute-force nature.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">The script makes the brute-force nature of PoW tangible: small changes to difficulty produce large changes in search time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2 }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example Script</div>
+      <pre class="mono"><code>-- Script placed inside a Part named "SpikeTrap"
+local trap = script.Parent
+local DAMAGE_AMOUNT = 20
+local RESET_TIME = 3 -- Time before the trap resets
+
+local isTrapActive = true
+local tweenService = game:GetService("TweenService")
+local originalPosition = trap.Position
+local sprungPosition = originalPosition - Vector3.new(0, 1, 0) -- Spikes lower slightly when sprung
+
+local tweenInfoLower = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local tweenInfoRaise = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, RESET_TIME)
+
+local function springTrap(player)
+  if not isTrapActive then return end
+  isTrapActive = false
+
+  local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+  if humanoid then
+    humanoid:TakeDamage(DAMAGE_AMOUNT)
+  end
+
+  local lowerTween = tweenService:Create(trap, tweenInfoLower, {Position = sprungPosition})
+  lowerTween:Play()
+
+  local raiseTween = tweenService:Create(trap, tweenInfoRaise, {Position = originalPosition})
+  raiseTween:Play()
+
+  raiseTween.Completed:Connect(function()
+    isTrapActive = true
+  end)
+end
+
+trap.Touched:Connect(function(otherPart)
+  local player = game.Players:GetPlayerFromCharacter(otherPart.Parent)
+  if player then
+    springTrap(player)
+  end
+end)
+
+print("SpikeTrap script initialized!")</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Notes and Best Practices</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2">
+        <li>Validate the player and their Humanoid before applying damage.</li>
+        <li>Use TweenInfo delay for the reset phase or chain a second tween in Completed.</li>
+        <li>Keep damage and reset constants at the top so tuning is simple.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use a single control flag and animation completion to synchronize trap visuals and logic.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

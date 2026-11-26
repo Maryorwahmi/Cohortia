@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} .card{border:1px solid rgba(226,232,240,0.9)} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b1220;color:#e6eef8;padding:1rem;border-radius:12px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Assessment</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[70%]">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Question 1</div>
+        <h3 class="text-lg font-semibold text-slate-800 mt-2">Create /opt/appdata with 0770 ownership</h3>
+        <div class="text-sm text-slate-600 mt-2">Best task uses file with path: /opt/appdata state: directory owner: appuser group: appgroup mode: '0770'. This single, idempotent task sets desired state and permissions.</div>
+        <pre class="code mt-3"><code>- name: Create appdata directory
+  ansible.builtin.file:
+    path: /opt/appdata
+    state: directory
+    owner: appuser
+    group: appgroup
+    mode: '0770'
+</code></pre>
+      </div>
+      <div class="rounded-2xl bg-white p-5 card shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Question 2</div>
+        <h3 class="text-lg font-semibold text-slate-800 mt-2">Deploy motd including hostname</h3>
+        <div class="text-sm text-slate-600 mt-2">Use template to render Jinja2 variables like {{'{{ ansible_hostname }}'}} so each host receives a personalized motd. Copy cannot insert variables; shell is less maintainable.</div>
+        <pre class="code mt-3"><code>- name: Deploy dynamic motd
+  ansible.builtin.template:
+    src: templates/motd.j2
+    dest: /etc/motd
+</code></pre>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl p-3 bg-emerald-50 border card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Answer rationale</div>
+      <div class="text-sm text-slate-700">Choose modules that express desired state. This makes automation repeatable and reduces manual maintenance across many hosts.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

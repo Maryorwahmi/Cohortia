@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+      <span class="text-slate-700">Why split fails</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">str.split vs csv.reader</div>
+    <div class="text-sm text-slate-600">See how each approach handles quoted commas and newlines.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Naive split example</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">line = 'Alice,New York,"A vibrant city, known for its culture."'
+parts = line.split(',')
+# parts becomes ['Alice','New York','"A vibrant city',' known for its culture."']</pre>
+      <div class="mt-3 text-sm text-slate-600">Symptom: wrong number of fields and split inside quoted text. This corrupts downstream processing and may raise index errors or bad imports.</div>
+      <div class="mt-4 p-3 rounded-xl bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-xs text-slate-800">Assuming commas only separate fields. Quoted fields are allowed by the format; splitting ignores quotes.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">csv.reader solution</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">import csv
+row = 'Alice,New York,"A vibrant city, known for its culture."'
+for parsed in csv.reader([row]):
+  print(parsed)
+# prints ['Alice', 'New York', 'A vibrant city, known for its culture.']</pre>
+      <div class="mt-3 text-sm text-slate-600">csv.reader respects quoting and yields the correct field list. It also supports custom delimiters and quoting parameters for different formats.</div>
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-800">Always use a CSV-aware parser for files that may include quoted separators or newlines.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{background:white;border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Batching & Nonces</span>
+  </div>
+
+  <div class="rounded-2xl card p-6 h-full">
+    <div class="text-lg font-bold text-slate-800">When to batch vs multiple txs</div>
+    <div class="text-sm text-slate-600 mt-2">Atomicity, nonce control, and failure handling are the core concerns.</div>
+
+    <div class="mt-6 grid grid-cols-3 gap-4">
+      <div class="p-3 rounded-lg border bg-white">
+        <div class="font-semibold text-slate-800">Option A: Single call</div>
+        <div class="text-sm text-slate-600 mt-1">Combine related operations into one function so Ethereum executes atomically and emits a single set of events.</div>
+      </div>
+
+      <div class="p-3 rounded-lg border bg-white">
+        <div class="font-semibold text-slate-800">Option B: Multiple txs</div>
+        <div class="text-sm text-slate-600 mt-1">Send sequential transactions and manage nonces. Add reconciliation logic for partial failures.</div>
+      </div>
+
+      <div class="p-3 rounded-lg border bg-white">
+        <div class="font-semibold text-slate-800">Nonce strategy</div>
+        <div class="text-sm text-slate-600 mt-1">For parallel sends, fetch current nonce and manually increment when building signed transactions.</div>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-4">
+      <div class="p-3 rounded-lg border bg-white mono">
+        <pre><code>// Sequential submission (simple)
+await tx1.wait();
+await tx2.wait();
+
+// Parallel with manual nonces (advanced)
+const nonce = await provider.getTransactionCount(signer.address);
+// sign txA with nonce
+// sign txB with nonce + 1
+</code></pre>
+      </div>
+
+      <div class="p-3 rounded-lg border bg-white">
+        <div class="font-semibold">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Assuming transaction ordering is preserved without managing nonces or fees can lead to unexpected states. Always design for retries and reconciliation.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why it matters</div>
+      <p class="text-xs font-medium text-slate-800">Correct nonce and gas strategies avoid stuck transactions and inconsistent application state during bursts or network congestion.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

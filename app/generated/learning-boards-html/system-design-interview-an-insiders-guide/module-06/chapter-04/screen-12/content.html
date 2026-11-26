@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Create, Produce, Consume, and Observe</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Task steps (copy these into terminals)</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded-lg card-border">
+        <pre><code># 1. Create the topic
+kafka-topics.sh --create --topic my_interview_topic --bootstrap-server localhost:9092 --partitions 2 --replication-factor 1
+
+# 2. Verify
+kafka-topics.sh --list --bootstrap-server localhost:9092
+kafka-topics.sh --describe --topic my_interview_topic --bootstrap-server localhost:9092
+
+# 3. Produce messages (open a new terminal)
+kafka-console-producer.sh --topic my_interview_topic --bootstrap-server localhost:9092
+# Type: Message One [Enter]
+# Message Two [Enter]
+# Message Three [Enter]
+
+# 4. Consume all messages
+kafka-console-consumer.sh --topic my_interview_topic --bootstrap-server localhost:9092 --from-beginning
+
+# 5. Consume with a group (open another terminal)
+kafka-console-consumer.sh --topic my_interview_topic --bootstrap-server localhost:9092 --group interview_group_1 --from-beginning
+
+# 6. Open YET ANOTHER terminal and run the same group
+kafka-console-consumer.sh --topic my_interview_topic --bootstrap-server localhost:9092 --group interview_group_1 --from-beginning</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Expected observation</div>
+      <div class="mt-3 text-sm text-slate-600">When two consumers share the same group id, partitions are split among them so new messages are load-balanced. Replaying from the beginning shows the entire historical stream in each separate group, but within a single group each message is processed once by one instance.</div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Troubleshooting</div>
+        <div class="text-sm text-slate-800 mt-2">If consumers do not receive messages, confirm the bootstrap address, topic existence, and check for network or Docker port mappings blocking connectivity.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

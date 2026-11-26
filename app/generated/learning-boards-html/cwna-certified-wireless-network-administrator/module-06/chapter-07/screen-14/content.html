@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="grid grid-cols-12 gap-5 flex-1">
+    <div class="col-span-7 rounded-2xl p-6 bg-white card-border shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-900">Task 1: Wireshark Filter for Retransmissions</h3>
+      <p class="text-sm text-slate-600 mt-3">Write a display filter that shows retransmitted 802.11 data frames to or from the client MAC 00:11:22:33:44:55. Use the retry flag and the address filter to capture both directions.</p>
+      <div class="mt-4 rounded-xl p-3 bg-slate-50 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Suggested filter</div>
+        <pre class="mt-3 bg-white p-3 rounded text-sm border"><code>wlan.fc.retry == 1 && wlan.addr == 00:11:22:33:44:55</code></pre>
+        <p class="text-sm text-slate-600 mt-2">This filter returns frames marked as retries where the source or destination is the specified client. Use additional constraints like time or BSSID to further narrow results.</p>
+      </div>
+    </div>
+    <div class="col-span-5 rounded-2xl p-6 bg-white card-border shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-900">Task 2: Baseline Data Analysis</h3>
+      <p class="text-sm text-slate-600 mt-3">Given the AP data below, identify two significant deviations and explain their likely implications.</p>
+      <div class="mt-3 rounded-xl p-3 bg-white border card-border">
+        <div class="text-sm text-slate-700">AP 24-hour snapshot:</div>
+        <ul class="list-disc pl-4 text-sm text-slate-600 mt-2">
+          <li>Average Channel Utilization: 35% (Baseline: 20%)</li>
+          <li>Average Client RSSI: -60 dBm (Baseline: -62 dBm)</li>
+          <li>Average Client SNR: 28 dB (Baseline: 30 dB)</li>
+          <li>Average Retransmission Rate: 15% (Baseline: 3%)</li>
+          <li>Number of Associated Clients: 45 (Baseline: 20)</li>
+        </ul>
+      </div>
+      <div class="mt-3 grid grid-cols-1 gap-2">
+        <div class="rounded-xl p-3 bg-amber-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Deviation 1</div>
+          <div class="text-sm text-slate-700 mt-1"><strong>Metric:</strong> Retransmission rate increased from 3% to 15%.
+            <div class="mt-1 text-sm text-slate-600">Potential Issue: A large increase in retransmissions indicates a serious RF problem or device-level failures causing repeated frame delivery attempts. This often maps to interference, poor SNR, or a hidden node condition that requires a targeted RF survey and packet-level inspection.</div>
+          </div>
+        </div>
+        <div class="rounded-xl p-3 bg-emerald-50 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Deviation 2</div>
+          <div class="text-sm text-slate-700 mt-1"><strong>Metric:</strong> Number of associated clients increased from 20 to 45 and channel utilization rose from 20% to 35%.
+            <div class="mt-1 text-sm text-slate-600">Potential Issue: The AP may be overloaded by client density or heavy client activity, consuming airtime. Alternatively, increased utilization could be caused by new sources of interference. Use a site survey to confirm client distribution and throughput tests to distinguish load from interference.</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use filters to find affected frames and baselines to prioritize investigation: high retransmits and sudden client density spikes demand immediate attention.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <style>    
+    pre.code { background: #021025; color:#dbeafe; border-radius:10px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }  
+  </style>  
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>    
+    <span>›</span>    
+    <span>Chapter 5.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">Configure Postfix TLS Parameters</span>  
+  </div>  
+
+  <div class="grid grid-cols-2 gap-6 h-full">    
+    <div class="rounded-xl p-4 border bg-slate-50">      
+      <div class="text-sm font-semibold text-slate-800">main.cf snippet</div>      
+      <pre class="code mt-3"><code># /etc/postfix/main.cf
+
+# --- TLS Configuration ---
+# Enable TLS for incoming SMTP connections (smtpd)
+smtpd_tls_security_level = may
+smtpd_tls_cert_file = /etc/postfix/certs/postfix.crt
+smtpd_tls_key_file = /etc/postfix/certs/postfix.key
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+
+# Enable TLS for outgoing SMTP connections (smtp)
+smtp_tls_security_level = may
+smtp_tls_cert_file = /etc/postfix/certs/postfix.crt
+smtp_tls_key_file = /etc/postfix/certs/postfix.key
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# Optional stricter modes:
+# smtpd_tls_security_level = encrypt
+# smtp_tls_security_level = encrypt</code></pre>    
+    </div>    
+
+    <div class="flex flex-col">      
+      <div class="rounded-xl p-4 border bg-violet-50">        
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Parameter meanings</div>        
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">          
+          <li>• none: TLS disabled.</li>          
+          <li>• may: offer TLS, accept non-TLS if peer doesn't support it.</li>          
+          <li>• encrypt: require TLS or reject the connection.</li>          
+          <li>• verify/dane: options for certificate validation and DANE when used.</li>        
+        </ul>      
+      </div>      
+
+      <div class="mt-4 rounded-xl p-3 border bg-slate-50">        
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Post-edit steps</div>        
+        <div class="mt-2 text-sm text-slate-700">Run sudo systemctl reload postfix and verify with postconf -n to ensure values are active.</div>      
+      </div>    
+    </div>  
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

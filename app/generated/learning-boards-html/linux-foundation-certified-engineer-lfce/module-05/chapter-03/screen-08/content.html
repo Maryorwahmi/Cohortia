@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">  
+  <style>    
+    .note { border-radius: 12px; border:1px solid rgba(226,232,240,0.9); background:#fff; padding:14px; }  
+  </style>  
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>    
+    <span>›</span>    
+    <span>Chapter 5.3</span>    
+    <span>›</span>    
+    <span class="text-slate-700">Reloading Postfix and Verifying Configuration</span>  
+  </div>  
+
+  <div class="grid grid-cols-2 gap-6 h-full">    
+    <div class="note">      
+      <div class="text-sm font-semibold text-slate-800">Apply changes</div>      
+      <div class="mt-2 text-sm text-slate-700">Reload Postfix to apply new TLS settings without downtime.</div>      
+      <pre class="mt-3" style="white-space:pre-wrap"><code class="text-sm">sudo systemctl reload postfix
+# Verify active non-default settings
+postconf -n | grep -i tls</code></pre>    
+    </div>    
+
+    <div class="flex flex-col">      
+      <div class="note">        
+        <div class="text-sm font-semibold text-slate-800">Validation steps</div>        
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">          
+          <li>• Confirm smtpd_tls_cert_file and key file paths match files you created.</li>          
+          <li>• Inspect /var/log/syslog or journald for TLS-related errors after reload.</li>          
+          <li>• Ensure firewall allows SMTP ports before attempting remote tests.</li>        
+        </ul>      
+      </div>      
+
+      <div class="mt-4 note bg-emerald-50">        
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Quick test</div>        
+        <div class="mt-2 text-sm text-slate-800">From another machine run openssl s_client -connect mail.your_domain.com:25 -starttls smtp to see the TLS handshake and certificate details.</div>      
+      </div>    
+    </div>  
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

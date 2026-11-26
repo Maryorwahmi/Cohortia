@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>shared_ptr Threads</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Threaded example</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+#include &lt;thread&gt;
+#include &lt;vector&gt;
+
+void use_shared_resource(std::shared_ptr&lt;MyResource&gt; resource_ptr) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  resource_ptr->do_something();
+}
+
+int main() {
+  auto shared_res = std::make_shared&lt;MyResource&gt;(2);
+  std::vector&lt;std::thread&gt; threads;
+  for (int i = 0; i &lt; 3; ++i) {
+    threads.emplace_back(use_shared_resource, shared_res); // copy increments ref count
+  }
+  for (auto &amp; t : threads) t.join();
+}
+</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Design rule: pass by value when a thread must hold the object independently; use mutexes to protect any shared mutable state inside the object.</div>
+    </div>
+
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Pitfalls</div>
+      <ul class='text-sm text-slate-700 ml-4 list-disc'>
+        <li>Creating multiple control blocks by using raw pointers to construct shared_ptrs leads to double-delete.</li>
+        <li>Relying on use_count in concurrent debugging can be misleading.</li>
+        <li>Atomic ref-count does not protect object internals.</li>
+      </ul>
+
+      <div class='mt-auto text-xs text-slate-600'>Closing question: If multiple threads need to mutate an object, what two things must you ensure? (Answer: shared ownership for lifetime and synchronization for state.)</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

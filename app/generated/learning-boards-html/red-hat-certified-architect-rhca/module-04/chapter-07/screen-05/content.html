@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Rule Syntax</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-lg font-bold text-slate-800 mb-2">Rule patterns</div>
+      <div class="text-sm text-slate-700 mb-3">Two core patterns: file watches with -w and syscall rules with -a and -S. Combine permissions, arch, uid filters and a key.</div>
+
+      <pre class="bg-slate-900 text-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Liberation Mono', monospace;">
+-w /etc/passwd -p wa -k passwd_changes
+-a always,exit -F arch=b64 -S execve -F euid=0 -k root_commands
+-a always,exit -F arch=b64 -S open -F success=0 -k failed_writes
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note: Use a custom key to make searches simpler and limit syscall rules by arch and uid filters.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Practical guidance</div>
+      <ul class="text-sm text-slate-600 list-disc list-inside space-y-1">
+        <li>Prefer targeted watches for sensitive files over broad syscall coverage.</li>
+        <li>Include success or failure filters when you care about outcome.</li>
+        <li>Attach distinct keys for rule classes to ease ausearch queries.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border card-border">
+        <div class="text-sm font-semibold text-slate-800">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-1">What key would you use to find all passwd change events? Answer: the key you set, for example passwd_changes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">SELinux Contexts</span>
+    </div>
+    <div class="flex h-[72vh] gap-4">
+      <div class="w-1/2 card p-4 flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Context Structure</div>
+        <div class="text-sm text-slate-700 mb-2">A context is four parts: user, role, type, and level. Commands show these labels for inspection and action.</div>
+        <pre class="p-3 bg-slate-50 border rounded"># View file context
+ls -Z /srv/webapp/html/index.html
+# View process context
+ps -Z | grep httpd
+# Temporarily change context
+sudo chcon -t httpd_sys_content_t /srv/webapp/html/index.html</pre>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Always verify types for both the process and the resource; mismatched types are the most common cause of denials.</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-1/2 card p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Permanent Labeling</div>
+        <div class="text-sm text-slate-700 mb-2">Use semanage fcontext to define defaults and restorecon to apply them.</div>
+        <pre class="p-3 bg-slate-50 border rounded">sudo semanage fcontext -a -t httpd_sys_content_t "/srv/webapp/html(/.*)?"
+sudo restorecon -Rv /srv/webapp/html</pre>
+        <div class="text-sm text-slate-600 mt-3">Misconception: chcon is permanent. It is temporary and can be reset by restorecon or relabel operations. For lasting changes, use semanage fcontext.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

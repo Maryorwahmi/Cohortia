@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process</span>
+    <span>›</span>
+    <span class="text-slate-700">Create & Implement</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Implementation steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Create InteractableInterface.h/.cpp and declare BlueprintNativeEvent functions.</li>
+        <li>Create ADoor actor; include header and inherit IInteractableInterface.</li>
+        <li>Define Interact_Implementation(AActor* Interactor) in ADoor.cpp to toggle bIsOpen and UE_LOG a message.</li>
+        <li>Implement CanInteract_Implementation to return true or a condition like !bIsLocked.</li>
+        <li>Optionally: declare a delegate and broadcast OnDoorOpened.Broadcast(this) inside Interact_Implementation.</li>
+      </ol>
+
+      <div class="mt-4 rounded-md bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistakes</div>
+        <div class="text-sm text-slate-700 mt-1">Forgetting the _Implementation suffix or not compiling after adding the UINTERFACE will lead to undefined behavior or missing overrides.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">ADoor snippets</div>
+      <pre class="mono bg-slate-50 p-3 rounded mt-2 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// ADoor.h (excerpt)
+#include "InteractableInterface.h"
+
+UCLASS()
+class ADoor : public AActor, public IInteractableInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual void Interact_Implementation(AActor* Interactor) override;
+	virtual bool CanInteract_Implementation(AActor* Interactor) const override;
+	bool bIsOpen;
+};
+
+// ADoor.cpp (excerpt)
+void ADoor::Interact_Implementation(AActor* Interactor)
+{
+	bIsOpen = !bIsOpen;
+	UE_LOG(LogTemp, Warning, TEXT("Door interacted by %s!"), *Interactor->GetName());
+	// OnDoorOpened.Broadcast(this); // if declared
+}
+
+bool ADoor::CanInteract_Implementation(AActor* Interactor) const
+{
+	return true; // or !bIsLocked
+}
+</code></pre>
+
+      <div class="mt-3 rounded-md bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Try this</div>
+        <div class="text-sm text-slate-800 mt-1">Place ADoor in the level and press interact to see the log. If nothing appears, confirm collision and Trace settings from Chapter 5.1.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

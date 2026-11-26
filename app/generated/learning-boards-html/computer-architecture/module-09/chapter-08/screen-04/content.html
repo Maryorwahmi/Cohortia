@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">What is Predication?</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white border p-5 shadow-sm h-full flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="mt-2 text-xl font-bold text-slate-900">Predication</h3>
+        <p class="mt-3 text-sm text-slate-700">Convert branches into conditional instructions that execute under predicate control. This removes the branch but executes both paths.</p>
+
+        <div class="mt-4 flex-1">
+          <div class="rounded-lg bg-[rgba(37,99,235,0.04)] p-3 border h-full">
+            <div class="text-sm font-semibold text-slate-800">Traditional branch assembly</div>
+            <pre class="mt-2 text-xs text-slate-800 bg-white p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code>CMP a, b
+BLE else
+MOV c, d
+JMP end
+else: MOV c, e
+end:</code></pre>
+          </div>
+
+          <div class="mt-3 rounded-lg bg-[rgba(123,66,232,0.04)] p-3 border">
+            <div class="text-sm font-semibold text-slate-800">Predicated assembly (if-conversion)</div>
+            <pre class="mt-2 text-xs text-slate-800 bg-white p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code>CMP a, b       # Sets predicate P0 (true if a &gt; b)
+P0: MOV c, d   # Execute only if P0 is true
+!P0: MOV c, e  # Execute only if P0 is false</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why it helps</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Removes branch mispredictions and the associated pipeline flushes.</li>
+          <li>Lets the compiler schedule operations from both paths together to improve ILP.</li>
+          <li>Enables software pipelining of loops with small conditionals.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-2xl bg-white border p-4 shadow-sm h-1/2 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+          <p class="mt-2 text-sm text-slate-700">Predication is not a free win. If one path is much longer, executing both wastes cycles and power. Predication also increases register pressure because both paths may need live values simultaneously.</p>
+        </div>
+
+        <div class="mt-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <p class="text-xs font-medium text-slate-800">Use predication when branches are unpredictable and both paths are short; otherwise prefer branch prediction or other techniques.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

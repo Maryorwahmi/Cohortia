@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.console{background:#081021;color:#e6edf3;padding:12px;border-radius:10px;font-family:ui-monospace, monospace;font-size:13px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">First-completed pattern</div>
+      <div class="rounded-xl bg-white p-4 card-border flex-1">
+        <div class="text-sm text-slate-600">Schedule tasks and wait for the first to finish. Process its result, then decide how to treat remaining tasks.</div>
+        <div class="mt-4 console" style="white-space:pre-wrap; tab-size:2;"><pre><code>tasks = [asyncio.create_task(limited_worker("X",2)),
+         asyncio.create_task(limited_worker("Y",1)),
+         asyncio.create_task(limited_worker("Z",3))]
+
+done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+first_results = [t.result() for t in done]
+# optionally cancel pending tasks
+for p in pending:
+  p.cancel()</code></pre></div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Explanation & example</div>
+          <div class="mt-2 text-sm text-slate-600">In the example above, the Y task finishes first. done contains Y, pending contains X and Z. Fetch results with .result and cancel pending tasks if you no longer need them.</div>
+        </div>
+        <div class="mt-4 grid gap-2">
+          <div class="rounded-lg border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">wait returns Task objects in done/pending; call .result() and cancel or await pending tasks intentionally.</p>
+          </div>
+          <div class="rounded-lg bg-white p-2 border card-border text-xs text-slate-600">
+            <div class="font-semibold">Common mistake</div>
+            <div class="mt-1">Assuming done contains raw results instead of Task objects. Always inspect Task.result() and handle exceptions that .result() may raise.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

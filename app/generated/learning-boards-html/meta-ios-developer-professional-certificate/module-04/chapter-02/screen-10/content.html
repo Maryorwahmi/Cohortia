@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Hierarchy</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Navigation, tabs, and conditional views</div>
+      <div class="text-sm text-slate-600 mt-3">Place models where their lifecycle matches the container behavior to avoid unexpected reinitialization.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-bold text-slate-700">NavigationView</div>
+          <div class="text-sm text-slate-800 mt-1">Pushed views own models persist while pushed. Pop destroys them.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-bold text-slate-700">TabView</div>
+          <div class="text-sm text-slate-800 mt-1">Tabs may keep views alive; put shared models in a parent to guarantee persistence across tabs.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-bold text-slate-700">Conditional branches</div>
+          <div class="text-sm text-slate-800 mt-1">Toggling branches recreates views; owning models should live above transient branches.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-700">Concrete scenario</div>
+      <div class="text-sm text-slate-600 mt-2">ContentView owns GameManager with @StateObject. Toggling a child view or switching tabs won't reset the manager because the owner persists at the right level.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Match model lifetime to a stable parent; that parent should use @StateObject to guarantee persistence.</div>
+      </div>
+    </div>
+  </div>
+</div>

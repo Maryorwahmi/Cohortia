@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">TemperatureConverter Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-hidden flex flex-col">
+      <div class="text-sm font-bold text-slate-800">System code (short)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;"><code># temperature_converter.py
+class TemperatureConverter:
+  def __init__(self, weather_service):
+    self.weather_service = weather_service
+
+  def get_temperature_in_celsius(self, city: str) -> float:
+    fahrenheit = self.weather_service.get_current_temperature(city)
+    celsius = (fahrenheit - 32) * 5/9
+    return round(celsius, 2)
+
+  def is_freezing(self, city: str) -> bool:
+    celsius = self.get_temperature_in_celsius(city)
+    return celsius <= 0
+</code></pre>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Test snippet</div>
+      <pre class="mt-3 bg-slate-900 text-slate-50 p-3 rounded text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;"><code>from unittest.mock import MagicMock
+from temperature_converter import TemperatureConverter, WeatherService
+
+mock_weather = MagicMock(spec=WeatherService)
+mock_weather.get_current_temperature.return_value = 20.0
+converter = TemperatureConverter(mock_weather)
+result = converter.is_freezing("AnyCity")
+assert result is True
+mock_weather.get_current_temperature.assert_called_once()
+</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-emerald-50 p-3">
+          <div class="text-xs font-bold text-emerald-700">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use simple numeric values to make the math easy to verify. Comments that show the expected Celsius help future readers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

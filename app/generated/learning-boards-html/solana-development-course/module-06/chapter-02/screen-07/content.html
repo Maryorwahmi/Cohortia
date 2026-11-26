@@ -1,0 +1,18 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <div class="mb-4"> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span> <span>›</span> <span>Chapter 6.2</span> <span>›</span> <span class="text-slate-700">Fetch & Display</span> </div> </div> <div class="flex gap-6 h-full"> <div class="w-6/12 bg-white rounded-2xl border p-6"> <div class="text-sm font-bold text-slate-800">Code (React pattern)</div> <div class="mt-3 code-panel"> <pre><code>useEffect(() =&gt; {
+  const fetchCounter = async () =&gt; {
+    if (!wallet || !connection) return;
+    const provider = new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
+    const program = new Program(idl as any, PROGRAM_ID, provider);
+    const [pda] = PublicKey.findProgramAddressSync(
+      [Buffer.from('counter'), wallet.publicKey.toBuffer()],
+      PROGRAM_ID
+    );
+    try {
+      const acc = await program.account.counter.fetch(pda);
+      setCounterValue(acc.count.toNumber());
+    } catch (e) {
+      setCounterValue(null); // account may not be initialized
+    }
+  };
+  fetchCounter();
+}, [wallet, connection]);</code></pre> </div> </div> <div class="w-6/12 bg-white rounded-2xl border p-6 flex flex-col"> <div class="text-sm font-bold text-slate-800">UX considerations</div> <ul class="text-sm text-slate-600 mt-3 space-y-2"> <li>Show a clear "Account not initialized" state and an Initialize action.</li> <li>Provide a Refresh control that re-runs fetch on demand.</li> <li>Guard BN conversions for display to avoid overflow.</li> </ul> <div class="mt-4"> <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-2">Example</div> <div class="rounded-lg p-3 bg-emerald-50 border"> <div class="text-sm text-slate-700">After incrementing, re-fetch returns a new BN value which you convert and show as an updated count.</div> </div> </div> </div> </div> <style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

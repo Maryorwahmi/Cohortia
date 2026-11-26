@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Transactional Outbox</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-2">Pattern summary</div>
+      <div class="text-sm text-slate-700 mb-3">Record outgoing messages in an outbox table within the same local transaction as the state change. A separate process publishes them.</div>
+
+      <div class="rounded-lg p-3 bg-white border border-slate-100 mb-3">
+        <div class="text-sm font-bold text-slate-800 mb-1">Operational notes</div>
+        <div class="text-sm text-slate-700">The outbox reader must handle retries and ensure idempotent publishes. Monitor the outbox table to detect stuck entries.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 card-border mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">The outbox gives atomic intent: either the state change and message were recorded, or neither was, simplifying recovery.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Conceptual pseudo-code</div>
+      <div class="rounded-lg p-3 bg-slate-50 border border-slate-100 overflow-auto" style="max-height:56%;">
+        <pre><code># Transactional outbox (conceptual Python-like pseudocode)
+# Begin DB transaction
+# Update service state
+db.update_order_status(order_id, 'paid')
+# Insert outbox message in same transaction
+db.insert_outbox({ 'topic': 'order-paid', 'payload': { 'order_id': order_id } })
+# Commit transaction
+
+# Separate publisher process:
+# Read unprocessed outbox rows
+messages = db.read_pending_outbox()
+for msg in messages:
+  try:
+    message_broker.publish(msg.topic, msg.payload)
+    db.delete_outbox_entry(msg.id)
+  except Exception:
+    # Retry later; ensure idempotent publish on broker or include dedupe key
+    continue</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-amber-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception check</div>
+        <div class="text-sm text-slate-800">The outbox reduces cross-service transaction needs but does not remove the need for idempotent consumers or delivery guarantees from the messaging layer.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

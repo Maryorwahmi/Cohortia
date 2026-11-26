@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">buildspec.yaml Example</h3>
+    <p class="text-sm text-slate-600 mt-2">This buildspec logs into ECR, builds and tags the Docker image, pushes it, and writes imagedefinitions.json.</p>
+
+    <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+    files:
+      - imagedefinitions.json</code></pre>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-semibold text-slate-700">Pre-build</div>
+        <div class="text-xs text-slate-600 mt-1">Auth to ECR and compute tag.</div>
+      </div>
+      <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-semibold text-slate-700">Build</div>
+        <div class="text-xs text-slate-600 mt-1">docker build and tag both commit and latest.</div>
+      </div>
+      <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-semibold text-slate-700">Post-build</div>
+        <div class="text-xs text-slate-600 mt-1">Push images and write imagedefinitions.json artifact.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

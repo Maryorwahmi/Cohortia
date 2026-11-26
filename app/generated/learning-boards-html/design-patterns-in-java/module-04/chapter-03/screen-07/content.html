@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Implementing the Facade</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-900 mb-2">Facade structure</div>
+      <div class="text-sm text-slate-600 mb-3">Constructor injection keeps lifecycle control outside the facade. Methods orchestrate sequences and delegate to subsystem objects.</div>
+
+      <div class="text-sm font-semibold text-slate-800 mb-2">Design notes</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Prefer injection so tests provide mocked components.</li>
+        <li>Keep facade methods narrow and meaningful.</li>
+        <li>Consider whether to handle exceptions or expose them to clients.</li>
+      </ul>
+
+      <div class="rounded-lg p-3 bg-amber-50 card-border mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-mistake</div>
+        <p class="text-sm text-slate-700">Making the facade responsible for too many unrelated operations turns it into a God object. Refactor into multiple focused facades instead.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">HomeTheaterFacade (excerpt)</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+public class HomeTheaterFacade {
+  Amplifier amp;
+  Tuner tuner;
+  DvdPlayer dvd;
+  Projector projector;
+  Lights lights;
+
+  public HomeTheaterFacade(Amplifier amp, Tuner tuner, DvdPlayer dvd, Projector projector, Lights lights) {
+    this.amp = amp;
+    this.tuner = tuner;
+    this.dvd = dvd;
+    this.projector = projector;
+    this.lights = lights;
+  }
+
+  public void watchMovie(String movie) {
+    System.out.println("
+Get ready to watch a movie...");
+    lights.dim(10);
+    projector.on();
+    projector.wideScreenMode();
+    amp.on();
+    amp.setDvd(dvd);
+    amp.setVolume(5);
+    dvd.on();
+    dvd.play(movie);
+  }
+
+  public void endMovie() {
+    System.out.println("
+Shutting movie theater down...");
+    dvd.stop();
+    dvd.eject();
+    dvd.off();
+    amp.off();
+    projector.off();
+    lights.on();
+  }
+}
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">This snippet shows composition and clear method-level orchestration. Keep methods cohesive and small.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

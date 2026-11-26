@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">functools.wraps</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-lg font-bold text-slate-900 mb-2">Problem</div>
+      <p class="text-sm text-slate-700">A decorated function often loses __name__ and __doc__. That makes stack traces and documentation misleading. functools.wraps copies metadata from the original function to the wrapper so tools and developers see the original identity.</p>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Pattern</div>
+          <pre class="code text-sm bg-slate-50 p-3 rounded-md text-slate-800"><code>import functools
+
+def my_decorator(func):
+  @functools.wraps(func)
+  def wrapper(*args, **kwargs):
+    # do work
+    return func(*args, **kwargs)
+  return wrapper</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Concrete example</div>
+      <div class="rounded-lg p-3 bg-blue-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm text-slate-700">A log_calls decorator should print the original function name. Use functools.wraps to ensure printed names are correct for readable logs.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Check</div>
+          <div class="text-sm text-slate-700">After decorating, inspect function.__name__ and function.__doc__ to confirm preservation.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] uppercase tracking-wider text-rose-600 mb-1">Mistake</div>
+          <div class="text-sm text-slate-700">Not using wraps is easy to miss during quick prototyping, but it causes real debugging friction later.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

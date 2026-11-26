@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.3</span><span>›</span><span class="text-slate-700">Chat Code Implementation</span></div><div class="flex flex-col h-full"><div class="mb-6"><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Chat Application: Concrete Mediator & Colleague</h2><p class="text-lg text-slate-600">Implementing the chat room and specific user behavior.</p></div><div class="flex-1 grid grid-cols-2 gap-6"><div class="flex flex-col justify-between bg-slate-900 rounded-2xl p-6 shadow-md border border-slate-700 text-white font-mono text-sm"><div class="mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-2">ChatRoom (ConcreteMediator)</div><pre><code style="white-space: pre-wrap; tab-size: 2;">public class ChatRoom : IChatMediator
+{
+    private List&lt;User&gt; _users = new List&lt;User&gt;();
+
+    public void AddUser(User user)
+    {
+        _users.Add(user);
+        Console.WriteLine($&quot;{user.Name} has joined the chat room.&quot;);
+    }
+
+    public void SendMessage(string message, User sender)
+    {
+        foreach (User user in _users)
+        {
+            if (user != sender)
+            {
+                user.Receive($&quot;[{sender.Name}]: {message}&quot;);
+            }
+        }
+    }
+}</code></pre><p class="text-xs text-slate-300 mt-4">This class manages the list of users and orchestrates message distribution, ensuring messages are broadcast to all but the sender.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Centralized Logic</div><p class="text-xs font-medium text-slate-200">All message routing and distribution logic is contained within the <code>ChatRoom</code>, simplifying management.</p></div></div><div class="flex flex-col justify-between bg-slate-900 rounded-2xl p-6 shadow-md border border-slate-700 text-white font-mono text-sm"><div class="mb-4"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-400 mb-2">ChatUser (ConcreteColleague)</div><pre><code style="white-space: pre-wrap; tab-size: 2;">public class ChatUser : User
+{
+    public ChatUser(IChatMediator mediator, string name) : base(mediator, name) { }
+
+    public override void Receive(string message)
+    {
+        Console.WriteLine($&quot;{Name} receives: {message}&quot;);
+    }
+}</code></pre><p class="text-xs text-slate-300 mt-4">This class represents a specific chat participant, implementing how a user receives and displays messages.</p></div><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1">Decoupled Behavior</div><p class="text-xs font-medium text-slate-200"><code>ChatUser</code> only knows about its mediator and its own behavior, not other <code>ChatUser</code> instances.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

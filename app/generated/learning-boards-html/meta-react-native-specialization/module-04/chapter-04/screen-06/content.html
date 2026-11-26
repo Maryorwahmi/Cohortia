@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Settings Screen Example</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter code (excerpt)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-slate-100 p-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+const SETTINGS_KEY = 'userSettings'
+
+async function loadSettings() {
+  try {
+    const jsonValue = await AsyncStorage.getItem(SETTINGS_KEY)
+    if (jsonValue != null) {
+      const settings = JSON.parse(jsonValue)
+      // apply settings.isDarkMode, settings.notificationSound
+    }
+  } catch (e) {
+    console.error('Failed to load settings', e)
+  }
+}
+
+async function saveSettings(settings) {
+  try {
+    const jsonValue = JSON.stringify(settings)
+    await AsyncStorage.setItem(SETTINGS_KEY, jsonValue)
+  } catch (e) {
+    console.error('Failed to save settings', e)
+  }
+}
+      </pre>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & checklist</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Use one key for the settings object to batch reads/writes when appropriate.</li>
+        <li>Always check for null before parsing to avoid JSON.parse errors.</li>
+        <li>Wrap AsyncStorage calls in try/catch for robust error handling.</li>
+        <li>Save after initial load completes to prevent accidental overwrites.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example scenario</div>
+        <p class="text-xs font-medium text-slate-800">Remember a user's theme and sound preferences so the app opens in the same state after a full restart.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

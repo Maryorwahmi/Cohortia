@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Master steps (summary)</div>
+      <ol class="mt-3 list-decimal pl-6 text-sm text-slate-700 space-y-2">
+        <li>Install MariaDB and run mysql_secure_installation.</li>
+        <li>Edit my.cnf: log_bin=mysql-bin, server_id=1. Restart service.</li>
+        <li>Create database test_app_db and table users; insert sample rows.</li>
+        <li>Create repl_user@'slave_ip' with REPLICATION SLAVE and FLUSH PRIVILEGES.</li>
+        <li>FLUSH TABLES WITH READ LOCK; SHOW MASTER STATUS; UNLOCK TABLES.</li>
+        <li>mysqldump --single-transaction test_app_db &gt; /tmp/test_app_db_master_backup.sql and scp to slave.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Slave steps (summary)</div>
+      <ol class="mt-3 list-decimal pl-6 text-sm text-slate-700 space-y-2">
+        <li>Edit my.cnf: server_id=2. Restart MariaDB.</li>
+        <li>Import the dump: mysql -u root -p test_app_db &lt; /tmp/test_app_db_master_backup.sql.</li>
+        <li>Run CHANGE MASTER TO with recorded MASTER_LOG_FILE and MASTER_LOG_POS.</li>
+        <li>START SLAVE; SHOW SLAVE STATUS\G and confirm both threads are Yes.</li>
+        <li>Test: insert a row on master and verify it appears on the slave.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab tip</div>
+          <p class="text-xs text-slate-800">Transfer the dump file with scp and verify file integrity before importing. Import first, then point the slave at the recorded master coordinates.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Unbounded wildcard vs raw and concrete types</h3>
+      <div class="mt-3 text-sm text-slate-600">List&lt;?&gt; means "some specific but unknown element type." You can read as Object but cannot add typed elements. Raw types (List) lose compile-time checks and should be avoided.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 text-sm">Use case: a logger that prints any list contents—you only need to iterate and treat each item as Object.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-sm">Pitfall: trying to add an Integer to List&lt;?&gt; is a compile-time error because the specific element type is unknown.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <pre class="code"><code>public static void printAnyList(List&lt;?&gt; list) {
+  for (Object o : list) {
+    System.out.print(o + " ");
+  }
+  System.out.println();
+}
+
+// Can call with List&lt;Integer&gt;, List&lt;String&gt;, etc.
+</code></pre>
+
+      <div class="mt-4">
+        <div class="text-xs font-semibold text-slate-700 mb-2">Key takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use List&lt;?&gt; for read-only utilities that accept any element type; do not use it when you need to add typed elements.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

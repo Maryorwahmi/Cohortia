@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Simulation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[calc(100%-40px)]">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">SOURCE_ACCOUNT (conceptual)</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>-- In SOURCE_ACCOUNT, as ACCOUNTADMIN
+CREATE DATABASE my_source_db;
+USE DATABASE my_source_db;
+CREATE SCHEMA public;
+CREATE TABLE my_source_table (id INT, name VARCHAR);
+INSERT INTO my_source_table VALUES (1, 'Alice'), (2, 'Bob');
+
+ALTER DATABASE my_source_db ENABLE REPLICATION TO ACCOUNTS &lt;target_account_identifier&gt;;</code></pre>
+      <div class="mt-2 text-xs text-slate-500">Enable replication so the target can create a replica.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">TARGET_ACCOUNT (conceptual)</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>-- In TARGET_ACCOUNT, as ACCOUNTADMIN
+CREATE DATABASE my_replica_db AS REPLICA OF &lt;source_account_identifier&gt;.my_source_db;
+GRANT USAGE ON DATABASE my_replica_db TO ROLE PUBLIC;
+GRANT USAGE ON SCHEMA my_replica_db.public TO ROLE PUBLIC;
+GRANT SELECT ON TABLE my_replica_db.public.my_source_table TO ROLE PUBLIC;
+
+-- Create failover group replica
+CREATE FAILOVER GROUP my_app_fg_replica AS REPLICA OF &lt;source_account_identifier&gt;.my_app_fg;
+
+-- Simulate failover
+ALTER FAILOVER GROUP my_app_fg_replica PRIMARY;
+USE DATABASE my_source_db;
+INSERT INTO my_source_db.public.my_source_table VALUES (3, 'Charlie');</code></pre>
+      <div class="mt-2 text-xs text-slate-500">Verify that inserts are accepted after promotion and that the original source becomes read-only.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500 mt-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Follow the create-replicate-grant-verify-promote sequence and always practice in non-production before executing in live systems.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

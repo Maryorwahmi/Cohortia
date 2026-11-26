@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}
+    .small{font-size:13px}
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Tuning Cycle</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Tuning cycle</div>
+      <div class="grid grid-cols-4 gap-3">
+        <div class="p-3 bg-blue-50 rounded">
+          <div class="text-xs font-semibold text-blue-700">1. Monitor</div>
+          <div class="text-xs text-slate-600 mt-2">Collect baseline metrics from top, vmstat, iostat, ss and logs.</div>
+        </div>
+        <div class="p-3 bg-violet-50 rounded">
+          <div class="text-xs font-semibold text-violet-700">2. Identify</div>
+          <div class="text-xs text-slate-600 mt-2">Pinpoint the limited resource: CPU, memory, disk, or network.</div>
+        </div>
+        <div class="p-3 bg-amber-50 rounded">
+          <div class="text-xs font-semibold text-amber-700">3. Change</div>
+          <div class="text-xs text-slate-600 mt-2">Make a minimal, reversible configuration change or restart a service if safe.</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded">
+          <div class="text-xs font-semibold text-emerald-700">4. Re-monitor</div>
+          <div class="text-xs text-slate-600 mt-2">Check the same metrics to confirm improvement and document results.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Example: high disk %util</div>
+        <ol class="list-decimal pl-5 mt-2">
+          <li>Observe iostat -x 1 and note %util and avgqu-sz spikes.</li>
+          <li>Investigate application logging and query patterns that cause heavy writes.</li>
+          <li>Reduce fsync frequency or rotate logs more often as a config change.</li>
+          <li>Re-run iostat to confirm reduced %util before adding hardware.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card p-4 flex flex-col gap-3">
+      <div class="text-sm font-bold text-slate-800">Safe termination</div>
+      <div class="text-sm text-slate-600">Prefer sending SIGTERM (kill PID) to allow cleanup. Use SIGKILL (kill -9 PID) only when the process is unresponsive after graceful attempts, and after capturing strace or logs.</div>
+
+      <div class="p-3 bg-rose-50 rounded">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Avoid this</div>
+        <div class="text-xs font-medium text-slate-800">Don't reboot or use kill -9 before gathering logs; you may lose the evidence needed to find the root cause.</div>
+      </div>
+
+      <div class="p-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">One small change at a time, measure impact, and document timestamps and outcomes for future tuning and audits.</div>
+      </div>
+    </div>
+  </div>
+</div>

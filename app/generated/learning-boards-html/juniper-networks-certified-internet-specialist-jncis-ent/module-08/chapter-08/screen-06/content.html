@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} pre.code{background:#031127;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">BGP Peering</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-[74vh]">
+    <div class="col-span-6 bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Triage procedure</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600">
+        <li>Ping the neighbor IP using the configured source: ping &lt;neighbor-ip&gt; source &lt;local-loopback-ip&gt;.</li>
+        <li>Capture TCP: monitor traffic interface &lt;if&gt; matching "tcp port 179" to ensure SYNs reach the peer.</li>
+        <li>Confirm AS numbers: show configuration protocols bgp group &lt;group-name&gt;.</li>
+        <li>Check update-source if using loopbacks and confirm routing to that source IP.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-slate-50 border">
+          <div class="text-sm font-bold text-slate-700">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">If show bgp summary shows Connect and monitor traffic shows no SYNs, the TCP path is broken — check an intermediate ACL or next-hop route to the neighbor.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-700">Useful commands</div>
+      <pre class="code mt-3"><code>ping 203.0.113.2 source 203.0.113.1
+monitor traffic interface ge-0/0/0 matching "tcp port 179"
+show bgp summary
+show configuration protocols bgp group EBGP_PEER</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Interpretation tips</div>
+        <ul class="list-disc pl-4 mt-2">
+          <li>If ping to neighbor IP fails from the update-source, fix routing before troubleshooting BGP policies.</li>
+          <li>If TCP SYNs reach the peer but BGP still fails, verify AS numbers and authentication.</li>
+        </ul>
+      </div>
+
+      <div class="mt-5">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat a failed BGP session as a TCP problem first: validate reachability, port visibility, and update-source routing before touching import/export policies.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

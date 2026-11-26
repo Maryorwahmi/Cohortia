@@ -1,0 +1,39 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Audit Analysis</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col">
+      <div class="text-lg font-bold">Analysis pattern</div>
+      <div class="text-sm text-slate-600 mt-2">Search with keys, extract events, build a timeline, correlate with AIDE and system logs, then decide containment or recovery.</div>
+
+      <pre class="mono mt-4 p-3 rounded bg-slate-50 border text-sm" style="white-space:pre-wrap; tab-size:2;"># search events by key (human readable)
+sudo ausearch -k user_auth_changes -i
+
+# summarize audit events
+sudo aureport -k --summary
+
+# correlate a timestamp with journalctl
+sudo journalctl --since "2026-01-01 10:00" --until "2026-01-01 11:00"</pre>
+
+      <div class="mt-4 text-sm text-slate-700">When multiple tools show a change at the same time, that strengthens the evidence. If modifications are unexpected, isolate the host and preserve disk images before remediation.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">After adding an audit rule for /etc/passwd, changing a password should appear in ausearch with the acting user and timestamp. This proves who made the change and when.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Altering files or baselines before preserving evidence can destroy forensic traces. Capture logs and images first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

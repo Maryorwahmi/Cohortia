@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Redshift Spectrum</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Code pattern: create external schema</div>
+      <div class="mt-3 text-xs text-slate-700">Use an IAM role that has access to S3 and the Glue Data Catalog, then create the external schema once the catalog is populated by a crawler.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>-- Create an external schema in Redshift
+CREATE EXTERNAL SCHEMA clickstream_spectrum
+FROM DATA CATALOG
+DATABASE 'clickstream_db'
+IAM_ROLE '&lt;YOUR_REDSHIFT_IAM_ROLE_ARN&gt;'
+CREATE EXTERNAL DATABASE IF NOT EXISTS;
+
+-- Verify the external table
+SELECT * FROM clickstream_spectrum.clicks LIMIT 10;
+
+-- Example join with an internal Redshift table
+SELECT s.user_id, s.sale_date, c.page_url, c.event_time
+FROM sales s
+JOIN clickstream_spectrum.clicks c ON s.user_id = c.user_id
+WHERE s.sale_date = '2023-01-01' AND c.event_time &gt;= '2023-01-01T00:00:00Z'
+LIMIT 10;
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-5">
+        <li>Use Parquet or ORC for smaller scans and faster reads.</li>
+        <li>Partition S3 by common filters like year/month to avoid full scans.</li>
+        <li>Verify Glue table schemas before querying from Redshift.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Spectrum gives you the flexibility to query S3 in place, but plan formats and partitions to control performance and cost.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

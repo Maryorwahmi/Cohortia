@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Keyring setup</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Terminal steps</div>
+      <div class="mt-2 text-sm text-slate-600">Run npm init and install the packages before running your script. Keep secrets out of version control.</div>
+      <pre class="mono bg-slate-900 text-slate-50 rounded-md p-3 mt-3" style="white-space:pre-wrap;tab-size:2;"><code>npm init -y
+npm install @polkadot/api @polkadot/keyring</code></pre>
+
+      <div class="mt-4 text-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why it matters</div>
+        <p class="text-sm text-slate-600 mt-1">Keyring gives typed key support and convenient helpers for common dev seeds. Choose secure alternatives for production signers.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Initialization code</div>
+      <pre class="mono bg-slate-50 text-slate-900 rounded-md p-3 mt-3" style="white-space:pre-wrap;tab-size:2;"><code>// initKeyring.js
+const { Keyring } = require('@polkadot/keyring');
+
+const keyring = new Keyring({ type: 'sr25519' });
+const alice = keyring.addFromUri('//Alice');
+console.log('Alice address:', alice.address);
+
+// For production, replace addFromUri with secure signer integrations.</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Example: addFromUri('//Alice') returns a KeyringPair with .address and signing methods ready for signAndSend. Misconception: adding an address from a public key is not enough to sign.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

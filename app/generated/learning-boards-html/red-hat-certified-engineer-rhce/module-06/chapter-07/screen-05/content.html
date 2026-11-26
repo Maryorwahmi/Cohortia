@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--card-border:rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">ansible.builtin.dnf</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-4" style="border-color:var(--card-border);">
+      <div class="text-sm font-semibold text-slate-900">Code examples</div>
+      <div class="mt-3">
+        <div class="rounded-lg bg-slate-800 text-white p-3">
+          <pre><code>- name: Ensure httpd package is installed
+  ansible.builtin.dnf:
+    name: httpd
+    state: present
+
+- name: Update httpd package to the latest version
+  ansible.builtin.dnf:
+    name: httpd
+    state: latest
+
+- name: Remove an unwanted package
+  ansible.builtin.dnf:
+    name: unwanted_package
+    state: absent
+    autoremove: yes</code></pre>
+        </div>
+      </div>
+      <div class="mt-3 rounded-lg bg-white p-3 border" style="border-color:var(--card-border);">
+        <div class="text-sm font-semibold">Note</div>
+        <p class="text-sm text-slate-700 mt-1">state: present adds a package if missing; state: latest updates it when newer versions exist; state: absent removes it. Autoremove helps clean orphaned dependencies.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white border p-4" style="border-color:var(--card-border); min-height:220px;">
+        <div class="text-sm font-semibold text-slate-900">Explanation cards</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+          <li>Idempotency: repeated runs do not change state once desired state is reached.</li>
+          <li>Targeted updates: use name to limit which package is affected.</li>
+          <li>Full updates: omit name or use name: '*' for system-wide updates.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Forgetting update_cache: yes after repository changes can cause missing updates or stale packages.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

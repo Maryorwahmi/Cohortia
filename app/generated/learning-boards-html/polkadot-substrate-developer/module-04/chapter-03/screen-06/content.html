@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+      <span class="text-slate-700">on_finalize</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900">on_finalize — summaries and cleanup</div>
+    <div class="text-sm text-slate-600 mt-1">Use final block state for summarizing and safe cleanup.</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">When to use on_finalize</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Emit final summary events after all transactions applied.</li>
+        <li>Remove temporary storage entries created earlier in the block.</li>
+        <li>Update aggregates that require seeing the post-transaction state.</li>
+      </ul>
+
+      <div class="mt-4 text-xs uppercase tracking-wider text-slate-600">Practical hint</div>
+      <div class="p-3 mt-2 rounded-lg bg-amber-50 text-slate-800">If the work requires heavy computation, schedule it to an OCW and accept a validated transaction later.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Concrete scenario</div>
+      <div class="text-sm text-slate-700">A ledger tracks micro-transfers during the block. After all transfers settle, on_finalize computes a compact reward snapshot and emits an event so external indexers can pick it up. Because the computation is bounded and deterministic, it’s safe in the runtime. If calculation would be expensive or require external data, delegate to an OCW instead.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use on_finalize for deterministic final-state updates; avoid heavy computation and I/O.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

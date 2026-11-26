@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">auditd vs rsyslog</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 flex flex-col gap-4">
+      <div class="rounded-xl p-5 bg-white shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+        <h2 class="text-xl font-bold text-slate-800">Auditd — kernel-level auditing</h2>
+        <p class="mt-3 text-sm text-slate-600">Records system calls and security events using rules. Best for monitoring file changes, SUID executions, and account modifications.</p>
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="p-3 bg-blue-50 rounded text-sm text-slate-700">Example: Monitoring /etc/passwd edits produces events searchable by a key you assign.</div>
+          <div class="p-3 bg-amber-50 rounded text-sm text-slate-700">Misconception: Rsyslog can replace auditd — not true. Rsyslog collects messages from userspace, not system calls.</div>
+        </div>
+      </div>
+      <div class="rounded-xl p-5 bg-white shadow-sm h-1/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Supporting note</div>
+        <p class="text-sm text-slate-600">When compliance requires proof of who executed a binary or changed an account file, auditd provides the kernel-level trail that application logs cannot reliably produce.</p>
+      </div>
+    </div>
+    <div class="w-7/12 flex flex-col gap-4">
+      <div class="rounded-xl p-5 bg-white shadow-sm flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Comparison visual</div>
+        <div class="grid grid-cols-2 gap-3 h-full">
+          <div class="p-4 rounded-lg bg-white border">
+            <div class="text-sm font-bold text-slate-700">What auditd records</div>
+            <ul class="list-disc ml-4 mt-2 text-sm text-slate-600">
+              <li>System call details such as execve and open</li>
+              <li>File attribute changes and writes to protected files</li>
+              <li>Events tied to a searchable key for rapid queries</li>
+            </ul>
+          </div>
+          <div class="p-4 rounded-lg bg-white border">
+            <div class="text-sm font-bold text-slate-700">What rsyslog records</div>
+            <ul class="list-disc ml-4 mt-2 text-sm text-slate-600">
+              <li>Daemon and application messages like auth events</li>
+              <li>Syslog facility and priority classification</li>
+              <li>Flexible forwarding and templating for centralization</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <div class="flex-1 rounded-xl p-4 bg-white border">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Example Scenario</div>
+          <div class="text-sm text-slate-700">A tampered local auth.log can be detected if auditd shows an unexpected modification to sudoers or shadow. Centralized rsyslog avoids single-point tampering by shipping a copy to another host.</div>
+        </div>
+        <div class="w-1/3 rounded-xl p-4 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <div class="text-sm text-slate-700">Relying only on application logs and skipping auditd reduces your ability to reconstruct kernel-level actions during an investigation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

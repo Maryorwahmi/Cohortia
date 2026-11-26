@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Construct transfer</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Constructing the call</div>
+      <p class="text-sm text-slate-600 mt-2">Use api.tx.balances.transfer(recipient, amount) where amount is the Balance type expected by the chain.</p>
+
+      <div class="mt-4">
+        <pre class="mono bg-slate-50 text-slate-900 rounded-md p-3" style="white-space:pre-wrap;tab-size:2;"><code>// create a Balance value for 10 units
+const transferAmount = api.registry.createType('Balance', 10 * Math.pow(10, api.registry.chainDecimals));
+const transfer = api.tx.balances.transfer(bob.address, transferAmount);
+console.log('Sending', transferAmount.toHuman());</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">Misconception: passing a raw number like 10 will send the smallest units unless you scale by decimals. Always convert to the chain's integer representation.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example and verification</div>
+      <p class="text-sm text-slate-600 mt-2">After creating the transfer object, call transfer.toHuman() or transferAmount.toHuman() to confirm the human-readable amount before signing.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-xs font-bold text-emerald-700">Verify</div>
+          <div class="text-sm text-slate-700 mt-1">Log transferAmount.toHuman() so you are confident about the value you will send.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold text-rose-600">Insufficient funds</div>
+          <div class="text-sm text-slate-700 mt-1">Ensure the signing account has enough balance to cover both the transfer and fees, otherwise the transaction will fail.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

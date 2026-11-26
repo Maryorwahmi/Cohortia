@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>UInterface</span>
+    <span>›</span>
+    <span class="text-slate-700">Definition</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card">
+        <div class="text-xl font-bold text-slate-800">What a UInterface is</div>
+        <p class="text-sm text-slate-600 mt-2">A UInterface provides a contract of functions that any UObject-derived class can implement, enabling polymorphic behavior without knowing concrete types.</p>
+        <div class="mt-3 grid grid-cols-1 gap-2">
+          <div class="rounded-md bg-violet-50 p-3 text-sm text-slate-800">Contract: Interact(AActor*), CanInteract(AActor*)</div>
+          <div class="rounded-md bg-amber-50 p-3 text-sm text-slate-800">Specifier: BlueprintNativeEvent for C++ defaults and Blueprint overrides.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm card flex flex-col gap-2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+        <p class="text-sm text-slate-600">Interfaces are not multiple inheritance for implementation. They are a runtime contract. Calling the interface must use Execute_ for BlueprintNativeEvent routing.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Design contracts, not dependencies. Use Execute_ calls to respect Blueprint overrides.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 shadow-sm card flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Header example (InteractableInterface.h)</div>
+      <pre class="mono bg-slate-50 p-3 rounded mt-2 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "InteractableInterface.generated.h"
+
+UINTERFACE(MinimalAPI, Blueprintable)
+class UInteractableInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class UNREALENGINE5CDEVELOPER_API IInteractableInterface
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void Interact(AActor* Interactor);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	bool CanInteract(AActor* Interactor) const;
+};</code></pre>
+
+      <div class="mt-3 grid grid-cols-1 gap-2">
+        <div class="rounded-md bg-white p-3 card-border card">Example: ADoor implements Interact_Implementation to toggle bIsOpen and Broadcast OnDoorOpened.</div>
+        <div class="rounded-md bg-white p-3 card-border card">Remember: call Execute_Interact when you have a UObject pointer to ensure Blueprint overrides run.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

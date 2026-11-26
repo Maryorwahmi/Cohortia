@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Deploy</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Deployment manifest (my-app)</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3 text-sm mt-3"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-web-app-deployment
+  labels:
+    app: my-web-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-web-app
+  template:
+    metadata:
+      labels:
+        app: my-web-app
+    spec:
+      containers:
+      - name: my-web-app-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Service manifest (my-app-service)</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3 text-sm mt-3"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: my-web-app-service
+spec:
+  selector:
+    app: my-web-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Apply both manifests, then run kubectl get services and wait for my-web-app-service to receive an EXTERNAL-IP. Clean up with kubectl delete -f my-app-service.yaml and kubectl delete -f my-app-deployment.yaml when finished.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Execution Architecture</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Pipeline Overview</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li><span class="font-semibold">Read:</span> warehouse reads micro-partitions from storage.</li>
+        <li><span class="font-semibold">Transform:</span> CPU and memory apply filters, joins, aggregations.</li>
+        <li><span class="font-semibold">Spill:</span> intermediate data may write to local temporary disk if needed.</li>
+        <li><span class="font-semibold">Return:</span> results sent back to client; caching may store them for reuse.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <div class="text-sm text-slate-700 mt-2">A join across two large tables reads many micro-partitions and uses memory. If memory is insufficient, Snowflake spills to local disk and continues, which increases runtime but completes the job reliably.</div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Annotated Architecture</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 h-full">
+        <div class="rounded-xl bg-blue-50 p-3">
+          <div class="text-xs font-bold text-blue-700 uppercase">Storage</div>
+          <div class="text-sm text-slate-700 mt-1">Durable micro-partitions accessible by any warehouse.</div>
+        </div>
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-xs font-bold text-amber-700 uppercase">Compute Node</div>
+          <div class="text-sm text-slate-700 mt-1">Executes SQL using CPU, memory, and temporary disk.</div>
+        </div>
+        <div class="rounded-xl bg-emerald-50 p-3">
+          <div class="text-xs font-bold text-emerald-700 uppercase">Local Disk</div>
+          <div class="text-sm text-slate-700 mt-1">Holds intermediate results when memory is insufficient.</div>
+        </div>
+        <div class="rounded-xl bg-violet-50 p-3">
+          <div class="text-xs font-bold text-violet-700 uppercase">Result Cache</div>
+          <div class="text-sm text-slate-700 mt-1">Stores final results for identical query reuse.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Performance depends on the balance of I/O from storage, CPU and memory inside the warehouse; pick sizes that address the real bottleneck.</p>
+      </div>
+    </div>
+  </div>
+</div>

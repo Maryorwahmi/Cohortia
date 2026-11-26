@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Debug & failed_when</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Usage Pattern</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">Register → Inspect → Decide</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Register the result of a shell/command task with register: name.</li>
+          <li>Use debug: var=registered_var or debug: msg to print focused data.</li>
+          <li>Apply failed_when to convert acceptable exit codes into success conditions.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-700">Guarded debug</div>
+        <div class="text-sm text-slate-600 mt-1">Use when conditions to run debug only under a verbosity or debug flag to avoid leaking sensitive values in normal runs.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3 overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Concrete code example</div>
+        <div class="text-sm text-slate-600 mt-2">This example demonstrates registering a grep command and using failed_when to accept a return code of 1.</div>
+        <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2"><code> - name: Check for a non-existent pattern in /etc/passwd (will return rc=1)
+   ansible.builtin.shell: grep -q "non_existent_pattern_12345" /etc/passwd
+   register: grep_result
+   # Accept rc==1 as success because not finding the pattern is expected
+   failed_when: grep_result.rc != 1
+
+ - name: Debug grep result
+   ansible.builtin.debug:
+     msg: "Grep RC={{ grep_result.rc }}, stdout='{{ grep_result.stdout }}'"
+   when: grep_result is defined
+</code></pre>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use register and debug to inspect live values, and employ failed_when to codify acceptable non-zero results so playbooks continue when appropriate.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

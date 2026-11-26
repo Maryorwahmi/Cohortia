@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .kv{font-family:ui-monospace,monospace;font-size:13px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Monitoring sync state</span>
+    </div>
+    <div class="grid grid-cols-2 gap-6 h-[calc(100%-88px)]">
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Important columns</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+          <li>client_addr — standby network address.</li>
+          <li>state — streaming connection state.</li>
+          <li>sync_state — 'sync' indicates synchronous role.</li>
+          <li>sent_lsn, flush_lsn, replay_lsn — LSN progress markers to judge shipping and apply progress.</li>
+        </ul>
+        <div class="mt-4 bg-slate-50 p-3 rounded kv">
+          <div class="text-xs text-slate-600">Example query</div>
+          <pre class="mt-2"><code>SELECT client_addr, state, sync_state, sent_lsn, flush_lsn, replay_lsn
+FROM pg_stat_replication;
+</code></pre>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical alerts</div>
+        <div class="mt-3 text-sm text-slate-700">Trigger alerts when sync_state changes, when sent_lsn &gt; replay_lsn by a threshold, or when network latency spikes. These indicate standbys are behind and could increase commit times.</div>
+        <div class="mt-4 bg-amber-50 p-3 rounded">
+          <div class="text-sm text-slate-800">Misconception: seeing sync here does not guarantee low latency. Always check LSN differences to find replay or flush bottlenecks.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 bg-white rounded-xl p-3 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operational check</div>
+      <div class="text-sm text-slate-700 mt-2">If replay_lsn lags consistently, investigate standby I/O, CPU, or heavy read queries that interfere with WAL replay.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

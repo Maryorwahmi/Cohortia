@@ -1,0 +1,26 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');body{font-family:'Inter',sans-serif;}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.2</span><span>›</span><span class="text-slate-700">Web Server Protection</span></div><div class="flex flex-col lg:flex-row flex-grow gap-6"><div class="flex-1 flex flex-col justify-between p-6 bg-white rounded-2xl shadow-lg border border-slate-200"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Hands-on Scenario</div><h2 class="text-2xl font-bold text-slate-900 mb-2">Securing a Web Server with AFM Rules</h2><p class="text-base text-slate-700">A step-by-step `tmsh` walkthrough for policy configuration.</p></div><div class="space-y-4 mb-6"><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Task 1: Create Rule List</div><p class="text-xs font-medium text-slate-800">`tmsh create /security firewall rule-list web_server_protection_rules`</p></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Task 2: Allow HTTP/HTTPS</div><p class="text-xs font-medium text-slate-800">Allow TCP 80/443 from any source to your Virtual Server IP (e.g., 10.1.10.10).</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Task 3: Deny All Other</div><p class="text-xs font-medium text-slate-800">Add a default rule to drop all other traffic (order 2).</p></div><div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Task 4: Apply to Virtual Server</div><p class="text-xs font-medium text-slate-800">`tmsh modify /ltm virtual my_http_vs { firewall-policy /Common/web_server_protection_rules }`</p></div></div><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Verification</div><p class="text-xs font-medium text-slate-800">Test HTTP/HTTPS access, then attempt a non-standard port (e.g., SSH) to confirm blocking.</p></div></div><div class="flex-1 flex flex-col justify-between p-6 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 text-white font-mono text-sm overflow-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">`tmsh` Commands</div><pre class="whitespace-pre-wrap text-xs leading-relaxed"><code style="tab-size: 2;"># Assume your Virtual Server IP is 10.1.10.10, and you want to protect it.
+
+# 1. Create a firewall rule list
+tmsh create /security firewall rule-list web_server_protection_rules
+
+# 2. Add a rule to allow HTTP/HTTPS to the Virtual Server
+tmsh create /security firewall rule web_server_protection_rules/allow_web_traffic { \
+    action accept \
+    destination { addresses add { 10.1.10.10 } ports add { 80 443 } } \
+    ip-protocol tcp \
+    order 1 \
+    source { addresses add { any } } \
+}
+
+# 3. Add a default rule to drop all other traffic
+tmsh create /security firewall rule web_server_protection_rules/deny_all_other { \
+    action drop \
+    order 2 \
+    source { addresses add { any } } \
+    destination { addresses add { any } } \
+}
+
+# 4. Apply the rule list to an existing Virtual Server (replace my_http_vs with your VS name)
+tmsh modify /ltm virtual my_http_vs { firewall-policy /Common/web_server_protection_rules }
+
+tmsh save /sys config</code></pre></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

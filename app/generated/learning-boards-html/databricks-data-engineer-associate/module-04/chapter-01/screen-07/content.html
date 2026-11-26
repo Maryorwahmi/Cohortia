@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Inspecting history and version numbers</div>
+      <div class="text-sm text-slate-600 mb-4">How to locate a version or timestamp you can time travel to and restore from.</div>
+      <div class="rounded-lg bg-white p-3 card-border mb-3">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Example SQL</div>
+        <pre><code>DESCRIBE HISTORY my_delta_table;
+
+-- Pick a version from the output and then query:
+SELECT * FROM my_delta_table VERSION AS OF 5;
+
+-- Or use a timestamp:
+SELECT * FROM my_delta_table TIMESTAMP AS OF '2023-10-26 10:00:00';</code></pre>
+      </div>
+      <div class="rounded-lg bg-blue-50 p-3">
+        <div class="text-xs font-semibold uppercase tracking-wider text-blue-700">Why this matters</div>
+        <div class="text-xs text-slate-700 mt-2">DESCRIBE HISTORY is the discovery step that makes time travel and restores precise and auditable.</div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Practical tips</div>
+      <ul class="text-xs text-slate-700 list-disc pl-4">
+        <li>Version numbers are per table and start at zero.</li>
+        <li>Use commit timestamps when versions are unclear or if you prefer time-based recovery.</li>
+        <li>Check retention and recent VACUUM activity if older versions are missing.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">DESCRIBE HISTORY gives the metadata you need to target safe time travel and restore operations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

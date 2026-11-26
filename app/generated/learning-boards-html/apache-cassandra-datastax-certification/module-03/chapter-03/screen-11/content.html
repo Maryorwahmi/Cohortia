@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step 1 — Insert a blog post</div>
+      <div class="text-sm text-slate-600 mt-2">Generate UUIDs for post_id and author_id and use toTimestamp(now()) for publication_date.</div>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre style="white-space:pre-wrap; tab-size:2;">USE user_profiles;
+
+INSERT INTO blog_posts (post_id, title, content, author_id, publication_date)
+VALUES (/* generate a UUID here */, 'My First Blog Post', 'This is the exciting content of my first blog post.', /* generate another UUID here */, toTimestamp(now()));</pre>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border card-border">
+        <div class="text-sm text-slate-600">Record the post_id for the next steps.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step 2 — Insert comments</div>
+      <div class="text-sm text-slate-600 mt-2">Use now() for TIMEUUID comment_id to preserve ordering of comments.</div>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre style="white-space:pre-wrap; tab-size:2;">INSERT INTO post_comments (post_id, comment_id, author_id, comment_text, created_at)
+VALUES (/* your_post_id */, now(), uuid(), 'Great post! Very insightful.', toTimestamp(now()));
+
+INSERT INTO post_comments (post_id, comment_id, author_id, comment_text, created_at)
+VALUES (/* your_post_id */, now(), uuid(), 'I learned a lot from this.', toTimestamp(now()));</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Step 3 — Add tags and update post</div>
+      <div class="text-sm text-slate-600 mt-2">ALTER TABLE to add tags as SET&lt;TEXT&gt;, then UPDATE to set the tags and change the title.</div>
+
+      <div class="mt-3 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre style="white-space:pre-wrap; tab-size:2;">ALTER TABLE blog_posts ADD tags SET<TEXT>;
+
+UPDATE blog_posts
+SET title = 'My Awesome First Blog Post', tags = {'cassandra', 'nosql', 'tutorial'}
+WHERE post_id = /* your_post_id */;</pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Step 4 — Delete a comment</div>
+      <div class="text-sm text-slate-600 mt-2">Delete the chosen comment using its comment_id and the post's post_id; note that this writes a tombstone.</div>
+
+      <div class="mt-3 bg-slate-50 p-3 rounded-xl" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+        <pre style="white-space:pre-wrap; tab-size:2;">DELETE FROM post_comments
+WHERE post_id = /* your_post_id */ AND comment_id = /* actual_comment_id_to_delete */;</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Follow the steps to practice inserts, collection updates, and deletes; observe tombstones and consider TTL for ephemeral comments.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

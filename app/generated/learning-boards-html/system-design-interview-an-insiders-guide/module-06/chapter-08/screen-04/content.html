@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Chapter 6.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Robust Error Handling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col justify-start gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h2 class="text-xl font-bold text-slate-900 mt-2">Retries and DLQs together</h2>
+        <p class="mt-2 text-sm text-slate-700">Retries attempt to recover transient failures. Dead-letter queues isolate persistent failures for inspection and manual remediation.</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3">
+        <div class="rounded-xl p-3 bg-slate-50 border text-sm text-slate-700">
+          <div class="font-semibold">Why exponential backoff?</div>
+          <div class="mt-1 text-xs text-slate-600">It reduces pressure on a failing dependency by spacing retries and improving the chance of recovery.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border text-sm text-slate-700">
+          <div class="font-semibold">Common mistake</div>
+          <div class="mt-1 text-xs text-slate-600">Retrying non-transient errors indefinitely will fill logs and waste compute. Use DLQs instead.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-2xl p-4 bg-white border shadow-sm border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500">Example</div>
+        <div class="mt-2 text-sm text-slate-700">Imagine a consumer that writes to a database and the database temporarily rejects connections. The consumer retries three times with delays of 1s, 2s, and 4s. If the database is still unreachable, the message goes to the dead-letter queue. Operators see DLQ entries and inspect payloads for corruption or implement fixes before replaying.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use exponential backoff for transient errors and DLQs to isolate persistent failures so the pipeline stays healthy.</p>
+          </div>
+
+          <div class="rounded-xl p-3 bg-white border text-sm text-slate-700">
+            <div class="font-semibold">Check your understanding</div>
+            <div class="mt-1 text-xs text-slate-600">Which errors should go immediately to DLQ rather than be retried? Think about malformed payloads and validation errors.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

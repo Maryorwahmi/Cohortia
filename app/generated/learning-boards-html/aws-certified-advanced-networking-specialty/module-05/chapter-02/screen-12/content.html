@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.2</span><span>›</span><span class="text-slate-700">DNS Firewall Setup</span></div><div class="flex flex-col h-[calc(100%-4rem)]"><div class="flex-1 flex flex-col"><div class="flex items-center gap-2 mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Configuration Walkthrough</span></div><h2 class="text-3xl font-bold text-slate-900 mb-2">Implementing DNS Firewall Rules</h2><p class="text-lg text-slate-600 mb-6">Creating custom domain lists, rule groups, and associating them with your VPC.</p><div class="grid grid-cols-2 gap-6 h-full"><div class="flex flex-col gap-4"><div class="bg-slate-800 rounded-xl p-4 font-mono text-sm text-white shadow-lg flex-grow"><pre><code style="white-space: pre-wrap; tab-size: 2;"># 1. Create a custom Domain List
+aws route53resolver create-firewall-domain-list \
+    --name "MaliciousDomains" \
+    --domains "bad-site.com" "malware.net"
+
+# 2. Create a DNS Firewall Rule Group
+aws route53resolver create-firewall-rule-group \
+    --name "VPCProtection"
+
+# Add a rule to the Rule Group
+aws route53resolver update-firewall-rule-group-association \
+    --firewall-rule-group-id rslvr-fwrg-0123456789abcdef0 \
+    --firewall-rules '{"Action": "BLOCK", "FirewallDomainListId": "rslvr-fdl-0123456789abcdef0", "Priority": 100}'
+
+# 3. Associate the Rule Group with your VPC
+aws route53resolver associate-firewall-rule-group \
+    --firewall-rule-group-id rslvr-fwrg-0123456789abcdef0 \
+    --vpc-id vpc-0abcdef1234567890 \
+    --priority 100 \
+    --name "VPCProtectionAssociation"</code></pre></div><div class="flex flex-col gap-4"><div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200"><h3 class="text-base font-semibold text-slate-800 mb-2">Command Breakdown</h3><ul class="list-disc list-inside text-sm text-slate-600 space-y-1"><li>`create-firewall-domain-list`: Defines your custom list of domains.</li><li>`create-firewall-rule-group`: Creates a container for your rules.</li><li>`update-firewall-rule-group-association`: Adds a rule (e.g., BLOCK) referencing your domain list.</li><li>`associate-firewall-rule-group`: Activates the rule group for a specific VPC.</li></ul></div><div class="bg-rose-50 rounded-xl p-3 border-l-4 border-l-rose-500"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div><p class="text-xs font-medium text-slate-800">Incorrect rule priority can lead to rules not being applied as expected. Lower numbers have higher priority.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">DNS Firewall requires careful creation of domain lists, rules, and VPC associations, with priority management being key.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

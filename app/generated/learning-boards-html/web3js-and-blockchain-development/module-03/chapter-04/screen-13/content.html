@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Whitelist Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Whitelist: mapping + checks + custom errors</h3>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl p-4 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800">Core state</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc ml-4">
+          <li>owner address</li>
+          <li>maxWhitelistedAddresses (uint256)</li>
+          <li>numWhitelistedAddresses (uint256)</li>
+          <li>whitelistedAddresses mapping(address =&gt; bool)</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800">Error design</div>
+        <p class="text-sm text-slate-700 mt-2">Custom errors like MaxAddressesReached and AlreadyWhitelisted are declared for gas efficiency and clearer diagnostics when reverting.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border col-span-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Key Methods (summary)</div>
+        <div class="mt-2 grid grid-cols-3 gap-3">
+          <div class="p-3 bg-blue-50 rounded">constructor: validate max, set owner</div>
+          <div class="p-3 bg-amber-50 rounded">addAddressToWhitelist: checks, map update, count++, assert</div>
+          <div class="p-3 bg-rose-50 rounded">removeAddressFromWhitelist: check presence, unset, count--</div>
+        </div>
+      </div>
+
+      <div class="col-span-2 rounded-xl p-3 bg-emerald-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Try this in Remix</div>
+        <ol class="text-sm text-slate-800 ml-4 list-decimal mt-2">
+          <li>Deploy with _maxAddresses = 3.</li>
+          <li>Add three addresses from owner account; then attempt a fourth to observe revert.</li>
+          <li>Call add as non-owner to see NotOwner custom error from the modifier.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>

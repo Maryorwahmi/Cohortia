@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step-dot{width:36px;height:36px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RDS Read Replicas</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">How read replicas help</div>
+      <div class="text-sm text-slate-600 mt-1">Asynchronous replication reduces read pressure on the primary.</div>
+
+      <div class="mt-4 flex-1 grid gap-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="font-semibold text-slate-800">Process</div>
+          <ol class="mt-2 text-sm text-slate-700 list-decimal list-inside">
+            <li>Create read replica from primary snapshot or instance.</li>
+            <li>Modify application queries or routing layer to send read-only traffic to replicas.</li>
+            <li>Monitor ReplicaLag metric and performance.</li>
+          </ol>
+        </div>
+
+        <div class="p-3 rounded-lg bg-white border card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example scenario</div>
+          <div class="mt-2 text-sm text-slate-700">A product listing endpoint routes heavy read queries to a read replica cluster, cutting primary CPU by half during peak traffic while writes remain on the primary.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-1">Replicas scale read throughput but are eventually consistent. Use them for read-heavy workloads where a small replication lag is acceptable.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Visual: Read routing pattern</div>
+      <div class="mt-3 flex-1 rounded-lg p-4 bg-slate-50">
+        <div class="flex items-center gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-16 h-16 rounded-md bg-white flex items-center justify-center text-blue-700 card-border">Primary</div>
+            <div class="text-xs text-slate-600 mt-2">Writes & Strong Reads</div>
+          </div>
+          <div class="flex-1 border-l-2 border-dashed border-slate-200 pl-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded bg-white card-border">Replica A<br/><span class="text-xs text-slate-500">Read traffic</span></div>
+              <div class="p-3 rounded bg-white card-border">Replica B<br/><span class="text-xs text-slate-500">Read traffic</span></div>
+            </div>
+            <div class="mt-3 text-sm text-slate-600">If your application needs read-after-write consistency, ensure critical reads go to the primary or implement application validation after writes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-xs text-rose-600">Common mistake: routing writes to replicas or assuming zero replication lag; validate behavior in staging first.</div>
+    </div>
+  </div>
+</div>

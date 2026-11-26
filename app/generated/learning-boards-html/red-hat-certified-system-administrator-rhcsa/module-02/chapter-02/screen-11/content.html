@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl border p-4" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Terminal Demo</div>
+      <div class="text-sm font-bold text-slate-900 mt-2">Step-by-step commands</div>
+      <div class="mt-3">
+        <pre class="bg-slate-900 text-slate-100 rounded p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"># 1. create and set ownership
+sudo mkdir -p /project/data
+sudo chown root:developers /project/data
+
+# 2. set SGID and permissions (owner root, group developers)
+sudo chmod 2770 /project/data
+
+# 3. grant QA read+execute recursively
+sudo setfacl -R -m u:qa1:rx /project/data
+
+# 4. verify
+ls -ld /project/data
+getfacl /project/data</pre>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border p-4" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-900">Expected verification</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800">ls -ld should show drwxrws--- and an s in the group execute position, indicating SGID.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800">getfacl should list an entry for u:qa1:rx confirming QA access.</div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">Check common mistake: if nested files lack correct group, rerun chown -R before setting SGID or ACLs.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-600">Reflect: did you reduce other access while preserving developer workflow? If not, adjust group membership rather than resorting to permissive others bits.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

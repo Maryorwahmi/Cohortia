@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6.7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">XSS Filter Bypass Intro</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col space-y-4">
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Activity Objective</h3>
+        <p class="text-sm text-slate-700 mb-4">Identify a basic XSS filter and craft an XSS payload to bypass it using encoding or alternative tags to trigger an <code>alert(1)</code>.</p>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Prerequisites</h3>
+        <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+          <li>Kali Linux VM</li>
+          <li>Vulnerable web application with a basic XSS filter (e.g., DVWA Reflected XSS, Medium security, or custom PHP page)</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Bypassing XSS filters requires understanding how they operate and creatively leveraging HTML parsing quirks to execute malicious scripts.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col space-y-4">
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Scenario: Filtered Script Tag</h3>
+        <p class="text-sm text-slate-700 mb-4">You've found a reflected XSS vulnerability, but the application filters out the <code>&lt;script&gt;</code> tag. Your goal is to make an <code>alert(1)</code> pop up.</p>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Initial Attempt &amp; Observation</h3>
+        <div class="bg-slate-800 text-white p-4 rounded-lg font-mono text-xs mb-4" style="white-space: pre-wrap; tab-size: 2;">
+          <span class="text-gray-500">// PHP filter example:</span>
+          <span class="text-blue-400">$input = str_replace('&lt;script&gt;', '', $_GET['param']);</span>
+          <span class="text-gray-500">// ... then $input is reflected in HTML</span>
+
+          <span class="text-gray-500">// Your payload attempt:</span>
+          <span class="text-yellow-400">&lt;script&gt;alert(1)&lt;/script&gt;</span>
+        </div>
+        <p class="text-sm text-slate-700">When you inject <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>, the filter removes the <code>&lt;script&gt;</code> tags, and no alert appears. This confirms the filter's presence.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Compaction</span>
+  </div>
+  <div class="flex-1 rounded-2xl bg-white shadow-sm card-border p-6 h-full flex flex-col">
+    <h3 class="text-2xl font-bold text-slate-800">Compaction: merge, reclaim, and optimize</h3>
+    <p class="text-sm text-slate-600 mt-2">Definition and operational significance for cluster health and read performance.</p>
+    <div class="flex-1 grid grid-cols-2 gap-4 mt-4 min-h-0">
+      <div class="bg-slate-50 p-4 rounded-lg card-border overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">What compaction does</div>
+        <ul class="text-sm text-slate-600 space-y-2 list-inside">
+          <li>Merges multiple SSTables into fewer files.</li>
+          <li>Removes tombstones and expired data during rewrite.</li>
+          <li>Reduces the number of files reads must scan, lowering read amplification.</li>
+          <li>Consumes I/O and CPU while running; monitor compactionstats for progress.</li>
+        </ul>
+        <div class="mt-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <div class="text-xs text-rose-700 mt-1">Forcing frequent full compactions without considering workload can spike I/O and harm availability.</div>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-lg card-border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">After a large data deletion, tombstones remain. Running a planned manual compaction rewrites SSTables without those tombstones, reclaiming disk space and improving subsequent read latency. Use nodetool compactionstats to confirm completion.</div>
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Treat compaction as a balancing act: schedule heavy compaction during low traffic and choose a compaction strategy that matches your read/write profile.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

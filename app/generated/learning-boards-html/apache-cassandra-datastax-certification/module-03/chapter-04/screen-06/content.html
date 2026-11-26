@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ALLOW FILTERING</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">ALLOW FILTERING vs model change</h3>
+      <div class="mt-3 text-sm text-slate-600">
+        <ul class="list-disc pl-4 space-y-2">
+          <li>ALLOW FILTERING: immediate, may scan many partitions, useful for small ad-hoc checks.</li>
+          <li>Schema refactor: upfront cost, returns predictable, scalable reads for production traffic.</li>
+          <li>Secondary index: middle ground for selective, low-volume queries; has write and maintenance costs.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-medium text-slate-700">Example ALLOW FILTERING</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded" style="white-space:pre-wrap;tab-size:2"><code>SELECT username, email FROM user_profiles.users
+WHERE city = 'New York' ALLOW FILTERING;</code></pre>
+      </div>
+
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why it matters</div>
+      <p class="text-sm text-slate-600 mt-3">ALLOW FILTERING can destabilize a cluster when used for production queries. It is an emergency tool, not a pattern.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Better alternatives</div>
+        <ul class="mt-2 list-disc pl-4 text-sm text-slate-600 space-y-2">
+          <li>Create a denormalized table with the desired partition key for the query pattern.</li>
+          <li>When appropriate, add a secondary index only for low-volume or low-cardinality values.</li>
+          <li>Use PER PARTITION LIMIT or LIMIT when you can bound the read size instead of scanning everything.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">ALLOW FILTERING may cause coordinator-side filtering of many partitions. Use it only for small, controlled operations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

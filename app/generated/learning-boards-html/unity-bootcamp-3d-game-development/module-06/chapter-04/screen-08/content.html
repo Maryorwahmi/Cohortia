@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Object Pooling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm overflow-hidden">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">ObjectPool.cs</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ObjectPool : MonoBehaviour
+{
+    public GameObject prefab;
+    public int poolSize = 10;
+    private Queue&lt;GameObject&gt; _pool = new Queue&lt;GameObject&gt;();
+
+    void Awake()
+    {
+        for (int i = 0; i &lt; poolSize; i++)
+        {
+            GameObject obj = Instantiate(prefab);
+            obj.transform.SetParent(this.transform);
+            obj.SetActive(false);
+            _pool.Enqueue(obj);
+        }
+    }
+
+    public GameObject GetPooledObject()
+    {
+        if (_pool.Count &gt; 0)
+        {
+            GameObject obj = _pool.Dequeue();
+            obj.SetActive(true);
+            return obj;
+        }
+        else
+        {
+            Debug.LogWarning("Pool exhausted! Instantiating new object.");
+            GameObject obj = Instantiate(prefab);
+            obj.transform.SetParent(this.transform);
+            return obj;
+        }
+    }
+
+    public void ReturnPooledObject(GameObject obj)
+    {
+        obj.SetActive(false);
+        _pool.Enqueue(obj);
+    }
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>The pool pre-instantiates objects in Awake and keeps them inactive until needed.</li>
+        <li>GetPooledObject returns an object and activates it; ReturnPooledObject deactivates and re-enqueues it.</li>
+        <li>Decide whether to expand the pool or warn if exhausted to avoid runtime surprises.</li>
+        <li>Always reset object state when borrowed to avoid leftover data from previous usage.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">Why does pooling reduce GC spikes compared to Instantiate/Destroy? Answer: it avoids repeated allocations and deallocations during gameplay.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

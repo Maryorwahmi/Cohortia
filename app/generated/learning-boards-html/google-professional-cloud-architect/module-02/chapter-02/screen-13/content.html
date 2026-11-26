@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>.cohortia-bg{background-color:#f8fafc;}.card-border{border:1px solid rgba(226,232,240,0.9);}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span><span>›</span><span>Chapter 2.2</span><span>›</span><span class="text-slate-700">Gcloud Commands</span></div><div class="flex flex-col flex-grow gap-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Command Line Interface</div><h1 class="text-3xl font-extrabold text-slate-900 leading-tight mb-3">Managing MIGs with <code class="font-mono text-blue-600">gcloud</code></h1><p class="text-base text-slate-700 mb-6">Essential commands for template, MIG, and auto-scaling configuration.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="rounded-xl bg-white p-4 card-border shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Create Instance Template</div><pre class="bg-slate-50 p-3 rounded-md text-xs text-slate-700 font-mono whitespace-pre-wrap tab-size-2"><code>gcloud compute instance-templates create my-web-app-template \
+    --machine-type=e2-medium \
+    --image-family=debian-11 \
+    --image-project=debian-cloud \
+    --tags=http-server,https-server \
+    --metadata=startup-script='#! /bin/bash
+        sudo apt-get update
+        sudo apt-get install -y apache2
+        sudo systemctl enable apache2
+        sudo systemctl start apache2
+        echo "Hello from $(hostname)" | sudo tee /var/www/html/index.html'</code></pre></div><div class="rounded-xl bg-white p-4 card-border shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Create Regional MIG</div><pre class="bg-slate-50 p-3 rounded-md text-xs text-slate-700 font-mono whitespace-pre-wrap tab-size-2"><code>gcloud compute instance-groups managed create my-web-app-mig \
+    --template=my-web-app-template \
+    --zones=us-central1-a,us-central1-b,us-central1-c \
+    --target-size=3</code></pre></div><div class="rounded-xl bg-white p-4 card-border shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Configure Auto-scaling</div><pre class="bg-slate-50 p-3 rounded-md text-xs text-slate-700 font-mono whitespace-pre-wrap tab-size-2"><code>gcloud compute instance-groups managed set-autoscaling my-web-app-mig \
+    --region=us-central1 \
+    --cool-down-period=60 \
+    --max-num-replicas=10 \
+    --min-num-replicas=3 \
+    --target-cpu-utilization=0.6</code></pre></div><div class="rounded-xl bg-white p-4 card-border shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Create Health Check</div><pre class="bg-slate-50 p-3 rounded-md text-xs text-slate-700 font-mono whitespace-pre-wrap tab-size-2"><code>gcloud compute health-checks create http my-web-app-health-check \
+    --request-path=/ \
+    --port=80 \
+    --check-interval=5s \
+    --timeout=5s \
+    --unhealthy-threshold=2 \
+    --healthy-threshold=2</code></pre></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">The `gcloud` CLI provides powerful commands for programmatic management of MIGs, instance templates, auto-scaling, and health checks, ensuring consistent and automated infrastructure deployment.</p></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

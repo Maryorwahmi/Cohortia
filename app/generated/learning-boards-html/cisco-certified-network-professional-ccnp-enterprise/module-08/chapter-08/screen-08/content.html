@@ -1,0 +1,84 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:linear-gradient(180deg,#f8fafc, #ffffff);} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h2 class="text-2xl font-bold text-slate-800">Network Testing Types</h2>
+      <div class="text-sm text-slate-600 mt-1">Why each test stage matters and how it prevents risky deployments.</div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="rounded-md bg-blue-50 text-blue-700 px-3 py-2 text-xs font-bold">In this lesson</div>
+      <div class="rounded-md bg-amber-50 text-amber-700 px-3 py-2 text-xs font-bold">Coming up: lab validation</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <!-- Left: explanation cards ~45% -->
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white card shadow-sm flex-1 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Test Types</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li><strong>Syntax validation:</strong> Parse YAML/templating to catch formatting or templating errors before device interaction.</li>
+          <li><strong>Idempotency checks:</strong> Run playbooks in dry-run mode to ensure repeated runs converge without unintended changes.</li>
+          <li><strong>Pre-flight checks:</strong> Verify device reachability, available resources, and current state before applying changes.</li>
+          <li><strong>Post-change validation:</strong> Execute show commands or API queries to confirm the desired state was reached.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-4 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">A layered test strategy reduces blast radius. Start with syntax checks and a dry run, then add device validations.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Concrete Example</div>
+        <pre class="code bg-slate-50 p-2 rounded text-sm">ansible-playbook site.yml --check
+# run linting before executing actual deploy
+# sample post-check: run a show command via automation to verify interface status
+# example verification (human readable): show ip interface brief</pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-sm text-slate-800">Relying only on one type of test. Syntax passing does not guarantee correct device state or idempotent changes.</p>
+      </div>
+    </div>
+
+    <!-- Right: large diagram/list ~55% -->
+    <div class="w-7/12 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm flex-1 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Testing Flow</div>
+        <div class="flex gap-3 h-full">
+          <div class="w-1/2 flex flex-col gap-3">
+            <div class="rounded-lg p-3 bg-blue-50 text-blue-700">1 — Syntax & linting</div>
+            <div class="rounded-lg p-3 bg-violet-50 text-violet-700">2 — Dry-run / Idempotency</div>
+            <div class="rounded-lg p-3 bg-amber-50 text-amber-700">3 — Pre-flight checks</div>
+            <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700">4 — Post-deploy validation</div>
+          </div>
+          <div class="w-1/2 bg-slate-50 p-3 rounded overflow-auto">
+            <div class="text-sm text-slate-700 mb-2">Each stage produces artifacts for the pipeline: lint logs, dry-run diffs, pre-flight status reports, and validation results. The pipeline should fail early and provide readable output so engineers can act quickly.</div>
+            <div class="rounded-lg p-2 bg-white border card">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Verification Example</div>
+              <pre class="code mt-2"># Post-deploy check example (human readable command output)
+show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet1/0/1   192.168.1.1     YES manual up                    up
+GigabitEthernet1/0/2   unassigned      YES unset  administratively down down</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <div class="flex-1 rounded-xl p-3 bg-white card">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pro Tip</div>
+          <p class="text-sm text-slate-700">Keep test outputs machine-readable so later pipeline stages can parse pass/fail conditions automatically.</p>
+        </div>
+        <div class="w-1/3 rounded-xl p-3 bg-white card">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Check</div>
+          <p class="text-sm text-slate-700">Which test will catch a misplaced indent in a Jinja template? Syntax validation and linting will.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

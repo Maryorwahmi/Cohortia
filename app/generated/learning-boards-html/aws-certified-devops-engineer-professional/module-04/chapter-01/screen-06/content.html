@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:14px;border:1px solid rgba(226,232,240,0.9);background:#fff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5">
+      <div class="card p-4 h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Run Command steps</h3>
+
+        <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>Choose a command document such as AWS-RunShellScript.</li>
+          <li>Provide the shell or PowerShell script to execute.</li>
+          <li>Select target instances by tags or manually.</li>
+          <li>Run with rate controls if needed and monitor output per instance.</li>
+        </ol>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+          <p class="text-sm text-slate-700 mt-2">Run Command is not an interactive shell. It executes provided commands and returns their output for inspection.</p>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common-mistake</div>
+          <p class="text-sm text-slate-700 mt-2">Running untested commands at fleet scale without rate limits can produce widespread failures.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 flex flex-col">
+      <div class="card p-4 flex-grow">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <pre class="mt-3 p-3 rounded-md bg-slate-50 border border-slate-100">#!/bin/bash
+echo "Hello from SSM Run Command on $(hostname)!" &gt; /tmp/ssm_hello.txt
+cat /tmp/ssm_hello.txt
+ls -l /tmp/ssm_hello.txt
+</pre>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-amber-50">
+            <div class="text-sm font-semibold text-amber-700">What to observe</div>
+            <p class="text-xs text-slate-700 mt-1">Per-instance output includes printed lines and file listing. Command status shows Success or Failed.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-emerald-50">
+            <div class="text-sm font-semibold text-emerald-700">Safety tip</div>
+            <p class="text-xs text-slate-700 mt-1">Run in staging first, then apply rate controls and thresholds when scaling to production.</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-2">Use Run Command for repeatable, auditable, remote execution with structured outputs and status for each host.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

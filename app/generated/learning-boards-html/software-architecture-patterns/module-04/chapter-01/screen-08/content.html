@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800">Primary teaching visual</div>
+      <div class="mt-3 text-sm text-slate-600">A clear split: fetchProducts, renderProducts, and submit handler that delegates to addProduct.</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>&lt;!-- simplified visual example, &lt; and &gt; are escaped for clarity --&gt;
+
+async function fetchProducts() {
+  const response = await fetch('/api/products');
+  const products = await response.json();
+  return products;
+}
+
+function renderProducts(products) {
+  const list = document.getElementById('productList');
+  list.innerHTML = '';
+  products.forEach(p =&gt; {
+    const item = document.createElement('div');
+    item.className = 'product-item';
+    item.textContent = `${p.name} - $${p.price.toFixed(2)}`;
+    list.appendChild(item);
+  });
+}
+
+async function handleAdd(event) {
+  event.preventDefault();
+  const name = document.getElementById('productName').value;
+  const price = parseFloat(document.getElementById('productPrice').value);
+
+  // delegate to application layer
+  const ok = await addProduct({ name, price });
+  if (ok) await fetchProductsAndRender();
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Supporting notes</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-4 space-y-2">
+        <li>Keep fetch logic independent so you can stub it in tests.</li>
+        <li>Render functions should accept data and output UI without side effects beyond the DOM.</li>
+        <li>Submit handlers should collect input and delegate business work to the application layer.</li>
+      </ul>
+
+      <div class="mt-auto rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Exercise</div>
+        <div class="text-sm text-slate-700 mt-1">Refactor one event handler: extract data access into a fetcher and a separate function for rendering. Run a manual test to confirm behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

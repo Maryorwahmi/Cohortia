@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .term{background:#071026;color:#dbeafe;padding:12px;border-radius:8px;font-family:ui-monospace,monospace;font-size:13px;white-space:pre-wrap;tab-size:2;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab — Two Virtual Hosts</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Server steps</div>
+      <pre class="term"># create document roots
+sudo mkdir -p /var/www/site1.local/html
+sudo mkdir -p /var/www/site2.local/html
+
+# set ownership (RHEL example)
+sudo chown -R apache:apache /var/www/site1.local
+sudo chown -R apache:apache /var/www/site2.local
+
+# create simple index.html files and add VirtualHost files then test
+sudo apachectl configtest
+sudo systemctl reload httpd</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Client steps</div>
+      <div class="mt-2 text-sm text-slate-700">Add to /etc/hosts on your client machine:</div>
+      <pre class="term">192.0.2.10 site1.local
+192.0.2.10 site2.local</pre>
+      <div class="mt-2 text-sm text-slate-700">Then open http://site1.local and http://site2.local in the browser to confirm separate content.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">This lab demonstrates how document roots, VirtualHost files, ownership, and hosts file mapping create an end-to-end multi-site setup on one server.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

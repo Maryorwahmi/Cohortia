@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="h-full flex gap-4">
+    <div class="w-2/3 rounded-xl bg-white border border-slate-100 p-4 shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">For loops and counters</div>
+      <div class="text-sm text-slate-600 mt-2">Init, condition, body, update — built from VM primitives.</div>
+
+      <div class="mt-4 rounded-lg border border-slate-100 p-3 bg-white">
+        <div class="text-sm font-semibold text-slate-800">VM pattern</div>
+        <pre class="mt-2 text-sm text-slate-700" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">push constant N
+pop local 0     // initialize counter
+label LOOP
+push local 0
+push constant LIMIT
+lt
+if-goto LOOP_END
+// body
+... 
+// update counter
+push local 0
+push constant 1
+add
+pop local 0
+goto LOOP
+label LOOP_END</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">When translating, pay attention to which comparison operator the high-level language expects. Off-by-one errors often come from using lt versus le. Test with small bounds and check that the number of iterations matches the intended semantics.</div>
+    </div>
+
+    <div class="w-1/3 rounded-xl bg-white border border-slate-100 p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Practical tip</div>
+      <div class="text-sm text-slate-700 mt-2">Start with limits like 0,1,2 to validate corner cases. Use the simulator to check whether the loop runs the expected number of times and whether counter updates are applied correctly.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">For loops are implemented by the same three VM primitives. Accurate tests and careful comparison choices avoid off-by-one bugs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

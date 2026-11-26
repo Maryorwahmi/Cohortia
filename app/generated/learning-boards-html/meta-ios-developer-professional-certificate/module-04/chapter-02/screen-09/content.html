@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo;}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Lifecycle</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Detecting accidental re-creation</div>
+      <div class="text-sm text-slate-600 mt-3">Use init/deinit print statements to observe when models are created and destroyed during UI interactions.</div>
+
+      <div class="mt-4 mono bg-slate-50 p-3 rounded-lg" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>init() { print("GameManager initialized") }
+deinit { print("GameManager deinitialized") }</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-sm font-bold text-rose-700">What repeated init means</div>
+          <div class="text-sm text-slate-800 mt-1">A view is recreating the object on re-evaluation, likely due to incorrect wrapper or placement.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-emerald-50 mt-3">
+          <div class="text-sm font-bold text-emerald-700">Fix</div>
+          <div class="text-sm text-slate-800 mt-1">Move initialization to an owning view using @StateObject or keep a single shared source for the model.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-700">Real-world triggers</div>
+      <ul class="list-disc ml-5 mt-2 text-sm text-slate-600">
+        <li>Parent state changes that re-evaluate child views</li>
+        <li>Navigation push/pop that reconstructs screens</li>
+        <li>Switching tabs that recreate the content view</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Logs reveal ownership mistakes; use @StateObject for creators and @ObservedObject for observers.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

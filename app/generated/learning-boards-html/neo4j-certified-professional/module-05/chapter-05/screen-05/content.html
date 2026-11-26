@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--amber:#f5a623} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Read Replicas</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Read replica pattern</h3>
+      <p class="mt-3 text-sm text-slate-600">Cores handle writes and consensus; replicas receive updates and serve reads to scale throughput.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="font-semibold text-slate-800">Deploy cores</div>
+            <div class="text-sm text-slate-600">Maintain a minimal core quorum to accept writes and preserve availability.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="font-semibold text-slate-800">Add read replicas</div>
+            <div class="text-sm text-slate-600">Replicas subscribe to cores and serve read queries to increase throughput.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="font-semibold text-slate-800">Monitor lag</div>
+            <div class="text-sm text-slate-600">Watch replication delay to ensure SLAs for freshness are met.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">Remember: replicas scale reads efficiently, but writes still go to cores, so plan core sizing based on write load.</div>
+    </div>
+
+    <div class="w-3/5 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <div class="mt-2 text-sm text-slate-600">For a 90% read and 10% write application, deploy three core servers for quorum and scale read replicas to meet read throughput demands. Route read queries to replicas and writes to cores.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex gap-4">
+        <div class="w-1/2">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Common misconception</div>
+          <div class="mt-2 text-sm text-rose-600">Assuming replicas are instant copies. They may lag and so very recent writes could be slightly stale on replicas.</div>
+        </div>
+        <div class="w-1/2">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Pro tip</div>
+          <div class="mt-2 text-sm text-slate-800">For read-heavy workloads prefer many modest replicas rather than one oversized replica; this distributes load and reduces single-node bottlenecks.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Read replicas are the primary, low-complexity method to scale read throughput in Neo4j Causal Clusters; monitor replication lag.</p>
+      </div>
+    </div>
+  </div>
+</div>

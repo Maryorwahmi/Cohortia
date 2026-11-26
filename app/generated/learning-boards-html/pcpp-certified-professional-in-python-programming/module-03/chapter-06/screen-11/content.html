@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Sensor monitoring lab</span>
+    </div>
+
+    <div class="flex h-[78%] gap-6">
+      <div class="w-1/2 h-full">
+        <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+          <div class="text-sm font-bold text-slate-800">Starter code highlights</div>
+          <pre class="mono mt-3 text-sm bg-slate-50 p-3 rounded h-full overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>class AbstractSensor(ABC):
+  def __init__(self):
+    self._observers = []
+    self._value = 0.0
+
+  def attach(self, observer: Observer):
+    if observer not in self._observers:
+      self._observers.append(observer)
+
+  def _notify(self):
+    for observer in self._observers:
+      observer.update(self, self._value)
+
+  @property
+  def value(self) -> float:
+    return self._value
+
+  @value.setter
+  def value(self, new_value: float):
+    if self._value != new_value:
+      self._value = new_value
+      self._notify()</code></pre>
+        </div>
+      </div>
+
+      <div class="w-1/2 h-full flex flex-col gap-4">
+        <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-1/2">
+          <div class="text-sm font-bold text-slate-800">Concrete observers</div>
+          <div class="mt-3 text-sm text-slate-700">ConsoleDisplay prints the value; GraphDisplay simulates plotting with timestamps; Logger appends readings to a file. Attach them to a RandomSensor and generate values to observe behavior.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3 h-1/2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Run checklist</div>
+          <ol class="ml-4 text-xs text-slate-800 list-decimal mt-2">
+            <li>Attach three observers and simulate three readings.</li>
+            <li>Detach one observer and confirm it stops receiving updates.</li>
+            <li>Inspect a log file or list to confirm Logger entries.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

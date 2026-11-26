@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">gc.log — diagnosing JVM pauses</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">gc.log</h3>
+      <p class="text-sm text-slate-600 mt-3">Records garbage collection cycles: type, memory reclaimed, heap sizes, and pause durations that impact Cassandra latency.</p>
+
+      <div class="mt-4 overflow-auto">
+        <div class="rounded-lg bg-slate-50 p-4 card-border h-56 overflow-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Sample lines</div>
+          <div class="text-sm text-slate-700 leading-relaxed">
+            <div class="mb-2">[Full GC (Allocation Failure) 100M-&gt;10M(200M), 2.543 secs]</div>
+            <div class="mb-2">[GC pause (G1 Evacuation Pause) 20ms] Young collection statistics...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">What it means</div>
+        <p class="text-sm text-slate-600 mt-2">Full GC entries with multi-second pauses are stop-the-world events that block Cassandra threads and cause client timeouts.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Remedies</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 mt-2">
+          <li>Review heap settings (-Xmx) and GC algorithm choices.</li>
+          <li>Tune GC parameters or consider more nodes to reduce per-node pressure.</li>
+          <li>Investigate memory leaks or heavy allocations in application UDFs or UDA.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">gc.log gives the evidence you need to decide whether to tune heap, GC settings, or scale out.</p>
+      </div>
+    </div>
+  </div>
+</div>

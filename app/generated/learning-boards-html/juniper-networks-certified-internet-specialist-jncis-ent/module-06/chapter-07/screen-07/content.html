@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 6.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Routes Not Advertised</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Prove what you are sending</h3>
+      <p class="text-sm text-slate-600 mt-2">show route advertising-protocol bgp &lt;neighbor-ip&gt; reveals the routes your router offers. If a route is missing, verify route existence, export policy, and address-family configuration.</p>
+
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li>Confirm prefix exists: show route &lt;prefix&gt;</li>
+        <li>Test export policy: test policy &lt;policy-name&gt; &lt;route-to-test&gt;</li>
+        <li>Check family: ensure family inet unicast is set for the BGP group.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Assuming a network statement advertises a prefix even if the route is absent from inet.0 or blocked by export policy.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4 bg-white border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Terminal Demo</div>
+      <pre class="mono bg-slate-50 p-3 mt-3 rounded-md" style="white-space: pre-wrap; tab-size: 2;">show route advertising-protocol bgp 10.0.0.2
+# If 192.168.20.0/24 not listed
+show route 192.168.20.0/24
+show policy policy-statement EXPORT-TO-ISP
+test policy EXPORT-TO-ISP 192.168.20.0/24
+</pre>
+      <div class="mt-3 p-3 rounded-lg bg-white border">
+        <div class="text-sm font-semibold text-slate-800">Concrete fix</div>
+        <div class="text-sm text-slate-600 mt-2">If route missing from inet.0, ensure network statement or IGP installs it. If export policy denies it, update the policy and re-check advertising-protocol output.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

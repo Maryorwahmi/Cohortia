@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Scenario</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter rules and commands</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Define management subnet
+define management_subnet = { 192.168.10.0/24 }
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+        iif "lo" accept
+        ct state { established, related } accept
+        ip saddr $management_subnet tcp dport 22 accept
+        tcp dport { 80, 443 } accept
+    }
+}
+
+table ip nat {
+    chain prerouting {
+        type nat hook prerouting priority -100; policy accept;
+        iifname "eth0" tcp dport 80 dnat to 192.168.50.100:80
+    }
+
+    chain postrouting {
+        type nat hook postrouting priority 100; policy accept;
+        oifname "eth0" ip saddr 192.168.50.0/24 masquerade
+    }
+}
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Verification and SELinux steps</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>- Load the file with nft -f and check nft list ruleset for the expected tables and chains.</div>
+        <div>- Enable IP forwarding: set net.ipv4.ip_forward to one and persist it in /etc/sysctl.d.</div>
+        <div>- If using standard ports no semanage change is needed. To add a non-standard port, use semanage port -a -t http_port_t -p tcp 8080.</div>
+        <div>- Turn on httpd network database access with setsebool -P httpd_can_network_connect_db on when required.</div>
+      </div>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Final check</div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Test and verify traffic paths, SELinux contexts, and persistence before declaring the deployment complete.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

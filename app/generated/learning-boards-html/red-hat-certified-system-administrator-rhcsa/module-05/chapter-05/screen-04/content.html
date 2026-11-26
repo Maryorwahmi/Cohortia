@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-700">Load Average</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900 mt-2">Interpreting uptime and load averages</div>
+    <div class="text-sm text-slate-600 mt-1">Relate averages to core count and check for I/O waits before concluding the issue is CPU.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Definition</div>
+      <p class="text-sm text-slate-600 mt-2">Load average is the average number of processes runnable or waiting for CPU over 1, 5, and 15 minutes. It counts both running and waiting processes, including those blocked on I/O.</p>
+
+      <div class="mt-4 text-sm font-bold text-slate-700">Common misconception</div>
+      <p class="text-sm text-slate-600 mt-2">High load does not always mean CPU usage; blocked processes waiting on disk or network also increase the run queue.</p>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always compare load averages to CPU core count and correlate with iostat or top to find the underlying cause.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example: uptime output</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded text-sm mt-2" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+  10:32:14 up 12 days,  3:14,  2 users,  load average: 2.10, 1.80, 1.25
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">If this system has two CPU cores, a 2.10 1-minute load is a sign of sustained saturation. If iostat shows high %util for disks, the queued processes may be waiting on storage instead.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check with top</div>
+          <div class="text-sm text-slate-700 mt-1">Observe per-process CPU and the CPU% column to see if one process drives the load.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check with iostat</div>
+          <div class="text-sm text-slate-700 mt-1">If disk %util is high, the load may be I/O-bound rather than compute-bound.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

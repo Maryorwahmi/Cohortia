@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Add Hosts & OSDs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl p-5 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Adding hosts and provisioning OSDs with cephadm</div>
+      <div class="text-sm text-slate-600 mt-2">The typical orchestration flow to register nodes and deploy OSD containers.</div>
+
+      <div class="mt-4 text-sm text-slate-700 flex-1">
+        <ol class="list-decimal pl-5 space-y-3">
+          <li>Run sudo cephadm add-host &lt;hostname&gt; for each node you want to manage.</li>
+          <li>Confirm SSH connectivity using cephadm's key and ensure sudo privileges are available.</li>
+          <li>Inspect disks with lsblk -f and fdisk -l to find raw devices.</li>
+          <li>Run sudo cephadm shell -- ceph orch apply osd --all-available-devices to provision OSDs.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border border-amber-100">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-mistake</div>
+          <div class="text-sm text-rose-700">Trying to provision disks that contain partitions or that are part of RAID arrays; cephadm will skip them.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl p-5 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Troubleshooting steps</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4">
+        <li>On the candidate host run: lsblk -f and fdisk -l /dev/sdX to inspect devices.</li>
+        <li>If partitions exist: wipefs -a /dev/sdX or sgdisk --zap-all /dev/sdX to clear signatures.</li>
+        <li>Verify SSH access: sudo cephadm shell -- ssh &lt;new_host&gt; 'ls' and check logs if denied.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-600">These checks explain why the orchestration may report "No new devices found" and how to resolve it safely.</div>
+    </div>
+  </div>
+</div>

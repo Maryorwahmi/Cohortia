@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Architecture</div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800">Proxy responsibilities</h3>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+        <li>Store persistent state (balances, config).</li>
+        <li>Keep a pointer to the implementation address.</li>
+        <li>Forward calls using delegatecall and return results.</li>
+      </ul>
+
+      <div class="mt-4">
+        <h3 class="text-lg font-bold text-slate-800">Implementation responsibilities</h3>
+        <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+          <li>Contain business logic: transfers, minting, and application rules.</li>
+          <li>Assume it operates on proxy storage layout when executed via delegatecall.</li>
+          <li>Optionally include upgrade authorization hooks for UUPS.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Example call path</div>
+      <div class="mt-3 text-sm text-slate-600">User -> proxy address; proxy delegatecalls implementation; implementation runs logic that modifies proxy storage; proxy returns result. Because delegatecall preserves msg.sender, the implementation sees the user as the caller.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Analogy</div>
+        <div class="text-sm text-slate-600 mt-2">Think of the proxy as a safe deposit box holding account data, and implementation contracts as different vault managers whose rules operate on the same contents.</div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Clear separation of state and logic is flexible but requires strict alignment of storage layout and upgrade authority rules.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

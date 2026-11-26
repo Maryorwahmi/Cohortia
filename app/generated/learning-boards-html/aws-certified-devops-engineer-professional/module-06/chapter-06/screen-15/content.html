@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Athena & CloudTrail</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-4 border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Step 1: Confirm CloudTrail to S3</div>
+      <div class="text-sm text-slate-700 mt-2">Verify your trail delivers logs to an S3 prefix you control and that Athena can access that bucket.</div>
+      <div class="text-sm font-semibold text-slate-800 mt-4">Step 2: Create Athena table</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>CREATE EXTERNAL TABLE cloudtrail_logs (
+  eventVersion STRING,
+  userIdentity STRUCT<type:STRING, principalId:STRING, arn:STRING, accountId:STRING, userName:STRING>,
+  eventTime STRING,
+  eventName STRING,
+  sourceIPAddress STRING,
+  requestParameters STRING
+)
+ROW FORMAT SERDE 'com.amazon.emr.hive.serde.CloudTrailSerde'
+LOCATION 's3://your-cloudtrail-bucket/AWSLogs/<ACCOUNT_ID>/CloudTrail/<REGION>/';</code></pre>
+    </div>
+    <div class="bg-white rounded-2xl p-4 border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Step 3: Simulate an action (CLI)</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>aws ec2 stop-instances --instance-ids i-0123456789abcdef0</code></pre>
+      <div class="text-sm font-semibold text-slate-800 mt-4">Step 4: Query Athena to find the event</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>SELECT eventTime, userIdentity.userName, sourceIPAddress, requestParameters
+FROM cloudtrail_logs
+WHERE eventName = 'StopInstances'
+ORDER BY eventTime DESC
+LIMIT 10;</code></pre>
+      <div class="text-sm text-slate-600 mt-3">Include these queries in your post-mortem report and link to the S3 objects used as evidence.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

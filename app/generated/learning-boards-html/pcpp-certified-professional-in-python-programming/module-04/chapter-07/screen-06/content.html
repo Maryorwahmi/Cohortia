@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Core Concept</span>
+      <span class="text-slate-600">ProcessPoolExecutor</span>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">ProcessPoolExecutor for CPU-bound work</h3>
+    <p class="text-sm text-slate-600 mt-1">Run CPU-heavy tasks in separate processes to use multiple cores.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example: sum of squares</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+    results = list(executor.map(cpu_intensive_calculation, numbers_to_process))</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Using map returns results in submission order and is concise for batch CPU work. Measure total elapsed time to confirm speedup over a serial loop.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical considerations</div>
+      <ul class="mt-2 list-disc ml-5 text-sm text-slate-600">
+        <li>Protect process entry with if __name__ == "__main__" to avoid child process re-execution.</li>
+        <li>Arguments and returns must be picklable; avoid passing open sockets or complex local objects.</li>
+        <li>Process startup and IPC add overhead; prefer coarser-grained tasks for processes.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Forgetting the if __name__ guard can cause infinite process spawning on some platforms.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

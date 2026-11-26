@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cmd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; white-space: pre-wrap; tab-size:2; }</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>Prepare the primary</span>
+    </div>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Essential postgresql.conf edits</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># On the primary server, edit postgresql.conf
+wal_level = replica       # minimal, replica, or logical
+archive_mode = on         # enables archiving
+archive_command = 'cp %p /mnt/server/archived_wal/%f'
+max_wal_senders = 10      # number of walsender processes</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Follow-up steps:</div>
+      <ul class='mt-2 text-sm text-slate-600 space-y-2'>
+        <li>Test archive_command manually to ensure it will not block WAL writes.</li>
+        <li>Plan a restart: some parameters need a full cluster restart to apply.</li>
+        <li>Adjust max_wal_senders to match the number of intended standbys and backup streams.</li>
+      </ul>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>wal_level must be replica and the server restarted; archive_mode is optional but recommended for PITR and additional recovery safety.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Why each setting matters</div>
+      <div class='space-y-3 text-sm text-slate-700'>
+        <div><strong>wal_level</strong> determines how much information is written to WAL. Without replica, the standby cannot replay all changes.</div>
+        <div><strong>archive_mode &amp; archive_command</strong> let you keep WAL files off-host for point-in-time recovery and to rebuild standbys from archived WAL if needed.</div>
+        <div><strong>max_wal_senders</strong> limits the number of concurrent streaming connections and affects capacity planning.</div>
+      </div>
+
+      <div class='mt-4 text-sm text-slate-700'>Common mistake: running a configuration reload instead of a full restart after changing wal_level. Confirm with the server logs that wal_level has the expected value after restart.</div>
+
+      <div class='mt-4 text-sm text-slate-600'>Try this check after restart:</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'># In psql on primary
+SHOW wal_level;</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

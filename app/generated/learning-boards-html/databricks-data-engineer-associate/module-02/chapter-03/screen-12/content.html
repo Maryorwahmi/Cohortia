@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Table registration & Schema Strategy</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">Registering tables</div>
+      <div class="text-sm text-slate-700 mt-3">After writing data to a Delta path, register it in the metastore to provide a named table for SQL access and governance. This is often desirable for shared analytics and access control.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Example</div>
+        <pre class="mt-2 text-sm bg-white p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Register a path as a metastore table
+spark.sql(f"CREATE TABLE IF NOT EXISTS products_delta USING DELTA LOCATION '{'/delta/products_delta'}'")
+        </pre>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-5 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-lg font-bold text-slate-800">Schema strategy</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Plan schema changes and document allowed evolutions.</li>
+        <li>Use mergeSchema or ALTER TABLE only when changes are reviewed and compatible.</li>
+        <li>Validate incoming data against schema before accepting writes in production.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Governance tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use DESCRIBE HISTORY and versioned reads for audits, and include schema checks in CI to prevent accidental mismatches.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat registration and schema evolution as governance decisions. Explicit control prevents production surprises.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

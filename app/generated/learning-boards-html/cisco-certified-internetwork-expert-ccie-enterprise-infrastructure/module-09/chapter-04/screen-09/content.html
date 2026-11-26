@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .step{background:#ffffff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;padding:12px;} .arrow{font-size:18px;color:#2563eb}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Reaction Triggers and Alerts</div>
+    <div class="text-sm text-slate-600 mt-2">Define how the system notifies operators when probes exceed thresholds.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 flex flex-col justify-between">
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Configure reaction</div>
+        <pre class="mt-3"><code>&excl; Configure a reaction to operation 1 (ICMP Echo)
+ip sla reaction-configuration 1 react rtt threshold-type consecutive 3 action-type trapOnly
+! trapOnly sends an SNMP trap. log writes to syslog. trapAndLog does both.</code></pre>
+      </div>
+
+      <div class="flex items-center mt-4 gap-3">
+        <div class="rounded-xl p-3 bg-amber-50 border border-amber-100 w-1/2">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Practical note</div>
+          <div class="text-xs text-slate-700 mt-1">Use consecutive counts to avoid flapping alerts from transient issues.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-violet-50 border border-violet-100 w-1/2">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Misconception</div>
+          <div class="text-xs text-slate-700 mt-1">Reactions notify; they do not automatically change routing. Use track objects for that purpose.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Outcome</div>
+      <div class="text-xs text-slate-600 mt-2">After the configured consecutive violations, the system will send the chosen notification, enabling automation or operator action.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use reaction-configuration for notifications and pair with tracking objects to perform state-based failover or routing changes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

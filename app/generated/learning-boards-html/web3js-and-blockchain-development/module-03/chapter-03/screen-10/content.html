@@ -1,0 +1,83 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">TokenGating lab walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl p-4 bg-white border overflow-auto" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-800">Starter code steps</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded-md" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; tab-size: 2;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TokenGating {
+    address public owner;
+    mapping(address => bool) public hasAccess; // Tracks who has access
+
+    // Event to log when access is granted
+    event AccessGranted(address indexed _user, address indexed _granter, uint256 _timestamp);
+    // Event to log when access is revoked
+    event AccessRevoked(address indexed _user, address indexed _revoker, uint256 _timestamp);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier to restrict functions to the contract owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can perform this action.");
+        _;
+    }
+
+    // Modifier to check if a user already has access
+    modifier userDoesNotHaveAccess(address _user) {
+        require(!hasAccess[_user], "User already has access.");
+        _;
+    }
+
+    // Modifier to check if a user has access
+    modifier userHasAccess(address _user) {
+        require(hasAccess[_user], "User does not have access.");
+        _;
+    }
+
+    // Function to grant access, only callable by owner, and emits an event
+    function grantAccess(address _user) public onlyOwner userDoesNotHaveAccess(_user) {
+        hasAccess[_user] = true;
+        emit AccessGranted(_user, msg.sender, block.timestamp);
+    }
+
+    // Function to revoke access, only callable by owner, and emits an event
+    function revokeAccess(address _user) public onlyOwner userHasAccess(_user) {
+        hasAccess[_user] = false;
+        emit AccessRevoked(_user, msg.sender, block.timestamp);
+    }
+
+    // A function that requires the caller to have access
+    function accessGatedContent() public view userHasAccess(msg.sender) returns (string memory) {
+        return "Welcome to the exclusive content!";
+    }
+}
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">Step checklist: deploy, grantAccess from owner, switch to granted account and call accessGatedContent, observe events in Remix logs, revoke and confirm revert for the revoked account.</div>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-800">Lab checkpoints</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 mt-2">
+        <li>Confirm events appear in the Remix console under Logs.</li>
+        <li>Verify hasAccess mapping state changes after grant and revoke.</li>
+        <li>Observe revert messages when calling accessGatedContent without access.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-slate-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Challenge</div>
+        <div class="text-sm text-slate-800">Add a modifier that limits how many addresses can be granted access and emit an event when the limit is reached.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.step{border-left:4px solid #1769ff;background:#f0f6ff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Checklist</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">Step-by-step diagnostic flow</div>
+        <div class="mt-3 flex flex-col gap-3 h-full">
+          <div class="p-3 step rounded-lg">
+            <div class="text-sm font-semibold">1. Is PostgreSQL running?</div>
+            <div class="text-xs text-slate-600 mt-1">Check the service status and recent logs to rule out a crashed server.</div>
+          </div>
+          <div class="p-3 step rounded-lg">
+            <div class="text-sm font-semibold">2. Is it listening where you expect?</div>
+            <div class="text-xs text-slate-600 mt-1">Use netstat or ss to confirm listen_addresses and port presence.</div>
+          </div>
+          <div class="p-3 step rounded-lg">
+            <div class="text-sm font-semibold">3. Can the client reach the port?</div>
+            <div class="text-xs text-slate-600 mt-1">Use telnet or nc to validate TCP-level access; if failing, check firewalls and security groups.</div>
+          </div>
+          <div class="p-3 step rounded-lg">
+            <div class="text-sm font-semibold">4. Is authentication allowed?</div>
+            <div class="text-xs text-slate-600 mt-1">Inspect pg_hba.conf rules and ordering; verify matching host, user, db and method.</div>
+          </div>
+          <div class="p-3 step rounded-lg">
+            <div class="text-sm font-semibold">5. Are there free connection slots?</div>
+            <div class="text-xs text-slate-600 mt-1">Query pg_stat_activity and compare to max_connections to decide if you need to free or increase slots.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Commands to know</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;">sudo systemctl status postgresql@12-main
+sudo netstat -tulpn | grep 5432
+telnet &lt;server_ip&gt; 5432  # or nc -vz &lt;server_ip&gt; 5432
+pg_isready -h &lt;host&gt; -p 5432 -d &lt;db&gt; -U &lt;user&gt;
+psql -h &lt;server_ip&gt; -p 5432 -U &lt;user&gt; -d &lt;db&gt;</pre>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A consistent checklist reduces time to resolution: verify process, listening, network, HBA, then resources.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

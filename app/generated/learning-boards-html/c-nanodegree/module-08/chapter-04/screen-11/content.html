@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">AoS vs SoA</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Array of Structures (AoS)</div>
+      <div class="text-sm text-slate-700 mb-3">Objects laid out with all fields together per item. Good when you access many fields per object.</div>
+      <div class="rounded-lg p-3 bg-white border text-sm text-slate-700">Example: std::vector&lt;MyStruct&gt; where each MyStruct packs several fields used together.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Structure of Arrays (SoA)</div>
+      <div class="text-sm text-slate-700 mb-3">Separate contiguous arrays per field. Good when you operate on a single field across many items.</div>
+      <div class="rounded-lg p-3 bg-white border text-sm text-slate-700">Example: std::vector&lt;int&gt; xs; std::vector&lt;float&gt; ys; allows linear iteration over xs with excellent spatial locality.</div>
+    </div>
+
+    <div class="col-span-2 bg-white rounded-2xl p-4 border mt-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Practical guidance</div>
+      <div class="text-sm text-slate-700">Match layout to access patterns: if the hot loop touches one field across many elements, prefer SoA. If it touches all fields of a single element, prefer AoS. For numeric kernels, transpose or reorder loops to favor row-major accesses and reduce cache misses.</div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Data layout choice must be driven by the hot access pattern; measure cache misses to validate the change.</p>
+      </div>
+    </div>
+  </div>
+</div>

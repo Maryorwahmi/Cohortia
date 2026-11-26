@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Designing for Reversible Data Storage</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Task summary</div>
+      <p class="text-sm text-slate-700 mt-3">Implement an abstract UserPreferencesStore, a JsonFilePreferencesStore, a mocked MongoDbPreferencesStore, and a UserPreferencesService that accepts the store via dependency injection.</p>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Requirements</div>
+        <ol class="mt-2 list-decimal list-inside space-y-2">
+          <li>Define get_preferences and save_preferences on the interface.</li>
+          <li>JsonFilePreferencesStore should read and write JSON files safely.</li>
+          <li>Mocked MongoDbPreferencesStore simulates a database with an in-memory map.</li>
+          <li>UserPreferencesService should call the store without knowing its type.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code</div>
+      <pre class="text-sm text-slate-700 bg-slate-50 rounded p-3 mt-3" style="white-space:pre-wrap; tab-size:2;"><code>from abc import ABC, abstractmethod
+import json
+import os
+
+# 1. Define the abstract base class (interface)
+class UserPreferencesStore(ABC):
+    @abstractmethod
+    def get_preferences(self, user_id: str) -> dict:
+        pass
+
+    @abstractmethod
+    def save_preferences(self, user_id: str, preferences: dict):
+        pass
+
+# 2. Implement JsonFilePreferencesStore
+class JsonFilePreferencesStore(UserPreferencesStore):
+    def __init__(self, base_dir="data"):
+        self.base_dir = base_dir
+        os.makedirs(self.base_dir, exist_ok=True)
+
+    def _get_filepath(self, user_id: str) -> str:
+        return os.path.join(self.base_dir, f"{user_id}_prefs.json")
+
+    def get_preferences(self, user_id: str) -> dict:
+        filepath = self._get_filepath(user_id)
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        return {}
+
+    def save_preferences(self, user_id: str, preferences: dict):
+        filepath = self._get_filepath(user_id)
+        with open(filepath, 'w') as f:
+            json.dump(preferences, f, indent=4)
+        print(f"Preferences for {user_id} saved to {filepath}")</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Continue by adding the mock store and the service class. Test switching stores by instantiating the service with different stores.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

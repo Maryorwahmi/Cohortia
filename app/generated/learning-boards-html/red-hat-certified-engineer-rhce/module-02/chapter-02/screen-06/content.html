@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Module Focus</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Package management with dnf</h3>
+      <p class="text-sm text-slate-600 mt-2">How to ensure packages are installed, updated, or removed using the built-in dnf module.</p>
+
+      <div class="mt-4 mono text-xs bg-slate-50 rounded p-3 card-border" style="white-space:pre-wrap; tab-size:2;">
+- name: Ensure Nginx is installed and latest
+  ansible.builtin.dnf:
+    name: nginx
+    state: latest
+
+- name: Remove an old package
+  ansible.builtin.dnf:
+    name: old-package
+    state: absent
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Explanation: the first task checks the package state and upgrades only if necessary. The second ensures the named package is absent. Running these tasks twice demonstrates idempotency when the system already matches the desired state.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer the dnf module over shell package commands to get idempotent, auditable package changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold">Practical notes</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc pl-4">
+        <li>Use state: latest to ensure the package is up-to-date.</li>
+        <li>Use state: absent to remove packages idempotently.</li>
+        <li>Test idempotency by running the playbook twice and observing changed → ok.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <p class="text-sm text-slate-600 mt-1">Running dnf install via shell loses Ansible's understanding of package state and may report changed every run, even when no update was necessary.</p>
+      </div>
+    </div>
+  </div>
+</div>

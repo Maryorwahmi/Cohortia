@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;} pre code{white-space:pre-wrap;tab-size:2;} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Handling uint256</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7">
+      <div class="rounded-xl bg-white p-5 shadow-sm card-border h-full">
+        <h3 class="text-lg font-bold text-slate-800">Returned integers as strings</h3>
+        <p class="text-sm text-slate-700 mt-2">Web3.js returns large integers as strings to avoid JavaScript precision loss. Convert depending on expected size and use-case.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-emerald-50">
+            <div class="text-sm font-bold text-emerald-700">Small number</div>
+            <div class="text-sm text-slate-800 mt-1">parseInt(storedNumber, 10) is fine for values well within Number.MAX_SAFE_INTEGER.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-violet-50">
+            <div class="text-sm font-bold text-violet-700">Large number</div>
+            <div class="text-sm text-slate-800 mt-1">Use web3.utils.toBN(value) or BigInt(value) for precise arithmetic.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-amber-50">
+            <div class="text-sm font-bold text-amber-700">Token decimals</div>
+            <div class="text-sm text-slate-800 mt-1">If a balance uses 18 decimals, apply web3.utils.fromWei(rawBalance, 'ether') for user-friendly display.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+        <div class="text-sm font-bold text-slate-800">Code examples</div>
+        <pre class="mono text-sm mt-2 p-3 bg-slate-50 rounded-md"><code>// small number
+const n = parseInt(storedNumber, 10);
+
+// big number with BN
+const bn = web3.utils.toBN(storedNumber);
+
+// display wei as ether
+const readable = web3.utils.fromWei(rawBalance, 'ether');</code></pre>
+
+        <div class="mt-4 rounded-lg p-3 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-2">Do not coerce large uint256 values to Number; use BN or BigInt and convert units when needed for display.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

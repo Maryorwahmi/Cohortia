@@ -1,0 +1,38 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">strace</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Using strace to follow system calls</h3>
+    <p class="text-sm text-slate-600 mt-2">Trace system calls to see the exact operation that failed and its errno response.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common usage</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code># attach to a running PID
+sudo strace -p 12345
+
+# run and capture calls
+sudo strace -o /tmp/strace.log python3 /opt/my_app/my_app.py</code></pre>
+      <div class="mt-2 text-sm text-slate-600">Filter with -e trace=open,read,write or use -f to follow forks. Remember strace requires privileges for other users' processes.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Interpreting output</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>open("/opt/my_app/my_app.py", O_RDONLY) = -1 EACCES (Permission denied)
+stat("/etc/my_app/config.yml", {st_mode=...}) = -1 ENOENT (No such file or directory)
+connect(3, {sa_family=AF_INET, sin_port=htons(3306)}, 16) = -1 ECONNREFUSED (Connection refused)</code></pre>
+      <div class="mt-2 text-sm text-slate-600">Each line shows the call and the kernel error. Use the returned errno to target the fix: create missing files, fix permissions, or resolve network access issues.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-xs text-slate-700 mt-1">Strace is not destructive but can slow processes. Use it in a controlled window and prefer targeted traces to reduce noise.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

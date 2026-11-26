@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:14px;} .note{background:#ecfeff;border-left:4px solid #06b6d4;padding:10px;border-radius:8px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Streaming Commands</span>
+    </div>
+    <div class="flex gap-4 h-[62%]">
+      <div class="w-1/2 card p-5">
+        <div class="font-bold text-slate-900">How streaming works</div>
+        <p class="text-sm text-slate-700 mt-3">Once a replica is caught up, the master streams real-time write commands to that replica. Commands are sent in order and applied by the replica to maintain consistency with the master.</p>
+        <div class="mt-4 note">Asynchronous: the master does not wait for acknowledgement. This design keeps write performance high.</div>
+      </div>
+      <div class="w-1/2 card p-5">
+        <div class="font-bold text-slate-900">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-3">You issue SET session:123 "stateA" on the master. The master streams the SET and replicas apply it. If network latency affects delivery, the replica may apply the SET milliseconds later and briefly show older state.</p>
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Misconception check</div>
+          <div class="text-sm">Streaming is not synchronous replication; it does not guarantee the replica has the write before the master continues.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">When this matters</div>
+        <div class="text-sm text-slate-700 mt-2">Systems needing immediate global consistency should direct critical writes to the master or use additional coordination.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Design reads that tolerate slight staleness or implement read‑after‑write to the master for critical paths.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-700 mt-2">Streaming keeps replicas near real-time while keeping the master responsive, but it is not a synchronous durability guarantee.</div>
+      </div>
+    </div>
+  </div>
+</div>

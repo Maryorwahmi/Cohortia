@@ -1,0 +1,44 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">AIDE Demo</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col">
+      <div class="text-lg font-bold">Demo steps and commands</div>
+      <div class="text-sm text-slate-600 mt-2">Run these in a VM. The code panel below shows the essential sequence; do not run in production without a backup.</div>
+
+      <pre class="mono mt-4 p-3 rounded bg-slate-50 border text-sm" style="white-space:pre-wrap; tab-size:2;"># initialize AIDE baseline
+dsudo aide --init
+sudo mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+
+# make a small legitimate change
+sudo sh -c 'echo "192.168.1.100 mytestserver" >> /etc/hosts'
+
+# run AIDE check
+sudo aide --check
+
+# after verification, update baseline
+sudo aide --update
+sudo mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz</pre>
+
+      <div class="mt-4 text-sm text-slate-700">When reviewing aide --check output, focus on unexpected ownership, checksum or timestamp changes. Correlate with package and system logs to determine cause.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border card shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="font-semibold text-slate-800">Practical safeguard</div>
+        <div class="text-sm text-slate-600 mt-2">Store the AIDE database on read-only media or an isolated management server and run checks frequently via scheduled tasks so changes are detected promptly.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Updating the baseline without verification can mask an intrusion. Always validate before updating.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

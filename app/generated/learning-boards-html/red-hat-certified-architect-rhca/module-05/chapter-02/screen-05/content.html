@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#f1f5f9;padding:12px;border-radius:8px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Storage Sizing</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 p-4 rounded-xl bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Process steps</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-600 space-y-2">
+        <li>Classify workloads by IOPS, latency, and capacity.</li>
+        <li>Map workload class to Ceph pool type and OSD hardware.</li>
+        <li>Decide replication factor or erasure coding policy.</li>
+        <li>Plan network bandwidth for Ceph public and cluster traffic.</li>
+        <li>Validate with synthetic and real workload testing.</li>
+      </ol>
+
+      <div class="mt-auto p-3 rounded-lg bg-emerald-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-800 mt-1">Match Ceph hardware and network design to the IOPS and latency needs of your critical workloads, not only to capacity targets.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4 rounded-xl bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Concrete scenario</div>
+      <div class="text-sm text-slate-600 mt-2">A transactional database pool: choose SSD-backed OSDs or use SSDs for WAL/journals, set a replication factor of three, and ensure a dedicated 10GbE or higher network for Ceph replication to avoid contention with tenant traffic.</div>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">Assuming that more storage disks alone will fix latency. Without appropriate OSD hardware and network bandwidth, adding disks can increase variance and worsen performance.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example layout</div>
+        <pre>&lt;-- Ceph OSD plan --&gt;
+OSD devices: mix of NVMe/SSD for WAL, HDD for bulk data
+Replication: 3
+Placement groups: sized to OSD count for even distribution
+Networks: separate public and cluster networks; high bandwidth</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

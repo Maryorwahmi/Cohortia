@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl border p-5 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Vault commands</div>
+      <pre class="code mt-3 rounded-md bg-slate-50 p-3 text-sm">ansible-vault create roles/nginx_webserver/vars/secret_vars.yml
+ansible-vault edit roles/nginx_webserver/vars/secret_vars.yml
+ansible-vault view roles/nginx_webserver/vars/secret_vars.yml</pre>
+
+      <div class="mt-4 text-sm text-slate-700">Store API keys, passwords, and other sensitive values in Vault-encrypted files. Provide the password at runtime rather than embedding it in scripts or code repositories.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl border p-5 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Include and use</div>
+      <pre class="code mt-3 rounded-md bg-slate-50 p-3 text-sm">- name: Load secret variables
+  ansible.builtin.include_vars:
+    file: secret_vars.yml
+    name: secrets
+
+# then use {{ secrets.db_password }} in templates or tasks
+</pre>
+
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-bold text-amber-700">Security note</div>
+          <div class="text-sm text-slate-700 mt-2">Use a vault password file with strict permissions for automation, and never commit that file to VCS.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

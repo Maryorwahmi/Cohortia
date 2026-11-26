@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">ProcessReceipt</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="font-semibold">Starter ProcessReceipt pattern</div>
+      <pre class="code mt-3"><code>MarketplaceService.ProcessReceipt = function(receiptInfo)
+  local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
+  if not player then
+    -- Save receipt for later and ask Roblox to retry
+    return Enum.ProductPurchaseDecision.NotProcessedYet
+  end
+
+  if receiptInfo.ProductId == COINS_PRODUCT_ID then
+    local amountToAdd = 500
+    local success, err = pcall(function()
+      -- Persist coins using your DataStore add function
+      -- addCoins(player, amountToAdd)
+    end)
+
+    if success then
+      return Enum.ProductPurchaseDecision.PurchaseGranted
+    else
+      return Enum.ProductPurchaseDecision.NotProcessedYet
+    end
+  end
+
+  return Enum.ProductPurchaseDecision.NotProcessedYet
+end</code></pre>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="font-semibold">Annotations and best practices</div>
+      <ul class="list-disc list-inside text-sm text-slate-700 mt-3">
+        <li>Check player presence: if offline, save receipt and return NotProcessedYet.</li>
+        <li>Wrap DataStore operations in pcall to avoid unhandled errors.</li>
+        <li>Record processed PurchaseIds to guarantee idempotency.</li>
+        <li>Return PurchaseGranted only when persistent state has been updated.</li>
+      </ul>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-1">Granting items in memory without persisting, then returning PurchaseGranted, leads to lost items on server restart.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Process receipts on the server, persist grants atomically, and return PurchaseGranted only after persistence succeeds.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

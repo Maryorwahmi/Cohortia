@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">ProcessReceipt</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+    <div class="w-2/3 pr-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">MarketplaceService.ProcessReceipt</div>
+      <p class="text-sm text-slate-600 mt-2">When Roblox calls ProcessReceipt, validate the ProductId, grant the item, persist the purchase ID, and return PurchaseGranted.</p>
+
+      <div class="mt-4 text-xs uppercase tracking-wider text-slate-600">Code (server)</div>
+      <pre class="mono bg-slate-900 text-slate-50 rounded-md p-3 mt-2" style="white-space:pre-wrap;tab-size:2;overflow:auto"><code>-- Server-side Script for handling Developer Product purchases
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+
+local PRODUCT_ID_COINS = 987654321
+local COINS_TO_GRANT = 1000 -- How many coins this product grants
+
+MarketplaceService.ProcessReceipt = function(receiptInfo)
+  local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
+
+  -- 1. Validate the purchase (e.g., check ProductId)
+  if receiptInfo.ProductId == PRODUCT_ID_COINS then
+    if player then
+      -- 2. Grant the item/benefit
+      local currentCoins = player:GetAttribute("Coins") or 0
+      player:SetAttribute("Coins", currentCoins + COINS_TO_GRANT)
+      print(player.Name .. " purchased " .. COINS_TO_GRANT .. " coins! Total: " .. player:GetAttribute("Coins"))
+
+      -- 3. Return PurchaseGranted to confirm receipt processing
+      return Enum.ProductPurchaseDecision.PurchaseGranted
+    else
+      -- Player not present, retry later
+      warn("Player " .. receiptInfo.PlayerId .. " not found in game, product " .. receiptInfo.ProductId .. " not processed yet.")
+      return Enum.ProductPurchaseDecision.NotProcessedYet
+    end
+  else
+    warn("Unknown product ID purchased: " .. receiptInfo.ProductId)
+    return Enum.ProductPurchaseDecision.NotProcessedYet
+  end
+end</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">This example is functional but simplified. In production, persist PurchaseId values and DataStore changes before returning PurchaseGranted to ensure idempotency and reliability.</div>
+    </div>
+
+    <div class="w-1/3 pl-4 flex flex-col">
+      <div class="rounded-lg bg-slate-50 p-4 flex-1">
+        <div class="text-sm font-bold text-slate-800">Common pitfalls</div>
+        <ul class="list-disc list-inside text-sm text-slate-600 mt-2">
+          <li>Granting before persisting can cause duplicates on retry.</li>
+          <li>Returning NotProcessedYet when the player is present can cause repeated retries.</li>
+          <li>Not recording PurchaseId makes idempotency impossible.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Persist processed PurchaseId values before returning PurchaseGranted to make ProcessReceipt safe to retry.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

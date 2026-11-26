@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Lazy Initialization & Thread-Safety</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Lazy Initialization</div>
+      <p class="text-sm text-slate-600 mt-2">Create the instance only when first requested to save initialization cost.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 overflow-auto h-56">
+        <pre><code>// LazySingleton.java
+public class LazySingleton {
+  private static LazySingleton instance;
+
+  private LazySingleton() {
+    System.out.println("LazySingleton instance created.");
+  }
+
+  public static LazySingleton getInstance() {
+    if (instance == null) {
+      instance = new LazySingleton();
+    }
+    return instance;
+  }
+
+  public void showMessage() {
+    System.out.println("Hello from LazySingleton!");
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Why naive lazy fails</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+        <li>Two threads can both see instance as null and create two objects concurrently.</li>
+        <li>This results in multiple instances and inconsistent shared state for a supposedly single resource.</li>
+        <li>Testing with many concurrent calls exposes this behavior quickly; write a small multithreaded test to validate.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Null checks alone do not provide thread safety. You must guard creation with synchronization or a concurrency-safe idiom.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

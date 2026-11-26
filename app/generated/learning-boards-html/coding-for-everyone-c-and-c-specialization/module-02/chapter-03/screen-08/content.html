@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">realloc — resizing blocks safely</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl p-6 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Safe realloc pattern</h3>
+      <div class="text-sm text-slate-700 space-y-3">
+        <div class="p-3 rounded-md bg-white border">1. Call realloc with the original pointer and new size into a temporary pointer.</div>
+        <div class="p-3 rounded-md bg-white border">2. If the temporary pointer is null, handle the error; the original pointer still points to the valid old block.</div>
+        <div class="p-3 rounded-md bg-white border">3. If temporary is non-null, assign the original pointer to the temporary and continue.</div>
+      </div>
+      <div class="mt-4">
+        <pre class="text-sm bg-slate-900 text-white p-3 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">int *temp = (int *) realloc(arr, 10 * sizeof(int));
+if (temp == NULL) {
+  printf("Memory reallocation failed!
+");
+  // arr still valid here
+} else {
+  arr = temp;
+}</pre>
+      </div>
+    </div>
+    <div class="w-5/12 rounded-2xl p-6 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Notes & pitfalls</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <div class="p-3 rounded-md bg-white border">realloc may move memory; always use returned pointer for subsequent access.</div>
+        <div class="p-3 rounded-md bg-white border">Do not free the original block after a successful realloc; realloc frees it when it moves data.</div>
+        <div class="p-3 rounded-md bg-rose-50 border border-rose-100 text-rose-700">Never overwrite the original pointer before checking realloc's return; that is a leak risk.</div>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Treat realloc as a potentially moving operation and use a temporary pointer to avoid losing the original block on failure.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

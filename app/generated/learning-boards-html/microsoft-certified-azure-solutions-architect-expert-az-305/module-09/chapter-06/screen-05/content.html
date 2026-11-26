@@ -1,0 +1,86 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 6</span>
+    <span>›</span>
+    <span class="text-slate-700">Implementing VNet Peering with Azure CLI</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Code Walkthrough</div>
+      <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Implementing VNet Peering with Azure CLI</h2>
+      <p class="text-md text-slate-700 mb-6">A practical example of connecting two virtual networks.</p>
+
+      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200 flex-grow mb-6">
+        <h3 class="text-lg font-semibold text-slate-900 mb-3">Key Steps for Peering</h3>
+        <ul class="list-none space-y-3 text-sm text-slate-700">
+          <li class="flex items-start">
+            <span class="text-blue-500 font-bold mr-2">1.</span>
+            <span><strong>Create VNets:</strong> Define two virtual networks with non-overlapping IP address spaces.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 font-bold mr-2">2.</span>
+            <span><strong>Get VNet IDs:</strong> Retrieve the resource IDs for both VNets, required for the peering command.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 font-bold mr-2">3.</span>
+            <span><strong>Establish Bidirectional Peering:</strong> Create peering connections from VNet1 to VNet2 and from VNet2 to VNet1.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 font-bold mr-2">4.</span>
+            <span><strong>Configure Options:</strong> Use flags like <code>--allow-vnet-access</code> and <code>--allow-forwarded-traffic</code> as needed.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Bidirectional peering with unique IP spaces is essential for seamless private communication between Azure Virtual Networks.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-slate-800 rounded-2xl shadow-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-4 py-2 bg-slate-700">
+        <span class="text-xs font-medium text-slate-200">Azure CLI: VNet Peering</span>
+        <div class="flex space-x-1">
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+      </div>
+      <pre class="flex-grow p-4 text-xs text-slate-50 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>
+# Create VNet 1
+az network vnet create --resource-group myNetworkingRG --name "VNet1" --address-prefix 10.1.0.0/16 --location eastus --subnet-name "Subnet1" --subnet-prefix 10.1.0.0/24
+
+# Create VNet 2
+az network vnet create --resource-group myNetworkingRG --name "VNet2" --address-prefix 10.2.0.0/16 --location eastus --subnet-name "Subnet2" --subnet-prefix 10.2.0.0/24
+
+# Get VNet IDs
+VNET1_ID=$(az network vnet show -g myNetworkingRG -n "VNet1" --query id -o tsv)
+VNET2_ID=$(az network vnet show -g myNetworkingRG -n "VNet2" --query id -o tsv)
+
+# Create peering from VNet1 to VNet2
+az network vnet peering create \
+  --name "VNet1ToVNet2" \
+  --resource-group myNetworkingRG \
+  --vnet-name "VNet1" \
+  --remote-vnet $VNET2_ID \
+  --allow-vnet-access \
+  --allow-forwarded-traffic \
+  --allow-gateway-transit
+
+# Create peering from VNet2 to VNet1 (bidirectional)
+az network vnet peering create \
+  --name "VNet2ToVNet1" \
+  --resource-group myNetworkingRG \
+  --vnet-name "VNet2" \
+  --remote-vnet $VNET1_ID \
+  --allow-vnet-access \
+  --allow-forwarded-traffic \
+  --use-remote-gateways
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

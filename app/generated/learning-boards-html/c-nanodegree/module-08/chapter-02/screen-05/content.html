@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Google Test Basics</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">TEST vs TEST_F</div>
+      <p class="mt-3 text-sm text-slate-700">TEST declares a simple test. TEST_F uses a fixture class that can centralize SetUp and TearDown. Fixtures make many tests repeatable and independent.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assertion types</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+            <li>EXPECT_EQ, EXPECT_TRUE — record failures and continue</li>
+            <li>ASSERT_EQ, ASSERT_TRUE — stop the current test immediately</li>
+            <li>EXPECT_THROW / ASSERT_THROW — verify exceptions</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Best practice</div>
+          <div class="mt-2 text-sm text-slate-700">Prefer EXPECT_* unless later assertions would be invalidated; keep each test focused on a single behavior.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example: Fixture and assertions</div>
+      <pre class="mono mt-3 rounded bg-slate-50 p-3 text-sm card-border"><code>#include "gtest/gtest.h"
+
+class CalculatorTest : public ::testing::Test {
+protected:
+  void SetUp() override { /* prepare common objects */ }
+  void TearDown() override { /* clean up */ }
+};
+
+TEST_F(CalculatorTest, CanAddTwoNumbers) {
+  EXPECT_EQ(5, 2 + 3);
+}
+
+TEST(CalculatorFunctions, ThrowsOnBadInput) {
+  ASSERT_THROW( /* call that should throw */, std::invalid_argument);
+}
+</code></pre>
+
+      <div class="mt-3 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Match your assertion style to test flow: ASSERT when you must stop, EXPECT when you can continue checking other behavior.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

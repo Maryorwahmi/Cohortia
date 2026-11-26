@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">SELinux Contexts</span>
+  </div>
+  <div class="rounded-2xl bg-white p-6 card h-full shadow-sm flex">
+    <div class="w-2/5 pr-4 border-r border-slate-100 min-h-0">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold mt-2">Contexts & Type Enforcement</h3>
+      <p class="text-sm text-slate-600 mt-2">A context labels resources with user:role:type:level. The type field enforces what can interact with what.</p>
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-sm font-semibold">Inspecting contexts</div>
+          <div class="text-xs text-slate-600 mt-1">Use ls -Z for files and ps -Z for processes to reveal their SELinux contexts.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card">
+          <div class="text-sm font-semibold">Correcting labels</div>
+          <div class="text-xs text-slate-600 mt-1">Declare persistent mappings with semanage fcontext and apply them with restorecon -Rv.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-3/5 pl-4 min-h-0 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card">
+        <div class="text-sm font-semibold">Example context</div>
+        <div class="mono text-sm mt-2">system_u:object_r:httpd_sys_content_t:s0
+system_u:system_r:httpd_t:s0</div>
+        <div class="text-xs text-slate-600 mt-2">The httpd process type httpd_t is checked against the file type httpd_sys_content_t by the policy.</div>
+      </div>
+      <div class="mt-4 rounded-xl bg-white p-4 card">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-2">Changing ownership or Unix permissions alone may not fix SELinux denials if the type is incorrect. Always verify and correct the context.</div>
+      </div>
+    </div>
+  </div>
+</div>

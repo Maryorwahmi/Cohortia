@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 9.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Predicate Registers</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-6 shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="mt-2 text-xl font-bold text-slate-900">Predicate registers and if-conversion</h3>
+      <p class="mt-3 text-sm text-slate-700">Predicate registers hold Boolean conditions set by comparisons. Each instruction includes a predicate field and executes only when the predicate is true.</p>
+
+      <div class="mt-4 flex-1 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-[rgba(16,185,129,0.04)] p-3 border">
+          <div class="text-sm font-semibold text-slate-800">IA-64 detail</div>
+          <div class="mt-2 text-sm text-slate-700">IA-64 provided 64 predicate registers to support wide-scale predication and scheduling.</div>
+        </div>
+
+        <div class="rounded-lg bg-white border p-3">
+          <div class="text-sm font-semibold text-slate-800">Live-range impact</div>
+          <div class="mt-2 text-sm text-slate-700">Both paths keep values live until the predicate selection point; this often increases register pressure and can cause spills.</div>
+        </div>
+
+        <div class="rounded-lg bg-[rgba(239,102,117,0.04)] p-3 border">
+          <div class="text-sm font-semibold text-rose-700">Limits</div>
+          <div class="mt-2 text-sm text-slate-700">Not all instructions can be predicated safely: calls and stores are often excluded or require special handling.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3 h-full">
+      <div class="rounded-xl bg-white border p-3 shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <pre class="mt-2 text-xs text-slate-800 bg-white p-3 rounded" style="white-space:pre-wrap; tab-size:2;"><code># after CMP sets P0
+P0: ADD r1, r2, r3    # writes r1 only if P0 true
+!P0: SUB r1, r2, r4    # writes r1 only if P0 false</code></pre>
+        <div class="mt-2 text-sm text-slate-700">Both arithmetic operations execute; only the instruction with true predicate updates the destination register.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 h-1/2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Predicates let the compiler control execution at the instruction granularity, but they increase pressure on registers and do not prevent microarchitectural side effects.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Application Rule Collections</span>
+  </div>
+
+  <div class="flex flex-col flex-grow">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Rule Collection Type</span>
+    </div>
+    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Application Rule Collections</h2>
+    <p class="text-base text-slate-600 mb-6">Filtering outbound HTTP/S traffic by FQDNs</p>
+
+    <div class="flex flex-grow gap-6">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-5 flex-grow">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3">Key Features of Application Rules</h3>
+          <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+            <li>Filter outbound HTTP/S traffic based on Fully Qualified Domain Names (FQDNs).</li>
+            <li>Works for encrypted HTTPS traffic without SSL termination.</li>
+            <li>Crucial for preventing data exfiltration and ensuring compliance.</li>
+            <li>Processed after DNAT and Network rules.</li>
+            <li>Allows precise control over web and SaaS service access.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example Scenario</div>
+          <p class="text-xs font-medium text-slate-800">Allowing specific web access: Permit VMs to access <code>*.nuget.org</code> and <code>*.github.com</code>, while blocking all other outbound web traffic.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Application rules provide unique FQDN-based filtering for HTTP/S, offering fine-grained control over outbound web connectivity.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-slate-800 rounded-xl shadow-lg p-6 font-mono text-white text-sm flex flex-col">
+        <div class="text-amber-400 mb-4"># Azure CLI Commands: Configure Application Rule</div>
+        <pre class="whitespace-pre-wrap mb-4"><code style="tab-size: 2;"><span class="text-emerald-400"># 7. Configure Azure Firewall Application Rule</span>
+az network firewall application-rule create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --firewall-name <span class="text-cyan-400">MyAzureFirewall</span> \
+  --collection-name <span class="text-cyan-400">AppRules</span> \
+  --name <span class="text-cyan-400">AllowMicrosoft</span> \
+  --priority <span class="text-cyan-400">100</span> \
+  --action <span class="text-cyan-400">Allow</span> \
+  --source-addresses <span class="text-cyan-400">10.1.1.0/24</span> \
+  --protocols <span class="text-cyan-400">Http=80</span> <span class="text-cyan-400">Https=443</span> \
+  --fqdn-tags <span class="text-cyan-400">None</span> \
+  --target-fqdns <span class="text-cyan-400">www.microsoft.com</span></code></pre>
+        <div class="text-slate-400 text-xs mt-auto">This command creates an application rule to allow outbound HTTPS traffic to www.microsoft.com.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

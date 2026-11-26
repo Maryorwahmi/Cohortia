@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Transactions</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-900">Transaction pattern</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+try:
+  cursor.executemany(insert_sql, readings)
+  conn.commit()
+except sqlite3.Error as e:
+  conn.rollback()
+  print("Database error:", e)
+finally:
+  cursor.close()
+  conn.close()
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">This pattern ensures either all rows are saved or none are, keeping your data consistent.</div>
+    </div>
+
+    <div class="w-1/2 grid gap-3">
+      <div class="rounded-xl bg-emerald-50 p-3 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+        <div class="text-sm text-slate-800 mt-2">If one row insertion fails, rollback prevents partial data that could mislead analysis.</div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-2">Thinking program exit commits automatically. Always call commit explicitly for DML you intend to keep.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-2">For many small scripts, commit after a logical set of operations rather than after every single statement to balance safety and performance.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

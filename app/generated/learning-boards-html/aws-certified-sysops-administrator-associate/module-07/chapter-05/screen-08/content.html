@@ -1,0 +1,73 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 pr-4 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Code Walkthrough</div>
+      <h3 class='text-2xl font-extrabold text-slate-900'>CLI Example: Creating Failover Record Sets</h3>
+      <p class='mt-3 text-sm text-slate-700'>Below is the conceptual CLI snippet from the chapter. It shows creating a primary record set with a HealthCheckId and a secondary record set intended as standby.</p>
+      <div class='mt-4 p-3 rounded-lg bg-white card-border shadow-sm'>
+        <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; margin:0;'>
+# Create a primary record set
+aws route53 change-resource-record-sets \
+    --hosted-zone-id Zxxxxxxxxxxxxxx \
+    --change-batch '{
+        "Changes": [
+            {
+                "Action": "CREATE",
+                "ResourceRecordSet": {
+                    "Name": "app.example.com.",
+                    "Type": "A",
+                    "SetIdentifier": "Primary",
+                    "Weight": 100,
+                    "Region": "us-east-1",
+                    "HealthCheckId": "hc-0abcdef1234567890",
+                    "ResourceRecords": [
+                        {"Value": "alb-primary-us-east-1.elb.amazonaws.com"}
+                    ]
+                }
+            }
+        ]
+    }'
+
+# Create a secondary (failover) record set
+aws route53 change-resource-record-sets \
+    --hosted-zone-id Zxxxxxxxxxxxxxx \
+    --change-batch '{
+        "Changes": [
+            {
+                "Action": "CREATE",
+                "ResourceRecordSet": {
+                    "Name": "app.example.com.",
+                    "Type": "A",
+                    "SetIdentifier": "Secondary",
+                    "Weight": 0,
+                    "Region": "us-west-2",
+                    "HealthCheckId": "hc-0fedcba9876543210",
+                    "ResourceRecords": [
+                        {"Value": "alb-secondary-us-west-2.elb.amazonaws.com"}
+                    ]
+                }
+            }
+        ]
+    }'
+        </pre>
+      </div>
+    </div>
+    <div class='w-1/2 pl-4 flex flex-col'>
+      <div class='rounded-xl bg-white card-border shadow-sm p-4 flex-1'>
+        <div class='text-sm font-bold text-slate-800'>Annotations</div>
+        <ul class='mt-3 text-sm text-slate-600 list-disc list-inside space-y-2'>
+          <li><strong>HealthCheckId</strong>: ties the primary record to a check so Route 53 can evaluate health.</li>
+          <li><strong>SetIdentifier</strong>: a unique label for the record set version.</li>
+          <li><strong>Weight</strong>: used for traffic distribution, not the primary mechanism for failover.</li>
+          <li><strong>Region</strong>: indicates the AWS region of the resource; useful for latency and management.</li>
+        </ul>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Use failover routing and attach a HealthCheckId to the primary record; weight is for distribution, not failover control.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

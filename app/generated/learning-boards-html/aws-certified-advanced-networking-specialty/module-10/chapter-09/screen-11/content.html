@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-800">Simulate and Diagnose a No Healthy Targets Issue</div>
+      <div class="text-sm text-slate-600 mt-3">Perform the following steps to reproduce and resolve a target health failure.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Step commands</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded text-sm" style="white-space:pre-wrap; tab-size:2"><code># SSH into instance
+ssh ec2-user@<instance-ip>
+
+# Stop web server to simulate failure
+sudo systemctl stop nginx
+
+# Check service status
+sudo systemctl status nginx
+
+# From another EC2 in VPC, test health check path
+curl -v http://<instance-ip>/:80/health
+
+# Restart service to recover
+sudo systemctl start nginx
+sudo systemctl status nginx
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">After stopping the service, open CloudWatch and select ApplicationELB metrics for your load balancer. Observe UnHealthyHostCount and HTTPCode_ELB_5XX_Count for spikes. Then check the target group's Targets tab to see the Unhealthy state and the health status details. Restart the application and confirm the instance becomes Healthy and 5xx counts return to normal.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4 shadow-sm border-[rgba(226,232,240,0.9)] flex-1">
+      <div class="text-sm font-bold text-slate-800">Checklist & tips</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Capture timestamps before and after inducing the failure for log correlation.</li>
+        <li>Use an EC2 inside the same VPC for curl tests to avoid internet path differences.</li>
+        <li>Watch the health check interval and threshold values to estimate recovery delay.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre{white-space:pre-wrap;tab-size:2} :root{--card-border:rgba(226,232,240,0.9)} </style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Process</span>
+      <span>›</span>
+      <span class="text-slate-700">Database Tasks</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-7 rounded-xl bg-white p-4 border" style="border-color:var(--card-border)">
+        <div class="text-sm font-bold text-slate-800">Essential steps on dbserver1</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+          <li>Ensure mariadb is installed, running, and enabled.</li>
+          <li>Create webapp_db using community.mysql.mysql_db.</li>
+          <li>Create webapp_user with password webapp_pass and grant privileges on webapp_db but limit host to webserver_ip.</li>
+          <li>Open 3306/tcp in firewalld only for source webserver_ip and reload the firewall via a handler.</li>
+        </ul>
+
+        <div class="mt-3 text-xs font-semibold text-slate-600">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Allowing 3306 globally instead of limiting by source makes the DB accessible to hosts that should not have access and is a security risk.</div>
+      </div>
+
+      <div class="col-span-5 rounded-xl bg-white p-4 mono border" style="border-color:var(--card-border)">
+        <div class="text-xs font-semibold text-slate-600">Task snippet</div>
+        <pre class="text-sm text-slate-800 mt-2">- name: Ensure mariadb is installed, running, and enabled
+  ansible.builtin.systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+  when: inventory_hostname == 'dbserver1'
+
+- name: Configure firewalld to allow MariaDB from webserver1
+  ansible.posix.firewalld:
+    port: 3306/tcp
+    permanent: yes
+    state: enabled
+    zone: public
+    source: "{{ webserver_ip }}"
+  when: inventory_hostname == 'dbserver1'
+</pre>
+      </div>
+
+      <div class="col-span-12 mt-3 grid grid-cols-3 gap-3">
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Verification</div>
+          <div class="text-sm text-slate-600 mt-2">From webserver1: mysql -u webapp_user -pwebapp_pass -h &lt;dbserver_ip&gt; webapp_db -e "SELECT 1;" should succeed.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-2">Test firewall source values with firewall-cmd --list-all on dbserver1 to confirm the rule includes the intended webserver IP.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border" style="border-color:var(--card-border)">
+          <div class="text-xs font-semibold text-slate-700">Key Takeaway</div>
+          <div class="text-sm text-slate-600 mt-2">Limit database access by source IP and verify connectivity from the authorized host to prove correct network-level security.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

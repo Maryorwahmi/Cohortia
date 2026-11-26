@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code {background:#0f1724;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Dockerfile Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Dockerfile</div>
+      <div class="mt-3 code"><pre><code>FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Command to run the application
+CMD ["gunicorn", "my_app:app", "--bind", "0.0.0.0:8000"]
+</code></pre></div>
+
+      <div class="mt-4 text-sm text-slate-700">Build the image in CI and publish a tagged artifact. Avoid embedding secrets; pass them at runtime.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Why it matters</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Reproducibility: the same image runs locally, in CI, and in production.</li>
+        <li>Onboarding: new developers run a container instead of installing many packages.</li>
+        <li>Consistency: environment drift is minimized because configuration is code.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border card-border">
+        <div class="text-sm font-bold">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Containers are not a substitute for good packaging; they complement scripts and CI pipelines to produce consistent artifacts.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

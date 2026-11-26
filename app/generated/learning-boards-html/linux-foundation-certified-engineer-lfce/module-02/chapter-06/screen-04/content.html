@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:white}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Core Concept</div>
+      <div class="text-xl font-semibold text-slate-800 mt-2">LUKS: block-level encryption</div>
+      <div class="text-sm text-slate-600 mt-3">LUKS encrypts block devices and stores encryption metadata in a header with key slots. Open the device to create a decrypted mapping, then format and mount.</div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg border border-slate-100 bg-blue-50">
+          <div class="text-sm font-semibold text-slate-800">Analogy</div>
+          <div class="text-xs text-slate-700 mt-1">Think of LUKS as a locked safe (the block device). The header is the safe’s lock mechanism; losing it is like losing the tumblers.</div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-100 bg-amber-50">
+          <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+          <div class="text-xs text-slate-700 mt-1">Storing a keyfile on the encrypted device or skipping header backups makes recovery impossible. Always back up the header off-device.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3 h-64 overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+        <pre class="mt-2"><code>sudo cryptsetup luksFormat /dev/sdb
+sudo cryptsetup luksOpen /dev/sdb my_encrypted_disk
+sudo mkfs.ext4 /dev/mapper/my_encrypted_disk
+sudo mkdir /mnt/secret_data
+sudo mount /dev/mapper/my_encrypted_disk /mnt/secret_data
+# When done:
+sudo umount /mnt/secret_data
+sudo cryptsetup luksClose my_encrypted_disk</code></pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">LUKS protects raw block devices. Always back up the header and never place recovery keys on the same encrypted device.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">EnforceMethodMetaclass</div>
+      <div class="text-sm text-slate-600 mt-3">Check the namespace in __new__ and raise a TypeError if the required method is absent.</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 flex-1" style="white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace"><code>class EnforceMethodMetaclass(type):
+  def __new__(mcs, name, bases, namespace):
+    if 'process_data' not in namespace:
+      raise TypeError(f"Class {name} must implement 'process_data' method.")
+    return super().__new__(mcs, name, bases, namespace)
+
+class DataProcessor(metaclass=EnforceMethodMetaclass):
+  def __init__(self, data):
+    self.data = data
+  def process_data(self):
+    print(f"Processing data: {self.data}")</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>__new__ receives the namespace dictionary built from the class body.</li>
+        <li>Raising TypeError prevents the class from being created at import time.</li>
+        <li>Allow the base marker class to be defined by skipping enforcement for that name.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="font-bold text-slate-700">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Enforcing in __init__ rather than __new__ lets the invalid class exist and defers the error until later.</div>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use __new__ for structural enforcement to catch design errors early and keep runtime code simpler.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

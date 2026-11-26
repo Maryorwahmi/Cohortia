@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 3</span>
+    <span>›</span>
+    <span class="text-slate-700">Why ACID breaks in microservices</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Concept</div>
+      <p class="text-sm text-slate-700 mt-3">ACID properties are provided by a single database transaction manager. In microservices, each service runs its own local ACID transactions against its own datastore, so a multi-service business process cannot be wrapped in one atomic transaction.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">
+          <div class="text-xs font-bold uppercase tracking-wider">Atomicity (local)</div>
+          <div class="text-sm font-medium">Guaranteed only within a single service's database.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">
+          <div class="text-xs font-bold uppercase tracking-wider">Cross-service problem</div>
+          <div class="text-sm font-medium">No global commit; forcing one introduces blocking and coupling.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design around local atomicity and use patterns like Sagas to maintain business invariants across services.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example: checkout</div>
+      <div class="mt-3 text-sm text-slate-700">Imagine operations that must all succeed: create order, process payment, reserve inventory. In a monolith you wrap them in a single DB transaction and rollback on error. In microservices each operation commits locally; if Inventory fails after Payment succeeded, you need a plan to restore consistency without global rollback.</div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common misconception</div>
+        <div class="text-sm text-slate-700 mt-2">Adding a distributed transaction manager magically solves cross-service consistency. Reality: it usually introduces long locks, blocking, and coordinator recovery complexity.</div>
+      </div>
+
+      <div class="mt-6">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Try this</div>
+        <div class="text-sm text-slate-700 mt-2">List the cross-service invariants in your system. For each, ask whether a compensating action can restore the invariant instead of relying on global locking.</div>
+      </div>
+    </div>
+  </div>
+</div>

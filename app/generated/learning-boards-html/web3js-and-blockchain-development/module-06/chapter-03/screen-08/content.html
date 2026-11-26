@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Post-transaction update</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Implementation sketch</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm">// after sending a tx
+const receipt = await web3.eth.sendTransaction(txParams);
+if (receipt && receipt.status) {
+  // Transaction confirmed — re-fetch balance
+  fetchEthBalance(currentAccount);
+}
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Use the transaction receipt status or a confirmation event to determine when to re-fetch. This gives instant feedback for your user's action.</div>
+    </div>
+
+    <div class="w-96 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Why this helps</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>Reduces unnecessary node requests compared to aggressive polling.</li>
+        <li>Provides immediate, relevant feedback after user actions initiated in your dApp.</li>
+        <li>Combine with light polling to catch external transfers.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Updating the UI on an unconfirmed transaction can mislead users. Wait for confirmed receipts for balance updates.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

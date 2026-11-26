@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on activity: configure static IP and enable SSH</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Lab steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Identify interface: ip addr show.</li>
+        <li>Create a static profile with nmcli and set ipv4.method to manual.</li>
+        <li>Activate the profile and verify with ip addr show and ping.</li>
+        <li>Allow SSH permanently with firewall-cmd and reload.</li>
+        <li>From a client, SSH to the new static IP to confirm access.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white p-5 border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Commands (lab reference)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace;">
+# Example sequence
+ip addr show
+sudo nmcli connection delete "System enp0s3"
+sudo nmcli connection add type ethernet con-name my-static-eth0 ifname enp0s3 ip4 192.168.1.100/24 gw4 192.168.1.1 dns "8.8.8.8 8.8.4.4"
+sudo nmcli connection modify my-static-eth0 ipv4.method manual
+sudo nmcli connection up my-static-eth0
+
+# Firewall
+sudo firewall-cmd --zone=public --add-service=ssh --permanent
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-services --zone=public
+
+# From client
+ssh user@192.168.1.100
+      </pre>
+      <div class="mt-3 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Lab tip</div>
+        <div class="text-xs text-slate-800 mt-1">Run verification steps between changes so you can isolate which action produced the expected result.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

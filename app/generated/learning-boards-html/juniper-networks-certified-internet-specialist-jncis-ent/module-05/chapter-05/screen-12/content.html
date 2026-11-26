@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Lab Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Scenario</span>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Task checklist</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Configure R1 as ASBR and add static routes 172.16.10.0/24 and 172.16.11.0/24.</li>
+        <li>Create prefix-list ALLOWED_PREFIXES with 172.16.10.0/24.</li>
+        <li>Create policy FILTER_STATIC_TO_OSPF matching protocol static + prefix-list; accept then explicit reject.</li>
+        <li>Apply set protocols ospf export FILTER_STATIC_TO_OSPF on R1.</li>
+        <li>On R2 run show route protocol ospf and confirm only 172.16.10.0/24 is present.</li>
+        <li>On R1 configure firewall filter PBR_REDIRECT matching source 10.0.0.0/24 then next-hop 10.0.0.254 and accept; apply to interface.</li>
+        <li>Use monitor traffic and show route forwarding-table to confirm PBR behavior and check for asymmetry or loops.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Verification commands</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>show route static — confirm static routes on ASBR.</div>
+        <div>show route protocol ospf — verify routes learned on internal router.</div>
+        <div>show interfaces ge-0/0/0 detail — confirm filter attachment.</div>
+        <div>monitor traffic interface ge-0/0/0 extensive — observe redirected packets.</div>
+        <div>show route forwarding-table — confirm forwarding next-hop for PBR matched traffic.</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Follow the checklist and verification commands exactly; testing in a lab prevents accidental route loss or loops in production.</p>
+  </div>
+</div>

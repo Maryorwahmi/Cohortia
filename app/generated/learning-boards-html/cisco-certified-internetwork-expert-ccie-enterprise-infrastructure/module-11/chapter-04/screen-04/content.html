@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class="text-slate-700">OSI Model Troubleshooting</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-2">Use OSI layers to scope tests</h2>
+      <p class="text-sm text-slate-600 mt-3">Map the observed symptom to an OSI layer and generate a hypothesis. This directs the first set of show commands and prevents scattershot troubleshooting under time pressure.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mapping</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-4">
+          <li>Layer 1: link down, interface errors</li>
+          <li>Layer 2: VLAN or trunk mismatches, MAC learning issues</li>
+          <li>Layer 3: IP addressing, routing protocol adjacencies</li>
+          <li>Layer 7: application reachability, DNS or firewall rules</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Start your hypothesis at the OSI layer most strongly suggested by the symptom; use that to choose the first show commands.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Analogy & example</div>
+      <div class="mt-2 text-sm text-slate-700">Analogy: Diagnosing a car — if the engine won't start, check the battery and fuel before adjusting the carburetor. Example: Two routers cannot ping each other's loopbacks. Hypothesis: If interfaces show down or no carrier, it's Layer 1. Run interface checks first; if interfaces are up, examine VLANs and OSPF adjacencies next.</div>
+
+      <div class="mt-4 flex gap-3">
+        <div class="flex-1 bg-slate-50 p-3 rounded-lg card-border">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500">Quick commands</div>
+          <pre class="mt-2 text-sm text-slate-800 bg-transparent p-0 m-0" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">show interfaces status
+show interfaces GigabitEthernet0/1
+show controllers serial0/0</pre>
+        </div>
+
+        <div class="flex-1 bg-slate-50 p-3 rounded-lg card-border">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500">When to move layers</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc pl-4">
+            <li>If Layer 1 OK → test VLAN/trunk at Layer 2</li>
+            <li>If Layer 2 OK → test routes and OSPF at Layer 3</li>
+            <li>If Layer 3 OK → test application and firewall at Layer 7</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-rose-50 p-3 rounded-lg card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700">Automatically starting at Layer 1 for every symptom wastes time when the issue is an application-layer misconfiguration. Choose the layer based on the symptom, not habit alone.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

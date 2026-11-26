@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex mb-3">
+    <div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Definition</div>
+      <div class="text-2xl font-bold text-slate-800">Loops in Ansible</div>
+      <div class="text-sm text-slate-600 mt-2">Run the same task for each item in a list and use item to access each entry’s data.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Simple list example</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>- name: Install a list of common packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - git
+    - vim
+    - htop</code></pre>
+      <div class="text-sm text-slate-600 mt-2">This runs the package task three times, once per package name available as item.</div>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">List of dictionaries</div>
+      <pre class="bg-slate-50 p-3 rounded-md text-sm"><code>- name: Create multiple users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    group: "{{ item.group }}"
+    state: present
+  loop:
+    - { name: 'alice', uid: 2001, group: 'developers' }
+    - { name: 'bob', uid: 2002, group: 'developers' }
+    - { name: 'charlie', uid: 2003, group: 'admins' }</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Access item.name, item.uid, and item.group for each iteration to supply module parameters.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Prefer loop over with_items, and remember looped tasks produce per-item results. Use register carefully if you need aggregated outcomes.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

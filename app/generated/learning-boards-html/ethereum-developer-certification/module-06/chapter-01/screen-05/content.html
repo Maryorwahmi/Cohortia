@@ -1,0 +1,54 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Storage vs Memory</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Comparison table</div>
+      <div class="mt-3 grid grid-cols-2 gap-4 text-sm text-slate-600">
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="font-semibold text-slate-800">Storage</div>
+          <p class="mt-2">Persistent, expensive reads and writes (sload/sstore). Use for true state.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="font-semibold text-slate-800">Memory</div>
+          <p class="mt-2">Temporary, cheaper. Use for in-function arrays and scratch data.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="font-semibold text-slate-800">Calldata</div>
+          <p class="mt-2">Read-only external parameters. Avoids copying when used with external functions.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-white border">
+          <div class="font-semibold text-slate-800">When to choose</div>
+          <p class="mt-2">If data need not persist, prefer memory or calldata to lower gasUsed.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Avoid storage for temporary data; choose calldata for externally passed arrays.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Supporting explanation</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Storage operations are persistently recorded and therefore costly.</li>
+        <li>Memory allocations are per-transaction and far cheaper for temporary use.</li>
+        <li>External + calldata avoids copying arrays into memory, saving gas.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border text-sm text-slate-700">
+        <div class="font-semibold">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">If you only need to sum an on-chain array within a view function, copy necessary fields into memory or accept the array via calldata in an external function to avoid repeated sloads.</div>
+      </div>
+    </div>
+  </div>
+</div>

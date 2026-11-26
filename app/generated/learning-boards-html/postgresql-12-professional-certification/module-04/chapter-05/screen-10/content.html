@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Setting isolation levels</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Session and transaction examples</h3>
+      <pre class="text-sm text-slate-700 mt-3 p-3 bg-slate-50 rounded" style="white-space:pre-wrap; tab-size:2;"><code>-- Per-transaction
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+-- do reads and writes
+COMMIT;
+
+-- Per-session
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN;
+-- subsequent transactions start with REPEATABLE READ
+COMMIT;</code></pre>
+      <p class="text-sm text-slate-600 mt-3">Remember: SET TRANSACTION must be executed after BEGIN for the current transaction. SET SESSION affects transactions started later on the connection.</p>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical tip</div>
+      <p class="text-sm text-slate-600 mt-2">Prefer per-transaction settings when only a critical operation needs higher guarantees; this minimizes the impact on concurrency and reduces the surface for serialization errors.</p>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Choose scope carefully: per-transaction for targeted consistency, per-session for broad defaults. Pair SERIALIZABLE with retry logic.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

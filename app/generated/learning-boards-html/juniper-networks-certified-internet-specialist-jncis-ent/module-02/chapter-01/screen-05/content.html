@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border-radius:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+      <span class='text-slate-700'>Forwarding and Flooding</span>
+    </div>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='text-xl font-bold text-slate-900'>Forward or Flood</div>
+      <div class='text-sm text-slate-600'>A simple decision tree determines selective forwarding or broadcast flooding until learning occurs.</div>
+      <div class='card p-4'>
+        <ol class='list-decimal pl-5 text-sm text-slate-700 space-y-2'>
+          <li>Frame arrives; switch reads source MAC and updates table.</li>
+          <li>Switch looks up destination MAC in the table.</li>
+          <li>If found, forward to that port only.</li>
+          <li>If not found, flood to all ports in the same VLAN except ingress.</li>
+          <li>When destination replies, the switch learns its MAC and future frames are forwarded selectively.</li>
+        </ol>
+      </div>
+      <div class='grid grid-cols-2 gap-3'>
+        <div class='card p-3'>
+          <div class='font-bold text-slate-800 mb-1'>Concrete example</div>
+          <div class='text-sm text-slate-700'>A new printer sends ARP; initial frames flood. Once the printer responds, its MAC is recorded and normal forwarding resumes.</div>
+        </div>
+        <div class='card p-3'>
+          <div class='font-bold text-slate-800 mb-1'>Misconception</div>
+          <div class='text-sm text-slate-700'>Flooding is not always a fault. It is part of correct switch behavior for unknown destinations.</div>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-4'>
+      <div class='card p-4 flex-1'>
+        <div class='font-bold text-slate-800 mb-2'>Annotated decision diagram</div>
+        <div class='text-sm text-slate-700'>A compact diagram labels the check: update source → lookup destination → forward or flood. Use it to explain observed traffic patterns to peers.</div>
+        <div class='mt-3 grid grid-cols-2 gap-3'>
+          <div class='bg-blue-50 p-2 rounded'>Known destination
+          <div class='text-xs text-slate-600'>Forward only</div></div>
+          <div class='bg-rose-50 p-2 rounded'>Unknown destination
+          <div class='text-xs text-slate-600'>Flood then learn</div></div>
+        </div>
+      </div>
+      <div class='rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro tip</div>
+        <p class='text-xs font-medium text-slate-800'>When troubleshooting intermittent loss, check for MAC table flaps or rapid aging that can cause repeated flooding.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Config Loader Exercise</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-3">Starter code — refactor task</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-slate-900 text-white p-4 shadow-sm h-full overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+      <div class="text-xs font-bold mb-2">Starter Code (Python)</div>
+      <pre class="whitespace-pre-wrap text-sm" style="tab-size:2">
+import os
+
+def load_default_config():
+    default_settings = {
+        "DATABASE_URL": "sqlite:///app.db",
+        "LOG_LEVEL": "INFO",
+        "MAX_CONNECTIONS": 10
+    }
+    print("Loaded default config.")
+    return default_settings
+
+
+def load_env_config():
+    env_settings = {}
+    if "APP_DATABASE_URL" in os.environ:
+        env_settings["DATABASE_URL"] = os.environ["APP_DATABASE_URL"]
+    if "APP_LOG_LEVEL" in os.environ:
+        env_settings["LOG_LEVEL"] = os.environ["APP_LOG_LEVEL"]
+    if "APP_MAX_CONNECTIONS" in os.environ:
+        env_settings["MAX_CONNECTIONS"] = int(os.environ["APP_MAX_CONNECTIONS"])
+    print("Loaded environment config.")
+    return env_settings
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+      <div class="text-sm font-bold">Refactor guidance</div>
+      <ol class="text-sm text-slate-600 pl-5 mt-2 list-decimal space-y-2">
+        <li>Define a canonical metadata map: key name, env var name, conversion function.</li>
+        <li>Implement a helper that applies conversions for a given source mapping.</li>
+        <li>Use the helper in load_env_config and load_user_override_config to avoid duplicated loops.</li>
+        <li>Write tests for defaults, env overrides, and user file parsing.</li>
+      </ol>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Check</div>
+        <p class="text-xs font-medium text-slate-800">Does the helper encode which settings exist and how to convert them? If yes, you have centralized knowledge.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

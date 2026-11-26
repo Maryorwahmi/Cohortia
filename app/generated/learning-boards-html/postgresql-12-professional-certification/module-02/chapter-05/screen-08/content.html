@@ -1,0 +1,32 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-[rgba(239,102,117,0.08)]'>Definition</span>
+    <span>›</span>
+    <span class='text-slate-700'>Index Bloat</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-sm font-bold text-slate-800'>Causes</div>
+      <ul class='mt-3 text-sm text-slate-700 space-y-2'>
+        <li>• Frequent UPDATE/DELETE operations create dead index tuples that remain until vacuumed or rebuilt.</li>
+        <li>• Large transactions and lock delays can prevent timely reclamation.</li>
+        <li>• Ineffective autovacuum configuration can let bloat accumulate.</li>
+      </ul>
+
+      <div class='mt-4 text-sm text-slate-700'>Misconception: VACUUM always fixes index bloat. VACUUM reuses space but does not always compact the index structure; REINDEX rebuilds the index layout.</div>
+    </div>
+
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Detection</div>
+      <div class='mt-3 text-sm text-slate-700'>Look for disproportionately large index files, rising index scan costs, and many dead tuples. Use pg_stat_user_indexes and catalog functions to compare index size to expected row counts.</div>
+
+      <div class='mt-4 bg-slate-100 rounded-md p-3 text-sm text-slate-700'>Quick diagnostic query (illustrative): compare idx_scan and index size to table characteristics to find heavy, rarely-used indexes.</div>
+
+      <div class='mt-auto rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700'>Try This</div>
+        <div class='text-sm text-slate-700 mt-2'>Check indexes on hot tables after a period of heavy DML and consider a targeted REINDEX if size or performance has degraded.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>/* minimal safe-area typography */
+    .cohortia-bg{background: #f8fafc}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Advanced SSH Configuration</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-auto">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-600">Interactive 16:9 Masterclass</div>
+            <h1 class="text-3xl font-bold text-slate-800 mt-2">Advanced SSH Configuration and Security</h1>
+            <p class="text-sm text-slate-600 mt-3">Move from passwords to key pairs, harden server settings, and manage keys on the client for secure, efficient administration.</p>
+          </div>
+          <div class="text-sm text-slate-500">Duration: ~10 min demo</div>
+        </div>
+
+        <div class="mt-5 grid grid-cols-3 gap-3">
+          <div class="rounded-xl bg-blue-50 p-3 border border-blue-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700">In this lesson</div>
+            <div class="text-sm font-semibold text-slate-800 mt-2">Key generation & installation</div>
+            <div class="text-xs text-slate-600 mt-1">Create strong key pairs and install public keys correctly.</div>
+          </div>
+          <div class="rounded-xl bg-violet-50 p-3 border border-[rgba(123,66,232,0.08)]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Coming up</div>
+            <div class="text-sm font-semibold text-slate-800 mt-2">sshd hardening</div>
+            <div class="text-xs text-slate-600 mt-1">Disable passwords, block root, allow specific users.</div>
+          </div>
+          <div class="rounded-xl bg-emerald-50 p-3 border border-emerald-100">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Practice</div>
+            <div class="text-sm font-semibold text-slate-800 mt-2">ssh-agent & client config</div>
+            <div class="text-xs text-slate-600 mt-1">Load keys into an agent and define host aliases.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex gap-4">
+        <div class="w-1/2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Visual overview</div>
+          <div class="rounded-lg bg-slate-50 p-4 h-44 flex flex-col justify-between">
+            <div class="flex items-center gap-3">
+              <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 11v6m0 0c0 1.657 1.343 3 3 3s3-1.343 3-3v-6"></path></svg>
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Private key</div>
+                <div class="text-xs text-slate-600">Protected by passphrase on your workstation</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 10-8 0v4"></path><rect width="20" height="12" x="2" y="11" rx="2"></rect></svg>
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Public key</div>
+                <div class="text-xs text-slate-600">Stored in server's authorized_keys</div>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-600">When keys match, authentication succeeds without password exchange.</div>
+          </div>
+        </div>
+        <div class="w-1/2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Why this matters</div>
+          <p class="text-sm text-slate-700">Passwords can be brute-forced or guessed. Properly-protected keys require possession of the private key and, ideally, a passphrase. Combined with server-side restrictions, keys make remote access both safer and auditable.</p>
+
+          <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use key-based authentication and strict sshd settings to minimize brute-force and direct root access risks.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Quick commands</div>
+        <pre class="mt-3 font-mono text-sm bg-slate-50 p-3 rounded-lg" style="white-space:pre-wrap; tab-size:2;">ssh-keygen -t rsa -b 4096 -C "you@example.com"
+ssh-copy-id adminuser@&lt;REMOTE_SERVER_IP&gt;
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa</pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Explore Key Topics</div>
+        <div class="mt-3 space-y-2">
+          <div class="text-sm font-semibold text-slate-800">Key-based Authentication</div>
+          <div class="text-xs text-slate-600">Generate keys, protect private key with a passphrase, copy public key to server.</div>
+          <div class="text-sm font-semibold text-slate-800">sshd Hardening</div>
+          <div class="text-xs text-slate-600">Disable passwords, refuse root login, allow specific users.</div>
+          <div class="text-sm font-semibold text-slate-800">Client Convenience</div>
+          <div class="text-xs text-slate-600">Use ssh-agent and ~/.ssh/config for safe, convenient workflows.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

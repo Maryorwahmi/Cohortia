@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800">When a Datanode fails</h3>
+      <div class="mt-3 text-sm text-slate-600 space-y-2">
+        <div>Detection: Namenode notices the missing Datanode via heartbeat absence.</div>
+        <div>Assessment: Namenode identifies which block replicas are now under-replicated.</div>
+        <div>Recovery: Namenode commands healthy Datanodes to copy replicas until the desired factor is reached.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-sm font-bold text-slate-800">Operator note</div>
+        <div class="text-sm text-slate-600 mt-1">Re-replication consumes network and disk resources, so monitor cluster load during recovery and ensure enough spare capacity to rebuild replicas promptly.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card">
+      <div class="text-sm font-bold text-slate-800">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">If one Datanode holding a replica of a 128 MB block fails, the Namenode will see the block now has fewer than three replicas and will schedule another Datanode to copy one of the remaining replicas so the replication factor is restored.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-sm font-bold text-rose-700">Pitfall</div>
+          <div class="text-sm text-slate-600 mt-1">Relying solely on replication without alerts can delay detection of multiple simultaneous failures that could reduce redundancy below safe levels.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">HDFS self-heals by re-replicating from healthy copies, but operational planning and monitoring are required to keep the cluster resilient during failures.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

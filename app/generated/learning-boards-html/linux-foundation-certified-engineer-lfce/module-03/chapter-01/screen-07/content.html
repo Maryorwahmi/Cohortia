@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Forward zone file</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 rounded-2xl bg-white card p-4 shadow-sm h-full overflow-auto">
+      <div class="text-sm font-bold text-slate-800">db.example.com (example)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+; /var/named/db.example.com
+$TTL 86400
+@       IN      SOA     ns1.example.com. admin.example.com. (
+                        2023102701 ; Serial
+                        3600       ; Refresh
+                        1800       ; Retry
+                        604800     ; Expire
+                        86400 )    ; Minimum TTL
+@       IN      NS      ns1.example.com.
+@       IN      NS      ns2.example.com.
+ns1     IN      A       192.168.10.100
+ns2     IN      A       192.168.10.200
+www     IN      A       192.168.10.101
+mail    IN      A       192.168.10.102
+@       IN      MX 10   mail.example.com.
+      </pre>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white card p-4 shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation cards</div>
+      <div class="mt-3 grid grid-cols-1 gap-3 flex-1">
+        <div class="p-3 rounded-lg bg-emerald-50 border card">
+          <div class="text-sm font-semibold text-slate-800">SOA serial</div>
+          <div class="text-sm text-slate-700 mt-2">Increment on each authoritative change. Slaves compare serials to decide whether to request transfers.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-blue-50 border card">
+          <div class="text-sm font-semibold text-slate-800">NS vs A</div>
+          <div class="text-sm text-slate-700 mt-2">NS lists authoritative servers; A maps names to IPv4 addresses used by NS and other hosts.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border card">
+          <div class="text-sm font-semibold text-slate-800">MX & PTR note</div>
+          <div class="text-sm text-slate-700 mt-2">MX points mail to a host; ensure the mail host has a matching A and reverse PTR record to avoid mail delivery problems.</div>
+        </div>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-white border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Maintain clear serial conventions and validate zone files before reloading to avoid propagation issues and service disruption.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Setting metric (MED)</div>
+      <div class="text-sm text-slate-600 mt-2">A lower MED is preferred by external ASes. Use for multi-homed entry selection.</div>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-3 rounded"><code>set policy-options policy-statement MODIFY_MED term T1 from protocol bgp
+set policy-options policy-statement MODIFY_MED term T1 then metric 100
+set policy-options policy-statement MODIFY_MED term T1 then accept</code></pre>
+
+      <div class="mt-3 text-xs text-slate-600">Verify with show route protocol bgp detail and look for the MED or metric field in the route attributes.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">You operate two peering links to the same provider. Set a lower MED on the preferred peering to nudge the provider to prefer that entry point into your AS.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <div class="rounded-lg bg-rose-50 p-3 mt-2 text-xs text-rose-700">Believing MED always wins: peers may ignore or reweight MED, or apply route-flap damping. MED is not as decisive as AS path length or local-preference in BGP selection.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use metric to advise remote peers about preferred entry. Confirm with route detail and coordinate with your peer for predictable results.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

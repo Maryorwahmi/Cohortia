@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploying Firewall Instance</span>
+  </div>
+
+  <div class="flex flex-col flex-grow">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Deployment Walkthrough</span>
+    </div>
+    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Deploying Azure Firewall Instance</h2>
+    <p class="text-base text-slate-600 mb-6">Provisioning the managed firewall service</p>
+
+    <div class="flex flex-grow gap-6">
+      <div class="w-1/2 flex flex-col gap-4">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-5 flex-grow">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3">Deployment Considerations</h3>
+          <ul class="list-disc list-inside text-sm text-slate-700 space-y-2">
+            <li>Azure Firewall is a fully managed service; Azure handles infrastructure.</li>
+            <li>Requires an IP configuration linked to `AzureFirewallSubnet`.</li>
+            <li>A public IP address is assigned for inbound DNAT and outbound SNAT.</li>
+            <li>Retrieve the firewall's private IP for User Defined Routes (UDRs).</li>
+            <li>Supports Availability Zones for high availability and resilience.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro-Tip</div>
+          <p class="text-xs font-medium text-slate-800">Deploying Azure Firewall across Availability Zones enhances resilience, ensuring your security remains active even during zone-wide outages.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">The firewall's private IP is crucial for directing traffic through it using UDRs, ensuring all traffic is inspected.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-slate-800 rounded-xl shadow-lg p-6 font-mono text-white text-sm flex flex-col">
+        <div class="text-amber-400 mb-4"># Azure CLI Commands: Deploy Firewall</div>
+        <pre class="whitespace-pre-wrap mb-4"><code style="tab-size: 2;"><span class="text-emerald-400"># 3. Deploy Azure Firewall</span>
+az network firewall create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">MyAzureFirewall</span> \
+  --location <span class="text-cyan-400">eastus</span>
+
+az network firewall ip-config create \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --firewall-name <span class="text-cyan-400">MyAzureFirewall</span> \
+  --name <span class="text-cyan-400">AzFw-IpConfig</span> \
+  --public-ip-address <span class="text-cyan-400">AzFw-PublicIp</span> \
+  --vnet-name <span class="text-cyan-400">HubVNet</span>
+
+<span class="text-emerald-400"># Get Firewall Private IP (needed for UDR)</span>
+FW_PRIVATE_IP=$(az network firewall show \
+  --resource-group <span class="text-cyan-400">Firewall-Demo-RG</span> \
+  --name <span class="text-cyan-400">MyAzureFirewall</span> \
+  --query <span class="text-cyan-400">"ipConfigurations[0].privateIpAddress"</span> \
+  --output <span class="text-cyan-400">tsv</span>)
+
+echo <span class="text-cyan-400">"Azure Firewall Private IP: $FW_PRIVATE_IP"</span></code></pre>
+        <div class="text-slate-400 text-xs mt-auto">These commands create the firewall instance and retrieve its private IP address.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

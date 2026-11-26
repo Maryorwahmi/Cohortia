@@ -1,0 +1,68 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>Counter Integration</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)]'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600'>Process</div>
+      <h4 class='text-lg font-bold text-slate-900 mt-2'>Steps for an integration test</h4>
+      <ol class='list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2'>
+        <li>Render the Counter component with render.</li>
+        <li>Locate the count text and buttons using screen queries.</li>
+        <li>Simulate presses with fireEvent.press.</li>
+        <li>Assert the updated visible text matches the expected count.</li>
+      </ol>
+      <div class='mt-4'>
+        <div class='text-sm font-semibold text-slate-800'>Counter component</div>
+        <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm overflow-auto' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// src/components/Counter.tsx
+import React, { useState } from 'react';
+import { Button, Text, View } from 'react-native';
+
+const Counter: React.FC = () =&gt; {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;View&gt;
+      &lt;Text testID='count-value'&gt;Count: {count}&lt;/Text&gt;
+      &lt;Button title='Increment' onPress={() =&gt; setCount(count + 1)} /&gt;
+      &lt;Button title='Decrement' onPress={() =&gt; setCount(count - 1)} /&gt;
+    &lt;/View&gt;
+  );
+};
+
+export default Counter;
+</pre>
+      </div>
+    </div>
+    <div class='bg-white rounded-2xl p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Test snippet</div>
+      <pre class='mt-2 p-3 rounded-md bg-slate-50 text-sm overflow-auto' style='white-space: pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>// src/components/__tests__/Counter.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import Counter from '../Counter';
+
+describe('Counter', () =&gt; {
+  it('increments the count when pressed', () =&gt; {
+    render(&lt;Counter /&gt;);
+    const increment = screen.getByText('Increment');
+    fireEvent.press(increment);
+    expect(screen.getByTestId('count-value')).toHaveTextContent('Count: 1');
+  });
+});
+</pre>
+      <div class='mt-auto grid gap-2'>
+        <div class='rounded-lg p-3 bg-amber-50 text-amber-800'>
+          <div class='text-xs font-bold uppercase tracking-wider'>Common mistake</div>
+          <div class='text-sm text-slate-800 mt-1'>Asserting internal variables rather than the visible UI increases brittleness.</div>
+        </div>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Integration tests validate interactions and visible state changes, not internal implementation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

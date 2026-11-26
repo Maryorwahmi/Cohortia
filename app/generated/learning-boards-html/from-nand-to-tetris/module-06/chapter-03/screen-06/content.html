@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Function Calls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full min-h-0 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">Call sequence (conceptual VM → assembly mapping)</div>
+        <pre class="mt-3 text-sm text-slate-800 bg-white" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace;">
+// VM: call MyFunc 2
+// assembly outline (conceptual)
+@return-address
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// push ARG, THIS, THAT similarly
+// ARG = SP - 5 - nArgs
+// LCL = SP
+@MyFunc
+0;JMP
+(return-address)
+</pre>
+      </div>
+
+      <div class="mt-3 rounded-xl p-3 border bg-white" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold text-slate-600">Concrete check</div>
+        <p class="text-sm text-slate-600 mt-1">When a callee returns, the translator must move the return value to the caller's stack location and restore saved pointers in the right order to recover the caller environment.</p>
+      </div>
+    </div>
+
+    <div class="flex-1 h-full min-h-0 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 border shadow-sm h-full" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Debugging tips</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>Inspect SP and LCL values before and after calls to ensure correct updates.</li>
+          <li>Set temporary labels for return addresses with unique counters to avoid collisions.</li>
+          <li>Use small test programs with known return values to validate behavior before running large games.</li>
+        </ul>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pitfall</div>
+          <p class="text-xs font-medium text-slate-800">Miscalculating ARG (for example off by one) is the most common mistake in call/return implementation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Automation Example</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">Stop Idle Instances</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Automated stoppage with safe overrides</div>
+      <div class="text-sm text-slate-600 mt-2">Use scheduled events and Lambda to stop idle, non-exempt instances after notification and grace period.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Design pattern</div>
+          <ul class="text-sm text-slate-600 mt-2 pl-5 list-disc">
+            <li>Detect with CloudWatch schedule or Config.</li>
+            <li>Filter instances by tag and runtime.</li>
+            <li>Notify owner and wait, then stop if no exemption.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Pitfall</div>
+          <div class="text-sm text-slate-600 mt-2">Not notifying owners or lacking override tags can interrupt productive work; include clear communication and audit logs.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-3 card-border h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Example sequence (pseudo-commands)</div>
+        <pre class="mono text-sm p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2;"># CloudWatch scheduled rule triggers Lambda daily
+# Lambda pseudo-logic:
+# 1. Describe instances with state=running
+# 2. Filter where LaunchTime older than 24 hours
+# 3. Exclude instances with tag Key=do-not-stop,Value=true
+# 4. Publish notification to SNS using Owner tag
+# 5. If no exemption after grace period, stop instances via EC2 stop-instances
+
+# This pattern balances automation with owner notification and override handling.</pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

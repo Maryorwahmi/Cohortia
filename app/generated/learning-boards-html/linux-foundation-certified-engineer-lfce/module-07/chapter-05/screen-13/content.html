@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;font-size:13px;padding:12px;border-radius:8px;background:#071029;color:#dbeafe} .card-border{border:1px solid rgba(226,232,240,0.95)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Starter commands</div>
+      <pre># Step 1: Generate key (local)
+ssh-keygen -t ed25519 -C "prod_server_key"
+
+# Step 2: Deploy public key
+ssh-copy-id -i ~/.ssh/id_ed25519.pub testuser@remote_server_ip
+
+# Step 3: Backup and edit sshd_config (remote)
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+# Edit: Port 2222, PermitRootLogin no, PasswordAuthentication no, PubkeyAuthentication yes, AllowUsers testuser adminuser
+sudo sshd -t
+</pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Restricted user example</div>
+      <pre># Create restricted account and script (remote)
+sudo useradd -m git_sync
+sudo install -m 755 -o root -g root -d /usr/local/bin
+echo '#!/bin/bash' | sudo tee /usr/local/bin/git-shell
+echo 'echo "This account is for Git access only. Interactive shell is disabled."' | sudo tee -a /usr/local/bin/git-shell
+echo 'exit 1' | sudo tee -a /usr/local/bin/git-shell
+sudo vi /etc/ssh/sshd_config
+# Add at end:
+# Match User git_sync
+#   ForceCommand /usr/local/bin/git-shell
+#   PermitTunnel no
+#   AllowAgentForwarding no
+#   X11Forwarding no
+#   PermitOpen none
+sudo sshd -t && sudo systemctl restart sshd</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

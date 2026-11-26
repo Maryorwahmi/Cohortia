@@ -13,4 +13,4 @@ This Worker is the isolated native-code executor for Cohortia practicals. The br
    - `COHORTIA_SANDBOX_EXECUTOR_URL=https://<your-worker>.workers.dev/execute`
    - `COHORTIA_SANDBOX_EXECUTOR_SECRET=<the same secret>`
 
-The Worker accepts only C/C++ file sets, compiles with fixed argument arrays, disables sandbox internet access, limits compile and runtime duration, and truncates returned output. It intentionally does not accept arbitrary terminal commands or browser-supplied credentials.
+The Worker accepts isolated C/C++, Python, JavaScript, shell, and SQLite practicals. Native sources are compiled with fixed argument arrays; interpreted work runs only inside the network-disabled sandbox. Every run has fixed file, output, compile, and runtime limits. It intentionally does not accept arbitrary backend commands or browser-supplied credentials.

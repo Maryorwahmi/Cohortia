@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span class="text-slate-400">›</span>
+    <span class="">Chapter 3.6</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">AS_PATH Prepending</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Concept</div>
+        <p class="text-sm text-slate-600">Add your ASN multiple times to the AS_PATH on the secondary route advertisement to make that path look longer and less preferred by AWS.</p>
+
+        <div class="mt-3 text-xs text-slate-500">Remember: this affects inbound traffic from AWS to your network, not your outbound selection.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Check your work</div>
+        <ul class="text-slate-600 space-y-2 list-disc pl-5">
+          <li>Verify BGP AS_PATH length on AWS-visible routes.</li>
+          <li>Confirm primary path has shorter AS_PATH under normal operation.</li>
+          <li>Simulate primary failure and verify AWS switches to secondary.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Conceptual BGP snippet</div>
+        <pre class="text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+router bgp 65000
+ neighbor &lt;AWS_IP_PRIMARY&gt; remote-as 64512
+  address-family ipv4
+   network 172.16.0.0 mask 255.255.0.0
+  exit-address-family
+
+router bgp 65000
+ neighbor &lt;AWS_IP_SECONDARY&gt; remote-as 64512
+  address-family ipv4
+   network 172.16.0.0 mask 255.255.0.0
+   neighbor &lt;AWS_IP_SECONDARY&gt; route-map PREPEND_AS out
+  exit-address-family
+
+route-map PREPEND_AS permit 10
+ set as-path prepend 65000 65000 65000
+        </pre>
+
+        <div class="mt-3 text-xs text-slate-500">Replace placeholder IPs with your DX peer addresses during lab configuration. Capture show ip bgp output to confirm AS_PATH updates.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

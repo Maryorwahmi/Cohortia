@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Screen memory map</span>
+  </div>
+  <div class="flex gap-6 grow h-full">
+    <div class="w-1/2 flex flex-col justify-start gap-4">
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Definition</div>
+        <h3 class="text-xl font-semibold text-slate-900">256 rows × 512 columns</h3>
+        <p class="text-sm text-slate-700 mt-2">The screen memory block is contiguous. Each row is stored as thirty-two 16-bit words. Use the address formula to locate any pixel's word.</p>
+      </div>
+      <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Address formulas</div>
+        <div class="text-sm text-slate-700">
+          <div>Word address: <span class="font-medium">16384 + row * 32 + wordIndex</span></div>
+          <div class="mt-2">Bit position: <span class="font-medium">col % 16</span></div>
+        </div>
+      </div>
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Correct pixel addressing avoids drawing corruption and is the basis for all other primitives.</p>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-3 bg-white card-border shadow-sm flex-grow">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Annotated example</div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="bg-slate-50 p-3 rounded-lg">
+            <div class="text-sm font-semibold">Example: pixel (col=30, row=10)</div>
+            <div class="text-xs text-slate-700 mt-2">wordIndex = 30 / 16 = 1, bit = 30 % 16 = 14</div>
+            <pre class="mt-3 p-3 bg-white rounded text-xs text-slate-800" style="white-space:pre-wrap;tab-size:2">// compute word address for (30,10)
+address = 16384 + 10 * 32 + 1
+// mask for bit 14: 1 << 14</pre>
+          </div>
+          <div class="bg-white p-3 rounded-lg card-border">
+            <div class="text-sm font-semibold">Visual mnemonic</div>
+            <div class="text-xs text-slate-600 mt-2">Think of each row as a shelf holding 32 boxes; each box contains 16 paint dots. Choose the shelf, box, then dot index.</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-2">Off-by-one errors in dividing columns by 16 or incorrect modulo operations often place the mask in the wrong word. Always test with several columns including multiples of 16.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

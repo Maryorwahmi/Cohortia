@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .left{width:45%}.right{width:55%} pre code{white-space:pre-wrap;tab-size:2} .card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;padding:12px} </style>
+
+  <div class="breadcrumb flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">gdisk Workflow</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="left flex flex-col gap-4">
+      <div class="card">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Definition</div>
+        <div class="text-lg font-bold text-slate-800 mt-2">gdisk for GPT partition tables</div>
+        <div class="mt-3 text-sm text-slate-700">gdisk manages GPT tables and supports large disks. Use it when disks exceed 2TB or when you need many partitions.</div>
+      </div>
+
+      <div class="card">
+        <div class="text-sm font-bold text-slate-800">Common oversight</div>
+        <div class="text-sm text-slate-700 mt-2">Not creating the EFI partition on a UEFI system when partitioning a boot disk. Plan boot partitions separately from data partitions.</div>
+      </div>
+    </div>
+
+    <div class="right flex flex-col gap-4">
+      <div class="card h-full">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Process</div>
+        <div class="text-sm text-slate-700 mt-2">A safe gdisk sequence and verification:</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded card-border text-sm"><code># 1. Confirm device
+sudo lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
+
+# 2. Start gdisk for /dev/sdb
+sudo gdisk /dev/sdb
+
+# 3. Inside gdisk: n (new), specify size or sector, t (type) if needed, w (write)
+
+# 4. Inform kernel and format
+sudo partprobe /dev/sdb
+sudo mkfs.xfs /dev/sdb1</code></pre>
+        <div class="text-xs text-slate-500 mt-2">Choose mkfs.xfs for large-file workloads; mkfs.ext4 for general purpose use.</div>
+      </div>
+
+      <div class="card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example card</div>
+        <div class="text-sm text-slate-700 mt-2">Example: On a 3TB disk create one GPT partition, format it as XFS for database backups, then mount it under /mnt/db_backups and add a persistent fstab entry.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

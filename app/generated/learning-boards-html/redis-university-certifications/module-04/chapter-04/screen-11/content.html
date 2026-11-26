@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Race Conditions</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Problem</div>
+      <div class="text-sm text-slate-600 mt-2">INCR then EXPIRE can leave counters without TTL if a crash or network error occurs between commands. That causes permanent blocks until manual cleanup.</div>
+      <div class="mt-3 text-sm font-semibold">Mitigations</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Pipelines to batch INCR and EXPIRE.</li>
+        <li>EXPIRE ... NX to only set TTL when key is new.</li>
+        <li>Lua script to perform INCR and set TTL atomically server-side.</li>
+      </ul>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Concrete Lua idea</div>
+      <pre class="mt-3">-- Pseudocode
+local c = redis.call('INCR', KEYS[1])
+if tonumber(c) == 1 then
+  redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+return c</pre>
+      <div class="mt-3 text-sm text-slate-600">This script increments and only sets TTL when counter becomes one, all in one atomic call.</div>
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Pipelines are a pragmatic first step; use Lua when you need strict atomic guarantees under failure.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-6/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-lg font-bold text-slate-900">Create API INTEGRATION</div>
+      <div class="text-sm text-slate-600 mt-2">Follow this SQL pattern and validate the placeholders and prefixes carefully.</div>
+
+      <div class="mt-4">
+        <pre class="p-3 rounded bg-slate-50 text-sm">-- As ACCOUNTADMIN or a role with CREATE INTEGRATION privilege
+CREATE OR REPLACE API INTEGRATION my_api_integration
+  API_PROVIDER = AWS_API_GATEWAY
+  API_AWS_ROLE_ARN = 'arn:aws:iam::123456789012:role/my-api-gateway-role'
+  ENABLED = TRUE
+  API_ALLOWED_PREFIXES = ('https://abcdef123.execute-api.us-east-1.amazonaws.com/prod/my_function');</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600 space-y-2">
+        <div>1. API_PROVIDER selects your gateway provider.</div>
+        <div>2. API_AWS_ROLE_ARN grants Snowflake permission to assume a role.</div>
+        <div>3. API_ALLOWED_PREFIXES lists exact gateway URL prefixes to authorize.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using an incomplete allowed prefix or incorrect ARN is the most frequent cause of integration failures. Verify exact gateway URL and role ARN early in testing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-6/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Quick verification steps</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal list-inside space-y-2">
+        <li>Confirm the IAM role has permission to invoke the gateway or be assumed by Snowflake.</li>
+        <li>Ensure the gateway stage and path match the allowed prefix exactly.</li>
+        <li>Run a controlled External Function call with a single test row and inspect errors.</li>
+      </ol>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Analogy</div>
+      <div class="mt-2 text-sm text-slate-600">Think of API Integration as a permission slip: it doesn't open the door, but it tells Snowflake where it's allowed to knock.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Create the integration with exact prefixes and test a single call. Integration enables authorization, it doesn’t deploy or run the serverless code.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

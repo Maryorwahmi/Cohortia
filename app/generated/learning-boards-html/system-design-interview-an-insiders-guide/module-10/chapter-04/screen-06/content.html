@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Core Concept</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-900">Apache Druid</div>
+      <p class="text-sm text-slate-700 mt-2">Druid stores time-segmented data and separates ingestion, historical storage, and query brokering. This enables sub-second queries on high-cardinality data and makes it suitable for interactive dashboards.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When to pick Druid</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Interactive, sub-second OLAP queries over recent data.</li>
+          <li>High-cardinality dimensions and fast ingestion pipelines.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-900">ClickHouse</div>
+      <p class="text-sm text-slate-700 mt-2">ClickHouse is a high-performance columnar DB optimized for aggregations at scale. MergeTree engines and ORDER BY clauses guide data layout to accelerate queries like group-bys and time-bucketed aggregates.</p>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When to pick ClickHouse</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-5">
+          <li>Very large append-only datasets with heavy aggregation needs.</li>
+          <li>SQL-first workflows requiring extreme query throughput.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-2xl bg-white p-4 card shadow-sm">
+    <div class="text-sm font-bold text-slate-800">Example ClickHouse schema and query</div>
+    <pre class="mt-2 text-sm text-slate-700">CREATE TABLE website_events (
+    timestamp DateTime,
+    user_id String,
+    event_type LowCardinality(String),
+    page_url String
+) ENGINE = MergeTree()
+ORDER BY (timestamp, user_id);
+
+-- Count unique users per minute
+SELECT
+    toStartOfMinute(timestamp) AS minute,
+    count(DISTINCT user_id) AS unique_users
+FROM website_events
+WHERE timestamp &gt;= now() - INTERVAL 1 HOUR
+GROUP BY minute
+ORDER BY minute;</pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

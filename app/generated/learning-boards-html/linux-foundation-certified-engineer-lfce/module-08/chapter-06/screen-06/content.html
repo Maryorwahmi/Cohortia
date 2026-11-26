@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Definition</div>
+    <div class="text-2xl font-bold text-slate-800">Volume mounting — persistence patterns</div>
+    <div class="text-sm text-slate-600 mt-2">Understand when to use host path mounts versus named volumes and how to verify persistent storage.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Host path mount</div>
+      <div class="rounded p-3 bg-slate-50 mono card-border">
+        <pre class="text-sm">docker run -d --name my-app-with-data -p 80:80 -v /path/on/host:/app/data my-custom-app:latest</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Directly mounts a host directory. Use when you need files on the host, but watch for ownership and permission mismatches between host user and container user.</div>
+
+      <div class="mt-4 text-sm text-rose-600">Common issue: container cannot write to the mounted directory. Fix by adjusting host permissions or using chown so the container user has access.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Named volume</div>
+      <div class="rounded p-3 bg-slate-50 mono card-border">
+        <pre class="text-sm">docker volume create my-app-volume
+docker run -d --name my-app -v my-app-volume:/app/data my-custom-app:latest</pre>
+      </div>
+      <div class="mt-3 text-sm text-slate-600">Docker manages the volume location and contents. Named volumes are portable between containers and better for production persistence.</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Choose named volumes for persistent service data and host mounts when you need direct access to host files. Always verify with docker inspect and check permissions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

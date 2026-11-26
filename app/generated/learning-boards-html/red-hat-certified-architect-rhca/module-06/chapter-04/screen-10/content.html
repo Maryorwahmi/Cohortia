@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CephFS Mounts</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Kernel client mount example</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="min-height:200px">
+        <pre><code># On a client host
+sudo dnf install -y ceph-common
+sudo mkdir /mnt/cephfs
+sudo mount -t ceph <MON_IP_1>:6789,<MON_IP_2>:6789:/ /mnt/cephfs -o name=admin,secretfile=/etc/ceph/ceph.client.admin.keyring
+# Replace monitor addresses, use the admin keyring path on the client.
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">After mounting, test file and directory operations. For high rates of metadata ops, validate MDS failover and consider adding active MDS nodes.</div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">FUSE client and performance notes</div>
+      <p class="text-sm text-slate-600 mt-2">Use ceph-fuse when kernel modules are unavailable or when portability is required. Expect higher CPU overhead with FUSE and test performance against your expected workload. Measure both throughput and metadata operation latency to decide client and MDS sizing.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <div class="text-xs text-slate-800">Run file create/delete benchmarks and small-file tests to evaluate metadata performance.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-amber-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Tip</div>
+          <div class="text-xs text-slate-800">Prefer kernel client for production where compatibility allows; tune MDS and metadata pool PGs for metadata-heavy apps.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

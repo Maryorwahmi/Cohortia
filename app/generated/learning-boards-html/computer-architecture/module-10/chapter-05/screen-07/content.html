@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+      <span>›</span>
+      <span>Chapter 10.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Aliasing & __restrict__</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[68%]">
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <div class="text-sm font-bold">Problem: possible aliasing</div>
+        <p class="text-sm text-slate-700 mt-2">If arrays overlap, reordering or grouping operations can change program results, so vectorization is blocked.</p>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-3 text-xs" style="white-space:pre-wrap; tab-size:2;">void add(float *a, float *b, float *c, int N) {
+  for (int i = 0; i &lt; N; i++) c[i] = a[i] + b[i];
+}</pre>
+      </div>
+      <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+        <div class="text-sm font-bold">Solution: __restrict__</div>
+        <p class="text-sm text-slate-700 mt-2">Use __restrict__ on pointer parameters to promise no aliasing, enabling the compiler to vectorize safely.</p>
+        <pre class="mono bg-slate-50 p-3 rounded-md mt-3 text-xs" style="white-space:pre-wrap; tab-size:2;">void add(float * __restrict__ a,
+         float * __restrict__ b,
+         float * __restrict__ c, int N) { ... }</pre>
+        <div class="mt-4 text-xs text-slate-600">Only apply restrict when you can guarantee pointers do not overlap. Otherwise behavior is undefined.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

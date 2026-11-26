@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Profiler Markers</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full min-h-0">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col min-h-0">
+      <div class="text-xl font-bold text-slate-800">Code walkthrough</div>
+      <div class="text-sm text-slate-600 mt-2">Add markers around expensive or suspect sections to show up in CPU Usage.</div>
+
+      <div class="mt-4 rounded-xl border bg-slate-900 text-white p-3 font-mono" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>using UnityEngine;
+using UnityEngine.Profiling; // important
+
+public class MyPerformanceScript : MonoBehaviour
+{
+  void Update()
+  {
+    Profiler.BeginSample("MyCustomLogic");
+
+    // Potentially expensive custom logic
+    DoComplexCalculation();
+
+    Profiler.EndSample();
+  }
+
+  void DoComplexCalculation()
+  {
+    // ... heavy computation ...
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-white border rounded-xl">
+          <div class="text-xs uppercase tracking-wider text-slate-600">Example</div>
+          <div class="text-sm text-slate-800 mt-1">Wrap your AR placement loop so "ARPlacementLogic" appears in Profiler and you can size its cost precisely.</div>
+        </div>
+
+        <div class="p-3 bg-white border rounded-xl">
+          <div class="text-xs uppercase tracking-wider text-slate-600">Pitfall</div>
+          <div class="text-sm text-slate-800 mt-1">Avoid leaving markers around trivial per-frame calls; use descriptive names for easy filtering in the profiler UI.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Custom markers give focused, low-overhead telemetry for your unique game logic. Use them to prove impact and guide fixes.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">How to verify</div>
+      <ol class="list-decimal ml-4 mt-2 text-sm text-slate-700 space-y-2">
+        <li>Save your script and build a Development Build with Autoconnect Profiler checked.</li>
+        <li>Deploy the app to the device and launch it.</li>
+        <li>Open Unity Profiler and select the connected AndroidPlayer or device; watch for your marker in the CPU timeline.</li>
+      </ol>
+
+      <div class="mt-4 p-3 bg-slate-50 border rounded-xl text-sm">
+        <div class="font-semibold text-slate-800">Check your understanding</div>
+        <div class="text-xs text-slate-600 mt-1">If a marker shows spikes only when a UI panel appears, what two causes might you investigate? (Hint: allocation during UI creation, expensive layout or animation code.)</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

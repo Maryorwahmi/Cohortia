@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--emerald:#10b981} pre{white-space:pre-wrap;tab-size:2; font-family:ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Phase 2 issues — transform-sets and interesting traffic</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Transform-sets & Crypto ACLs</h3>
+      <p class="text-sm text-slate-600 mt-3">Phase 2 requires both matching transform-sets and correct ACL definitions for interesting traffic. Either can prevent data SAs.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-700">Diagnostic steps</div>
+          <ul class="mt-2 text-sm text-slate-700 list-disc list-inside">
+            <li>Confirm Phase 1 is UP.</li>
+            <li>Run show crypto ipsec sa and check pkts encaps/decaps.</li>
+            <li>Verify the access-list referenced by the crypto map matches local and remote subnets.</li>
+            <li>Ensure transform-set algorithms are identical on both peers.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="font-semibold text-slate-700">Concrete example and check</div>
+      <p class="text-sm text-slate-600 mt-2">If show crypto isakmp sa shows QM_IDLE but show crypto ipsec sa shows no active SA, send a ping that should match the crypto ACL. Then re-run show crypto ipsec sa to see if pkts encaps increments. If it does not, review the ACL and the transform-set on both routers.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-1">A ping that should be encrypted is a quick litmus test for whether your crypto ACL is recognized as interesting traffic.</p>
+        </div>
+
+        <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <p class="text-sm text-slate-700 mt-1">Forgetting that NAT applied before encryption changes packet addresses and may prevent matching the crypto ACL.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

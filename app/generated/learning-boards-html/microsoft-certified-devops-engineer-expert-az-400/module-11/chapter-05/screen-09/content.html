@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span><span>›</span><span>Chapter 5</span><span>›</span><span class="text-slate-700">CI/CD Pipeline</span></div><h2 class="text-3xl font-extrabold text-slate-900 mb-2">Automating Azure Logic Apps Deployment</h2><p class="text-lg text-slate-700 mb-6">Deploying Workflows with ARM Templates</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-xl p-4 flex-grow overflow-auto" style="tab-size: 2; white-space: pre-wrap;"><pre><code class="language-yaml text-slate-200"># Conceptual Azure DevOps YAML for Logic App CI/CD
+
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - src/MyLogicApp/*
+
+variables:
+  logicAppName: 'my-event-processor-logicapp'
+  resourceGroupName: 'my-serverless-rg'
+  azureServiceConnection: 'YourAzureServiceConnection'
+  templatePath: 'src/MyLogicApp/logicapp.json' # Path to your ARM template for the Logic App
+
+stages:
+- stage: DeployLogicApp
+  displayName: 'Deploy Logic App'
+  jobs:
+  - deployment: DeployLogicAppJob
+    displayName: 'Deploy to Azure'
+    environment: 'Production'
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Deploy Logic App ARM Template'
+            inputs:
+              azureResourceManagerConnection: $(azureServiceConnection)
+              subscriptionId: '$(azureSubscriptionId)' # Ensure this variable is defined
+              resourceGroupName: $(resourceGroupName)
+              deploymentMode: 'Incremental' # Or 'Complete' if you want to remove resources not in template
+              templateLocation: 'Linked artifact'
+              csmFile: $(templatePath)
+              overrideParameters: '-logicAppName $(logicAppName)' # Pass parameters if needed</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Explanation</div><ul class="list-disc list-inside text-sm text-slate-700 space-y-2"><li><strong>ARM Templates:</strong> Logic Apps are defined as JSON ARM templates, allowing them to be version-controlled.</li><li><strong>`AzureResourceManagerTemplateDeployment@3`:</strong> This task is used to deploy ARM templates to Azure.</li><li><strong>`csmFile`:</strong> Specifies the path to your Logic App's ARM template file.</li><li><strong>`deploymentMode`:</strong> Can be 'Incremental' (adds/updates resources) or 'Complete' (removes resources not in template).</li><li><strong>`overrideParameters`:</strong> Allows dynamic parameterization of the ARM template during deployment.</li></ul></div><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Why it Matters</div><p class="text-sm text-slate-700">Treating Logic App definitions as code enables version control, automated deployments, and consistent environments. This is crucial for managing complex integrations and ensuring reliability across different stages of your development lifecycle.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Automating Azure Logic Apps deployment through ARM templates and Azure DevOps ensures version control, consistent deployments, and robust CI/CD for your event-driven workflows.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

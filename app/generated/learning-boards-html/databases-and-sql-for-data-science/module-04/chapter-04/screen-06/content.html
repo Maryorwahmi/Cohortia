@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg { background-color: #ffffff; } pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Derived Tables</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-800">FROM subqueries as temporary tables</h3>
+      <p class="text-sm text-slate-600 mt-3">Use derived tables when you need to group or transform data before using it in the outer query. The derived table behaves like a normal table for subsequent operations.</p>
+
+      <div class="mt-4">
+        <pre><code>&lt;!-- Subquery in FROM clause (Derived Table) --&gt;
+SELECT
+  AVG(customer_total_amount) AS average_total_for_multi_order_customers
+FROM
+  (SELECT
+     o.customer_id,
+     SUM(o.total_amount) AS customer_total_amount,
+     COUNT(o.order_id) AS num_orders
+   FROM
+     Orders AS o
+   GROUP BY
+     o.customer_id
+   HAVING
+     COUNT(o.order_id) &gt; 1
+  ) AS CustomerOrderSummary; -- This subquery acts as a temporary table
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">When to convert to a CTE</div>
+        <p class="text-sm text-slate-600 mt-2">If the same derived logic is reused, or if you want clearer step names for debugging, move this subquery into a WITH clause and reference it by name. That improves readability without changing the result.</p>
+
+        <div class="mt-4 text-sm text-slate-700">Remember: derived tables are ephemeral and scoped to the single outer query. For repeated reference across statements, use a temporary table or persist results outside SQL.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Derived tables let you perform grouped calculations before higher-level aggregations; they are great for single-query transformations but can be renamed for clarity using a CTE.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

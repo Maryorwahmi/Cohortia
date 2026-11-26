@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SUBSCRIBE</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">How it works</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-2">SUBSCRIBE locks the connection</h2>
+      <p class="mt-2 text-sm text-slate-700">Once subscribed, the connection becomes dedicated to receiving delivered messages and does not accept normal Redis commands until unsubscribed.</p>
+
+      <div class="mt-4">
+        <pre class="rounded-lg bg-slate-900 text-white p-4" style="font-size:13px;line-height:1.4;"># Subscriber session
+SUBSCRIBE news:sports news:politics
+
+# Messages will be pushed to this connection as they arrive.
+</pre>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-700">Design note</div>
+          <p class="text-sm text-slate-600 mt-1">Give subscription tasks their own client connections if the application also needs to query or update Redis data structures.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Message format</div>
+      <p class="mt-2 text-sm text-slate-700">A delivered message includes a message type identifier, the channel name, and the message payload. Clients receive these structured replies and parse them according to their libraries.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-sm font-semibold text-amber-700">Misconception</div>
+          <p class="text-sm text-slate-700 mt-1">Trying to use a subscription connection for unrelated commands will not work; the client must unsubscribe first or use another connection.</p>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use separate connections for subscribing and for normal Redis operations to avoid locked connections and unexpected behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

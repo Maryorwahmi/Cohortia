@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card rounded-xl p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Safe insertion patterns</div>
+      <div class="text-sm text-slate-600 mt-3">Choose insertion APIs based on whether you want creation, overwrite, or detection of duplicates.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50 border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">operator[]</div>
+          <div class="text-sm text-slate-700 mt-1">Creates or overwrites values. Use when you explicitly want to initialize or update an entry.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">insert / emplace</div>
+          <div class="text-sm text-slate-700 mt-1">Return success flags so you can detect duplicates and avoid accidental changes.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Be explicit about creation. Use insert/emplace for safe adds and operator[] for intentional initialization or updates.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card rounded-xl p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Example patterns</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-4 space-y-2">
+        <li>Check presence: if (m.count(key)) { /* exists */ } else { m.insert({key, val}); }</li>
+        <li>Attempt add: auto [it, ok] = m.insert({key, val}); if (!ok) { /* key existed */ }</li>
+        <li>Create or update explicitly: m[key] = newVal; // intentional overwrite</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100">
+        <div class="text-sm font-bold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Using operator[] inside a conditional that intended only to check presence will create a new element unexpectedly.</div>
+      </div>
+    </div>
+  </div>
+</div>

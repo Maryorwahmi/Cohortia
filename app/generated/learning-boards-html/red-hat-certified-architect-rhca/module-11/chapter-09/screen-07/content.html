@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span>›</span>
+      <span class="text-slate-700">HTB hierarchy</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow">
+      <div class="text-lg font-bold text-slate-800">Parent and child classes</div>
+      <div class="mt-3 text-sm text-slate-600">Create a parent for the total bandwidth, then child classes for services with rate, ceil, and priority attributes.</div>
+      <div class="mt-4 grid gap-2">
+        <div class="text-sm font-semibold text-slate-800">Example attributes</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>rate: guaranteed minimum bandwidth.</li>
+          <li>ceil: maximum burstable bandwidth.</li>
+          <li>prio: numerical preference used during contention.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow">
+      <div class="text-sm font-semibold text-slate-800">Commands (pattern)</div>
+      <pre class="mt-3" style="white-space:pre-wrap;tab-size:2;background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;"><code>sudo tc qdisc add dev eth0 root handle 1: htb default 30
+sudo tc class add dev eth0 parent 1: classid 1:1 htb rate 100mbit ceil 100mbit
+sudo tc class add dev eth0 parent 1:1 classid 1:10 htb rate 5mbit ceil 20mbit prio 1
+sudo tc class add dev eth0 parent 1:1 classid 1:20 htb rate 10mbit ceil 50mbit prio 2</code></pre>
+      <div class="mt-3 text-sm text-slate-600">These commands form a parent class and two children with different guarantees and ceilings.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

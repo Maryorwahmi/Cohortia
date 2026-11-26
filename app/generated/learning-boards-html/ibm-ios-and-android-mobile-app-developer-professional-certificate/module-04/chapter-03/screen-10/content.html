@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">To-Do Activity</span>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 h-[calc(100%-40px)]">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Step 1 - Task model</div>
+        <pre class="p-3 rounded border bg-slate-50"><code>class Task {
+  String title;
+  bool isCompleted;
+
+  Task({required this.title, this.isCompleted = false});
+
+  void toggleComplete() {
+    isCompleted = !isCompleted;
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Step 2 - ToDoListModel</div>
+        <pre class="p-3 rounded border bg-slate-50"><code>class ToDoListModel extends ChangeNotifier {
+  final List&lt;Task&gt; _tasks = [];
+  List&lt;Task&gt; get tasks =&gt; _tasks;
+
+  void addTask(String title) {
+    _tasks.add(Task(title: title));
+    notifyListeners();
+  }
+
+  void toggleTaskCompletion(int index) { ... }
+}
+</code></pre>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Step 3 - Provide</div>
+        <div class="text-sm text-slate-600">Wrap your app with ChangeNotifierProvider(create: (_) =&gt; ToDoListModel()). Use MultiProvider if you need more models.</div>
+      </div>
+
+      <div class="card p-4 col-span-3">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Step 4 - Consume and UI tips</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5">
+          <li>Use Consumer or context.watch to rebuild the ListView when tasks change.</li>
+          <li>Use context.read inside FloatingActionButton onPressed to add tasks.</li>
+          <li>Use Selector for individual tiles to avoid rebuilding the entire list.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

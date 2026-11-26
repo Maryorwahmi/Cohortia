@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:14px;border:1px solid rgba(226,232,240,0.9);background:#fff;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;} .note{font-size:13px;color:#475569}</style>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="card p-4 flex-grow">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hands-on Activity</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Verify Agent & Run Command</h3>
+        <div class="mt-3 text-sm text-slate-700">
+          Follow these high-level steps exactly as written to validate SSM configuration and then execute the demo script.
+        </div>
+
+        <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>Launch an EC2 using Amazon Linux 2 and attach an IAM instance profile with AmazonSSMManagedInstanceCore.</li>
+          <li>Do not open SSH in the security group; SSM manages the host outbound-only.</li>
+          <li>Confirm the instance appears in Systems Manager > Managed instances.</li>
+          <li>Run the AWS-RunShellScript command targeting the instance with the demo script below.</li>
+          <li>Open the Command ID and check the Output tab for expected text and file listing.</li>
+        </ol>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-rose-600">Troubleshoot</div>
+          <p class="text-sm mt-2 note">If not appearing: verify the IAM role, verify the agent service is installed and running, and confirm outbound access to SSM endpoints or VPC endpoints for Systems Manager.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="card p-4 flex-grow">
+        <div class="text-sm font-semibold text-slate-800">Demo script (paste into Run Command)</div>
+        <pre class="mt-3 p-3 rounded-md bg-slate-50 border border-slate-100">#!/bin/bash
+echo "Hello from SSM Run Command on $(hostname)!" &gt; /tmp/ssm_hello.txt
+cat /tmp/ssm_hello.txt
+ls -l /tmp/ssm_hello.txt
+</pre>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Expected output</div>
+          <p class="text-sm text-slate-700 mt-2">Standard output should include the greeting line and the file listing. Command status should report Success for the target instance.</p>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-2">This activity proves the agent and role are functioning and that you can execute remote commands securely without SSH.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

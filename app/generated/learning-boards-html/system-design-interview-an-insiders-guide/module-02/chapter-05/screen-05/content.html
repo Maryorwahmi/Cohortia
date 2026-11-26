@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Horizontal vs Vertical</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 h-full flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Horizontal (Sharding)</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Split rows across shards</h3>
+      <p class="text-sm text-slate-700 mt-3">Each shard holds a subset of table rows. All shards share the same schema. This directly increases storage capacity and throughput as you add servers.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Best when row volume is the bottleneck</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Drawback</div>
+          <div class="text-xs text-slate-600 mt-1">Cross-shard joins and range queries can be expensive unless planned for.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 h-full flex flex-col border-l border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Vertical</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Split columns into logical tables</h3>
+      <p class="text-sm text-slate-700 mt-3">Different sets of columns go to different stores or tables. Use this when certain columns are accessed or secured at different rates or levels.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Best when columns have differing access patterns</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Drawback</div>
+          <div class="text-xs text-slate-600 mt-1">It does not distribute rows across nodes; it may require joins to reconstruct the full object.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Users split into profile and activity tables so frequent profile reads don’t touch large activity logs.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-rose-700 font-bold">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Vertical partitioning alone solves large dataset scaling — it does not spread rows across machines.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-emerald-700 font-bold">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Choose horizontal partitioning for storage scaling; use vertical to optimize column access and security.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

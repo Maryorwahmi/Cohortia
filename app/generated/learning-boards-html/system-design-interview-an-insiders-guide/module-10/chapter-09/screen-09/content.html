@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 10.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Prometheus-style Alert</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Alert rule (illustrative)</div>
+      <pre class="mt-3">ALERT KafkaConsumerLagCritical
+  IF kafka_consumer_lag_user_activity > 10000
+  FOR 5m
+  LABELS { severity = "critical" }
+  ANNOTATIONS { summary = "Consumer lag high for user_activity", description = "Consumer lag &gt; 10000 for 5 minutes. Check Flink jobs, task parallelism, and broker health." }</pre>
+      <div class="text-xs text-slate-600 mt-2">This textual example demonstrates threshold, sustained window, and annotation for runbook links or instructions.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Interpretation & steps</div>
+      <ol class="text-sm text-slate-700 mt-3 space-y-2 list-decimal pl-5">
+        <li>Confirm consumer lag metric and check affected partitions.</li>
+        <li>Inspect Flink job throughput, checkpoint status, and task GC.</li>
+        <li>Scale consumer parallelism or tune batching and compression if needed.</li>
+        <li>Escalate if brokers show resource exhaustion.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="mt-4 card p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs text-slate-700">Alert thresholds should include a duration, labels for routing, and clear remediation steps to make the notification actionable.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

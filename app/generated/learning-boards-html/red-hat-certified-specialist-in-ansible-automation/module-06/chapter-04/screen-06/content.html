@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Vaulted Variables</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">How Ansible finds vaulted files</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+        <li>Place vaulted files in group_vars/ or host_vars/ or include via vars_files.</li>
+        <li>Ansible will attempt decryption during a run if a password is supplied.</li>
+        <li>Tasks and templates reference variables normally; no special syntax required.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Example playbook use</div>
+        <pre class="mono bg-slate-900 text-slate-50 rounded-md p-3 mt-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2"><code>---
+- name: Deploy application with vaulted secrets
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Configure database connection
+      ansible.builtin.template:
+        src: templates/db_config.j2
+        dest: /etc/app/db_config.conf
+        mode: '0600'
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-5 card flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Template example</div>
+      <pre class="mono bg-slate-900 text-slate-50 rounded-md p-3 mt-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2"><code># templates/db_config.j2
+DATABASE_HOST={{ db_host }}
+DATABASE_USER={{ db_user }}
+DATABASE_PASSWORD={{ db_password }}
+API_KEY={{ api_key }}
+</code></pre>
+
+      <div class="mt-3">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Misconception</div>
+        <p class="text-sm text-slate-600 mt-2">You do not need to decrypt files manually. Provide the vault password at runtime and Ansible will decrypt values for the playbook.</p>
+      </div>
+
+      <div class="mt-4 border-t pt-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-700 mt-1">Vaulted variables are transparent to playbooks once the password is available; treat them like normal variables in tasks and templates.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

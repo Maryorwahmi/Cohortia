@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Setup & Open</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Dependency & path</div>
+      <div class="text-sm text-slate-600 mt-2">Add these entries to pubspec.yaml and run flutter pub get to install the packages.</div>
+
+      <div class="mt-4 rounded-md bg-slate-50 p-3 mono card-border">
+        <pre><code>dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Then in code, compute the path and open the database. Always await the returned Database instance before using it.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Open and initialize</div>
+      <div class="text-sm text-slate-600 mt-2">Example pattern for opening a file database and creating tables.</div>
+
+      <div class="mt-3 rounded-md bg-slate-50 p-3 mono card-border">
+        <pre><code>// inside a helper
+String documentsDirectory = await getDatabasesPath();
+String path = join(documentsDirectory, 'todo_app.db');
+
+return await openDatabase(
+  path,
+  version: 1,
+  onCreate: (db, version) async {
+    await db.execute(
+      '''
+      CREATE TABLE todos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        isCompleted INTEGER NOT NULL
+      )
+      '''
+    );
+  },
+);
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Note the onCreate callback defines your initial schema. Treat this as the canonical place to run CREATE TABLE statements for a fresh database file.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

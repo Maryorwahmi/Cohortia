@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 14px; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
+    pre.code { background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:14px; white-space:pre-wrap; tab-size:2; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Require Authentication</span>
+    </div>
+    <div class="flex items-start justify-between">
+      <div>
+        <div class="text-2xl font-extrabold leading-tight text-slate-800">Require Authentication</div>
+        <div class="text-sm text-slate-600 mt-1">Set a strong password and verify clients authenticate before executing commands.</div>
+      </div>
+      <div class="text-xs font-bold uppercase text-blue-700 bg-blue-50 px-2 py-1 rounded">Core Concept</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <!-- left: explanation -->
+    <div class="w-1/2 flex flex-col gap-4 min-h-0">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+        <p class="text-sm text-slate-700">requirepass is a redis.conf directive that requires clients to authenticate using AUTH before executing commands. Use a unique, high-entropy password and protect the config file.</p>
+        <ul class="mt-3 space-y-2 text-sm text-slate-600">
+          <li>Why it matters: prevents anonymous command execution and protects data from open connections.</li>
+          <li>Misconception: a password alone is not a full defense; combine with network controls.</li>
+          <li>Operational tip: manage the secret in your deployment system; avoid committing redis.conf into public repos.</li>
+        </ul>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete Example</div>
+          <pre class="code"># redis.conf
+requirepass myStrongRedisPassword123!</pre>
+          <div class="text-xs text-slate-600 mt-2">Then test with your client using AUTH or redis-cli -a.</div>
+        </div>
+        <div class="card p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Common Mistake</div>
+          <p class="text-sm text-rose-700">Using weak or default passwords. Attackers scan open ports and try defaults first.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Require authentication to stop unauthenticated access, and treat the password as a secret managed by your operations toolchain.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- right: terminal-style panel -->
+    <div class="w-1/2 flex flex-col gap-3 min-h-0">
+      <div class="card p-4 flex-1">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-sm font-bold text-slate-800">Terminal: verify auth</div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><path d="M16 8v6a2 2 0 0 1-2 2H6"></path><rect x="2" y="4" width="20" height="14" rx="2"></rect></svg>
+        </div>
+        <pre class="code"># Try connect without auth (should be rejected)
+redis-cli
+# (server replies with error: NOAUTH)
+
+# Connect with password
+redis-cli -a myStrongRedisPassword123!
+# Then run: PING  -> PONG</pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Operational Check</div>
+        <div class="text-sm text-slate-700">After changing redis.conf, restart Redis and validate that unauthenticated connections fail and authenticated clients succeed. Rotate the password periodically and avoid plain-text backups of the config.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

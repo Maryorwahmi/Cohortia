@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Launch EC2 with tags (CLI)</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-[calc(100%-48px)]">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Starter CLI commands</div>
+      <div class="text-sm text-slate-600 mt-2">Replace the AMI and instance details as needed for your region and account.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>aws ec2 run-instances \
+  --image-id ami-053b0d53d2792c340 \
+  --instance-type t3.micro \
+  --count 1 \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=ProjectX},{Key=Environment,Value=Dev},{Key=Owner,Value=DevTeamA},{Key=CostCenter,Value=12345}]' \
+  --query 'Instances[0].InstanceId' --output text
+
+# Verify tags
+aws ec2 describe-instances \
+  --instance-ids <YOUR_INSTANCE_ID> \
+  --query 'Reservations[0].Instances[0].Tags'
+
+# Terminate when done
+aws ec2 terminate-instances --instance-ids <YOUR_INSTANCE_ID></code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Note: Passing tags at launch ensures the instance is tagged from creation. If you add tags later, there may be a period where cost reporting misses the association.</div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+          <p class="text-xs font-medium text-slate-800">Use the command above in a sandbox account, verify tags, then terminate the instance to practice the full lifecycle.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Common pitfalls</div>
+      <ul class="text-sm text-slate-600 ml-4 mt-2 list-disc">
+        <li>Inconsistent key capitalization or naming conventions</li>
+        <li>Forgetting to include tags in IaC templates</li>
+        <li>Storing sensitive information in tags — avoid secrets</li>
+      </ul>
+
+      <div class="mt-6 bg-slate-50 rounded-lg p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Safety note</div>
+        <div class="text-sm text-slate-600 mt-1">Do not include secrets or sensitive identifiers in tags, since they may appear in billing or management views.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

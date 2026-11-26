@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-5 shadow-sm">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-800">Cataloging and ETL with AWS Glue</div>
+      <div class="text-sm text-slate-600 mt-2">Crawl to catalog, then run ETL to produce curated datasets.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-bold text-slate-800">Step 1 — Register S3 locations</div>
+          <div class="text-xs text-slate-600 mt-1">Register the bucket with Lake Formation and give the crawler permissions to read it.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card">
+          <div class="text-sm font-bold text-slate-800">Step 2 — Run Glue crawler</div>
+          <div class="text-xs text-slate-600 mt-1">Crawler discovers schema and writes table definitions into the Glue Data Catalog.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-sm font-bold text-slate-800">Step 3 — ETL job</div>
+          <div class="text-xs text-slate-600 mt-1">Glue ETL performs cleaning, removes sensitive columns, partitions by date, and writes Parquet to curated prefix.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Maintain the catalog as the authoritative index and automate crawlers and ETL to keep metadata accurate.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl card p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-3">Concrete example — sales CSV discovery</div>
+      <pre class="bg-slate-900 text-white rounded-md p-3 text-sm"><code>order_id,customer_id,product,amount,region,sensitive_info
+1,101,Laptop,1200.00,North,ABC123
+2,102,Mouse,25.00,South,DEF456
+3,101,Keyboard,75.00,North,GHI789</code></pre>
+      <div class="text-xs text-slate-600 mt-3">Crawler creates mydatalake_db.sales_data. ETL job drops sensitive_info and writes partitioned Parquet for analytics.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold text-amber-700">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Not scheduling crawlers after schema changes leads to stale table definitions and query failures.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

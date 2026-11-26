@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border-color:rgba(226,232,240,0.9);} .attr{background:#f8fafc;border-radius:8px;padding:8px}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 border card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Span attributes & relationships</h3>
+      <p class="text-sm text-slate-600 mt-3">Attributes provide structured context. Parent-child links show causality and let you compute aggregate timing.</p>
+      <div class="mt-4 grid gap-3">
+        <div class="attr text-sm text-slate-700">Key attributes: http.method, http.route, db.statement, status_code, error</div>
+        <div class="attr text-sm text-slate-700">Identifiers: trace_id ties spans; span_id identifies the operation; parent_span_id links to the parent</div>
+        <div class="attr text-sm text-slate-700">Performance tip: avoid high-cardinality attributes like raw user IDs unless masked or sampled.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-4 border card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hierarchy</div>
+      <h4 class="text-lg font-semibold text-slate-800 mt-1">Parent → Child example</h4>
+      <div class="mt-3 p-3 rounded-lg bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-sm font-semibold text-slate-800">OrderService.createOrder (trace_id=abc)</div>
+        <div class="text-sm text-slate-600 mt-2">Child: PaymentService.processPayment — parent_span_id points to the createOrder span</div>
+        <div class="text-sm text-slate-600 mt-1">Child: InventoryService.reserveItems — another child; both children explain where time is spent</div>
+      </div>
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <p class="text-xs font-medium text-slate-800">Treating every attribute as free. High-cardinality attributes make querying and storage expensive and can hide the signal you need.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

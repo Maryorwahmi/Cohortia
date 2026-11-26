@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">DatabaseHelper</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">Singleton pattern</div>
+      <div class="text-sm text-slate-600 mt-2">A shared instance prevents multiple open connections and centralizes schema management.</div>
+
+      <div class="mt-4 mono card-border rounded-md bg-slate-50 p-3">
+        <pre><code>class DatabaseHelper {
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  static Database? _database;
+
+  factory DatabaseHelper() => _instance;
+  DatabaseHelper._internal();
+
+  Future&lt;Database&gt; get database async {
+    if (_database != null) return _database!;
+    _database = await _initDatabase();
+    return _database!;
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-800">_initDatabase responsibilities</div>
+      <div class="text-sm text-slate-600 mt-2">Compute path, call openDatabase, handle onCreate and onUpgrade for migrations.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Use getDatabasesPath and join to build the file location.</li>
+          <li>Pass a version number and implement onCreate to execute CREATE TABLE statements.</li>
+          <li>Implement onUpgrade to alter schemas when releasing new app versions.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

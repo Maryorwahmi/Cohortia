@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Configuration</span>
+    <span class="text-slate-700">Policing policy-map walkthrough</span>
+  </div>
+  <div class="flex-grow grid grid-cols-2 gap-4">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800">Starter commands</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">R1(config)# class-map match-all ALL_TRAFFIC
+R1(config-cmap)# match any
+R1(config-cmap)# exit
+
+R1(config)# policy-map POLICE_INBOUND_5M
+R1(config-pmap)# class ALL_TRAFFIC
+R1(config-pmap-c)# police rate 5000000 conform-action transmit exceed-action drop
+R1(config-pmap-c)# exit
+
+R1(config)# interface GigabitEthernet0/0
+R1(config-if)# service-policy input POLICE_INBOUND_5M
+R1(config-if)# no shut</pre>
+      <div class="mt-3 text-xs text-slate-600">This example polices inbound traffic to 5 Mbps and drops any exceed traffic immediately.</div>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-1">
+        <li>class-map identifies traffic to which policing applies.</li>
+        <li>police rate sets token arrival rate (CIR) in bps.</li>
+        <li>conform-action and exceed-action determine fate when tokens are or are not available.</li>
+        <li>Apply with service-policy input for inbound policing where you see the traffic first.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">If downstream devices expect marked traffic, prefer remarking over dropping to preserve sessions but avoid congestion.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

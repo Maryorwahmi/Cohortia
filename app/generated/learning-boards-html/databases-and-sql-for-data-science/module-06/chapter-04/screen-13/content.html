@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-xl border bg-white p-4 shadow-sm border-slate-100 h-full">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Verify with EXPLAIN ANALYZE</h3>
+    <div class="mt-3 grid grid-cols-2 gap-4 h-full">
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Step 1: Baseline</div>
+        <div class="text-sm text-slate-700 mt-2">Run EXPLAIN ANALYZE on the slow query. Note whether a Seq Scan appears and record Actual Time and I/O-related nodes.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Step 2: Create index in dev</div>
+        <div class="text-sm text-slate-700 mt-2">Create the index in a development environment or during a maintenance window for production tables to avoid heavy impact.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Step 3: Re-run EXPLAIN ANALYZE</div>
+        <div class="text-sm text-slate-700 mt-2">Confirm the planner chooses an Index Scan and compare Actual Time to the baseline to see the real improvement.</div>
+      </div>
+      <div class="p-3 rounded-md bg-slate-50 border border-slate-100">
+        <div class="font-semibold text-slate-700">Step 4: Decide</div>
+        <div class="text-sm text-slate-700 mt-2">If the index does not provide sufficient benefit, drop it to avoid unnecessary write and storage costs.</div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-lg p-3 bg-white border border-slate-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Safety note</div>
+      <div class="text-sm text-slate-800 mt-1">Index creation on large tables can be resource intensive and may lock tables; prefer staging, non-blocking options, or maintenance windows depending on your environment.</div>
+    </div>
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+      <p class="text-xs font-medium text-slate-800">After creating the index in your test environment, what change did EXPLAIN ANALYZE show and did it eliminate the Sort or Seq Scan node that previously dominated time?</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">AuthScreen / AuthWrapper</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-4 card overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">AuthScreen (concept)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>// AuthScreen: controllers and handlers
+final TextEditingController _emailController = TextEditingController();
+final TextEditingController _passwordController = TextEditingController();
+
+Future<void> _register() async {
+  try {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+  } on FirebaseAuthException catch (e) {
+    setState(() => _errorMessage = e.message);
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card">
+      <div class="text-sm font-semibold text-slate-700">Main / AuthWrapper</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3"><code>// main.dart initialization and wrapper
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const MyApp());
+}
+
+class AuthWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) { /* show HomeScreen or AuthScreen */ },
+    );
+  }
+}
+</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">Testing checklist: register a new user, confirm HomeScreen shows email, sign out, and ensure wrapper returns to AuthScreen.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

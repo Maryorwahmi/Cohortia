@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Client Access</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Mount and test NFS</div>
+      <pre class="p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">sudo mount -t nfs <server_ip>:/srv/nfs_share /mnt/nfs_client
+ls -l /mnt/nfs_client
+# create a test file to validate write access
+sudo touch /mnt/nfs_client/testfile && ls -l /mnt/nfs_client/testfile</pre>
+      <p class="text-sm text-slate-600 mt-3">Verify the file appears on the server with expected owner and group IDs, especially when root_squash or anonuid/anongid are in use.</p>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Access Samba shares</div>
+      <pre class="p-3 bg-slate-900 text-white rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">smbclient -L <server_ip> -N
+smbclient //<server_ip>/public_share -N
+smbclient //<server_ip>/private_share -U smbuser1%password123</pre>
+      <p class="text-sm text-slate-600 mt-3">List shares, connect anonymously to public shares, and authenticate to private shares. Confirm file creation and ownership on the server side after writes.</p>
+
+      <div class="mt-auto">
+        <div class="rounded-lg p-3 bg-slate-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A successful mount or connection is only the first step; validate read/write as the intended user and check server-side ownership and SELinux.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

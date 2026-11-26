@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Simulator Exercise</h3>
+    <p class="mt-1 text-sm text-slate-600">Starter scaffold in Python to trace RAT updates, free-list size, and simulate a misprediction.</p>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Starter code (implement TODOs)</div>
+      <pre class="mt-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">from collections import deque
+
+# Simple RAT and free list simulator
+ARCH_REGS = ['R1','R2','R3','R4','R5','R6','R7','R8']
+# physical registers for example: P1..P16
+physical_pool = ['P'+str(i) for i in range(1,17)]
+free_list = deque(physical_pool[8:])  # start free with P9..P16 for example
+RAT = {'R1':'P1','R2':'P2','R3':'P3','R4':'P4','R5':'P5','R6':'P6','R7':'P7','R8':'P8'}
+commit_queue = []  # list of (instr_id, old_mapping_to_free)
+checkpoints = []
+
+instructions = [
+  ('ADD','R1',['R2','R3']),
+  ('SUB','R4',['R1','R5']),
+  ('MUL','R1',['R6','R7']),
+  ('DIV','R8',['R1','R4']),
+  ('ADD','R4',['R1','R8']),
+]
+
+# TODO: implement allocate_on_issue, commit_instruction, checkpoint_rat, restore_checkpoint
+
+# Example usage: allocate for first three instructions, create a checkpoint, then restore
+</pre>
+      <div class="mt-3 text-xs text-slate-500">Keep code in the editor style; use the simulator to print RAT after each step and the free-list size.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Guided steps</div>
+      <ol class="mt-2 text-sm text-slate-600 list-decimal list-inside">
+        <li>Implement allocation: pop from free_list and update RAT destination; record old mapping for later free.</li>
+        <li>Simulate commit: when an instruction commits, append the old mapping back to free_list.</li>
+        <li>Checkpoint before instruction three: snapshot RAT and track speculative allocations so they can be returned on restore.</li>
+        <li>On mispredict after third instruction: restore RAT snapshot and return speculative physical registers to free_list.</li>
+      </ol>
+
+      <div class="mt-3 p-3 rounded-md bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Reflection</div>
+        <p class="mt-2 text-sm text-amber-700">After restoring the RAT, how many physical registers were reclaimed? What is the peak number of allocated physical registers for this sequence?</p>
+      </div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A working simulator makes allocation, freeing, and recovery behavior explicit and helps reason about minimum physical register requirements.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

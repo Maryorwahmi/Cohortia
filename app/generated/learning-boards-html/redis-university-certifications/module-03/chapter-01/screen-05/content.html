@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">MULTI → EXEC process</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold mb-2">Step-by-step</div>
+      <div class="space-y-3 text-sm text-slate-600">
+        <div><span class="font-semibold">1.</span> MULTI — switch to queued mode and start collecting commands.</div>
+        <div><span class="font-semibold">2.</span> Queue commands — DECRBY, INCRBY, HSET, etc.; they are not executed yet.</div>
+        <div><span class="font-semibold">3.</span> EXEC — run all queued commands sequentially and return results as a batch.</div>
+        <div><span class="font-semibold">4.</span> DISCARD — cancel queued commands and return to normal mode.</div>
+      </div>
+      <div class="mt-auto pt-4 text-xs text-slate-500">Tip: Treat queued commands as tentative until EXEC completes.</div>
+    </div>
+    <div class="w-3/5 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold mb-2">Visual queue (annotated)</div>
+      <div class="flex gap-2 mb-3">
+        <div class="rounded-md bg-blue-50 p-3 text-blue-700">MULTI</div>
+        <div class="rounded-md bg-slate-50 p-3 text-slate-700">DECRBY user:A 10</div>
+        <div class="rounded-md bg-slate-50 p-3 text-slate-700">INCRBY user:B 10</div>
+        <div class="rounded-md bg-emerald-50 p-3 text-emerald-700">EXEC → run all</div>
+      </div>
+      <div class="text-sm text-slate-600">If WATCH was used on a key and that key changed before EXEC, the final response will be nil and no commands are applied. If a queued command is invalid, it will still be executed and an error for that command will be returned alongside successful results for others.</div>
+      <div class="mt-4 rounded-lg border card-border p-3 bg-white">
+        <div class="text-sm font-semibold text-rose-600">Mistake to avoid</div>
+        <div class="text-sm text-slate-600">Don’t assume EXEC rolls back other commands on error. Validate inputs before queuing to avoid partial failures.</div>
+      </div>
+    </div>
+  </div>
+</div>

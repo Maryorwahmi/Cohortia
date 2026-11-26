@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#fbfdff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Speculative Lifecycle</span>
+  </div>
+
+  <div class='grid grid-cols-3 gap-4 h-full'>
+    <div class='col-span-2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-xs font-bold uppercase text-slate-500'>Process Flow</div>
+      <h3 class='text-xl font-semibold text-slate-800 mt-2'>Fetch → Execute(speculative) → ROB store → Commit/Flush</h3>
+
+      <div class='flex gap-2 mt-4'>
+        <div class='rounded-lg bg-blue-50 p-3 flex-1'>
+          <div class='text-sm font-semibold text-blue-700'>1. Fetch & predict</div>
+          <div class='text-sm text-slate-700 mt-1'>Predict branch and fetch from predicted path.</div>
+        </div>
+        <div class='rounded-lg bg-violet-50 p-3 flex-1'>
+          <div class='text-sm font-semibold text-violet-700'>2. Execute speculatively</div>
+          <div class='text-sm text-slate-700 mt-1'>Instructions execute out of order; results go to ROB entries.</div>
+        </div>
+        <div class='rounded-lg bg-amber-50 p-3 flex-1'>
+          <div class='text-sm font-semibold text-amber-700'>3. Resolve & commit</div>
+          <div class='text-sm text-slate-700 mt-1'>If prediction correct, entries clear speculation and commit in order.</div>
+        </div>
+      </div>
+
+      <div class='mt-4 rounded-lg bg-white p-3 border card-border'>
+        <div class='text-sm font-semibold text-slate-800'>Concrete scenario</div>
+        <div class='text-sm text-slate-600 mt-1'>A misprediction causes flushing of ROB entries after the branch. The pipeline must discard speculative results and refill from the correct path, incurring cycles lost and possibly warming caches for the wrong data.</div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-xs font-bold uppercase text-slate-500'>Misconception</div>
+      <div class='text-sm text-slate-700 mt-2'>Flushing seems cheap but includes refill and lost speculative side-effects such as prefetches, making recovery cost meaningful.</div>
+
+      <div class='mt-auto rounded-lg bg-emerald-50 p-3'>
+        <div class='text-xs font-bold uppercase text-emerald-700'>Key Takeaway</div>
+        <div class='text-sm text-slate-800 mt-1'>The lifecycle enforces correctness but also determines the recovery penalty on misprediction; architects design predictors and ROB behavior to minimize net loss.</div>
+      </div>
+    </div>
+  </div>
+</div>

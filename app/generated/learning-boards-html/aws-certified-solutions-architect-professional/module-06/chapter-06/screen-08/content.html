@@ -1,0 +1,133 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.code {background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-xl bg-white card-border p-4 shadow-sm overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Isolate and snapshot Lambda (Python)</div>
+      <div class="mt-3 text-sm text-slate-600">This example demonstrates the key actions: find instance ID, create quarantine SG, modify instance security groups, snapshot volumes, and tag evidence.</div>
+
+      <pre class="code mt-4" style="white-space:pre-wrap;tab-size:2"><code>import boto3
+import os
+
+ec2 = boto3.client('ec2')
+
+def lambda_handler(event, context):
+    print(f"Received event: {event}")
+
+    # Extract instance ID from GuardDuty finding if available, or from a direct invocation
+    instance_id = None
+    if 'detail' in event and 'resource' in event['detail'] and 'instanceDetails' in event['detail']['resource']:
+        instance_id = event['detail']['resource']['instanceDetails']['instanceId']
+    elif 'instance_id' in event: # For direct testing
+        instance_id = event['instance_id']
+
+    if not instance_id:
+        print("No instance ID found in event.")
+        return {
+            'statusCode': 400,
+            'body': 'No instance ID provided.'
+        }
+
+    print(f"Attempting to isolate EC2 instance: {instance_id}")
+
+    try:
+        # 1. Get current security groups
+        response = ec2.describe_instances(InstanceIds=[instance_id])
+        current_sgs = [sg['GroupId'] for sg in response['Reservations'][0]['Instances'][0]['SecurityGroups']]
+        print(f"Current Security Groups: {current_sgs}")
+
+        # 2. Create a quarantine security group if it doesn't exist
+        quarantine_sg_name = f"quarantine-sg-{instance_id}"
+        try:
+            response = ec2.create_security_group(
+                Description=f'Quarantine SG for {instance_id}',
+                GroupName=quarantine_sg_name,
+                VpcId=response['Reservations'][0]['Instances'][0]['VpcId']
+            )
+            quarantine_sg_id = response['GroupId']
+            print(f"Created quarantine security group: {quarantine_sg_id}")
+
+            # Update instance's security groups
+            ec2.modify_instance_attribute(
+                InstanceId=instance_id,
+                Groups=[quarantine_sg_id]
+            )
+            print(f"Instance {instance_id} isolated to security group {quarantine_sg_id}")
+
+        except ec2.exceptions.ClientError as e:
+            if "already exists" in str(e):
+                print(f"Security group {quarantine_sg_name} already exists. Skipping creation.")
+                response = ec2.describe_security_groups(GroupNames=[quarantine_sg_name])
+                quarantine_sg_id = response['SecurityGroups'][0]['GroupId']
+                ec2.modify_instance_attribute(
+                    InstanceId=instance_id,
+                    Groups=[quarantine_sg_id]
+                )
+                print(f"Instance {instance_id} isolated to existing security group {quarantine_sg_id}")
+            else:
+                raise e
+
+        # 3. Create EBS snapshots (for all volumes attached)
+        volumes = response['Reservations'][0]['Instances'][0]['BlockDeviceMappings']
+        for volume in volumes:
+            if 'Ebs' in volume:
+                volume_id = volume['Ebs']['VolumeId']
+                snapshot_description = f"Forensic snapshot for compromised instance {instance_id} - {volume_id}"
+                ec2.create_snapshot(
+                    VolumeId=volume_id,
+                    Description=snapshot_description,
+                    TagSpecifications=[
+                        {
+                            'ResourceType': 'snapshot',
+                            'Tags': [
+                                {'Key': 'IncidentID', 'Value': os.environ.get('INCIDENT_ID', 'N/A')},
+                                {'Key': 'InstanceID', 'Value': instance_id},
+                                {'Key': 'ForensicReady', 'Value': 'True'}
+                            ]
+                        }
+                    ]
+                )
+                print(f"Created snapshot for volume {volume_id}")
+
+        # 4. Tag the instance
+        ec2.create_tags(
+            Resources=[instance_id],
+            Tags=[
+                {'Key': 'SecurityStatus', 'Value': 'Compromised-Isolated'},
+                {'Key': 'IncidentID', 'Value': os.environ.get('INCIDENT_ID', 'N/A')}
+            ]
+        )
+        print(f"Instance {instance_id} tagged as Compromised-Isolated.")
+
+        return {
+            'statusCode': 200,
+            'body': f'Instance {instance_id} isolated and snapshotted.'
+        }
+
+    except Exception as e:
+        print(f"Error isolating instance {instance_id}: {e}")
+        return {
+            'statusCode': 500,
+            'body': f'Error isolating instance {instance_id}: {str(e)}'
+        }</code></pre>
+
+    </div>
+
+    <div class="w-1/3 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">What to review</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Confirm the Lambda role has only required EC2 permissions.</li>
+        <li>Prefer pre-created quarantine SGs to avoid race conditions.</li>
+        <li>Tag snapshots and instances with IncidentID for traceability.</li>
+        <li>Test with a sample invocation before enabling rule-triggered runs.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Automated containment code should be tested and use least-privilege roles and pre-provisioned quarantine resources.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} .card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">pg_dump Options</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Options</div>
+      <ul class="text-sm text-slate-700 mt-3 list-disc pl-5 space-y-2">
+        <li>--schema-only: dump DDL only.</li>
+        <li>--data-only: dump table data without DDL.</li>
+        <li>--clean: include DROP statements before CREATE.</li>
+        <li>--create: include CREATE DATABASE for full recreate.</li>
+        <li>--inserts / --column-inserts: dump using INSERT statements.</li>
+        <li>--exclude-table / --exclude-schema: omit patterns from the dump.</li>
+      </ul>
+    </div>
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Examples</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>pg_dump -U postgres --schema-only sales_db &gt; sales_schema.sql
+pg_dump -U postgres --data-only sales_db &gt; sales_data.sql
+pg_dump -U postgres --exclude-table=logs_* -F c -f /tmp/sales_custom.dump sales_db</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Test schema-only restore to ensure procedural code and extensions are available before loading data-only dumps.</div>
+    </div>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+      <p class="text-xs font-medium text-slate-800">When migrating schema, restore schema-only first, verify extensions and privileges, then load data-only dumps.</p>
+    </div>
+    <div class="rounded-lg p-3 bg-rose-50 border border-rose-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+      <p class="text-xs font-medium text-slate-800">Using --inserts slows restore significantly; prefer COPY where performance matters.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div>
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mt-1">Active-Passive Database Failover</div>
+      <div class="text-sm text-slate-600 mt-2">Sequence: write → replicate → detect → promote.</div>
+      <div class="card p-4 mt-4">
+        <div class="text-sm font-semibold text-slate-800">Sequence details</div>
+        <ol class="text-xs text-slate-600 mt-2 list-decimal ml-4">
+          <li>Primary accepts write and streams replication events.</li>
+          <li>Replica applies events and maintains near-current state.</li>
+          <li>Monitoring detects primary failure via health checks or missed heartbeats.</li>
+          <li>Replica promotion happens with client redirection to the new primary.</li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Text diagram</div>
+        <pre><code>[Web App] --(writes/reads)--> [Primary DB]
+                                       ^
+                                       | (replication stream)
+                                       V
+                                 [Standby DB (Passive)]
+
+If Primary fails, monitoring promotes Standby to Primary. Note possible data loss if replication was asynchronous.
+</code></pre>
+      </div>
+      <div class="card p-4 mt-3 h-full">
+        <div class="text-sm font-semibold text-slate-800">Pitfalls & Mitigations</div>
+        <div class="text-xs text-slate-600 mt-2">Slow detection increases downtime; use robust monitoring and automated promotion. Prevent split-brain with fencing tokens or quorum-based leader election.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,73 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> :root{--slate-100:rgba(226,232,240,0.9);--rose:#ef6675;} </style>
+  <div class='flex flex-col gap-4 h-full'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100'>Module 8</span>
+      <span>›</span>
+      <span>Incident Response Plan</span>
+    </div>
+
+    <div class='flex gap-4 flex-1 min-h-0'>
+      <div class='w-2/5 rounded-2xl bg-white p-5 border' style='border-color:var(--slate-100)'>
+        <div class='text-lg font-bold text-slate-800'>Definition & Purpose</div>
+        <div class='text-sm text-slate-600 mt-2'>A documented sequence that turns alerts into safe, repeatable recovery actions for PostgreSQL incidents.</div>
+
+        <div class='mt-4 space-y-2'>
+          <div class='text-sm font-semibold text-slate-800'>Why it matters</div>
+          <ul class='list-disc pl-4 text-sm text-slate-600'>
+            <li>Reduces time spent deciding what to do under pressure.</li>
+            <li>Enables consistent diagnostics and evidence collection for post-mortems.</li>
+            <li>Makes recovery actions executable by on-call staff.</li>
+          </ul>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-sm font-semibold text-slate-800'>Common mistake</div>
+          <div class='text-xs text-slate-600 mt-1'>Rushing to restore from backup before attempting quick mitigations or failover can needlessly increase downtime.</div>
+        </div>
+
+        <div class='mt-4'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+            <p class='text-xs font-medium text-slate-800'>Write clear, small-step runbooks for each incident type so responders can act quickly and collect evidence for learning.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class='w-3/5 rounded-2xl bg-white p-5 border flex flex-col' style='border-color:var(--slate-100)'>
+        <div class='text-sm font-semibold text-slate-800'>Runbook Example: 'PostgreSQL service down'</div>
+        <div class='text-xs text-slate-600 mt-2'>Symptoms, commands, mitigation, escalation, expected outputs.</div>
+
+        <div class='mt-3 bg-slate-50 p-3 rounded-xl text-sm text-slate-700' style='min-height:200px;'>
+          <div class='font-medium mb-2'>Symptoms</div>
+          <div class='text-xs'>Monitoring alert: service not responding; clients failing to connect.</div>
+
+          <div class='font-medium mt-3 mb-1'>Diagnostics</div>
+          <pre style='white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#f8fafc;padding:8px;border-radius:8px;margin:0;'>
+sudo systemctl status postgresql@12-main
+sudo tail -n 200 /var/log/postgresql/postgresql-12-main.log
+psql -U postgres -c "SELECT 1;"
+</pre>
+
+          <div class='font-medium mt-3 mb-1'>Mitigation</div>
+          <div class='text-xs'>If logs show transient failure, attempt a restart; otherwise escalate. If replication exists and primary is irrecoverable, promote standby.</div>
+
+          <div class='font-medium mt-3 mb-1'>Escalation</div>
+          <div class='text-xs'>Notify on-call DBA and application owners; include logs and timeline.</div>
+        </div>
+
+        <div class='mt-4 flex gap-3'>
+          <div class='rounded-lg bg-white p-3 border' style='border-color:var(--slate-100);flex:1'>
+            <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500'>Example</div>
+            <div class='text-sm text-slate-800 mt-1'>A restart returned the service in 45 seconds; root cause later traced to an expired disk partition filling logs.</div>
+          </div>
+
+          <div class='rounded-lg bg-white p-3 border' style='border-color:var(--slate-100);flex:1'>
+            <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500'>Pro tip</div>
+            <div class='text-sm text-slate-800 mt-1'>Keep short, copy-pasteable commands in the runbook and validate they work on a staging cluster matching production.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

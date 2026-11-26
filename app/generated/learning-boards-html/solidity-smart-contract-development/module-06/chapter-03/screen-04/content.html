@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;}</style>
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+    <div class="text-2xl font-bold text-slate-900 mb-1">Testing revert conditions</div>
+    <div class="text-sm text-slate-600 mb-4">Force failing inputs and assert exact error messages to prove guards exist and behave correctly.</div>
+    <div class="flex gap-4 flex-1 min-h-0">
+      <div class="w-1/2 flex flex-col gap-3 overflow-hidden">
+        <div class="rounded-xl bg-slate-50 p-4 border flex-1">
+          <div class="font-semibold text-slate-800 mb-2">Why this matters</div>
+          <ul class="text-sm text-slate-700 list-disc ml-5">
+            <li>Confirms preconditions are enforced and specific errors are returned.</li>
+            <li>Prevents silent failures where a different guard reverts the call.</li>
+            <li>Makes contract behavior explicit for off-chain error handling.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl bg-white p-4 border">
+          <div class="font-semibold text-slate-800 mb-2">Common mistakes</div>
+          <div class="text-sm text-slate-700">Using to.be.reverted instead of checking the message, and forgetting to await state-changing calls. Both lead to brittle or misleading tests.</div>
+        </div>
+      </div>
+      <div class="w-1/2 flex flex-col gap-3">
+        <div class="rounded-xl bg-slate-900 text-white p-3 font-mono" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>// test snippet (visual example)
+await expect(ownable.connect(addr1).transferOwnership(addr2.address))
+  .to.be.revertedWith("Ownable: caller is not the owner");
+
+await expect(ownable.connect(owner).transferOwnership(ethers.constants.AddressZero))
+  .to.be.revertedWith("Ownable: new owner is the zero address");
+</code></pre>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+          <p class="text-sm text-slate-800">If a test uses to.be.reverted and it passes, what additional assertion would you add to confirm the revert reason? Try asserting the exact message with to.be.revertedWith.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

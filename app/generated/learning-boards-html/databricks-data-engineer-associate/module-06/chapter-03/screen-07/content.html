@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Table ACLs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">Starter code (Notebook)</div>
+      <div class="mt-3 text-sm text-slate-700">Run these commands in a Databricks notebook. The example includes table creation, inserts, grants, and verification.</div>
+
+      <pre class="rounded p-3 bg-slate-900 text-slate-100 mt-3"><code># --- Step 2: Create a sample Delta table
+print("Creating sample finance_data_cohortia table...")
+spark.sql("CREATE DATABASE IF NOT EXISTS security_demo_db")
+spark.sql("USE security_demo_db")
+spark.sql("""
+  CREATE TABLE IF NOT EXISTS finance_data_cohortia (
+    transaction_id INT,
+    amount DOUBLE,
+    currency STRING,
+    transaction_date DATE
+  ) USING DELTA
+""")
+spark.sql("""
+  INSERT INTO finance_data_cohortia VALUES
+  (1, 100.50, 'USD', '2023-01-15'),
+  (2, 250.75, 'EUR', '2023-01-16'),
+  (3, 50.00, 'USD', '2023-01-15')
+""")
+print("finance_data_cohortia table created and populated.")
+
+# --- Grant permissions
+spark.sql("GRANT SELECT ON TABLE security_demo_db.finance_data_cohortia TO `finance_analysts_cohortia`")
+spark.sql("GRANT MODIFY ON TABLE security_demo_db.finance_data_cohortia TO `data_engineers_cohortia`")
+
+# --- Verify grants
+spark.sql("SHOW GRANTS ON TABLE security_demo_db.finance_data_cohortia").display()</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Guided checks</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>1. Ensure the cluster used for testing has Table Access Control enabled; otherwise enforcement will not occur.</li>
+        <li>2. After running SHOW GRANTS, confirm SELECT and MODIFY entries appear for the expected groups.</li>
+        <li>3. If possible, test using a separate user account to confirm expected permission denied errors for unauthorized operations.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Hands-on verification is essential: grants are only meaningful if cluster enforcement exists and tests confirm expected behavior under different identities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

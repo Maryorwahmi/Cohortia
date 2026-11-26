@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-800">BindAction in SetupPlayerInputComponent</div>
+    <div class="text-sm text-slate-600 mt-1">Cast the input component and attach handlers for Input Actions.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-3 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Example code</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto text-xs mt-3" style="white-space:pre-wrap; tab-size:2"><code>void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    // Cast to Enhanced Input Component
+    if (UEnhancedInputComponent* EnhancedInputComponent = Cast&lt;UEnhancedInputComponent&gt;(PlayerInputComponent))
+    {
+        // Bind the Move Action
+        if (MoveAction)
+        {
+            EnhancedInputComponent-&gt;BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyPawn::Move);
+        }
+
+        // Bind the Look Action
+        if (LookAction)
+        {
+            EnhancedInputComponent-&gt;BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyPawn::Look);
+        }
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-3 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Checklist</div>
+      <ul class="mt-2 text-slate-600 space-y-2">
+        <li>Cast UInputComponent to UEnhancedInputComponent before binding.</li>
+        <li>Ensure MoveAction and LookAction UPROPERTY pointers are assigned.</li>
+        <li>Choose an appropriate ETriggerEvent for each action.</li>
+      </ul>
+
+      <div class="mt-4 p-3 bg-slate-50 rounded-lg">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Common mistake</div>
+        <div class="text-xs text-slate-600 mt-1">Using the base input component's BindAction will not accept UInputAction pointers. Always cast.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

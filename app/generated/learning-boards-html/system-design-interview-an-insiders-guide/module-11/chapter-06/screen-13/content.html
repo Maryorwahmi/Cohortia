@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Simple Feed Cache</span>
+  </div>
+  <div class="flex gap-6 h-[76%]">
+    <div class="flex-1 card p-6 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Starter code (conceptual)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>import redis
+import time
+import uuid
+
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+def add_post_to_feed(user_id: str, post_id: str, timestamp: int, max_feed_size: int = 1000):
+  feed_key = f"user:feed:{user_id}"
+  r.zadd(feed_key, {post_id: timestamp})
+  r.zremrangebyrank(feed_key, 0, -(max_feed_size + 1))
+
+def get_user_feed(user_id: str, count: int = 10):
+  feed_key = f"user:feed:{user_id}"
+  post_ids = r.zrevrange(feed_key, 0, count - 1)
+  return [p.decode('utf-8') for p in post_ids]</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Run this script and observe the ZREVRANGE output. Then add a post cache with HMSET and measure retrieval times with and without cache.</div>
+    </div>
+    <div class="w-96 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Try this</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Simulate DB latency using time.sleep and compare read times with cached posts.</li>
+        <li>Implement ZREM to remove posts from a feed after an unfollow event.</li>
+        <li>Experiment with TTL values and observe cache hit/miss ratios.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Playbook walkthrough: troubleshoot_app_service.yml</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Starter playbook (excerpt)</div>
+      <pre class='mt-3 p-3 bg-slate-50 rounded-lg text-sm overflow-auto' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+- name: Troubleshoot Web Application Service
+  hosts: appservers
+  become: yes
+  tasks:
+    - name: Check httpd service status
+      systemd:
+        name: httpd
+      register: httpd_status
+
+    - name: Fetch httpd error log
+      ansible.builtin.shell: tail -n 100 /var/log/httpd/error_log
+      register: error_log_content
+      changed_when: false
+      ignore_errors: true
+
+    - name: Save httpd error log to control node
+      delegate_to: localhost
+      copy:
+        content: |
+          Error Log from {{ inventory_hostname }}:
+          -------------------------------------
+          {{ error_log_content.stdout | default('Error log not found or empty.') }}
+        dest: "./app_logs/{{ inventory_hostname }}_error_log.txt"
+      when: error_log_content.stdout is defined
+</pre>
+    </div>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Why this pattern works</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>Registering outputs allows conditional actions and selective fetching of logs only when useful.</li>
+        <li>Delegating copy tasks to the control node centralizes artifacts for team review.</li>
+        <li>Using changed_when: false keeps the playbook safe to run in production when only collecting data.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

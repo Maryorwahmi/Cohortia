@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Docker Lab</span>
+  </div>
+  <div class="flex flex-col gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+      <div class="text-sm font-semibold text-slate-800">Failing Dockerfile</div>
+      <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"># Dockerfile
+FROM alpine/git
+CMD ["non_existent_command"]</pre>
+      <div class="mt-3 text-sm text-slate-600">Build and run to see the exit status, then collect logs and inspect metadata before changing the Dockerfile.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Fix and verify</div>
+      <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;"># Fix: replace the CMD with a known binary
+# Dockerfile (fixed)
+FROM alpine/git
+CMD ["echo", "Hello from Docker!"]
+
+# Commands to verify
+docker build -t failing-app .
+docker run --name my-failing-app failing-app
+docker logs my-failing-app</pre>
+      <div class="mt-3 text-sm text-slate-600">Remember: rebuild the image, then run the new image. Editing a running container does not update the source artifact used in deployments.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

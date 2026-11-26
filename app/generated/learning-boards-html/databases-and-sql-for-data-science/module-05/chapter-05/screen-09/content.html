@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">CRUD Operations</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7">
+      <div class="rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-sm font-semibold text-slate-800">Example sequence</div>
+        <pre class="mt-3 text-sm bg-slate-50 p-3 rounded-md overflow-x-auto" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;"><code># CREATE
+product1 = Product(name='Laptop', price=1200.00, stock=50)
+product2 = Product(name='Mouse', price=25.50, stock=200)
+product3 = Product(name='Keyboard', price=75.00, stock=100)
+session.add_all([product1, product2, product3])
+session.commit()
+
+# READ
+all_products = session.query(Product).all()
+laptop = session.query(Product).filter_by(name='Laptop').first()
+
+# UPDATE
+if laptop:
+    laptop.price = 1150.00
+    laptop.stock += 10
+    session.commit()
+
+# DELETE
+mouse = session.query(Product).filter_by(name='Mouse').first()
+if mouse:
+    session.delete(mouse)
+    session.commit()
+</code></pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-600">Verification</div>
+        <div class="mt-2 text-sm text-slate-700">After each commit, re-query relevant objects to verify the expected state — adds, updates, and deletes are visible only after a successful commit.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white border p-3" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-xs uppercase tracking-wider font-bold text-rose-600">Pitfalls</div>
+        <ul class="mt-2 list-disc pl-4 text-slate-700 space-y-2">
+          <li>Not calling session.commit leaves the transaction uncommitted.</li>
+          <li>Not closing the session can leak connections.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">The Session is where object changes are staged; commit to persist, rollback to undo, and close to release resources.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

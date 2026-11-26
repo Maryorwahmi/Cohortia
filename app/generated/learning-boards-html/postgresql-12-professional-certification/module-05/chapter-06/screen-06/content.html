@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">recovery.conf & restore_command</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Key parameter</div>
+        <h3 class="mt-2 text-lg font-semibold text-slate-800">restore_command</h3>
+        <div class="mt-3 text-sm text-slate-700">This command is invoked by PostgreSQL for each WAL it needs. It must copy the WAL file from your archive into the path PostgreSQL supplies and exit with success when done.</div>
+
+        <div class="mt-4">
+          <pre class="bg-slate-900 text-white p-3 rounded-lg mono text-sm" style="white-space:pre-wrap;tab-size:2;"># recovery.conf
+restore_command = 'cp /mnt/pg_wal_archive/%f %p'
+# Example for S3:
+# restore_command = 'aws s3 cp s3://my-wal-bucket/%f %p'
+recovery_target_time = '2023-10-27 10:24:59 UTC'
+recovery_target_action = promote
+          </pre>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Test tip</div>
+        <div class="mt-2 text-sm text-slate-700">Run the command as the postgres user for a known WAL filename to confirm the copy works and file permissions allow PostgreSQL to read the file after copy.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Failure modes</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Incorrect path or missing read permission on the archive causes restore_command to fail.</li>
+          <li>If a WAL segment is absent in the archive, recovery stops with an error and cannot continue.</li>
+          <li>Restore commands that return non-zero on success will halt recovery; the command must return zero for success.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-mistake</div>
+        <p class="text-xs font-medium text-slate-800">Using a restore command that fails silently or changes file ownership prevents PostgreSQL from reading the file; always verify after copying that ownership and permissions are correct.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

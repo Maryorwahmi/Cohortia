@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; }
+    .code { background: #0f172a; color: #e6eef8; border-radius: 8px; padding: 12px; }
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">Junos OSPF area snippets</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Selected snippets</div>
+      <div class="code mono">
+<pre>&lt;!-- R1: ABR for Area 0, Area 1, Area 2 --&gt;
+set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+set protocols ospf area 0.0.0.0 interface lo0.0
+set protocols ospf area 0.0.0.0 interface ge-0/0/1.0
+
+set protocols ospf area 0.0.0.1 interface ge-0/0/2.0
+set protocols ospf area 0.0.0.1 type standard
+
+set protocols ospf area 0.0.0.2 interface ge-0/0/3.0
+set protocols ospf area 0.0.0.2 stub
+
+
+&lt;!-- R4: ABR for Area 0 and Area 3 (NSSA) --&gt;
+set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+set protocols ospf area 0.0.0.0 interface lo0.0
+
+set protocols ospf area 0.0.0.3 interface ge-0/0/1.0
+set protocols ospf area 0.0.0.3 nssa
+
+
+&lt;!-- R5: ASBR in Area 3 (NSSA) --&gt;
+set protocols ospf area 0.0.0.3 interface ge-0/0/0.0
+set protocols ospf area 0.0.0.3 interface lo0.0
+set protocols ospf area 0.0.0.3 nssa
+
+set routing-options static route 192.168.100.0/24 next-hop 10.0.0.254
+set policy-options policy-statement REDISTRIBUTE_STATIC term 1 from protocol static
+set policy-options policy-statement REDISTRIBUTE_STATIC term 1 then accept
+set protocols ospf export REDISTRIBUTE_STATIC
+</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Replace interface names and next-hop addresses to match your lab topology.</li>
+        <li>Apply area statements consistently across all routers in an area to avoid adjacency failures.</li>
+        <li>Use policy export on the ASBR to control which static routes are redistributed into OSPF.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">These concise area statements control LSA behavior and must be coordinated across area routers and ABRs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

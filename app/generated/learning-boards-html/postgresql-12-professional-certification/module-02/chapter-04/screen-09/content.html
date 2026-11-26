@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Create a GIN index on JSONB</div>
+      <div class="mt-3 text-sm text-slate-600">Add a JSONB column, populate data, create the index, then validate with EXPLAIN ANALYZE.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border border-slate-100">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:12px; margin:0;">-- Add JSONB column and populate
+ALTER TABLE products ADD COLUMN tags JSONB;
+UPDATE products SET tags = '{"colors": ["red", "blue"], "materials": ["plastic"]}' WHERE product_id = 4;
+
+-- Create GIN index
+CREATE INDEX idx_products_tags_gin ON products USING GIN (tags);
+
+-- Query that can use the GIN index
+EXPLAIN ANALYZE
+SELECT product_name, tags FROM products WHERE tags @> '{"colors": ["red"]}';</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">After running EXPLAIN ANALYZE, expect to see Bitmap Index Scan or Index Scan referencing idx_products_tags_gin. If you still see a Sequential Scan, check selectivity and sample size; GIN helps when the query filters on contained keys or values frequently.</div>
+    </div>
+
+    <div class="rounded-xl p-3 bg-emerald-50 border border-emerald-100">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">GIN is powerful for multi-valued columns like JSONB, but consider maintenance cost before adding it to large rapidly-changing datasets.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

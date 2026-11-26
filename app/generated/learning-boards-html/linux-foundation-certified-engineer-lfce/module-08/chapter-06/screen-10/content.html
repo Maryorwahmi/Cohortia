@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-800">Container networking options</div>
+    <div class="text-sm text-slate-600 mt-2">Understand bridge, host, and user-defined bridge networks so services can communicate where and how you expect.</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Default bridge</div>
+      <div class="text-sm text-slate-600 mt-2">Provides NAT-based external access and container-level isolation. Containers can communicate by IP but not by name reliably on the default bridge.</div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Host network</div>
+      <div class="text-sm text-slate-600 mt-2">Shares the host's network namespace. Use for performance or when you need the container to use the host IP directly. Bear in mind the loss of network isolation and possible port conflicts with host services.</div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">User-defined bridge</div>
+      <div class="text-sm text-slate-600 mt-2">Create a bridge network for containers that should resolve each other by name. This is the recommended approach for composed applications since it enables DNS-based service discovery.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl p-3 bg-white card-border shadow-sm">
+    <div class="text-sm font-semibold text-slate-700 mb-2">Example commands</div>
+    <div class="text-sm mono bg-slate-50 p-3 rounded card-border">docker network create my-app-network
+docker run -d --name web --network my-app-network my-web-image
+docker run -d --name db --network my-app-network my-db-image</div>
+    <div class="mt-3 text-sm text-rose-600">Misconception: default bridge equals user-defined bridge. For name resolution and easier service discovery, always use a user-defined bridge.</div>
+  </div>
+</div>

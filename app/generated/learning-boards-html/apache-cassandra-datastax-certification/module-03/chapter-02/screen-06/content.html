@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{background:#ffffff;border:1px solid rgba(226,232,240,0.9);padding:.8rem;border-radius:.75rem}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Choosing Partition Key</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Process: Picking a Partition Key</div>
+      <div class="text-sm text-slate-600 mt-2">A short checklist to avoid hot partitions and enable efficient reads.</div>
+
+      <div class="mt-4 grid gap-4">
+        <div class="step">
+          <div class="text-sm font-bold text-slate-800">1. Start with your queries</div>
+          <div class="text-sm text-slate-700 mt-1">List the fields you will filter by. Those filters point to possible partition keys.</div>
+        </div>
+
+        <div class="step">
+          <div class="text-sm font-bold text-slate-800">2. Evaluate cardinality</div>
+          <div class="text-sm text-slate-700 mt-1">Will the candidate produce many partitions or very few? Prefer higher cardinality to spread load evenly.</div>
+        </div>
+
+        <div class="step">
+          <div class="text-sm font-bold text-slate-800">3. Consider bucketing or composite keys</div>
+          <div class="text-sm text-slate-700 mt-1">Add a bucket, such as month, or combine fields to avoid overloading single partitions while keeping related rows co-located.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-5">
+      <div class="text-sm font-bold text-slate-700">Concrete scenario</div>
+      <div class="mt-3 text-sm text-slate-700">You need to store device sensor readings queried by device id in a time range. Using PRIMARY KEY (device_id, reading_time) groups readings per device and orders them by time. If a device emits millions of readings per month, add a bucket like month: PRIMARY KEY ((device_id, reading_month), reading_time).</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-rose-50 border border-rose-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Using low-cardinality fields such as country alone as a partition key can create hot partitions and uneven node load.</div>
+      </div>
+    </div>
+  </div>
+</div>

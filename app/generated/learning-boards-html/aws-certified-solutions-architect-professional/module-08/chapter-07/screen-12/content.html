@@ -1,0 +1,91 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} :root{--slate-100:rgba(226,232,240,0.9)} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-2xl bg-white p-5 border shadow-sm overflow-auto" style="border-color:var(--slate-100)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">Nested Stack Files (excerpt)</div>
+      <div class="mt-3 text-sm text-slate-700">Below are representative content excerpts from the chapter's example templates. Use them as the basis for your lab files.</div>
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-700">network-stack.yaml (excerpt)</div>
+        <pre class="mt-2 rounded bg-slate-50 p-3"><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: Base Network Stack - VPC and Public Subnet
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/24
+
+Outputs:
+  VpcId:
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "${AWS::StackName}-VpcId"
+</code></pre>
+      </div>
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-700">webserver-stack.yaml (excerpt)</div>
+        <pre class="mt-2 rounded bg-slate-50 p-3"><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: Web Server Application Stack
+
+Parameters:
+  VpcId:
+    Type: String
+  PublicSubnetId:
+    Type: String
+
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      NetworkInterfaces:
+        - SubnetId: !Ref PublicSubnetId
+</code></pre>
+      </div>
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-700">master-stack.yaml (excerpt)</div>
+        <pre class="mt-2 rounded bg-slate-50 p-3"><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: Master Stack for Multi-Tier Application Demo
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: network-stack.yaml
+
+  WebServerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: webserver-stack.yaml
+      Parameters:
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-2xl bg-white p-5 border shadow-sm" style="border-color:var(--slate-100)">
+      <div class="text-sm font-bold text-slate-700">CLI deployment notes</div>
+      <div class="mt-3 text-sm text-slate-700">
+        <div class="mb-2">Upload child templates to accessible storage then run:</div>
+        <pre class="rounded bg-slate-50 p-3 text-sm"><code>aws cloudformation create-stack \
+  --stack-name MultiTierAppMasterStack \
+  --template-body file://master-stack.yaml \
+  --capabilities CAPABILITY_IAM</code></pre>
+        <div class="mt-3 text-sm text-slate-600">Verify nested stacks in the console and fetch outputs to confirm the web server is reachable. Clean up by deleting the master stack which removes nested stacks and their resources.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the master → child relationship, make templates accessible to CloudFormation, and use outputs to wire components together.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

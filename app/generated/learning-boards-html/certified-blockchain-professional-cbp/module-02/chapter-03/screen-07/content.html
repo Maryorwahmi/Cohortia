@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .code-panel{background:#0f1724;color:#d1d5db;border-radius:12px;padding:12px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace}
+  </style>
+  <div class="safe-area h-full grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Simplified mining script</h3>
+      <p class="text-sm text-slate-600 mt-2">This starter script illustrates nonce searching and the effect of difficulty on mining time.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-800">What to change</div>
+        <div class="text-xs text-slate-600 mt-1">Modify the block_data string and the difficulty value to see how search time varies.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Run with small difficulty first, then increase it to observe the exponential cost in practice.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter Code (Python)</div>
+      <div class="mt-3 code-panel mono" style="white-space:pre-wrap; tab-size:2; font-size:13px; line-height:1.4;">
+        <pre><code>import hashlib
+import time
+
+def calculate_hash(index, timestamp, data, previous_hash, nonce):
+  """Calculates the SHA-256 hash of a block's contents."""
+  block_string = f"{index}{timestamp}{data}{previous_hash}{nonce}"
+  return hashlib.sha256(block_string.encode('utf-8')).hexdigest()
+
+def mine_block(index, timestamp, data, previous_hash, difficulty):
+  """
+  Mines a block by finding a nonce that satisfies the difficulty target.
+  """
+  print(f"Starting to mine block {index} with difficulty {difficulty}...")
+  difficulty_target = "0" * difficulty
+  nonce = 0
+  start_time = time.time()
+  while True:
+    current_hash = calculate_hash(index, timestamp, data, previous_hash, nonce)
+    if current_hash.startswith(difficulty_target):
+      end_time = time.time()
+      print(f"Block Mined! Nonce: {nonce}, Hash: {current_hash}")
+      print(f"Mining took {end_time - start_time:.2f} seconds.")
+      return nonce, current_hash
+    nonce += 1
+
+# --- Block Parameters ---
+block_index = 1
+block_timestamp = time.time()
+block_data = "Alice sends 10 BTC to Bob"
+previous_block_hash = "0000000000000000000000000000000000000000000000000000000000000000"
+difficulty = 4
+
+found_nonce, block_hash = mine_block(block_index, block_timestamp, block_data, previous_block_hash, difficulty)
+
+print("
+--- Mined Block Details ---")
+print(f"Index: {block_index}")
+print(f"Timestamp: {block_timestamp}")
+print(f"Data: {block_data}")
+print(f"Previous Hash: {previous_block_hash}")
+print(f"Nonce: {found_nonce}")
+print(f"Block Hash: {block_hash}")</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

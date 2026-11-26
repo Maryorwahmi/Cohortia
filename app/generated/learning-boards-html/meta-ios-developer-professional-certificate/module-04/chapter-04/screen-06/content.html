@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Drag Pattern</h3>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600 space-y-2">
+        <li>Define @State for persistent offset and temporary translation.</li>
+        <li>In onChanged update the temporary translation so the view follows the finger.</li>
+        <li>In onEnded add the translation to the persistent offset or snap back.</li>
+        <li>Reset the temporary translation to zero.</li>
+      </ol>
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Separate transient drag state from the final offset so the UI updates smoothly and remains deterministic after release.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-700">Code Walkthrough</div>
+      <div class="mt-3 p-3 rounded-lg bg-slate-50">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px; margin:0;">@State private var offset = CGSize.zero
+@State private var dragTranslation = CGSize.zero
+
+Rectangle()
+  .frame(width:100, height:100)
+  .offset(x: offset.width + dragTranslation.width,
+          y: offset.height + dragTranslation.height)
+  .gesture(
+    DragGesture()
+      .onChanged { value in
+        dragTranslation = value.translation // follow finger
+      }
+      .onEnded { value in
+        // commit final position and reset transient state
+        offset.width += value.translation.width
+        offset.height += value.translation.height
+        dragTranslation = .zero
+      }
+  )</pre>
+      </div>
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-700">Misconception</div>
+        <p>Updating a non-observed variable will not trigger a view update. Always use @State for values that influence layout during gestures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

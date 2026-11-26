@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Debug: OSPF vs BGP</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm safe-card">
+      <div class="text-sm font-semibold text-slate-800">OSPF debugging</div>
+      <div class="text-xs text-slate-700 mt-2">Use narrow commands to watch neighbor transitions.</div>
+      <pre class="bg-slate-100 p-3 rounded-md mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+debug ip ospf adjacency
+%OSPF-5-ADJCHG: Nbr 10.0.0.2 on Gi0/1 from LOADING to FULL
+%OSPF-5-ADJCHG: Nbr 10.0.0.2 on Gi0/1 from FULL to DOWN
+</pre>
+      <div class="mt-3 text-sm text-slate-700">This output shows exact neighbor state transitions, which helps confirm whether adjacency flaps explain route instability.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm safe-card">
+      <div class="text-sm font-semibold text-slate-800">BGP debugging</div>
+      <div class="text-xs text-slate-700 mt-2">Choose between events and updates depending on whether you need session or routing detail.</div>
+      <pre class="bg-slate-100 p-3 rounded-md mt-3 text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+debug ip bgp events
+% BGP-5-ADJCHANGE: neighbor 192.0.2.2 down: hold timer expired
+
+debug ip bgp updates
+% BGP-6-ADVERTISE: sent to neighbor 192.0.2.2 prefix 203.0.113.0/24
+</pre>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded-lg bg-emerald-50 border text-sm">
+      <div class="font-semibold text-emerald-700">When to use events</div>
+      <div class="text-xs text-slate-700 mt-1">Track session transitions and negotiation issues.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-blue-50 border text-sm">
+      <div class="font-semibold text-blue-700">When to use updates</div>
+      <div class="text-xs text-slate-700 mt-1">Investigate route advertisements and withdrawals.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-rose-50 border text-sm">
+      <div class="font-semibold text-rose-700">Avoid</div>
+      <div class="text-xs text-slate-700 mt-1">Running all BGP debug types together on production peers; it often floods consoles and CPU.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

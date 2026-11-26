@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.5</span><span>›</span><span class="text-slate-700">Strategy Pattern Refactoring (Part 2)</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="w-full lg:w-1/2 bg-slate-900 rounded-2xl shadow-xl p-6 flex flex-col"><h3 class="text-xl font-bold text-white mb-4">Step 3: Introduce Context</h3><pre class="text-sm text-slate-200 overflow-auto mb-6" style="white-space: pre-wrap; tab-size: 2;"><code><span class="text-violet-400">public class</span> <span class="text-emerald-400">OrderProcessorRefactored</span>
+{
+    <span class="text-violet-400">private readonly</span> <span class="text-emerald-400">IShippingCostStrategy</span> _shippingStrategy;
+
+    <span class="text-violet-400">public</span> <span class="text-emerald-400">OrderProcessorRefactored</span>(<span class="text-emerald-400">IShippingCostStrategy</span> shippingStrategy)
+    {
+        _shippingStrategy = shippingStrategy;
+    }
+
+    <span class="text-violet-400">public decimal</span> <span class="text-yellow-400">GetShippingCost</span>(<span class="text-violet-400">decimal</span> orderTotal)
+    {
+        <span class="text-violet-400">return</span> _shippingStrategy.Calculate(orderTotal);
+    }
+}</code></pre><h3 class="text-xl font-bold text-white mb-4">Step 4: Introduce Strategy Factory (Optional)</h3><pre class="text-sm text-slate-200 overflow-auto flex-grow" style="white-space: pre-wrap; tab-size: 2;"><code><span class="text-violet-400">public class</span> <span class="text-emerald-400">ShippingStrategyFactory</span>
+{
+    <span class="text-violet-400">private readonly</span> <span class="text-emerald-400">IServiceProvider</span> _serviceProvider;
+
+    <span class="text-violet-400">public</span> <span class="text-emerald-400">ShippingStrategyFactory</span>(<span class="text-emerald-400">IServiceProvider</span> serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    <span class="text-violet-400">public</span> <span class="text-emerald-400">IShippingCostStrategy</span> <span class="text-yellow-400">GetStrategy</span>(<span class="text-violet-400">string</span> country)
+    {
+        <span class="text-violet-400">return</span> country <span class="text-violet-400">switch</span>
+        {
+            <span class="text-green-400">"USA"</span> => _serviceProvider.GetService&lt;<span class="text-emerald-400">UsaShippingStrategy</span>&gt;(),
+            <span class="text-green-400">"Canada"</span> => _serviceProvider.GetService&lt;<span class="text-emerald-400">CanadaShippingStrategy</span>&gt;(),
+            <span class="text-green-400">"UK"</span> => _serviceProvider.GetService&lt;<span class="text-emerald-400">UkShippingStrategy</span>&gt;(),
+            _ => _serviceProvider.GetService&lt;<span class="text-emerald-400">DefaultShippingStrategy</span>&gt;()
+        } ?? <span class="text-violet-400">throw new</span> <span class="text-emerald-400">InvalidOperationException</span>($<span class="text-green-400">"Strategy for country '{country}' not registered."</span>);
+    }
+}</code></pre></div><div class="flex flex-col w-full lg:w-1/2 gap-6"><div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-grow"><h3 class="text-xl font-bold text-slate-900 mb-4">Role of Context and Factory</h3><div class="flex flex-col gap-4"><div class="flex items-start gap-3"><svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="text-sm text-slate-700"><strong class="text-slate-900">Context Simplification:</strong> The <code>OrderProcessorRefactored</code> becomes leaner, focusing only on delegating the task, not on the specific logic.</p></div><div class="flex items-start gap-3"><svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><p class="text-sm text-slate-700"><strong class="text-slate-900">Decoupling:</strong> The factory decouples the client from the concrete strategy implementations, allowing for easy swapping and extension.</p></div><div class="flex items-start gap-3"><svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><p class="text-sm text-slate-700"><strong class="text-slate-900">Enhanced Flexibility:</strong> Strategies can be chosen at runtime, and new strategies can be added without modifying the core processing logic.</p></div></div><div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro Tip</div><p class="text-xs font-medium text-slate-800">Using a factory, especially with Dependency Injection, centralizes strategy creation and makes your system highly configurable and testable.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

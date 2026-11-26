@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;}</style>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Why this matters</div>
+      <p class="mt-2 text-sm text-slate-600">Peers execute chaincode for any submitted transaction. Access control inside chaincode ensures only authorized identities can change critical state, preventing unauthorized asset creation or administrative actions.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Patterns</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>Read MSP ID immediately via ctx.GetClientIdentity().GetMSPID().</li>
+          <li>Check attributes with CID for role-based permissions.</li>
+          <li>Fail early: return authorization errors before heavy work or state changes.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border">
+        <div class="font-semibold text-slate-800">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-2">Centralize authorization checks to a helper function so you reuse consistent logic and messages across handlers.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Code example</div>
+      <pre class="rounded bg-slate-900 text-white p-3"><code>// Access control snippet (Go)
+clientMSPID, err := ctx.GetClientIdentity().GetMSPID()
+if err != nil {
+  return fmt.Errorf("failed to get client MSP ID: %v", err)
+}
+if clientMSPID != "Org1MSP" {
+  return fmt.Errorf("client not authorized to create assets: %s", clientMSPID)
+}</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Testing note</div>
+        <p class="mt-2">When unit testing, mock the creator identity in the stub to simulate authorized and unauthorized MSP IDs and confirm expected responses.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

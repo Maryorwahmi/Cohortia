@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Playbook walkthrough</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900 mt-3">configure_app_firewall.yml</div>
+    <div class="text-sm text-slate-600 mt-1">Allow app and DB ports from a management subnet using rich rules.</div>
+  </div>
+
+  <div class="bg-white card-border rounded-2xl p-4 shadow-sm h-full">
+    <div class="text-sm font-semibold text-slate-800 mb-2">Full task sequence</div>
+    <pre class="bg-white p-3 rounded-md text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>---
+- name: Configure firewalld for application server
+  hosts: app_servers
+  become: true
+
+  tasks:
+    - name: Ensure firewalld is installed
+      ansible.builtin.package:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld service is running and enabled
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Allow app port 8080/tcp from management subnet
+      ansible.posix.firewalld:
+        rich_rule: 'rule family="ipv4" source address="192.168.50.0/24" port port="8080" protocol="tcp" accept'
+        zone: public
+        state: enabled
+        permanent: yes
+        immediate: yes
+
+    - name: Allow DB port 3306/tcp from management subnet
+      ansible.posix.firewalld:
+        rich_rule: 'rule family="ipv4" source address="192.168.50.0/24" port port="3306" protocol="tcp" accept'
+        zone: public
+        state: enabled
+        permanent: yes
+        immediate: yes</code></pre>
+
+    <div class="mt-3 text-sm text-slate-600">After applying, verify the public zone listing and test connectivity from allowed and denied hosts to ensure the rules behave as intended.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

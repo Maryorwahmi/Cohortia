@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card-border{border:1px solid rgba(226,232,240,0.9);} .box{border-radius:12px;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Architecture</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">SCPs as Preventative Guardrails</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-900">SCPs: organization-wide prevention</div>
+      <div class="text-sm text-slate-600 mt-2">Attach Deny SCPs to OUs to stop disallowed actions such as launching oversized instances.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Design checklist</div>
+          <ul class="text-sm text-slate-600 mt-2 pl-5 list-disc">
+            <li>Start in a dev OU and test with a sandbox account.</li>
+            <li>Write narrow deny statements with clear condition keys.</li>
+            <li>Document required exceptions and test IAM interactions.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Safety note</div>
+          <div class="text-sm text-slate-600 mt-2">SCPs can block legitimate work if applied broadly. Use staged rollout and monitoring to avoid disruption.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-3 card-border h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Conceptual SCP example</div>
+        <pre class="text-sm p-3 bg-slate-50 rounded-md overflow-auto mono" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Deny",
+    "Action": "ec2:RunInstances",
+    "Resource": "*",
+    "Condition": {
+      "StringGreaterThan": {"ec2:InstanceType": "t3.large"}
+    }
+  }]
+}</pre>
+        <div class="mt-3 text-sm text-slate-600">This conceptual policy denies launching instances larger than t3.large. Always test for condition key compatibility and real-world effects before rolling out.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} .stepbox{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Transactions</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 rounded-2xl bg-white p-5 stepbox">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Atomic workflow</div>
+      <div class="mt-3 flex flex-col gap-3 h-full">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-blue-50 text-blue-700 w-8 h-8 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Lock the datastore</div>
+            <div class="text-sm text-slate-600">Call m.lock('candidate') to prevent concurrent edits while staging changes.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 text-violet-700 w-8 h-8 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Edit candidate</div>
+            <div class="text-sm text-slate-600">Apply all intended edits to candidate. Use default_operation or explicit operations as needed.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-amber-50 text-amber-700 w-8 h-8 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Validate and commit</div>
+            <div class="text-sm text-slate-600">Optionally validate, then m.commit() to apply all changes atomically to running.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-rose-50 text-rose-700 w-8 h-8 flex items-center justify-center font-bold">4</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Unlock and verify</div>
+            <div class="text-sm text-slate-600">Call m.unlock('candidate') and re-get the configuration to verify success.</div>
+          </div>
+        </div>
+
+        <div class="mt-auto text-xs text-slate-500">If an error occurs, use discard-changes on the candidate and unlock to leave running unchanged.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 stepbox">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 mt-3">
+        <li>Use candidate for staged edits when possible.</li>
+        <li>Wrap commit in try/except and discard on failure.</li>
+        <li>Always unlock in a finally block to avoid deadlocks.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why it matters</div>
+        <p class="text-xs font-medium text-slate-800">Atomic transactions prevent partial configs that can cause service outages. Treat multi-step changes as a single unit.</p>
+      </div>
+    </div>
+  </div>
+</div>

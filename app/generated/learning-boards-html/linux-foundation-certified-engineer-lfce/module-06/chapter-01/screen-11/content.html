@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 rounded-2xl bg-white card-border shadow-sm p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-2">Hands-on Activity</div>
+      <h3 class="text-lg font-bold text-slate-900">Secure /opt/app/config and /var/log/app/critical.log</h3>
+      <div class="mt-3 text-sm text-slate-600">Follow these commands in a controlled environment to apply ACLs and attributes as shown in the chapter source.</div>
+
+      <div class="mt-4">
+        <pre class="p-3 bg-slate-900 text-slate-50 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Create group and users
+sudo groupadd appdevs
+sudo useradd -m appadmin
+sudo usermod -aG appdevs appadmin
+sudo useradd -m testuser
+
+# Set up directory and ownership
+sudo mkdir -p /opt/app/config
+sudo chown appadmin:appdevs /opt/app/config
+sudo chmod 750 /opt/app/config
+
+# Apply ACLs
+sudo setfacl -m u:appadmin:rwx /opt/app/config
+sudo setfacl -m g:appdevs:r-x /opt/app/config
+sudo setfacl -m o::--- /opt/app/config
+getfacl /opt/app/config
+
+# Secure the log file
+sudo mkdir -p /var/log/app
+sudo touch /var/log/app/critical.log
+sudo chown appadmin:appdevs /var/log/app/critical.log
+sudo chmod 640 /var/log/app/critical.log
+sudo chattr +a+i /var/log/app/critical.log
+lsattr /var/log/app/critical.log
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white card-border shadow-sm p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tests to run</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>sudo -u appadmin touch /opt/app/config/admin_file.txt should succeed.</li>
+        <li>sudo -u testuser cat /opt/app/config/admin_file.txt should fail.</li>
+        <li>echo "First log" | sudo tee -a /var/log/app/critical.log should append.</li>
+        <li>Trying to overwrite or delete the log should fail until attributes are removed.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Reminder</div>
+          <p class="text-xs font-medium text-slate-800">Run this scenario in a staging environment first and document attribute changes before applying on production systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

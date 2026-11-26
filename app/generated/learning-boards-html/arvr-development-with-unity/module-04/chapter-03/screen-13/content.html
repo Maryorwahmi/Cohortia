@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family: ui-monospace, SFMono-Regular, Menlo,monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-900">Modify ARPlacementManager</div>
+      <div class="text-sm text-slate-600 mt-3">Follow these steps: add a placedObject reference, cache ARRaycastManager in Awake, use Begin for initial instantiate, use Moved for translation updates.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800 text-sm">Step 1: Open ARPlacementManager and add private GameObject placedObject.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800 text-sm">Step 2: In Update, on TouchPhase.Began raycast and instantiate if placedObject is null.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-800 text-sm">Step 3: On TouchPhase.Moved raycast and set placedObject.transform.position to hitPose.position.</div>
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-800 text-sm">Step 4: Build to device and test first tap = place, drag = move.</div>
+      </div>
+    </div>
+
+    <div class="bg-white card-border rounded-xl p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Starter code (from chapter)</div>
+      <div class="bg-slate-900 text-slate-100 rounded-lg p-3 mono" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+using System.Collections.Generic;
+
+public class ARPlacementManager : MonoBehaviour
+{
+    [SerializeField] private GameObject objectToPlace; // Assign your ARCubeprefab here
+    private ARRaycastManager arRaycastManager;
+    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+
+    private GameObject placedObject; // Reference to the currently placed object
+
+    void Awake()
+    {
+        arRaycastManager = GetComponent<ARRaycastManager>();
+    }
+
+    void Update()
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            // Handle initial placement or moving existing object
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
+            {
+                if (arRaycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+                {
+                    Pose hitPose = hits[0].pose;
+
+                    if (placedObject == null)
+                    {
+                        // On first touch, if no object exists, instantiate it
+                        if (touch.phase == TouchPhase.Began) // Only instantiate on the very first touch
+                        {
+                            placedObject = Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
+                        }
+                    }
+                    else
+                    {
+                        // If an object exists, move it to the new hit position
+                        placedObject.transform.position = hitPose.position;
+                        // Optional: Adjust rotation if you want it to always face the camera or align with the plane
+                        // placedObject.transform.rotation = hitPose.rotation;
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Build and run: first tap places the cube, subsequent taps or drags move it. Add Lerp to smooth movement if needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

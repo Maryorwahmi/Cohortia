@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} code{font-size:13px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Junos Configuration</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Junos Configuration Walkthrough</div>
+    <div class="text-sm text-slate-600 mt-2">ABR and NSSA ASBR examples for R1 and R3 from the lab topology.</div>
+  </div>
+
+  <div class="mt-5 grid grid-cols-2 gap-4 h-3/5">
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-bold mb-2">R1 (ABR) — partial</div>
+      <pre><code># R1 Configuration (ABR)
+edit protocols ospf
+set router-id 1.1.1.1
+set area 0.0.0.0 interface ge-0/0/0.0
+set area 1.0.0.0 interface ge-0/0/1.0
+set area 1.0.0.0 stub no-summaries  # Totally Stubby Area
+set area 2.0.0.0 interface ge-0/0/2.0
+set area 2.0.0.0 nssa
+commit</code></pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border overflow-auto">
+      <div class="text-sm font-bold mb-2">R3 (NSSA ASBR) — partial</div>
+      <pre><code># R3 Configuration (ASBR in NSSA)
+edit protocols ospf
+set router-id 3.3.3.3
+set area 2.0.0.0 interface ge-0/0/0.0
+set area 2.0.0.0 nssa
+set area 2.0.0.0 nssa default-lsa  # optional: ABR generates default into NSSA
+set routing-options static route 172.16.0.0/24 next-hop 10.0.0.2
+set policy-options policy-statement static-to-ospf-policy term 1 from protocol static
+set policy-options policy-statement static-to-ospf-policy term 1 then accept
+set protocols ospf export static-to-ospf-policy
+commit</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-lg p-3 bg-slate-50 card-border">
+    <div class="text-sm font-bold">Verification</div>
+    <div class="text-sm text-slate-700">Use show ospf neighbor, show ospf database area &lt;area-id&gt;, and show route protocol ospf to confirm adjacencies, LSA presence, and how routes are learned across the areas.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

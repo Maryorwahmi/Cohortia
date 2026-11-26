@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre { white-space: pre-wrap; tab-size: 2; } .code-card { border: 1px solid rgba(226,232,240,0.9); } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">type() as a Class Factory</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 code-card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Definition and example</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm"><code>DynamicPerson = type(
+  'DynamicPerson',            # name
+  (object,),                  # bases: tuple required
+  {
+    'species': 'Homo sapiens',
+    '__init__': lambda self, name, age: setattr(self, 'name', name) or setattr(self, 'age', age),
+    'greet': lambda self: f"Hello, my name is {self.name} and I am {self.age} years old."
+  }
+)
+
+person = DynamicPerson("Alice", 30)
+print(person.greet())
+</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Note: Lambda used here for brevity; for complex __init__ prefer a real def function.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-6 border">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><strong>Name:</strong> becomes the class's __name__ and shows up in tracebacks.</li>
+        <li><strong>Bases:</strong> must be a tuple. Use (object,) for a simple new-style class.</li>
+        <li><strong>Attrs:</strong> functions placed here are descriptors and become methods on instances.</li>
+        <li><strong>Misconception:</strong> type() does not compile source text; it uses the objects you pass in the attrs dictionary.</li>
+      </ul>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Concrete example</div>
+          <p class="text-sm text-slate-800 mt-1">Create a class from a config that names attributes and defaults. Good for small ORMs or test doubles.</p>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm text-slate-800">Always pass bases as a tuple and prefer real functions for multi-statement methods to preserve readability and tooling support.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

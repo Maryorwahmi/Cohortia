@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="rounded-2xl bg-white p-6 h-full border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="mt-2 flex items-center justify-between">
+      <div>
+        <div class="text-2xl font-bold text-slate-800">GDB for post-mortem analysis</div>
+        <div class="text-sm text-slate-600">Load cores, inspect backtraces, inspect variables</div>
+      </div>
+      <div class="text-xs text-slate-500">Hands-on commands</div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] overflow-auto">
+        <div class="font-semibold text-slate-800">Workflow steps</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2 list-disc pl-5">
+          <li>Compile with debug symbols: add -g so GDB can map addresses to source.</li>
+          <li>Enable core dumps and set a safe core_pattern and ulimit -c unlimited.</li>
+          <li>Run the program to produce core, then load it: gdb &lt;executable&gt; &lt;core-file&gt;.</li>
+          <li>Use bt full to see the stack and local variables, then inspect frames and memory.</li>
+          <li>Document the backtrace and reproduce in a controlled build if possible.</li>
+        </ul>
+
+        <div class="mt-4">
+          <div class="font-semibold text-slate-800">Common mistake</div>
+          <div class="text-sm text-rose-600 mt-1">Not installing or using debug-symbol builds makes GDB output much less useful.</div>
+        </div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)] min-h-0">
+        <div class="font-semibold text-slate-800">Example commands</div>
+        <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded-md text-sm"># Compile with debug symbols
+gcc -g -o my_app my_app.c
+
+# Enable core dumps and pattern
+sudo sysctl -w kernel.core_pattern="/tmp/core-%e-%p-%t"
+ulimit -c unlimited
+
+# Run to crash and then analyze
+./my_app
+gdb my_app /tmp/core-my_app-12345</pre>
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Always use debug-symbol builds and keep core files accessible to enable precise source-level diagnosis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

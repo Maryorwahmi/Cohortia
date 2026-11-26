@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process</span>
+    <span>›</span>
+    <span class="text-slate-700">Implementing multiply safely</span>
+  </div>
+  <div class="flex gap-6 flex-grow">
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm">
+      <h3 class="text-lg font-bold text-slate-900">Sign handling pattern</h3>
+      <div class="text-sm text-slate-700 mt-3 space-y-2">
+        <p>1) Record sign = (x &lt; 0) XOR (y &lt; 0). 2) Convert x and y to absolute values. 3) Run shift-and-add on positives. 4) If sign, negate the product before returning.</p>
+        <p>Explicitly converting to absolute values avoids scanning sign-extended bits and simplifies logic on small platforms.</p>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-md bg-white border p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+          <div class="text-sm text-slate-700 mt-2">-3 * 4: abs(-3) = 3; compute 3*4 = 12; apply negative sign -> -12.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl border p-5 bg-white shadow-sm">
+      <h3 class="text-lg font-bold text-slate-900">Testing matrix</h3>
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <div class="rounded-lg p-3 border bg-blue-50">
+          <div class="text-xs font-bold text-slate-800">Base cases</div>
+          <div class="text-sm text-slate-700 mt-1">0*x, 1*x, x*1, -1*x</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-amber-50">
+          <div class="text-xs font-bold text-slate-800">Sign combos</div>
+          <div class="text-sm text-slate-700 mt-1">(+,+), (+,-), (-,+), (-,-)</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-violet-50">
+          <div class="text-xs font-bold text-slate-800">Bounds</div>
+          <div class="text-sm text-slate-700 mt-1">Large magnitude near 16-bit limits to observe wrap or overflow.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-bold text-slate-800">Regression</div>
+          <div class="text-sm text-slate-700 mt-1">Add tests to catch accidental sign-loss after refactors.</div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistake</div>
+        <p>Scanning bits of two's-complement values without converting to absolute can yield incorrect partial products when sign bits are set.</p>
+      </div>
+    </div>
+  </div>
+</div>

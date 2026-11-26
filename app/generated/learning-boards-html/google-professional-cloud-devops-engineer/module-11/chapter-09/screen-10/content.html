@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)}.code{background:#0b1220;color:#dbeafe;padding:12px;border-radius:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Cloud Workflow (YAML)</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex gap-4">
+    <div class="w-2/3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Workflow concept</div>
+      <div class="code" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;">
+- call: get_vm_details
+  result: vm_info
+  args:
+    vm_name: ${vm_name_from_alert}
+  steps:
+    - call: googleapis.compute.v1.instances.get
+      args:
+        project: ${vm_info.project}
+        zone: ${vm_info.zone}
+        instance: ${vm_info.name}
+      result: vm_details
+- call: run_disk_check_script
+  result: disk_status
+  steps:
+    - call: googleapis.cloudfunctions.v1.projects.locations.functions.call
+      args:
+        name: projects/YOUR_PROJECT_ID/locations/YOUR_REGION/functions/run-remote-script-function
+        body:
+          data:
+            vm_ip: ${vm_details.networkInterfaces[0].networkIp}
+            script: "df -h && du -sh /var/log/*"
+      result: script_output
+- call: evaluate_disk_status
+  result: action_required
+  steps:
+    - call: googleapis.cloudfunctions.v1.projects.locations.functions.call
+      args:
+        name: projects/YOUR_PROJECT_ID/locations/YOUR_REGION/functions/evaluate-disk-status-function
+        body:
+          data:
+            disk_check_output: ${script_output.result.data}
+      result: evaluation_result
+- condition: ${action_required.result.data.cleanup_needed}
+  steps:
+    - call: run_disk_cleanup_script
+      steps:
+        - call: googleapis.cloudfunctions.v1.projects.locations.functions.call
+          args:
+            name: projects/YOUR_PROJECT_ID/locations/YOUR_REGION/functions/run-remote-script-function
+            body:
+              data:
+                script: "find /var/log -name '*.log' -mtime +7 -delete"
+          result: cleanup_output
+        - call: send_slack_notification
+          args:
+            message: "Disk cleanup performed"
+        </div>
+    </div>
+
+    <div class="w-1/3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Annotations</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li><strong>get_vm_details:</strong> fetch metadata for identification and secure connectivity.</li>
+        <li><strong>run_disk_check_script:</strong> call helper function to run diagnostics on the VM.</li>
+        <li><strong>evaluate_disk_status:</strong> centralized evaluation function that returns a boolean flag.</li>
+        <li><strong>condition:</strong> gate destructive steps behind explicit evaluation.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border text-sm text-slate-700">Design rule: Keep evaluation logic in one place so decisions are consistent and testable across environments.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

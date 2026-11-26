@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">OCSP & Stapling</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">OCSP real-time checks</div>
+      <p class="text-sm text-slate-600 mt-3">Clients query an OCSP responder with a certificate serial number; the responder returns a signed status of good, revoked, or unknown. Stapling reduces client burden by letting servers present a recent signed OCSP response during handshake.</p>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div><strong>Client query:</strong> client -> OCSP responder -> signed status returned.</div>
+        <div><strong>Stapling:</strong> server fetches signed response and includes it in TLS handshake.</div>
+        <div><strong>Trade-offs:</strong> timeliness vs responder availability and complexity.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-xs text-slate-600 mt-2">A web server configures OCSP stapling so its clients receive revocation status with no extra round trip. If the responder fails, the server may present a cached OCSP response, but operators must decide fail-open vs fail-closed policy based on risk tolerance.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Pro Tip</div>
+          <div class="text-xs text-slate-600 mt-2">Deploy redundant responders and monitor stapling freshness to avoid serving stale status or causing handshake failures.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Misconception</div>
+          <div class="text-xs text-slate-600 mt-2">OCSP always fixes revocation staleness. In practice, it depends on responder reachability and cache lifetimes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

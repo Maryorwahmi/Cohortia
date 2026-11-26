@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Hands-on</span>
+      <span class="text-slate-700">Activity</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-800">Create and Read an App Log File</div>
+    <div class="text-sm text-slate-600 mt-1">Step-by-step implementation notes and starter snippet.</div>
+  </div>
+
+  <div class="flex gap-4 flex-1 min-h-0">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Steps</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Create LOG_FILENAME = "app_log.txt" and TextView with id log_display_text.</li>
+        <li>Implement logEvent(message) to build timestamp + message and use openFileOutput with Context.MODE_APPEND.</li>
+        <li>Implement readLogFile() to open the file, read bytes, and return a String or null if missing.</li>
+        <li>Call logEvent in onCreate and set the TextView text to readLogFile() result.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 bg-slate-50 rounded-2xl border p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Starter code (excerpt)</div>
+      <pre class="bg-white rounded p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, \"Monospace\";">
+private val LOG_FILENAME = "app_log.txt"
+
+private fun logEvent(message: String) {
+    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+    val logEntry = "$timestamp: $message
+"
+    try {
+        openFileOutput(LOG_FILENAME, Context.MODE_APPEND).use {
+            it.write(logEntry.toByteArray())
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+private fun readLogFile(): String? {
+    try {
+        val file = File(filesDir, LOG_FILENAME)
+        if (!file.exists()) return null
+        openFileInput(LOG_FILENAME).use {
+            val bytes = it.readBytes()
+            return String(bytes)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return null
+    }
+}
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

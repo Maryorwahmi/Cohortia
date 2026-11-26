@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="h-full grid grid-cols-2 gap-4">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Inventory: containers combined</div>
+      <div class="text-sm text-slate-600 mb-3">Vector for display order, map for quantities sorted by name, unordered_set for discontinued membership.</div>
+
+      <div class="rounded-lg bg-white p-3 card-border flex-1">
+        <div class="font-bold text-slate-800 mb-2">Key steps</div>
+        <ol class="text-sm text-slate-700 pl-4 list-decimal">
+          <li>Add product name to vector with push_back.</li>
+          <li>Set or update stock in std::map using stock[name] = qty.</li>
+          <li>Mark discontinued products using unordered_set.insert(name).</li>
+          <li>Remove from vector using remove-erase idiom to avoid dangling iterators.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="font-bold text-slate-800 mb-2">Starter code (excerpt)</div>
+      <pre><code>&lt;#include &lt;iostream&gt;&gt;
+&lt;#include &lt;vector&gt;&gt;
+&lt;#include &lt;map&gt;&gt;
+&lt;#include &lt;unordered_set&gt;&gt;
+&lt;#include &lt;algorithm&gt;&gt;
+
+// add product
+void addProduct(std::vector&lt;std::string&gt;& products, const std::string &name) {
+  products.push_back(name);
+}
+
+// remove using remove-erase
+void removeProduct(std::vector&lt;std::string&gt;& products, const std::string &name) {
+  auto it = std::remove(products.begin(), products.end(), name);
+  if (it != products.end()) products.erase(it, products.end());
+}
+</code></pre>
+
+      <div class="rounded-lg bg-white p-3 card-border mt-3">
+        <div class="font-bold text-slate-800">Concrete tip</div>
+        <div class="text-sm text-slate-700 mt-2">Use the map for sorted stock reports and unordered_set for constant-time discontinued checks when processing sales.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

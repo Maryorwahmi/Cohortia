@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Redis Lists — definition</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">What is a Redis List?</div>
+      <p class="text-sm text-slate-600 mt-2">An ordered collection of strings implemented as a linked list, making head and tail operations extremely fast.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Complexity Profile</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2">
+          <li>LPUSH / RPUSH and LPOP / RPOP are O(1) — constant time regardless of list size.</li>
+          <li>LRANGE is O(N) where N is number of elements returned; retrieving very large ranges can be costly.</li>
+          <li>LLEN is O(1) to get list length, LREM is O(N) relative to elements scanned.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-sm text-slate-800 mt-1">Use Lists when you need ordered streams with frequent head or tail changes; avoid LRANGE on entire massive lists.</p>
+        </div>
+
+        <div class="rounded-lg p-3 bg-slate-50">
+          <div class="text-xs font-bold text-slate-700">Common misconception</div>
+          <p class="text-sm text-slate-600 mt-1">Lists are not arrays optimized for random access. Pulling large ranges is linear in the output size and can impact performance.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="mt-2 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2">
+        <pre><code>LPUSH user:alice:feed "post:102 Alice liked a photo"
+LPUSH user:alice:feed "post:101 Alice shared an article"
+LRANGE user:alice:feed 0 4  -- show five most recent posts
+RPOP user:alice:feed        -- process oldest post</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold text-slate-700">Explanation bullets</div>
+        <ul class="text-sm text-slate-600 pl-5 mt-2 space-y-2">
+          <li>LPUSH inserts at the head; the newest items appear first when you LRANGE from zero.</li>
+          <li>RPOP removes the tail, which is useful to process oldest items in FIFO producer/consumer patterns.</li>
+          <li>Combine LRANGE with LTRIM to show recent entries while keeping list size bounded.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+          <p class="text-sm font-medium text-slate-800">Simulate a producer with LPUSH and a consumer with RPOP; observe constant-time behavior as the list grows.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

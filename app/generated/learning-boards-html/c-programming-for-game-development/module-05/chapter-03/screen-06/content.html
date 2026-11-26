@@ -1,0 +1,78 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> pre { background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; } .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div class="mb-4"> 
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"> 
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Polling example</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full"> 
+    <div class="card p-4"> 
+      <div class="text-sm font-bold text-slate-900">Walkthrough notes</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2"> 
+        <li>• PollRawInput simulates OS input and updates key states each frame.</li>
+        <li>• InputManager maps KeyCode to GameAction and queries current states.</li>
+        <li>• The game loop polls, asks for active action, then handles it and waits for next frame.</li>
+      </ul>
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 text-emerald-700">Tip: The example returns the first active action found. To support simultaneous inputs, collect all active actions instead.</div>
+    </div>
+    <div class="card p-4"> 
+      <div class="text-sm font-bold text-slate-900">Code (conceptual)</div>
+      <pre><code>&lt;!-- Escaped C++ excerpt from chapter: Polling loop and InputManager --&gt;
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;chrono&gt;
+#include &lt;thread&gt;
+
+enum class KeyCode { W, A, S, D, Space, Escape, Unknown };
+std::map&lt;KeyCode,bool&gt; g_keyStates;
+
+void PollRawInput() {
+  static int frameCounter = 0;
+  frameCounter++;
+  if (frameCounter % 10 == 1) {
+    g_keyStates[KeyCode::W] = true;
+    g_keyStates[KeyCode::Space] = false;
+  } else if (frameCounter % 10 == 5) {
+    g_keyStates[KeyCode::W] = false;
+    g_keyStates[KeyCode::Space] = true;
+  } else {
+    g_keyStates[KeyCode::Space] = false;
+  }
+}
+
+bool IsKeyPressed(KeyCode key) { return g_keyStates[key]; }
+
+enum class GameAction { MoveForward, MoveBackward, MoveLeft, MoveRight, Jump, Quit, None };
+
+class InputManager {
+public:
+  InputManager() { /* default bindings */ }
+  GameAction GetActiveAction() {
+    for (const auto& pair : keyBindings) {
+      if (IsKeyPressed(pair.first)) return pair.second;
+    }
+    return GameAction::None;
+  }
+  void SetKeyBinding(KeyCode key, GameAction action) { keyBindings[key] = action; }
+private:
+  std::map&lt;KeyCode,GameAction&gt; keyBindings;
+};
+
+int main() {
+  bool running = true;
+  InputManager inputManager;
+  while (running) {
+    PollRawInput();
+    GameAction currentAction = inputManager.GetActiveAction();
+    // Handle action...
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+}
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

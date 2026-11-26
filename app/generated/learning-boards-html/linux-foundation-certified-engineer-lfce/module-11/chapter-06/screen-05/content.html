@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex justify-between items-start">
+    <div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <div class="text-2xl font-bold text-slate-900">Using journalctl and auth logs</div>
+      <div class="text-sm text-slate-600 mt-1">Practical queries and shell filters for authentication events</div>
+    </div>
+    <div class="text-xs text-slate-500">Filter • Correlate • Preserve</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-[64%]">
+    <div class="rounded-xl bg-white safe-card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Common commands</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Show sshd failures from journal
+journalctl _COMM=sshd | grep "Failed password"
+
+# Check auth log for useradd or sudo usage
+grep "useradd" /var/log/auth.log
+
+# On systemd for specific command
+journalctl _COMM=useradd
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">Tip: pipe results to less or save matched lines to a file for evidence collection.</div>
+    </div>
+
+    <div class="rounded-xl bg-white safe-card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Interpreting results</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Note timestamps and IPs for failed attempts and correlate across logs.</li>
+        <li>Look for repeated failures from a single IP or rapid sequence of unknown usernames.</li>
+        <li>Store matched lines externally as logs can be tampered with.</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Targeted journal and auth queries give quick insight; always cross-check with other logs for confirmation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="text-sm text-slate-700 mt-2">Running the sshd grep example exposes failed password attempts along with source IPs and timestamps to investigate further.</div>
+    </div>
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+      <div class="text-sm text-slate-700 mt-2">Assuming journalctl contains everything; application logs and auditd may contain security-specific data journalctl does not capture.</div>
+    </div>
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro Tip</div>
+      <div class="text-sm text-slate-700 mt-2">Centralize logs to a remote syslog server to prevent attackers clearing local logs from erasing evidence.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

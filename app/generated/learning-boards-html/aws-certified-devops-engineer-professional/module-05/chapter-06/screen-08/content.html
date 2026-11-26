@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.6</span>
+      <span>›</span>
+      <span class="text-slate-700">Prometheus remote_write</span>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card shadow-sm h-[60%]">
+      <div class="text-sm text-slate-700">Below is a literal example derived from the chapter. Replace placeholders for your environment before use. Pay attention to the sigv4 block and queue_config values when your scrape load is high.</div>
+      <pre class="code mt-3"># prometheus.yml
+global:
+  scrape_interval: 15s # How frequently to scrape targets
+  evaluation_interval: 15s # How frequently to evaluate rules
+
+scrape_configs:
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9100'] # Assuming node_exporter runs on the same host
+
+remote_write:
+  - url: https://aps-workspaces.&lt;YOUR_REGION&gt;.amazonaws.com/workspaces/&lt;YOUR_AMP_WORKSPACE_ID&gt;/api/v1/remote_write
+    sigv4:
+      region: &lt;YOUR_REGION&gt;
+      # You might need to specify a role ARN if cross-account
+    queue_config:
+      max_samples_per_send: 1000
+      batch_send_deadline: 5s
+      max_shards: 20
+      min_shards: 1</pre>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Key fields</div>
+        <ul class="text-sm text-slate-700 mt-2 space-y-2">
+          <li><strong>url</strong>: AMP remote_write endpoint — replace placeholders.</li>
+          <li><strong>sigv4</strong>: lets Prometheus sign requests with AWS credentials.</li>
+          <li><strong>queue_config</strong>: controls batching and concurrency for reliable sends.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconfiguration trap</div>
+        <div class="text-sm text-slate-700 mt-2">Leaving &lt;placeholders&gt; unchanged or missing sigv4 region will prevent successful remote_write. Always validate Prometheus logs and Grafana Explore after deploying.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

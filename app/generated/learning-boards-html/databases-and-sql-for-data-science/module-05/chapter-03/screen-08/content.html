@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .codebox { background: #0b1220; color: #e6eef8; border-radius: 0.75rem; padding: 1rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+    .card { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 0.75rem; padding: 0.75rem; }
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Secure SELECT & INSERT</span>
+    </div>
+    <h3 class="text-xl font-bold">Secure SELECT and INSERT examples</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="codebox p-4">
+      <div class="text-sm"># Secure SELECT
+select_sql = "SELECT id, username, email FROM users WHERE username = ?;"
+cursor.execute(select_sql, (search_username,))
+user = cursor.fetchone()
+
+# Secure INSERT with error handling
+try:
+  cursor.execute("INSERT INTO users (username, email) VALUES (?, ?)", (uname, email))
+  conn.commit()
+except sqlite3.IntegrityError:
+  # handle duplicate or constraint failure
+  pass</div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="card">
+        <div class="text-xs uppercase tracking-wider text-slate-700">Notes</div>
+        <div class="text-sm text-slate-600 mt-2">Always pass a tuple or list of values. For single-value binds use a one-element tuple. Catch IntegrityError for unique constraints.</div>
+      </div>
+      <div class="card">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Why commit?</div>
+        <div class="text-sm text-slate-600 mt-2">Committing persists changes. Use transactions for grouped changes and roll back on failure when appropriate.</div>
+      </div>
+      <div class="card">
+        <div class="text-xs uppercase tracking-wider text-rose-600">Safety First!</div>
+        <div class="text-sm text-slate-600 mt-2">Never construct SQL from user input even if you plan to sanitize. Parameterize instead.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

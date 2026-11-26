@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Events vs Storage</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+      <h2 class="text-xl font-bold text-slate-900">When to persist vs when to log</h2>
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Storage</div>
+          <ul class="text-sm text-slate-600 pl-4 list-disc mt-2">
+            <li>Persistent and readable by contracts.</li>
+            <li>Used for balances, allowances, configuration flags.</li>
+            <li>More expensive in gas than logs.</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Events</div>
+          <ul class="text-sm text-slate-600 pl-4 list-disc mt-2">
+            <li>Stored in transaction logs and indexed for off‑chain queries.</li>
+            <li>Cheaper than storage and ideal for UIs and analytics.</li>
+            <li>Not readable by on‑chain code, and absent if transaction reverts.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example</div>
+      <p class="text-sm text-slate-600">A token contract stores balances but emits Transfer events for wallets. The stored balances are authoritative on‑chain, while events let frontends present a history and react to changes in near real time.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-amber-50 p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <p class="text-sm text-slate-800 mt-1">Reconstructing state from logs is reliable. In reality logs can be pruned or missed by some providers, so live state must come from contract storage.</p>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Pro Tip</div>
+          <p class="text-sm text-slate-800 mt-1">Emit events for audit trails and UI updates, and keep authoritative values in storage for contract logic.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design with the consumer in mind: store what the contract needs; log what outside tools need to see.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

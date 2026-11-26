@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+      <span class="text-slate-700">Idempotency</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="font-semibold">Why idempotency matters</div>
+      <div class="text-sm text-slate-600 mt-3">Roblox may call ProcessReceipt multiple times. Without idempotency, players risk receiving duplicate items and you risk inconsistent state.</div>
+
+      <div class="mt-4">
+        <div class="font-semibold">Example approach</div>
+        <ul class="list-inside list-disc text-sm text-slate-700 mt-2">
+          <li>On ProcessReceipt start, check if PurchaseId exists in processed DataStore.</li>
+          <li>If exists, return PurchaseGranted immediately.</li>
+          <li>If not, pcall to persist grant and then write PurchaseId.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="font-semibold">Concrete code idea</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-xs text-white rounded-md" style="white-space:pre-wrap; tab-size:2;"><code>-- Pseudocode
+local already = checkProcessed(receiptInfo.PurchaseId)
+if already then
+  return Enum.ProductPurchaseDecision.PurchaseGranted
+end
+
+local success = grantAndRecord(receiptInfo)
+if success then
+  return Enum.ProductPurchaseDecision.PurchaseGranted
+else
+  return Enum.ProductPurchaseDecision.NotProcessedYet
+end</code></pre>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+      <div class="text-sm text-slate-600 mt-1">Don't rely on in-memory flags on a single server; use persistent DataStore records so restarts don't lose processed receipts.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

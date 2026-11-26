@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');.cohortia-bg{background-color:#f8fafc;font-family:'Inter',sans-serif;}.card{background-color:#ffffff;border:1px solid rgba(226,232,240,0.9);border-radius:16px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05),0 2px 4px -1px rgba(0,0,0,0.03);}.accent-blue{color:#2563eb;}.accent-violet{color:#7b42e8;}.accent-amber{color:#f5a623;}.accent-emerald{color:#10b981;}.accent-rose{color:#ef6675;}.text-slate-500{color:#64748b;}.text-slate-600{color:#475569;}.text-slate-700{color:#334155;}.bg-blue-50{background-color:#eff6ff;}.text-blue-700{color:#1d4ed8;}.border-blue-100{border-color:#dbeafe;}.bg-emerald-50{background-color:#ecfdf5;}.text-emerald-700{color:#047857;}.border-l-emerald-500{border-left-color:#10b981;}.bg-violet-50{background-color:#f5f3ff;}.text-violet-700{color:#6d28d9;}.border-violet-100{border-color:#ede9fe;}.bg-amber-50{background-color:#fffbeb;}.text-amber-700{color:#b45309;}.border-amber-100{border-color:#fef3c7;}.bg-rose-50{background-color:#fff1f2;}.text-rose-700{color:#be123c;}.border-rose-100{border-color:#ffe4e6;}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.2</span><span>›</span><span class="text-slate-700">Python Example Setup</span></div><div class="flex flex-col flex-grow"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Code Walkthrough</div><h2 class="text-3xl font-bold text-slate-900 mb-2">Setting Up the Python Integration Example</h2><p class="text-base text-slate-700">A Flask application interacting with an SQLite database</p></div><div class="flex h-full gap-6"><div class="w-1/2 bg-slate-800 rounded-xl p-4 text-white text-sm overflow-auto" style="tab-size: 2; white-space: pre-wrap;"><pre><code># app.py (simplified Flask app)
+from flask import Flask, jsonify, request
+import sqlite3
+
+app = Flask(__name__)
+DATABASE = 'test_users.db' # Dedicated test DB
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db_connection()
+    conn.execute('DROP TABLE IF EXISTS users')
+    conn.execute('''
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL UNIQUE
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+class UserRepository:
+    def __init__(self, db_conn_factory):
+        self.db_conn_factory = db_conn_factory
+
+    def create_user(self, username, email):
+        conn = self.db_conn_factory()
+        try:
+            cursor = conn.execute("INSERT INTO users (username, email) VALUES (?, ?)", (username, email))
+            conn.commit()
+            return cursor.lastrowid
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            raise ValueError("Username or email already exists")
+        finally:
+            conn.close()
+
+    def find_user_by_id(self, user_id):
+        conn = self.db_conn_factory()
+        user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        conn.close()
+        return dict(user) if user else None
+
+user_repo = UserRepository(get_db_connection)
+
+@app.route('/register', methods=['POST'])
+def register_user():
+    # ... implementation to be added in Green phase ...
+    pass
+</code></pre></div><div class="w-1/2 flex flex-col gap-4"><div class="card p-4 bg-violet-50 border-violet-100"><div class="font-semibold text-slate-800 text-sm mb-1">`app.py` Components</div><ul class="list-disc list-inside text-xs text-slate-600 space-y-1"><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>Flask app instance: The web application framework.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>`get_db_connection`: Establishes SQLite database connection.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>`init_db`: Sets up a clean `users` table, crucial for test isolation.</span></li><li class="flex items-start"><span class="mr-2 text-violet-500">•</span><span>`UserRepository`: Handles all user-related database operations.</span></li></ul></div><div class="card p-4 bg-amber-50 border-amber-100"><div class="font-semibold text-slate-800 text-sm mb-1">Why a Dedicated DB?</div><p class="text-xs text-slate-600">Using `test_users.db` ensures that our integration tests run against an isolated database, preventing interference with other tests or production data. This is a cornerstone of reliable integration testing.</p></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">A well-structured application with clear data access layers and dedicated test database setup is essential for effective TDD-driven integration testing.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

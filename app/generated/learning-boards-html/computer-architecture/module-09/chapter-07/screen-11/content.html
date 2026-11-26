@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Loop Unrolling</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Duplicate the body to expose ILP</h3>
+        <p class="text-sm text-slate-600 mt-2">Unrolling gives more independent instructions to schedule and reduces branch overhead, at the cost of larger code and more simultaneous live values.</p>
+        <div class="mt-4">
+          <div class="rounded-lg bg-slate-50 p-3 card">
+            <div class="text-sm font-semibold">Example: unroll by 4</div>
+            <pre class="mt-2">for (i=0; i&lt;N; i+=4) {
+  sum += a[i]*b[i];
+  sum += a[i+1]*b[i+1];
+  sum += a[i+2]*b[i+2];
+  sum += a[i+3]*b[i+3];
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold">Impact details</div>
+        <div class="mt-3 grid grid-cols-1 gap-3 flex-1">
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Benefit</div>
+            <div class="text-xs text-slate-600 mt-2">More instructions available to fill bundles and fewer loop-control instructions per element.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Cost</div>
+            <div class="text-xs text-slate-600 mt-2">Increased code size and register pressure that may force spills to memory.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Mitigation</div>
+            <div class="text-xs text-slate-600 mt-2">Partial unrolling, better register allocation, and scheduling to shorten live ranges.</div>
+          </div>
+        </div>
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">Measure cycles per iteration and spill counts for unroll factors of 1, 2, and 4 to find the sweet spot for your target.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Cost & Usage Report</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">What it is</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Line-item billing data</h3>
+      <p class="text-sm text-slate-600 mt-2">CUR contains every charge line with fields like resource ID, usage type, operation, pricing, and timestamps; delivered to S3 for external analysis.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Usage pattern</div>
+          <p class="text-xs text-slate-600 mt-1">Partition by date in S3 and query slices with Athena for performant, auditable reporting.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Athena example</div>
+      <div class="mt-2 text-sm text-slate-700">A basic SQL pattern to aggregate cost by resource and month:</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm"><code>SELECT
+  date_trunc('month', usage_start_date) as month,
+  resource_id,
+  usage_type,
+  sum(cost) as total_cost
+FROM cur_table
+WHERE usage_start_date BETWEEN date '2023-08-01' AND date '2023-08-31'
+GROUP BY 1,2,3
+ORDER BY 1,4 DESC;</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Note: cur_table represents your CUR partitioned table. Use date filters and resource filters to limit scan size.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">CUR with Athena turns raw billing lines into repeatable chargeback and cost-per-component reports when partitioned and filtered correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

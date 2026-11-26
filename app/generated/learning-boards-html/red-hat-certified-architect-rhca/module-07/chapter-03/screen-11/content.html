@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">Create the VM</div>
+      <div class="text-sm text-slate-600 mt-2">Run the virt-install command below to build and start the installer.</div>
+      <div class="mt-3 rounded-lg bg-slate-900 text-slate-100 p-3">
+        <pre><code>sudo virt-install \
+  --name centos9-testvm \
+  --ram 2048 \
+  --vcpus 1 \
+  --disk path=/var/lib/libvirt/images/centos9-testvm.qcow2,size=20,format=qcow2 \
+  --network bridge=br0 \
+  --os-variant centos-stream9 \
+  --cdrom /var/lib/libvirt/images/CentOS-Stream-9-latest-x86_64-dvd1.iso \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole \
+  --boot cdrom,hd \
+  --wait -1</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold text-slate-900">Edit XML to remove CD-ROM</div>
+        <div class="text-xs text-slate-600 mt-2">Run <code>sudo virsh edit centos9-testvm</code>, remove the &lt;disk type='file' device='cdrom'&gt; block, and ensure &lt;boot dev='hd' /&gt; appears before other boot entries.</div>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700">Lifecycle commands exercise</div>
+        <div class="text-xs text-slate-700 mt-2">Start with <code>virsh start</code>, then try <code>virsh shutdown</code>. If the guest is unresponsive, observe why before using <code>virsh destroy</code>.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Follow the create → install → edit → verify lifecycle to avoid leaving install media attached or misconfigured boot order.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

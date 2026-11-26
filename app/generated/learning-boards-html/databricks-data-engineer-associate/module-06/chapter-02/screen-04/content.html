@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;} .panel{border-color:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Caching DataFrames</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0 rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Cache stores computed partitions for reuse</h3>
+      <p class="text-sm text-slate-600 mt-3">Avoid recomputing expensive transformations by materializing partitions in memory or on disk.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-700">When to cache</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4 space-y-1">
+            <li>Dataset used multiple times in the same job or notebook.</li>
+            <li>Expensive joins, filters, or aggregations that are repeated.</li>
+            <li>Iterative algorithms that revisit the same partitions.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-rose-700">Common mistake</div>
+          <div class="text-xs text-slate-600 mt-2">Caching everything by default, which can cause memory exhaustion and excessive disk spill.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0 rounded-2xl bg-white p-5 shadow-sm border panel">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Example</div>
+      <div class="mt-3">
+        <pre class="bg-slate-50 rounded-lg p-3"><code># Example of caching (PySpark)
+df = spark.read.format("delta").load("/mnt/delta/sales_data")
+df.cache()  # Cache the DataFrame
+df.count()  # First action triggers computation and caching
+
+filtered_df = df.filter("region = 'North'")
+filtered_df.display()
+
+# When finished
+df.unpersist()</code></pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Cache only when reuse is frequent and memory cost is acceptable; unpersist promptly.</p>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-700">Check your work</div>
+          <div class="text-xs text-slate-600 mt-2">Compare runtimes and executor memory usage before and after caching.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

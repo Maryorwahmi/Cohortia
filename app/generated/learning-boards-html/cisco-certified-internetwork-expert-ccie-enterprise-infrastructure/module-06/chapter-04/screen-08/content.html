@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Hub / Branch Templates</span>
+  </div>
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Router A — Hub (excerpt)</div>
+      <pre class="text-sm bg-slate-900 text-slate-50 p-3 rounded-md mt-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;">
+crypto ipsec transform-set COHORTIA_TRANSFORM esp-aes 256 esp-sha256-hmac
+ mode tunnel
+
+crypto ipsec profile COHORTIA_IPSEC_PROFILE
+ set transform-set COHORTIA_TRANSFORM
+ set ikev2-profile COHORTIA_IKEV2_PROFILE
+ set pfs group 14
+
+interface Tunnel0
+ ip address 10.255.255.1 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source GigabitEthernet0/1
+ tunnel destination 203.0.113.2
+ tunnel mode gre ip
+ crypto ipsec profile COHORTIA_IPSEC_PROFILE
+
+router ospf 1
+ network 10.255.255.0 0.0.0.3 area 0
+ network 192.168.1.0 0.0.0.255 area 0
+</pre>
+    </div>
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Router B — Branch (excerpt)</div>
+      <pre class="text-sm bg-slate-900 text-slate-50 p-3 rounded-md mt-3" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;">
+crypto ipsec transform-set COHORTIA_TRANSFORM esp-aes 256 esp-sha256-hmac
+ mode tunnel
+
+crypto ipsec profile COHORTIA_IPSEC_PROFILE
+ set transform-set COHORTIA_TRANSFORM
+ set ikev2-profile COHORTIA_IKEV2_PROFILE
+ set pfs group 14
+
+interface Tunnel0
+ ip address 10.255.255.2 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel source GigabitEthernet0/1
+ tunnel destination 198.51.100.1
+ tunnel mode gre ip
+ crypto ipsec profile COHORTIA_IPSEC_PROFILE
+
+router ospf 1
+ network 10.255.255.0 0.0.0.3 area 0
+ network 10.0.0.0 0.0.0.255 area 0
+</pre>
+    </div>
+  </div>
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Mirror config on both ends, verify tunnel IP adjacency and IPsec SAs, and tune MTU/MSS to avoid fragmentation during heavy traffic.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class='text-slate-700'>Compare-and-Swap</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>CAS semantics</div>
+      <p class='text-sm text-slate-600 mt-2'>CAS(address, expected, new) does: if (*address == expected) *address = new and return true, otherwise return false.</p>
+
+      <div class='mt-4 text-xs uppercase tracking-wider text-slate-500'>Misconception</div>
+      <p class='text-sm text-slate-700 mt-1'>CAS alone does not prevent ABA; a location can change and revert to an earlier value, fooling a plain CAS-based check.</p>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro Tip</div>
+          <p class='text-xs font-medium text-slate-800'>Use version counters or tagged pointers with CAS to detect ABA where necessary.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-500'>CAS pseudo-code</div>
+        <pre class='mt-2 text-sm bg-slate-900 text-white p-3 rounded' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;'>
+CAS(address, expected, new_value):
+  if (*address == expected) {
+    *address = new_value
+    return true
+  } else {
+    return false
+  }
+}
+        </pre>
+      </div>
+
+      <div class='card p-3'>
+        <div class='text-xs uppercase tracking-wider text-slate-500'>Concrete example</div>
+        <div class='text-sm text-slate-700 mt-2'>A lock-free push: read head, set node->next to head, CAS(&head, head, node). On failure, reload head and retry.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

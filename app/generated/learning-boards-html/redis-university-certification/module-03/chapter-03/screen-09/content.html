@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-green-50 text-emerald-700 border border-emerald-100">Core Concept</span>
+    <span class="">›</span>
+    <span class="text-slate-700">How AOF works</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Command logging and replay</h3>
+      <p class="text-sm text-slate-600 mt-3">AOF stores the write commands so a restart can replay them to reconstruct state. This yields finer-grained durability than snapshots.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold">appendfsync options</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+            <li>no: OS controls fsync (fastest, risky)</li>
+            <li>everysec: fsync every second (balanced)</li>
+            <li>always: fsync on every write (durable but slow)</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold">BGREWRITEAOF</div>
+          <div class="text-sm text-slate-600 mt-2">Compacts the AOF by writing a minimal set of commands that reconstruct the current dataset, similar to creating a new snapshot for the command log.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l card-border flex flex-col">
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">Enable appendonly yes and appendfsync everysec. Write commands and examine appendonly.aof to see human-readable commands being appended.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception check</div>
+        <p class="text-xs font-medium text-slate-800">AOF can approach zero data loss, but only with appendfsync always; that setting has a performance cost.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Operational note</div>
+        <p class="text-sm text-slate-600 mt-2">Monitor AOF growth and plan rewrites; large AOFs slow recovery because Redis must replay more commands.</p>
+      </div>
+    </div>
+  </div>
+</div>

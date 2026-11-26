@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+    <span class="">›</span>
+    <span class="text-slate-700">SAVE vs BGSAVE</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4">
+      <h3 class="text-xl font-bold text-slate-800">Blocking versus background</h3>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold">SAVE</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+            <li>Synchronous snapshot that blocks clients.</li>
+            <li>Useful for controlled maintenance or debugging.</li>
+            <li>Not recommended for latency-sensitive production use.</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold">BGSAVE</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+            <li>Forks child process to save snapshot in background.</li>
+            <li>Parent continues serving requests during write.</li>
+            <li>Consumes extra memory due to copy-on-write semantics.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l card-border flex flex-col">
+      <div class="rounded-lg bg-amber-50 p-3">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-2">In a production API with tight latency SLOs, run BGSAVE during low-traffic windows and avoid SAVE to prevent service interruptions.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Running SAVE without planning causes unexpected downtime and client errors.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Check your environment</div>
+        <p class="text-sm text-slate-600 mt-2">Ensure adequate free memory before frequent forks and watch fork failures as a signal to adjust snapshot frequency.</p>
+      </div>
+    </div>
+  </div>
+</div>

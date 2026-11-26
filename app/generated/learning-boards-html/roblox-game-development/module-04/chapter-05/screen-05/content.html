@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Tables as classes and metatables as inheritance</div>
+    <div class="text-sm text-slate-600 mt-1">Using __index and setmetatable to link instances to blueprints.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Pattern Overview</div>
+      <ol class="mt-2 list-decimal list-inside text-sm text-slate-600 space-y-2">
+        <li>Define a class table to hold methods and defaults.</li>
+        <li>Set class.__index = class so lookups fallback to it.</li>
+        <li>In the constructor, call setmetatable(instance, class) to link instance to class.</li>
+        <li>Return the instance so callers can use instance:method()</li>
+      </ol>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Misconception check</div>
+      <div class="text-sm text-slate-600 mt-2">If methods are nil on your instance, verify that __index assignment and setmetatable are present and that your constructor returns the instance table.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800">Architecture Visual</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="text-xs font-bold text-blue-700">Class Table</div>
+          <div class="text-[12px] text-slate-700 mt-1">Holds shared methods like TakeDamage, Heal, Die.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50">
+          <div class="text-xs font-bold text-amber-700">Instance</div>
+          <div class="text-[12px] text-slate-700 mt-1">Owns properties like Health and Name.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="text-xs font-bold text-violet-700">Metatable</div>
+          <div class="text-[12px] text-slate-700 mt-1">Links instance lookups back to the class via __index.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Create a Python Lambda</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Process</div>
+      <h3 class="text-2xl font-bold text-slate-800">Console steps</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Lambda → Create function → Author from scratch; name and select Python 3.9.</li>
+        <li>Choose execution role: Create new role with basic Lambda permissions.</li>
+        <li>Replace lambda_function.py with the handler code and Deploy.</li>
+        <li>Add API Gateway trigger, choose REST API, open security, new stage dev, Add.</li>
+        <li>Open the endpoint URL to test and append ?name=Cohortia for a custom greeting.</li>
+      </ol>
+
+      <div class="mt-auto text-xs text-slate-500">Remember: grant CloudWatch Logs permission and Deploy after code changes.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example code</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>import json
+
+def lambda_handler(event, context):
+    # Log the event for debugging purposes
+    print("Received event: " + json.dumps(event, indent=2))
+
+    # Extract name from query parameters or path parameters, default to 'World'
+    name = "World"
+    if event.get('queryStringParameters') and 'name' in event['queryStringParameters']:
+        name = event['queryStringParameters']['name']
+    elif event.get('pathParameters') and 'name' in event['pathParameters']:
+        name = event['pathParameters']['name']
+    elif event.get('body'):
+        try:
+            body = json.loads(event['body'])
+            if 'name' in body:
+                name = body['name']
+        except json.JSONDecodeError:
+            pass
+
+    message = f"Hello, {name} from Lambda!"
+
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json'
+        },
+        'body': json.dumps({'message': message})
+    }</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A small handler plus a properly configured role and trigger yields a public API endpoint quickly from the console.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,78 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Bridge Demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl p-4 bg-white card-border shadow-sm overflow-hidden flex flex-col">
+      <div class="text-sm font-bold text-slate-800">ERC20Mock (key parts)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-xs" style="white-space:pre-wrap; tab-size:2;"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract ERC20Mock is ERC20 {
+  constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+    _mint(msg.sender, 1000000 * 10**18);
+  }
+}
+</code></pre>
+      <div class="mt-3 text-xs text-slate-600">This contract mints a large supply to the deployer so you can simulate transfers and bridge locks locally.</div>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white card-border shadow-sm overflow-hidden flex flex-col">
+      <div class="text-sm font-bold text-slate-800">SimpleBridge (key parts)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-xs" style="white-space:pre-wrap; tab-size:2;"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract SimpleBridge {
+  IERC20 public token;
+  address public owner;
+
+  event TokensLocked(address indexed from, uint256 amount);
+  event TokensReleased(address indexed to, uint256 amount);
+
+  constructor(address _tokenAddress) {
+    token = IERC20(_tokenAddress);
+    owner = msg.sender;
+  }
+
+  function lockTokens(uint256 amount) public {
+    require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+    emit TokensLocked(msg.sender, amount);
+  }
+
+  function releaseTokens(address to, uint256 amount) public {
+    require(msg.sender == owner, "Only owner can release");
+    require(token.balanceOf(address(this)) >= amount, "Insufficient bridge balance");
+    token.transfer(to, amount);
+    emit TokensReleased(to, amount);
+  }
+}
+</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Note the single-owner release function. Replace with multisig or decentralized relayers for production.</div>
+    </div>
+
+    <div class="col-span-2 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Interaction script (excerpt)</div>
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-xs" style="white-space:pre-wrap; tab-size:2;"><code>const { ethers } = require("hardhat");
+
+async function main() {
+  const [deployer, user1] = await ethers.getSigners();
+  // Deploy ERC20Mock and SimpleBridge, transfer tokens to user1,
+  // user1 approves bridge and calls lockTokens, then owner calls releaseTokens.
+}
+
+main();
+</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Run locally with Hardhat. Observe TokensLocked and TokensReleased events and watch balances change to learn the lock/mint flow.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

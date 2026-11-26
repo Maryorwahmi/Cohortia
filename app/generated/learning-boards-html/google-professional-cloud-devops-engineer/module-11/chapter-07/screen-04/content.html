@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>
+    .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+  </style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Core Concept</span>
+    <span>›</span>
+    <span class='text-slate-700'>Canary Deployments</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col justify-between'>
+      <div class='card p-4'>
+        <div class='text-lg font-bold text-slate-800'>What is a canary?</div>
+        <p class='text-sm text-slate-600 mt-2'>A canary routes a small percentage of production traffic to a new release so you can validate behavior before full rollout.</p>
+        <ul class='mt-3 space-y-2 text-sm text-slate-600'>
+          <li>• Choose signal metrics: error rate, p95 latency, and business metrics.</li>
+          <li>• Select an initial traffic slice large enough to be meaningful.</li>
+          <li>• Prepare an automated rollback or immediate traffic reweight command.</li>
+        </ul>
+      </div>
+      <div class='mt-3 grid grid-cols-2 gap-3'>
+        <div class='card p-3'>
+          <div class='text-xs font-bold text-slate-700'>Concrete example</div>
+          <p class='text-sm text-slate-600 mt-2'>Deploy v2 to Cloud Run and split 10% traffic to it. Monitor for error spikes and latency increases.</p>
+        </div>
+        <div class='card p-3 border-rose-100'>
+          <div class='text-xs font-bold text-rose-600'>Common mistake</div>
+          <p class='text-sm text-slate-600 mt-2'>Too small a canary produces noisy signals; too large exposes many users to risk.</p>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Command snippet (Cloud Run)</div>
+      <pre class='p-3 bg-slate-50 rounded-md border border-slate-100 text-sm'>gcloud run deploy my-service --image gcr.io/my-project/my-service:v2 --region us-central1
+
+gcloud run services update my-service --to-revisions my-service-00001=90,my-service-00002=10 --region us-central1</pre>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>A canary gives you real production signal on a small scale; plan metrics, size, and rollback before you open traffic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

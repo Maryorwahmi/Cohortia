@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Neutron fundamentals</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 h-[64%]">
+      <div class="rounded-2xl bg-white p-5 card">
+        <div class="text-lg font-bold text-slate-800">Definitions and roles</div>
+        <div class="mt-3 text-sm text-slate-600">
+          <ul class="list-disc pl-4 space-y-2">
+            <li><strong>Network:</strong> an isolated Layer 2 segment where instances attach and communicate.</li>
+            <li><strong>Subnet:</strong> an IP address range with gateway and DNS settings for that network.</li>
+            <li><strong>Router:</strong> a logical device that connects networks and can be given an external gateway for outbound traffic.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Analogy</div>
+            <div class="text-sm text-slate-800">Think of a network as a building floor, a subnet as the room's wiring plan and addresses, and the router as the building's exit to the city.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border card">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+            <div class="text-sm text-slate-700">Assuming instances have internet access without verifying the router's external gateway. Verify router configuration to avoid this issue.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 card">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <pre class="mt-3 rounded-md bg-slate-50 p-3"><code># Create a private network
+openstack network create private-net
+
+# Create a subnet in that network
+openstack subnet create --network private-net \
+  --subnet-range 192.168.1.0/24 \
+  --gateway 192.168.1.1 \
+  --dns-nameserver 8.8.8.8 \
+  private-subnet
+
+# Create a router and attach the subnet
+openstack router create my-router
+openstack router add subnet my-router private-subnet
+
+# Set the router gateway to an external provider network
+openstack router set --external-gateway external-net my-router</code></pre>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Define addressing and gateway intentionally; verify router external gateway to provide external connectivity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .arrow {width:18px;height:18px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">VPC Endpoints & PrivateLink</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">VPC Endpoints & AWS PrivateLink</h3>
+    <p class="text-sm text-slate-600 mt-1">Private routing to AWS services or private service endpoints reduces egress and attack surface.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">How a Gateway VPC Endpoint works</div>
+      <div class="text-sm text-slate-700">You create an endpoint and associate it with route tables. S3 DNS resolves to the endpoint and traffic routes internally. No NAT or internet gateway path is required for supported services.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+          <div class="text-sm text-slate-700 mt-1">EC2 in a private subnet reads from S3 through a Gateway Endpoint, avoiding NAT Gateway egress costs.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconfiguration risk</div>
+          <div class="text-sm text-slate-700 mt-1">Forgetting to update the route table or IAM policy will keep traffic going via the internet instead of the endpoint.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use endpoints to replace frequent internet-bound service calls when cost and security justify them.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Visual flow</div>
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col items-center text-xs text-slate-700">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600"><path d="M3 12h6l3 8 3-16 3 8h6"/></svg>
+          <div class="mt-2">Private EC2</div>
+        </div>
+        <div class="text-2xl text-slate-400">→</div>
+        <div class="flex flex-col items-center text-xs text-slate-700">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-600"><path d="M21 10v6a2 2 0 0 1-2 2H9"/><path d="M7 10V4a2 2 0 0 1 2-2h8"/></svg>
+          <div class="mt-2">Gateway VPC Endpoint</div>
+        </div>
+        <div class="text-2xl text-slate-400">→</div>
+        <div class="flex flex-col items-center text-xs text-slate-700">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-700"><path d="M21 16V8a2 2 0 0 0-2-2H5"/><path d="M3 16h18"/></svg>
+          <div class="mt-2">S3 (private)</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pro tip</div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm text-slate-700">Measure endpoint cost versus saved egress. For very low-volume flows, the endpoint may not pay back immediately.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

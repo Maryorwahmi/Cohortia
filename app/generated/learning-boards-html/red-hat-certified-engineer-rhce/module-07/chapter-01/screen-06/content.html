@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style> .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} </style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span><span>›</span><span>Chapter 7.1</span><span>›</span><span class="text-slate-700">ansible-galaxy init</span></div><div class="grid grid-cols-12 gap-4 flex-1">
+  <div class="col-span-6 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full">
+    <div class="text-lg font-bold text-slate-800">Command and quick check</div>
+    <div class="mono mt-4 p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] rounded-lg">
+<pre class="mono">$ ansible-galaxy init webserver
+# Creates webserver/ with defaults, tasks, handlers, templates, files, vars, meta</pre>
+    </div>
+    <div class="mt-3 text-sm text-slate-600">After creating the skeleton, edit tasks/main.yml and handlers/main.yml. Place templates in templates/ and defaults in defaults/main.yml. Commit the role to a repo so teammates can reuse it.</div>
+  </div>
+  <div class="col-span-6 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-700">Populate tasks example</div>
+    <div class="mono mt-3 p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg flex-1 overflow-auto">
+<pre class="mono">---
+- name: Ensure Nginx package is installed
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+
+- name: Copy Nginx configuration template
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: Restart Nginx
+
+- name: Ensure Nginx service is running and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true</pre>
+    </div>
+    <div class="mt-3 text-sm text-slate-600">Misstep to avoid: notify must match a handler name exactly. Verify handlers/main.yml contains the matching Restart Nginx handler.</div>
+  </div>
+</div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

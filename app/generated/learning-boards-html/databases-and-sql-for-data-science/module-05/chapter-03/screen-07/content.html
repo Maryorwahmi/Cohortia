@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .panel { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 1rem; }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+  </style>
+
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Parameterized Queries</span>
+    </div>
+    <h3 class="text-xl font-bold">Parameterized Queries in sqlite3</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="panel p-4">
+      <div class="font-semibold text-slate-800">Mechanics</div>
+      <div class="text-sm text-slate-600 mt-2">Use question marks as placeholders in the SQL text. Pass values as a tuple in the second argument to cursor.execute. Values bind positionally and are treated as data only.</div>
+
+      <div class="code mt-3 text-sm text-slate-700">select_sql = "SELECT * FROM users WHERE username = ?;"
+cursor.execute(select_sql, (search_username,))
+found = cursor.fetchone()</div>
+    </div>
+
+    <div class="panel p-4">
+      <div class="font-semibold text-slate-800">Practical notes</div>
+      <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+        <li>For a single parameter use a one-element tuple: (value,) not (value).</li>
+        <li>Parameter order maps to placeholder order.</li>
+        <li>Do not try manual escaping; rely on the adapter's binding behavior.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-slate-700">Common mistake</div>
+      <div class="text-sm text-slate-600 mt-2">Passing a bare value instead of a tuple for single-parameter calls, which can raise an error or bind incorrectly.</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-emerald-700">Pro tip</div>
+      <div class="text-sm text-slate-600 mt-2">Write small helper functions that centralize parameterized calls so every query follows the same safe pattern.</div>
+    </div>
+    <div class="panel p-3">
+      <div class="text-xs uppercase tracking-wider text-slate-700">Key Takeaway</div>
+      <div class="text-sm text-slate-800 mt-1">Placeholders plus parameter tuples keep values from being interpreted as SQL logic.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

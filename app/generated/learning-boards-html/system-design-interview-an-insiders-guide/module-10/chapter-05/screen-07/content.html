@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Incremental updates</span>
+  </div>
+
+  <div class="rounded-2xl bg-white card-border shadow-sm p-6 h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-800">Stream-to-MV process</div>
+
+    <div class="mt-4 grid grid-cols-4 gap-3 flex-1 min-h-0">
+      <div class="col-span-1 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Consume</div>
+        <div class="mt-2 text-sm text-slate-600">Read events from the topic and extract key fields like user_id, country, and timestamp.</div>
+      </div>
+
+      <div class="col-span-1 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Aggregate</div>
+        <div class="mt-2 text-sm text-slate-600">Update stateful counters or sketches keyed by (date, country).</div>
+      </div>
+
+      <div class="col-span-1 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">3. Emit</div>
+        <div class="mt-2 text-sm text-slate-600">Periodically compute the current aggregate and prepare an UPSERT payload.</div>
+      </div>
+
+      <div class="col-span-1 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">4. Upsert</div>
+        <div class="mt-2 text-sm text-slate-600">Write the computed value into the materialized view table using an upsert to replace or insert rows.</div>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-3 gap-4">
+      <div class="rounded-lg bg-amber-50 p-3 card-border">
+        <div class="text-sm font-semibold text-amber-700">Idempotency</div>
+        <div class="text-sm text-slate-700 mt-1">Write the full computed aggregate rather than applying deltas so retries produce the same final state.</div>
+      </div>
+
+      <div class="rounded-lg bg-rose-50 p-3 card-border">
+        <div class="text-sm font-semibold text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Incrementing a DB counter per event without state in the processor leads to double counts on retries.</div>
+      </div>
+
+      <div class="rounded-lg bg-emerald-50 p-3 card-border">
+        <div class="text-sm font-semibold text-emerald-700">Practical tip</div>
+        <div class="text-sm text-slate-700 mt-1">Batch updates and emit periodically to reduce DB write amplification while keeping freshness acceptable.</div>
+      </div>
+    </div>
+  </div>
+</div>

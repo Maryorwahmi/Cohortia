@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 02</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe WAF Deployment</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-2xl font-extrabold text-slate-800 mt-2">Deploying a Web ACL safely</h3>
+    <p class="text-sm text-slate-600 mt-2">Follow a conservative sequence to avoid blocking legitimate traffic while gaining protection visibility.</p>
+
+    <div class="mt-4 flex gap-3">
+      <div class="flex-1 grid gap-3">
+        <div class="rounded-md p-3 border bg-white">
+          <div class="font-semibold text-sm text-slate-800">1. Create Web ACL</div>
+          <div class="text-sm text-slate-600 mt-1">Name it clearly and select the region matching your ALB.</div>
+        </div>
+        <div class="rounded-md p-3 border bg-blue-50">
+          <div class="font-semibold text-sm text-blue-700">2. Add Managed Rule Group (COUNT)</div>
+          <div class="text-sm text-slate-700 mt-1">Add AWSManagedRulesCommonRuleSet and set action to COUNT to observe matches only.</div>
+        </div>
+        <div class="rounded-md p-3 border bg-white">
+          <div class="font-semibold text-sm text-slate-800">3. Add Custom IP Set & Rule</div>
+          <div class="text-sm text-slate-600 mt-1">Create BlockBadIPs and add a test IP. Create a rule to BLOCK that IP with higher priority.</div>
+        </div>
+        <div class="rounded-md p-3 border bg-white">
+          <div class="font-semibold text-sm text-slate-800">4. Associate with ALB and Monitor</div>
+          <div class="text-sm text-slate-600 mt-1">Check WAF metrics, ALB logs, and CloudWatch for COUNT matches and blocked events.</div>
+        </div>
+        <div class="rounded-md p-3 border bg-white">
+          <div class="font-semibold text-sm text-slate-800">5. Validate and Enforce</div>
+          <div class="text-sm text-slate-600 mt-1">Once validated, change safe managed rules to BLOCK and keep targeted IP blocks enabled.</div>
+        </div>
+      </div>
+
+      <div class="w-1/3 rounded-md border p-4 bg-white">
+        <div class="font-bold text-sm text-slate-800">Example Scenario</div>
+        <div class="text-sm text-slate-600 mt-2">You add a test proxy IP to BlockBadIPs, attempt access from that proxy, and confirm the ALB returns a blocked response while legitimate users remain unaffected. Observe COUNT hits in the WAF metrics to tune rules.</div>
+
+        <div class="mt-4 font-semibold text-sm text-slate-800">Misconception Check</div>
+        <div class="text-sm text-slate-600 mt-1">COUNT mode is not enforcement. It is a measurement tool—do not assume it blocks traffic until you set BLOCK.</div>
+      </div>
+    </div>
+  </div>
+</div>

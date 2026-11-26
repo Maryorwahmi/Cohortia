@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-900">Sensor TSV to CSV walkthrough</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Starter code (from chapter)</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">import csv
+
+input_file = 'sensor_data.tsv'
+output_file = 'processed_sensor_data.csv'
+
+processed_data = []
+
+with open(input_file, 'r', newline='', encoding='utf-8') as infile:
+  reader = csv.DictReader(infile, delimiter='  ')
+  fieldnames = reader.fieldnames + ['Temperature(F)']
+
+  for row in reader:
+    celsius = float(row['Temperature(C)'])
+    fahrenheit = (celsius * 9/5) + 32
+    row['Temperature(F)'] = f"{fahrenheit:.2f}"
+    if float(row['Humidity(%)']) >= 61:
+      processed_data.append(row)
+
+with open(output_file, 'w', newline='', encoding='utf-8') as outfile:
+  writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+  writer.writeheader()
+  writer.writerows(processed_data)</pre>
+      <div class="mt-3 text-sm text-slate-600">This snippet shows reading TSV, computing and formatting a Fahrenheit field, filtering, and writing a quoted CSV. For streaming, replace processed_data accumulation with immediate writer.writerow calls.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Example input & output</div>
+      <div class="text-xs text-slate-500 mb-2">Input (TSV)</div>
+      <pre class="mono text-sm bg-slate-50 p-2 rounded">Timestamp  Temperature(C)  Humidity(%)  Notes
+2023-10-26 10:05:00  23.1  61.5  Slight increase, due to heater</pre>
+
+      <div class="text-xs text-slate-500 mt-3 mb-2">Produced CSV (excerpt)</div>
+      <pre class="mono text-sm bg-slate-50 p-2 rounded">"Timestamp","Temperature(C)","Humidity(%)","Notes","Temperature(F)"
+"2023-10-26 10:05:00","23.1","61.5","Slight increase, due to heater","73.58"</pre>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Check your understanding</div>
+        <div class="text-xs text-slate-800">What happens to Notes fields that contain commas when you write with QUOTE_MINIMAL? Why might you prefer QUOTE_ALL?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,40 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Comparison</div>
+      <div class="text-xl font-bold text-slate-900">Source Port Manipulation</div>
+      <div class="mt-3 text-sm text-slate-600">Compare expected behavior when traffic uses normal ephemeral source ports versus spoofed known-service ports.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">Normal outbound flow</div>
+          <div class="text-xs text-slate-600 mt-1">Client uses ephemeral source port; firewall sees an allowed outbound TCP or UDP session and tracks state.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-semibold text-slate-800">Spoofed source port</div>
+          <div class="text-xs text-slate-600 mt-1">Client forges source port to mimic DNS or HTTP; a naive egress policy may allow it, but state validation can still block it.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <div class="text-sm text-slate-800">Assuming spoofed ports bypass source address validation. Many networks verify session state and source IP consistency.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Lab example</div>
+      <div class="text-xs text-slate-600 mt-2">Change the source port of an outbound TCP or UDP packet in a VM and observe whether the egress filter accepts or drops it. Check firewall logs for port and IP validation messages.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example Observation</div>
+          <div class="text-sm text-slate-800">If the firewall accepts the spoofed source port but the target replies to the real source IP, the session will not be established — showing the technique’s limitations.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Check your understanding</div>
+          <div class="text-sm text-slate-700">Why would pairing source-port manipulation with traffic mimicry increase detection difficulty for anomaly systems?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

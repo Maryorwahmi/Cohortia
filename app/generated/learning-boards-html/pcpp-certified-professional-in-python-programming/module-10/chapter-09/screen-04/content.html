@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.node{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 10.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Logger Hierarchy</span>
+    </div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl p-4 bg-white shadow-sm node">
+      <div class="text-sm font-semibold text-slate-800">Conceptual architecture</div>
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="font-semibold">Root logger</div>
+          <div class="text-sm text-slate-600 mt-1">Default sink for unhandled messages; global policies often live here.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="font-semibold">Child logger (e.g., my_app.database)</div>
+          <div class="text-sm text-slate-600 mt-1">Can have its own handlers and levels; messages propagate upward unless propagation is disabled.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="font-semibold">Propagation</div>
+          <div class="text-sm text-slate-600 mt-1">If True, records unhandled by local handlers continue to the parent; set to False to keep records local.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white shadow-sm node">
+      <div class="text-sm font-semibold text-slate-800">Code example</div>
+      <div class="mt-3">
+        <pre class="bg-slate-900 text-slate-100 rounded p-3 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+db_logger = logging.getLogger('my_app.database')
+db_logger.setLevel(logging.DEBUG)
+
+file_handler = logging.FileHandler('database.log')
+file_handler.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - (%(filename)s:%(lineno)d)')
+file_handler.setFormatter(file_formatter)
+db_logger.addHandler(file_handler)
+
+# db_logger.propagate = False
+
+logging.info("Application started.")
+db_logger.debug("Connecting to database...")
+</code></pre>
+      </div>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800 mt-1">Propagation enables inheritance and centralized policies; disable it when a child logger must be isolated.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

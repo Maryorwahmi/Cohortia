@@ -1,0 +1,89 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;border:1px solid rgba(226,232,240,0.08)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">RaySelectableColorChange — Script Walkthrough</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Code to paste into RaySelectableColorChange.cs</div>
+      <div class="text-sm text-slate-600 mt-2">This script listens to hover and select events for pointer-based interactions.</div>
+      <div class="mt-3 overflow-hidden flex-1">
+        <pre><code>using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+
+public class RaySelectableColorChange : MonoBehaviour
+{
+    [SerializeField] private Material hoverMaterial;
+    [SerializeField] private Material defaultMaterial;
+    private MeshRenderer meshRenderer;
+    private XRSimpleInteractable interactable;
+
+    void Awake()
+    {
+        meshRenderer = GetComponent&lt;MeshRenderer&gt;();
+        interactable = GetComponent&lt;XRSimpleInteractable&gt;();
+
+        if (interactable != null)
+        {
+            interactable.firstHoverEntered.AddListener(OnRayHoverEnter);
+            interactable.lastHoverExited.AddListener(OnRayHoverExit);
+            interactable.selectEntered.AddListener(OnRaySelect);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (interactable != null)
+        {
+            interactable.firstHoverEntered.RemoveListener(OnRayHoverEnter);
+            interactable.lastHoverExited.RemoveListener(OnRayHoverExit);
+            interactable.selectEntered.RemoveListener(OnRaySelect);
+        }
+    }
+
+    private void OnRayHoverEnter(HoverEnterEventArgs args)
+    {
+        if (meshRenderer != null && hoverMaterial != null)
+        {
+            meshRenderer.material = hoverMaterial;
+            Debug.Log("Ray Hovered: " + gameObject.name);
+        }
+    }
+
+    private void OnRayHoverExit(HoverExitEventArgs args)
+    {
+        if (meshRenderer != null && defaultMaterial != null)
+        {
+            meshRenderer.material = defaultMaterial;
+            Debug.Log("Ray Exited: " + gameObject.name);
+        }
+    }
+
+    private void OnRaySelect(SelectEnterEventArgs args)
+    {
+        Debug.Log("Ray Selected: " + gameObject.name + " by " + args.interactorObject.transform.name);
+        // Add specific action here, e.g., activate a function
+    }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Testing Checklist</div>
+      <ul class="list-disc pl-4 mt-3 text-sm text-slate-700">
+        <li>Confirm the controller's XR Ray Interactor and Line Visual are enabled.</li>
+        <li>Point at the cube: hover should swap material and log a hover message.</li>
+        <li>Press trigger: select log should include the interactor name.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-700">Misconception: seeing the line visual does not mean the ray hits the object. Always verify hover events fire before assuming select will work.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

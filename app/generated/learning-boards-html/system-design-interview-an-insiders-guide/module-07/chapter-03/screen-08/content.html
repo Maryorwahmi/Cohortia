@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Nginx as Gateway</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm h-full overflow-hidden">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h3 class="text-2xl font-bold text-slate-800">Mock services and Nginx config</h3>
+      <p class="text-sm text-slate-600 mt-2">Run two simple mock services and route by path in Nginx. Below is the configuration snippet to test locally.</p>
+
+      <div class="mt-3 bg-slate-900 text-white rounded-lg overflow-auto p-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+<pre><code>http {
+    upstream user_service {
+        server localhost:8081;
+    }
+
+    upstream product_service {
+        server localhost:8082;
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location /api/users {
+            proxy_pass http://user_service/users;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api/products {
+            proxy_pass http://product_service/products;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location / {
+            return 404 "Not Found from Gateway";
+        }
+    }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Steps to validate</div>
+      <ol class="text-sm text-slate-600 mt-2 list-decimal ml-5">
+        <li>Start mock User and Product services on ports 8081 and 8082.</li>
+        <li>Place the Nginx snippet in your nginx.conf and test syntax.</li>
+        <li>Reload Nginx and run curl to /api/users and /api/products to see proxied JSON.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50">
+        <div class="text-sm font-semibold text-amber-700">Misconception check</div>
+        <div class="text-xs text-slate-600 mt-1">This demonstrates routing and header forwarding but lacks policy engine, discovery, and HA features needed in production.</div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Practice task</div>
+        <div class="text-xs font-medium text-slate-800">After verifying routing, add a simple rate-limiting directive and observe rejected requests to understand throttling behavior.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

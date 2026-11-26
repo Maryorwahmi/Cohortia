@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;padding:12px;background:#0b1220;color:#e6eef8;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Copy snapshots off-cluster</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white card-border p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Why</div>
+      <h3 class="text-2xl font-bold text-slate-800">Durability beyond node failure</h3>
+      <p class="mt-3 text-sm text-slate-600">Always copy snapshot directories to off-cluster storage. Local snapshots are lost if the node's disk fails.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold">Disk path example</div>
+        <div class="text-sm text-slate-600 mt-2">data_file_directories/&lt;keyspace&gt;/&lt;table&gt;/snapshots/&lt;snapshot_name&gt;</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-bold">Copy workflow</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc list-inside space-y-1">
+          <li>Find snapshot directories after nodetool snapshot.</li>
+          <li>Copy the snapshot contents to off-cluster location (S3 or NFS).</li>
+          <li>Verify file integrity and then remove local snapshot if desired.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border p-6 shadow-sm">
+      <div class="text-sm font-bold">Practical commands</div>
+      <pre>&gt; docker exec -it cassandra-backup find /var/lib/cassandra/data/mybackup/products -name "snapshots"
+&gt; # then copy snapshot dir contents to off-cluster storage</pre>
+
+      <div class="mt-4 rounded-xl bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Not copying snapshots off-cluster leaves your backup vulnerable to node or disk failure.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Tip</div>
+        <div class="text-xs font-medium text-slate-800">Automate snapshot discovery and off-cluster transfer in the same maintenance job that creates the snapshot.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

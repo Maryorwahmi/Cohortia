@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Process Flow</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Walkthrough: PrintWithIndex</div>
+      <p class="text-sm text-slate-700 mt-2">Create the object, then pass it to std::for_each. The object's state persists across each call from the algorithm until the call completes.</p>
+      <div class="mt-3 flex-1 overflow-auto">
+        <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+std::vector&lt;int&gt; numbers = {1,2,3,4,5};
+std::for_each(numbers.begin(), numbers.end(), PrintWithIndex());
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Example output shows the index increasing for each element. The counter lives in the functor, not globally.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Walkthrough: Multiplier + std::transform</div>
+      <p class="text-sm text-slate-700 mt-2">Construct a Multiplier with a factor and pass it to transform to produce a multiplied sequence. The functor's factor is configured once at construction.</p>
+
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm mt-3"><code>std::vector&lt;int&gt; input = {1,2,3,4,5};
+std::vector&lt;int&gt; output(input.size());
+Multiplier multiplyBy5(5);
+std::transform(input.begin(), input.end(), output.begin(), multiplyBy5);
+// output now holds 5,10,15,20,25
+</code></pre>
+
+      <div class="mt-3 flex items-start gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Functor construction separates setup from repeated invocation, making code explicit and testable.</p>
+        </div>
+
+        <div class="rounded-xl p-3 bg-amber-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">If the operation is used only once in place, prefer a lambda for brevity; if reused, prefer a functor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

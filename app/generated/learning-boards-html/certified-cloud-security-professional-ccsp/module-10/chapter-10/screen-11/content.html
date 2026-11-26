@@ -1,0 +1,128 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg {
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    }
+    .card-border {
+      border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+    .shadow-card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .icon-stroke {
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      tab-size: 2;
+    }
+    code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.10</span>
+    <span>›</span>
+    <span class="text-slate-700">Policy as Code for Serverless</span>
+  </div>
+  <div class="flex-grow flex gap-6">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-4xl font-bold text-slate-800 mb-2">Policy as Code for Serverless Permissions</div>
+      <div class="text-lg text-slate-600 mb-6">Enforcing least privilege for AWS Lambda functions.</div>
+      <div class="flex flex-col gap-4 mb-4">
+        <div class="p-3 rounded-xl bg-white shadow-card card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-purple-700 mb-1">Least Privilege</div>
+          <p class="text-sm text-slate-700">Grant only necessary permissions to serverless functions to minimize the attack surface.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white shadow-card card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-purple-700 mb-1">Resource Specificity</div>
+          <p class="text-sm text-slate-700">Define policies that target specific buckets and objects, not broad S3 access.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white shadow-card card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-purple-700 mb-1">Automated Enforcement</div>
+          <p class="text-sm text-slate-700">Use PaC to ensure these granular permissions are consistently applied during deployment.</p>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 shadow-card card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Policy as Code is crucial for implementing and maintaining granular security controls like least privilege in serverless architectures.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col justify-center items-center">
+      <div class="text-xl font-bold text-slate-800 mb-4">Conceptual Policy as Code (YAML)</div>
+      <div class="w-full h-full overflow-auto rounded-xl shadow-card card-border">
+        <pre class="p-4 text-xs bg-slate-800 text-white h-full w-full"><code class="language-yaml">AWSTemplateFormatVersion: '2010-09-09'
+Description: Policy as Code for Serverless Function Permissions
+
+Resources:
+  MyProcessingFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyProcessingFunction
+      Handler: index.handler
+      Role: !GetAtt MyProcessingFunctionRole.Arn
+      Code:
+        ZipFile: |
+          # Python code for Lambda function
+          import json
+          import os
+          import boto3
+
+          s3_client = boto3.client('s3')
+          source_bucket = os.environ.get('SOURCE_BUCKET_NAME')
+          processed_bucket = os.environ.get('PROCESSED_BUCKET_NAME')
+
+          def handler(event, context):
+              print(f"Processing event: {event}")
+              # Logic to read from source_bucket and write to processed_bucket
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Processing complete!')
+              }
+      Runtime: python3.9
+      Timeout: 30
+      Environment:
+        Variables:
+          SOURCE_BUCKET_NAME: my-source-data-bucket-prod
+          PROCESSED_BUCKET_NAME: my-processed-data-bucket-prod
+
+  MyProcessingFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # Allows logging to CloudWatch
+      Policies:
+        - PolicyName: IamRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # 1. Read-only access to my-source-data-bucket-prod
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: arn:aws:s3:::my-source-data-bucket-prod/*
+              # 2. Write access to my-processed-data-bucket-prod
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: arn:aws:s3:::my-processed-data-bucket-prod/*
+              # 3. No other S3 access is implicitly denied by default
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

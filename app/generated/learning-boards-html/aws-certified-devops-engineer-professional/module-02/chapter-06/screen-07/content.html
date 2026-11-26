@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">EventBridge Rules</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <h3 class="text-2xl font-bold text-slate-800">EventBridge rules</h3>
+      <p class="text-sm text-slate-600 mt-2">Match pipeline events and route them to targets like SNS or Lambda for automation or notification.</p>
+
+      <div class="mt-4 bg-white card rounded-xl p-3">
+        <div class="text-sm font-semibold text-slate-800">Sample event pattern</div>
+        <pre style="white-space:pre-wrap;tab-size:2"><code>{
+  "source": ["aws.codepipeline"],
+  "detail-type": ["CodePipeline Stage Execution State Change"],
+  "detail": {
+    "state": ["FAILED"]
+  }
+}</code></pre>
+      </div>
+
+      <div class="mt-3 bg-white p-3 rounded-xl">
+        <div class="text-sm font-semibold text-slate-800">Testing tip</div>
+        <div class="text-sm text-slate-600 mt-2">After creating a rule, trigger a controlled failure and confirm the SNS topic or Lambda receives the event and acts correctly.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="bg-white card rounded-xl p-4">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Create a rule that sends stage failures in ProductionWebAppPipeline to MyPipelineAlertsTopic. Add a Lambda target to format messages for Slack if desired.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common-mistake</div>
+        <p class="text-xs font-medium text-slate-800">Make rules too broad. Narrow by pipeline and stage to avoid noisy triggers and reduce downstream load on targets.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Plain-text restore</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Steps</div>
+      <ol class="list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Check whether the dump contains CREATE DATABASE. If not, run createdb -U postgres target_db.</li>
+        <li>Stop applications or disconnect clients to avoid conflicts during schema creation.</li>
+        <li>Run psql -U postgres -d target_db -f /tmp/backup.sql and monitor for errors.</li>
+        <li>Verify using SELECT COUNT(*) and \dt to inspect tables and row counts.</li>
+      </ol>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Restoring into a database that already has tables will produce 'table already exists'. Drop-and-create or use --clean at dump time to prevent this.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Terminal: example sequence</div>
+      <div class="bg-slate-900 text-white rounded-lg p-3 font-mono text-sm leading-relaxed overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+# Create an empty database
+createdb -U postgres sales_db_restore_plain
+
+# Restore the plain-text SQL dump
+psql -U postgres -d sales_db_restore_plain -f /tmp/sales_db_plain.sql
+
+# Verify a table count
+psql -U postgres -d sales_db_restore_plain -c "SELECT COUNT(*) FROM products;"
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border card-border">
+          <div class="text-sm font-semibold text-slate-800">Scenario</div>
+          <div class="text-xs text-slate-700">Use this flow when your backup is a plain SQL file created without archive options.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

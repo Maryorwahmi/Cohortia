@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.panel{background:#fff;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-8 flex flex-col gap-3">
+      <div class="text-xl font-bold text-slate-800">Terminal walkthrough</div>
+      <div class="text-sm text-slate-600">Follow these steps in a VM snapshot and verify each result before proceeding.</div>
+
+      <div class="mt-3 panel mono text-sm" style="white-space:pre-wrap;tab-size:2;"># 1. Inspect current values
+sysctl fs.file-max
+sysctl vm.swappiness
+
+# 2. Persist fs.file-max
+sudo tee /etc/sysctl.d/90-file-max.conf &lt;&lt;EOF
+fs.file-max = 2097152
+EOF
+sudo sysctl --system
+sysctl fs.file-max
+
+# 3. Persist vm.swappiness
+sudo tee /etc/sysctl.d/90-swappiness.conf &lt;&lt;EOF
+vm.swappiness = 10
+EOF
+sudo sysctl --system
+sysctl vm.swappiness
+
+# 4. Ensure bonding module
+lsmod | grep bonding
+sudo modprobe bonding
+lsmod | grep bonding
+
+# 5. Blacklist dummy module and rebuild initramfs
+sudo tee /etc/modprobe.d/blacklist-my-dummy-module.conf &lt;&lt;EOF
+blacklist my_dummy_module
+EOF
+sudo dracut -f -v
+
+# 6. Create tuned profile
+sudo mkdir -p /etc/tuned/network-app-profile
+sudo tee /etc/tuned/network-app-profile/tuned.conf &lt;&lt;EOF
+[main]
+summary=Optimizations for network applications
+
+[sysctl]
+vm.swappiness=5
+net.ipv4.tcp_tw_reuse=1
+EOF
+sudo tuned-adm profile network-app-profile
+
+# Verify
+sysctl vm.swappiness
+sysctl net.ipv4.tcp_tw_reuse</div>
+    </div>
+
+    <div class="col-span-4 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-3 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Example validation</div>
+        <div class="text-xs text-slate-600 mt-2">After persisting fs.file-max, use application logs and ulimit checks to confirm the server can open larger numbers of files under load.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Execute each step incrementally and verify after each change. Bundle proven changes into tuned profiles for repeatable deployment.</p>
+      </div>
+    </div>
+  </div>
+</div>

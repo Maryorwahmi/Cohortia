@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PSK, Tunnel IPs, BGP</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl p-4 bg-white card border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+        <p class="text-sm text-slate-700 mt-2">AWS provides a PSK per tunnel and a pair of tunnel inside IPs. Set the PSK and tunnel IP on your device, then configure BGP to peer to the AWS tunnel IP if using dynamic routing.</p>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Checkpoints</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc pl-5">
+            <li>PSK matches exactly — typos cause auth failure.</li>
+            <li>Tunnel IPs used as neighbor addresses for BGP or next‑hop for static routes.</li>
+            <li>Unique PSK per tunnel — do not reuse unless AWS specifies.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl p-3 bg-slate-50 border card h-full">
+        <div class="text-sm font-semibold text-slate-800">Code walkthrough (example)</div>
+        <pre class="bg-white rounded p-3 mt-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2;"><code>! --- Tunnel 1 ---
+crypto isakmp key MyStrongPSK123 address 52.X.Y.Z no-xauth
+interface Tunnel1
+ ip address 169.254.20.2 255.255.255.252
+ tunnel source GigabitEthernet0/0
+ tunnel destination 52.X.Y.Z
+!
+router bgp 65001
+ neighbor 169.254.20.1 remote-as 64512
+ address-family ipv4
+  network 10.10.0.0 mask 255.255.0.0
+  neighbor 169.254.20.1 activate
+ exit-address-family</code></pre>
+
+        <div class="mt-3 text-xs text-slate-600">This example maps the AWS-provided PSK and tunnel IPs into device commands; repeat for Tunnel 2 with its PSK and AWS IP.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use the AWS-supplied PSKs and tunnel IPs exactly as provided; they enable authentication and BGP peering for routing exchange.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

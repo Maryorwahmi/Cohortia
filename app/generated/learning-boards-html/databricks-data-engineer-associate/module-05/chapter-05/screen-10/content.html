@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Idempotency</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Concept</div>
+      <div class="mt-3 text-sm text-slate-700">Design tasks so repeated runs with the same input produce the same output.</div>
+
+      <div class="mt-4 text-sm">
+        <div class="p-3 rounded-lg bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-600">Overwrite</div>
+          <div class="mt-2 text-sm text-slate-700">Use mode("overwrite") when you can replace the entire target safely.</div>
+        </div>
+
+        <div class="p-3 mt-3 rounded-lg bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-600">Merge</div>
+          <div class="mt-2 text-sm text-slate-700">Use MERGE to update existing rows and insert new ones for incremental, idempotent updates.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800">MERGE example (template)</div>
+      <div class="mt-3 text-sm text-slate-700">A conceptual MERGE statement matches on a unique key and updates or inserts rows so the result is deterministic across retries.</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3">
+        <pre><code>MERGE INTO target_table t
+USING source_table s
+ON t.id = s.id
+WHEN MATCHED THEN
+  UPDATE SET t.col1 = s.col1, t.col2 = s.col2
+WHEN NOT MATCHED THEN
+  INSERT (id, col1, col2) VALUES (s.id, s.col1, s.col2)
+</code></pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm font-medium text-slate-800 mt-2">Choose overwrite for full refreshes, MERGE for incremental idempotent updates that tolerate retries.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

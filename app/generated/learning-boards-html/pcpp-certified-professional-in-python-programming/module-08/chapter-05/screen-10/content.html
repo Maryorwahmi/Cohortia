@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Architecture</span>
+    <span>›</span>
+    <span class="text-slate-700">Executors</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Pattern</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 mono" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>loop = asyncio.get_running_loop()
+result = await loop.run_in_executor(None, blocking_function, arg)
+# or
+result = await asyncio.to_thread(blocking_function, arg)</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">Both patterns schedule the blocking function on a separate thread and return its result without blocking the event loop. Choose to_thread for convenience when available.</div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Guidelines</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc list-inside">
+        <li>Prefer async libraries to avoid executors entirely.</li>
+        <li>Use executors sparingly and size pools appropriately.</li>
+        <li>For CPU-bound tasks, consider process pools.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Offload blocking work to keep the loop responsive, but measure and plan thread or process resources carefully.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

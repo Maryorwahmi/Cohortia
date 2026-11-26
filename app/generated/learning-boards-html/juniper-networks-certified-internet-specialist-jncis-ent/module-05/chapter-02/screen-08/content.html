@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring area-range</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-5 shadow-sm h-full grid grid-cols-2 gap-4">
+    <div class="flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Configuration</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-1">Apply area-range on the origin area</h3>
+      <p class="text-sm text-slate-600 mt-2">Place the area-range under the protocols ospf area stanza for the area whose prefixes you want to summarize.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border">
+        <div class="text-sm font-semibold text-slate-700">Example</div>
+        <pre class="mt-2 text-xs bg-white p-3 rounded border" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;"># On the ABR, summarizing Area 1 prefixes into Area 0
+set protocols ospf area 0.0.0.1 area-range 172.16.0.0/22</pre>
+        <div class="text-xs text-slate-600 mt-2">This instructs the ABR to advertise 172.16.0.0/22 into Area 0 instead of the multiple /24s originated in Area 1.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-700">Verification</div>
+        <pre class="mt-2 text-xs bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;"># Verify summary LSA on ABR
+show ospf database summary
+# Verify remote router sees the summary
+show route protocol ospf</pre>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-white border">
+        <div class="text-sm font-semibold text-slate-700">Placement pitfall</div>
+        <div class="text-xs text-slate-600 mt-2">Do not configure area-range under the wrong area. If prefixes originate in Area 1, place area-range under Area 1 config on the ABR.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

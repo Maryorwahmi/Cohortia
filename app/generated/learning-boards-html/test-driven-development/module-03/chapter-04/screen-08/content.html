@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.4</span>
+      <span>›</span>
+      <span class="text-slate-700">FakeOrderRepository</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Starter fake</div>
+      <div class="text-sm text-slate-600 mt-2">This fake stores orders and returns a saved order with a simple unique id. It’s deterministic and lightweight for tests.</div>
+
+      <pre class="mt-4 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code># fake_order_repository.py
+class FakeOrderRepository:
+  def __init__(self):
+    self._orders = {}
+    self._next_id = 1
+
+  def save_order(self, order_data: dict) -> dict:
+    order_id = f"ORD_{self._next_id}"
+    self._next_id += 1
+    saved_order = {"id": order_id, **order_data}
+    self._orders[order_id] = saved_order
+    print(f"Fake: Saved order {order_id}")
+    return saved_order
+</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">How to use in tests</div>
+      <div class="mt-3 text-sm text-slate-700">Instantiate the fake, pass it to OrderService, call place_order with valid data, then assert the returned order has an id and the fake's internal _orders contains the saved order.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">Tip: Keep internal structures private. Prefer assertions against public returns, and use internal state only when necessary for test observability.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

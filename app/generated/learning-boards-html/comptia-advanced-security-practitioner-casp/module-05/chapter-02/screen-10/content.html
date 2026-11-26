@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>.code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size: 2;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Code Walkthrough</div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl bg-white border p-4 overflow-hidden">
+      <div class="text-sm font-bold text-slate-700">OpenSSL AES-256-GCM Commands</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded code text-sm"># Create a sample file
+echo "This is a secret message for our enterprise." &gt; secret_message.txt
+
+# Generate a random 256-bit (32-byte) key
+openssl rand -hex 32 &gt; aes_key.txt
+AES_KEY=$(cat aes_key.txt)
+
+# Generate a random 12-byte (96-bit) IV
+openssl rand -hex 12 &gt; aes_iv.txt
+AES_IV=$(cat aes_iv.txt)
+
+# Encrypt the file using AES-256-GCM
+openssl enc -e -aes-256-gcm -K $AES_KEY -iv $AES_IV -in secret_message.txt -out secret_message.enc -taglen 16
+
+# Decrypt the file
+openssl enc -d -aes-256-gcm -K $AES_KEY -iv $AES_IV -in secret_message.enc -out decrypted_message.txt</pre>
+      <div class="mt-3 text-xs text-slate-500">Note: Keep the key and IV secret and remove temporary files after the experiment.</div>
+    </div>
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-3">
+        <div class="text-xs font-bold text-slate-600">Experiment</div>
+        <p class="text-sm text-slate-700 mt-2">After encryption, modify a byte of the ciphertext and attempt decryption. OpenSSL should report an authentication tag mismatch, demonstrating GCM’s integrity protection.</p>
+      </div>
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold text-rose-700">Common Mistake</div>
+        <p class="text-sm text-slate-800 mt-2">Reusing the IV or failing to check the tag will compromise the security properties expected from AEAD.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Hands-on experiments show authentication failures explicitly, reinforcing the need to manage IVs and tags carefully.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Egress IP Lab</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-lg font-bold">Simulate Egress IP assignment</div>
+    <div class="text-sm text-slate-600 mt-2">Note: cluster-admin privileges and network support are often required.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="font-semibold">Example steps</div>
+        <pre class="mt-2"># namespace annotation
+oc patch namespace network-test-project -p '{"metadata": {"annotations": {"network.openshift.io/assign-egress-ips": "true"}}}' --type=merge
+
+# cluster-admin assign (simulated)
+oc adm egress-ip add-ip 192.168.1.100 --selector=app=frontend -n network-test-project</pre>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="font-semibold">Verification</div>
+        <pre class="mt-2">oc get egressip -n network-test-project
+oc get pod -l app=frontend -o wide -n network-test-project
+# curl external endpoint that echoes your source IP from a pod</pre>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-amber-50 p-3 rounded-lg text-amber-800">Operational note: ensure the chosen IP is routable from your nodes and does not conflict with other addresses.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

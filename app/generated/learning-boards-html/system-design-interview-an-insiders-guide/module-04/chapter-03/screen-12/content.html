@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0b1220; color:#e6eef8; padding:10px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, monospace; font-size:13px }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Recommendation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white p-4 rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Conceptual Cassandra Schema</div>
+      <pre><code>CREATE TABLE products (
+  product_id UUID,
+  category TEXT,
+  name TEXT,
+  description TEXT,
+  price DECIMAL,
+  color_variants LIST<TEXT>,
+  size_variants LIST<TEXT>,
+  manufacturer_id UUID,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  material TEXT,
+  PRIMARY KEY ((product_id), category)
+);</code></pre>
+      <div class="text-xs text-slate-600 mt-2">Store product attributes for fast lookup by product_id; optional columns remain sparse.</div>
+    </div>
+
+    <div class="bg-white p-4 rounded-2xl border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Conceptual Neo4j Cypher</div>
+      <pre><code>// Create User and Product nodes
+CREATE (:User {id: 'user_A', name: 'Alice'})
+CREATE (:Product {id: 'prod_X', name: 'Laptop'})
+
+// Create a VIEWED relationship
+MATCH (u:User {id: 'user_A'}), (p:Product {id: 'prod_X'})
+CREATE (u)-[:VIEWED {timestamp: datetime()}]->(p)
+
+// Recommendation query
+MATCH (p1:Product {id: 'prod_X'})<-[:VIEWED]-(u:User)-[:VIEWED]->(p2:Product)
+WHERE p1 <> p2
+RETURN DISTINCT p2.name AS RecommendedProduct</code></pre>
+      <div class="text-xs text-slate-600 mt-2">Use the graph traversal to find co-viewed products and rank recommendations outside the column-family store.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Hybrid note</div>
+      <p class="text-xs font-medium text-slate-800">Attributes in Cassandra, interactions in Neo4j is a common hybrid pattern that leverages each system's strengths.</p>
+    </div>
+    <div class="rounded-xl p-3 bg-rose-50 text-rose-700 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider mb-1">Common mistake</div>
+      <p class="text-xs font-medium">Trying to perform deep traversals in a column-family store or storing huge interaction graphs in a column-family table alone can be inefficient.</p>
+    </div>
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Use the right tool for each aspect: product attributes for fast retrieval, graph for relationship-based recommendations.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

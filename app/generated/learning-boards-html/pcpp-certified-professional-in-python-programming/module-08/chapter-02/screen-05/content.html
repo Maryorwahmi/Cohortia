@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Threaded Multi-Client TCP Server</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Code walkthrough</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+import socket
+import threading
+
+HOST = '127.0.0.1'
+PORT = 65432
+
+def handle_client(conn, addr):
+    """Function to handle a single client connection."""
+    print(f"Connected by {addr} in thread {threading.current_thread().name}")
+    try:
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            print(f"Received from {addr}: {data.decode()}")
+            conn.sendall(data)
+    except ConnectionResetError:
+        print(f"Client {addr} forcibly closed the connection.")
+    finally:
+        conn.close()
+        print(f"Client {addr} disconnected.")
+
+# Main accept loop spawns threads for each client
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen(5)
+    while True:
+        conn, addr = s.accept()
+        t = threading.Thread(target=handle_client, args=(conn, addr))
+        t.daemon = True
+        t.start()
+      </pre>
+    </div>
+
+    <div class="flex-1 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-sm font-semibold text-slate-700">Explanation</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+          <li>setsockopt with SO_REUSEADDR helps quick restarts during development.</li>
+          <li>Daemon threads let the main process exit without waiting for handlers, but they skip cleanup.</li>
+          <li>For I/O-heavy workloads, threads spend most time waiting and the GIL is less limiting.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Threads make per-client logic straightforward, but you must protect shared data and plan shutdown semantics.</p>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Sharing lists or dicts between handlers without locks leads to race conditions and corrupted state.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: AMySimpleActor</span>
+  </div>
+  <div class="flex h-[76vh] gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-lg font-bold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2 list-decimal list-inside">
+        <li>Create a new C++ Actor class named AMySimpleActor via the Editor.</li>
+        <li>Add UPROPERTY(EditAnywhere, BlueprintReadWrite) float MyFloatValue to the header.</li>
+        <li>Add UFUNCTION(PrintMyValue) and implement it to print to screen and log.</li>
+        <li>Compile, place actor in level, and verify the property in Details panel.</li>
+      </ol>
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Check</div>
+        <div class="text-sm text-slate-800 mt-1">If the property does not appear, check includes, GENERATED_BODY, and successful compilation.</div>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Implementation snippet</div>
+      <pre style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; background:#071028; color:#dbeafe; padding:12px; border-radius:8px; white-space:pre-wrap; tab-size:2" class="mt-3">// MySimpleActor.cpp
+#include "MySimpleActor.h"
+#include "Engine/Engine.h"
+
+AMySimpleActor::AMySimpleActor()
+{
+  PrimaryActorTick.bCanEverTick = true;
+  MyFloatValue = 100.0f;
+}
+
+void AMySimpleActor::BeginPlay()
+{
+  Super::BeginPlay();
+  PrintMyValue();
+}
+
+void AMySimpleActor::PrintMyValue()
+{
+  if (GEngine)
+  {
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("MyFloatValue is: %f"), MyFloatValue));
+    UE_LOG(LogTemp, Warning, TEXT("MyFloatValue is: %f"), MyFloatValue);
+  }
+}</pre>
+    </div>
+  </div>
+  <div class="mt-3 p-3 border-l-4 border-l-emerald-500 bg-emerald-50 rounded-lg">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+    <div class="text-sm font-medium text-slate-800 mt-1">This simple cycle — edit header, implement, compile, verify in Editor — is your fast feedback loop for engine-aware C++ development.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

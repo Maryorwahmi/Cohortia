@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">What is EventBridge?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Core Concept</div>
+      <h2 class="text-2xl font-bold text-slate-900 mt-2">EventBridge and the JSON event model</h2>
+      <p class="text-sm text-slate-700 mt-3">Events are typed JSON objects. Use the predictable keys to filter and route them reliably.</p>
+
+      <div class="mt-4 flex-1 grid grid-cols-2 gap-4">
+        <div class="rounded-lg p-4 bg-blue-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Event shape (example)</div>
+          <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;" class="mt-2 text-sm text-slate-900 bg-white p-2 rounded">
+{
+  "source": "aws.ec2",
+  "detail-type": "EC2 Instance State-change Notification",
+  "time": "2023-09-15T12:34:56Z",
+  "detail": {
+    "instance-id": "i-0123456789abcdef0",
+    "state": "stopped"
+  }
+}
+          </pre>
+          <div class="text-sm text-slate-700 mt-3">This predictable layout lets rules match using source, detail-type, or nested detail fields like state.</div>
+        </div>
+
+        <div class="rounded-lg p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">When to use custom buses</div>
+          <div class="text-sm text-slate-800 mt-2">Use custom event buses to separate application domains, enforce different access policies, or isolate SaaS partner traffic. The default bus is for AWS service events to your account.</div>
+
+          <div class="mt-4">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-1">EventBridge is not long-term storage. Forward events to persistent stores if you need archival or audit history.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+          <div class="text-sm text-slate-800 mt-2">An EC2 stop event includes state and instance-id in detail. Use that to trigger a remediation Lambda that inspects and possibly restarts.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Why it matters</div>
+          <div class="text-sm text-slate-800 mt-2">Treating events as typed messages lets you write deterministic filters and safe handlers rather than ad-hoc parsers.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-2">Design your events so consumers can rely on source, detail-type, and detail fields for accurate matching.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Quick reference</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc pl-4 space-y-2">
+          <li>Events are JSON objects with keys: source, detail-type, time, detail.</li>
+          <li>Default event bus receives AWS service events to your account.</li>
+          <li>Custom buses isolate application or partner traffic.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check your understanding</div>
+        <div class="text-sm text-slate-700 mt-2">What field would you use to match only EC2 state changes to the stopped state? Answer: the nested detail.state field in the event JSON.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

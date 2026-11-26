@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff;padding:12px} .label{font-size:10px;letter-spacing:.08em} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Relaxed Models</span>
+  </div>
+
+  <div class="text-xl font-bold text-slate-800 mb-3">Relaxed consistency models</div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="card">
+      <div class="label text-blue-700 uppercase">Processor Consistency</div>
+      <div class="mt-2 text-sm text-slate-700">Stores and loads each preserve per-processor order, but loads can bypass earlier stores to different addresses. Good for many systems where store order matters but independent addresses can proceed.</div>
+    </div>
+
+    <div class="card">
+      <div class="label text-amber-700 uppercase">Weak Ordering</div>
+      <div class="mt-2 text-sm text-slate-700">Ordinary loads and stores can be reordered freely. Synchronization ops form ordering points. The programmer must place fences or locks to provide necessary ordering.</div>
+    </div>
+
+    <div class="card">
+      <div class="label text-violet-700 uppercase">Release Consistency</div>
+      <div class="mt-2 text-sm text-slate-700">Synchronization is split into acquire and release. Acquire prevents later ops from moving before it; release ensures prior ops complete before it becomes visible.</div>
+    </div>
+
+    <div class="card col-span-3 mt-2">
+      <div class="text-sm font-bold text-slate-800">Example contrast</div>
+      <div class="mt-2 text-sm text-slate-700">Dekker’s algorithm needs ordering between a store and a later load. Under weak ordering, without a fence the store may not be visible before the other thread's load, breaking mutual exclusion. Release consistency lets you place an acquire at entry and a release at exit to restore correctness without full fences around every memory op.</div>
+    </div>
+
+    <div class="card col-span-3 mt-2 bg-slate-50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Common misconception</div>
+      <div class="mt-2 text-sm text-slate-700">Relaxed means random. In fact, relaxations are specific allowed reorderings; correctness depends on using synchronization at the right points.</div>
+    </div>
+  </div>
+</div>

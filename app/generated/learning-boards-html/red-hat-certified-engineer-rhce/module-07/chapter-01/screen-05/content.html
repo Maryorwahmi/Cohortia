@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style> .label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} </style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span><span>›</span><span>Chapter 7.1</span><span>›</span><span class="text-slate-700">Role structure</span></div><div class="grid grid-cols-12 gap-4 flex-1">
+  <div class="col-span-7 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full overflow-auto">
+    <div class="text-lg font-bold text-slate-800">Role hierarchy and purpose</div>
+    <div class="mt-4 grid gap-3">
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">tasks/</div>
+        <div class="text-xs text-slate-600 mt-1">Main actions that change system state. Typically contains main.yml which drives the role.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">handlers/</div>
+        <div class="text-xs text-slate-600 mt-1">Tasks triggered by notify to perform actions such as restarting services after a configuration change.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">templates/ & files/</div>
+        <div class="text-xs text-slate-600 mt-1">templates hold Jinja2 for dynamic config; files hold static assets copied as-is.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">defaults/ & vars/</div>
+        <div class="text-xs text-slate-600 mt-1">defaults/main.yml: lowest precedence sensible defaults. vars/main.yml: role-specific variables with higher precedence than defaults.</div>
+      </div>
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">meta/</div>
+        <div class="text-xs text-slate-600 mt-1">Role metadata and dependency declarations for composition of roles.</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-5 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-700">Concrete layout example</div>
+    <div class="mt-3 mono p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] rounded-lg flex-1 overflow-auto">
+<pre class="mono">webserver/
+├─ defaults/main.yml   # nginx_port: 80
+├─ vars/main.yml       # role-specific values
+├─ tasks/main.yml      # install, template, service
+├─ handlers/main.yml   # Restart Nginx
+├─ templates/nginx.conf.j2
+├─ files/index.html
+└─ meta/main.yml       # dependencies</pre>
+    </div>
+    <div class="mt-3 text-sm text-slate-600">Misconception check: defaults are intentionally low precedence. If you need a value to be hard to override, place it in vars, but remember playbook and extra vars can still supersede.</div>
+  </div>
+</div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

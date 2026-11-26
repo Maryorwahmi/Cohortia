@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[62vh]">
+      <div class="bg-white rounded-xl p-4 card-border shadow-sm overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Step checklist</div>
+        <ol class="mt-3 space-y-3 text-sm text-slate-700 list-decimal list-inside">
+          <li>Create S3 bucket, enable SSE and versioning, and attach bucket policy for CloudTrail write access.</li>
+          <li>Create CloudTrailCloudWatchLogsRole with the required managed policy.</li>
+          <li>Create a multi-region trail and enable log file validation.</li>
+          <li>Create CloudWatch Logs metric filters for your chosen events.</li>
+          <li>Create CloudWatch Alarms and subscribe an SNS topic to deliver notifications.</li>
+          <li>Test by producing a failing event and confirm notification delivery and log file presence in S3.</li>
+        </ol>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Example bucket policy snippet</div>
+        <pre class="mt-3 text-sm text-slate-800">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AWSCloudTrailWrite",
+      "Effect": "Allow",
+      "Principal": {"Service": "cloudtrail.amazonaws.com"},
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::yourname-cloudtrail-logs-12345/AWSLogs/your-account-id/*",
+      "Condition": {"StringEquals": {"s3:x-amz-acl": "bucket-owner-full-control"}}
+    }
+  ]
+}</pre>
+        <div class="mt-3 text-xs text-slate-600">Replace bucket name and account ID with your values. This snippet ensures CloudTrail can put objects with the required ACL.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Webserver ruleset</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Ruleset (example)</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        # Allow loopback traffic
+        iif "lo" accept
+
+        # Allow established and related connections
+        ct state { established, related } accept
+
+        # Allow SSH (port 22)
+        tcp dport 22 accept
+
+        # Allow HTTP (port 80)
+        tcp dport 80 accept
+
+        # Allow HTTPS (port 443)
+        tcp dport 443 accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-800">Explanation & checks</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>flush ruleset resets the kernel state so the file applies cleanly.</li>
+        <li>ct state established, related lets return traffic through without per-connection allows.</li>
+        <li>Using policy drop makes explicit accepts the only way in; avoids accidental openness.</li>
+        <li>After loading, run nft list ruleset and confirm SSH remains available before closing session.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Common-mistake</div>
+        <div class="rounded-lg bg-rose-50 p-3 text-rose-700">Forgetting to leave a console session open while testing can lock you out. Always test with a recovery path.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

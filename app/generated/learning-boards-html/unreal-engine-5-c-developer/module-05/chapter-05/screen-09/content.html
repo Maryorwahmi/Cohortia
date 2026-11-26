@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Widget Animation & Binding</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-6">
+    <div class="col-span-7 rounded-2xl bg-white border p-4 shadow-sm" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase text-slate-600">Header</div>
+      <h3 class="text-xl font-bold mt-2 text-slate-900">Bind a UWidgetAnimation in C++</h3>
+      <pre class="code mt-3 rounded-md bg-slate-900 text-slate-50 p-4" style="overflow:auto"><code>// In UMyPauseMenuWidget.h
+UPROPERTY(Transient, meta=(BindWidgetAnim))
+UWidgetAnimation* FadeInAnimation;
+
+// In UMyPauseMenuWidget.cpp
+void UMyPauseMenuWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+    if (FadeInAnimation)
+    {
+        PlayAnimation(FadeInAnimation);
+    }
+}
+</code></pre>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-4 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase text-slate-600">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>BindWidgetAnim attaches the Designer animation to a C++ pointer at runtime.</li>
+        <li>Call PlayAnimation in NativeConstruct to start the animation when the widget appears.</li>
+        <li>Avoid using Event Tick for animation; prefer Designer animations for performance and authoring clarity.</li>
+      </ul>
+
+      <div class="mt-4 p-3 bg-amber-50 rounded-md text-sm">Pro tip: If an animation must complete before input is allowed, disable focus until OnAnimationFinished fires, then set focus and input mode.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

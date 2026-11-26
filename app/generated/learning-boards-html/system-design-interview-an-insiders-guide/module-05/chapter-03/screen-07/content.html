@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Write-through caching</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Pattern</div>
+      <div class="bg-slate-50 p-3 rounded-md text-sm text-slate-700">Write data to cache, and synchronously ensure the cache writes through to the primary database before acknowledging.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Benefits</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 space-y-1">
+          <li>Strong freshness of cached items immediately after writes.</li>
+          <li>Simpler read logic—cache is authoritative post-write.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Trade-offs</div>
+        <ul class="text-sm text-slate-600 list-disc ml-4 space-y-1">
+          <li>Higher write latency because two storage operations must complete.</li>
+          <li>Can be a bottleneck at high write throughput.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use write-through when immediate cache freshness matters more than minimizing write latency.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm border card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Scenario card</div>
+      <div class="rounded-lg bg-blue-50 p-3">
+        <div class="text-sm text-blue-700 font-bold">User permissions update</div>
+        <div class="text-sm text-slate-700 mt-1">A permissions change must be reflected immediately; write-through ensures subsequent reads hit the cache with the new value.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-bold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Write-through removes some complexity but does not eliminate race conditions if distributed nodes see writes in different orders; additional coordination may be required.</div>
+      </div>
+    </div>
+  </div>
+</div>

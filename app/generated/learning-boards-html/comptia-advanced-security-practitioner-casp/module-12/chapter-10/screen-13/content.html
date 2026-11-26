@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code { background:#0f172a; color:#e6eef8; border-radius:12px; }</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+      <span>›</span>
+      <span>Chapter 12.10</span>
+      <span>›</span>
+      <span class="text-slate-700">Warm Standby Activity</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-4 min-h-0">
+      <div class="rounded-2xl p-4 border card h-1/3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Step 1</div>
+        <h4 class="text-lg font-bold text-slate-800 mt-1">Choose Warm Standby</h4>
+        <p class="text-sm text-slate-600 mt-2">A scaled-down, ready environment enables quicker failover than pilot light and costs less than active-active multi-site.</p>
+      </div>
+
+      <div class="rounded-xl p-4 border card h-2/3 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Step 2: IaC Template Structure</div>
+        <ul class="text-sm text-slate-700 mt-3 space-y-2">
+          <li>Network: VPC, subnets, route tables, security groups.</li>
+          <li>Compute: Auto Scaling Group with a minimal instance count and AMI definitions.</li>
+          <li>Database: RDS read replica or cross-region replication settings with point-in-time recovery.</li>
+          <li>Storage: S3 with cross-region replication for static content.</li>
+          <li>DNS: Route 53 failover records and health checks.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4 min-h-0">
+      <div class="rounded-2xl p-4 border card h-1/2 overflow-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Example Commands</div>
+        <pre class="code p-3 mt-3 text-sm" style="white-space:pre-wrap; tab-size:2;"><code># Trigger a DR runbook with Ansible (conceptual example)
+ansible-playbook -i inventory/recovery_site.ini playbooks/dr_full_recovery.yml --extra-vars "target_region=us-east-2"
+
+# Deploy a recovery CloudFormation stack
+aws cloudformation deploy --template-file cloudformation/dr_stack.yaml --stack-name ProductionAppDR --region us-east-2 --capabilities CAPABILITY_IAM
+
+# Azure Site Recovery conceptual failover command
+az site-recovery failover-planned --resource-group myResourceGroup --name myRecoveryPlan --direction primaryToRecovery</code></pre>
+      </div>
+
+      <div class="rounded-xl p-4 border card h-1/2 flex flex-col justify-between">
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Benefits of IaC</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-1">
+            <li>Consistency and rapid provisioning to meet RTO.</li>
+            <li>Version-controlled infrastructure for audit and rollback.</li>
+            <li>Automated dry runs reduce surprise during real incidents.</li>
+          </ul>
+        </div>
+        <div class="text-sm text-slate-600 mt-3">Next step: write a minimal dr_stack template that provisions a VPC, one scaled instance group, an RDS replica, and cross-region S3 replication, then run a test deploy in a nonproduction region.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

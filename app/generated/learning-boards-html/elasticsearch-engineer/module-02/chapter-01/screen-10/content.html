@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span><span>›</span><span>Chapter 2.1</span><span>›</span><span class="text-slate-700">Create Index</span></div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col justify-between"><div class="mb-6"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">Practical Application</div><h2 class="text-3xl font-bold text-slate-900 leading-tight mb-2">Building an Index with cURL and Explicit Mapping</h2><p class="text-base text-slate-700">A step-by-step guide to defining your data schema.</p></div><div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 mb-6 flex-grow"><div class="text-sm font-bold text-slate-800 mb-2">Command Breakdown</div><ul class="list-disc list-inside text-sm text-slate-600 mt-3"><li class="mb-1"><strong><code>curl -X PUT "localhost:9200/products?pretty"</code>:</strong> Sends a PUT request to create the 'products' index.</li><li class="mb-1"><strong><code>-H 'Content-Type: application/json'</code>:</strong> Specifies the request body format.</li><li><strong><code>-d'{}'</code>:</strong> Contains the JSON payload for index settings and mappings.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Using cURL to create an index with explicit mapping provides granular control over your data's schema, ensuring optimal indexing and search behavior.</p></div></div><div class="w-1/2 flex flex-col justify-between"><div class="bg-slate-800 rounded-2xl p-6 shadow-lg flex-grow flex flex-col justify-center"><div class="text-sm font-mono text-emerald-400 mb-3">Create 'products' index with explicit mapping</div><pre class="text-xs text-slate-200 whitespace-pre-wrap" style="tab-size: 2;"><code>curl -X PUT "localhost:9200/products?pretty" -H 'Content-Type: application/json' -d'{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "category": {
+        "type": "keyword"
+      },
+      "sku": {
+        "type": "keyword"
+      },
+      "price": {
+        "type": "float"
+      },
+      "available": {
+        "type": "boolean"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      }
+    }
+  }
+}'</code></pre></div><div class="bg-blue-50 rounded-xl p-4 mt-6 border border-blue-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Field Explanations</div><p class="text-xs text-slate-800"><code>name</code>, <code>description</code>: <code>text</code> for full-text search. <code>category</code>, <code>sku</code>: <code>keyword</code> for exact matching. <code>price</code>: <code>float</code> for numerical operations. <code>available</code>: <code>boolean</code>. <code>created_at</code>: <code>date</code> with multiple formats.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

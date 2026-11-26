@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f9fafb;} pre{white-space:pre-wrap;tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <div class="text-2xl font-bold text-slate-800">How keys map to slots</div>
+    <div class="text-sm text-slate-600 mt-1">Deterministic rule used by clients and nodes.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="font-semibold text-slate-800">Formula</div>
+      <pre class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-700">CRC16(key) % 16384</pre>
+      <div class="mt-3 text-sm text-slate-600">You can verify slots locally with redis-cli CLUSTER KEYSLOT. This makes the mapping easy to test when you design keys.</div>
+
+      <div class="mt-4 rounded-xl p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+        <pre class="mt-2 text-sm text-slate-800">redis-cli CLUSTER KEYSLOT mykey
+redis-cli CLUSTER KEYSLOT user:1:profile
+redis-cli CLUSTER KEYSLOT product:2:price</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Why deterministic mapping helps</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>• Clients compute the slot locally and send commands straight to the owner node.</li>
+        <li>• If a node is queried for a key it doesn’t own, it returns a MOVED response to redirect the client.</li>
+        <li>• Rebalancing moves whole slot ranges, making slot-based rebalancing simpler than per-key moves.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Common-mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Assuming keys with similar text map to the same slot. They often won't unless you use hash tags to force locality.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

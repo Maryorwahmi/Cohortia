@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Lab</span>
+    <span>›</span>
+    <span class="text-slate-700">Fixed Window Script</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Starter script (concept)</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded-md text-sm"><code>import redis
+import time
+
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+RATE_LIMIT_PER_WINDOW = 5
+WINDOW_SIZE_SECONDS = 10
+
+def check_rate_limit(user_id):
+  key = f"rate_limit:{user_id}"
+  pipe = r.pipeline()
+  pipe.incr(key)
+  pipe.expire(key, WINDOW_SIZE_SECONDS)
+  current_count, _ = pipe.execute()
+  if current_count > RATE_LIMIT_PER_WINDOW:
+    print(f"User {user_id}: Rate limit exceeded ({current_count}/{RATE_LIMIT_PER_WINDOW}). Request rejected.")
+    return False
+  else:
+    print(f"User {user_id}: Request allowed ({current_count}/{RATE_LIMIT_PER_WINDOW}).")
+    return True
+
+# Simulation loop omitted for brevity</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This script uses a Redis pipeline to atomically increment and set the expiration so the window resets automatically.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Lab steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600">
+        <li>Start Redis locally.</li>
+        <li>Run the script and observe the first five requests succeed and later ones return rejected within the window.</li>
+        <li>Wait for the window to reset and confirm the counter resets.</li>
+        <li>Run two instances of the script to confirm Redis enforces a global count across processes.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Extension</div>
+        <p class="text-xs font-medium text-slate-800">Modify the script to implement a simple token bucket using DECRBY and EXPIRE or a Lua script to atomically check and deduct tokens.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

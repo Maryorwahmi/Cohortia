@@ -1,0 +1,82 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 6</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring Private DNS (Part 2)</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Code Walkthrough</div>
+      <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Configuring Private DNS for Private Link (Part 2)</h2>
+      <p class="text-md text-slate-700 mb-6">Ensuring proper name resolution for private endpoints.</p>
+
+      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200 flex-grow mb-6">
+        <h3 class="text-lg font-semibold text-slate-900 mb-3">DNS Configuration Steps</h3>
+        <ul class="list-none space-y-3 text-sm text-slate-700">
+          <li class="flex items-start">
+            <span class="text-violet-500 font-bold mr-2">1.</span>
+            <span><strong>Create Private DNS Zone:</strong> A zone specific to the PaaS service (e.g., <code>privatelink.blob.core.windows.net</code>).</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-violet-500 font-bold mr-2">2.</span>
+            <span><strong>Link to VNet:</strong> Connect the private DNS zone to your virtual network.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-violet-500 font-bold mr-2">3.</span>
+            <span><strong>Create DNS Record Set:</strong> Map the service's FQDN to the private endpoint's IP address.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Correct private DNS configuration is essential for applications to resolve PaaS service FQDNs to private IPs, enabling secure Private Link communication.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-slate-800 rounded-2xl shadow-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-4 py-2 bg-slate-700">
+        <span class="text-xs font-medium text-slate-200">Azure CLI: Configure Private DNS</span>
+        <div class="flex space-x-1">
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+      </div>
+      <pre class="flex-grow p-4 text-xs text-slate-50 overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>
+# Example: Create a Private Endpoint for an Azure Storage Account (conceptual)
+# Assumes you have a Storage Account and a VNet/Subnet already created.
+RESOURCE_GROUP="myNetworkingRG"
+LOCATION="eastus"
+STORAGE_ACCOUNT_NAME="mystorageaccount123"
+VNET_NAME="VNet1"
+SUBNET_NAME="Subnet1"
+PRIVATE_ENDPOINT_NAME="myStoragePrivateEndpoint"
+PRIVATE_DNS_ZONE_NAME="privatelink.blob.core.windows.net"
+
+# Create a private DNS zone and link it to the VNet
+az network private-dns zone create \
+  --resource-group $RESOURCE_GROUP \
+  --name $PRIVATE_DNS_ZONE_NAME
+
+az network private-dns link vnet create \
+  --resource-group $RESOURCE_GROUP \
+  --zone-name $PRIVATE_DNS_ZONE_NAME \
+  --name "${VNET_NAME}-Link" \
+  --virtual-network $VNET_NAME \
+  --registration-enabled false
+
+# Create a DNS record set for the private endpoint
+az network private-endpoint dns-zone-group create \
+  --resource-group $RESOURCE_GROUP \
+  --endpoint-name $PRIVATE_ENDPOINT_NAME \
+  --name "myDNSZoneGroup" \
+  --private-dns-zone $PRIVATE_DNS_ZONE_NAME \
+  --zone-name "${PRIVATE_DNS_ZONE_NAME}"
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

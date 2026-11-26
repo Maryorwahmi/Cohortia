@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; tab-size:2; font-size:13px;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Definition</div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4">
+      <h3 class="text-lg font-bold text-slate-800">What is storage collision?</h3>
+      <p class="text-sm text-slate-600 mt-3">It occurs when a new implementation changes variable ordering, causing reads and writes to map to the wrong storage slots in the proxy.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example variable ordering</div>
+        <pre class="mt-2 p-3 bg-slate-50 rounded">// V1
+uint256 public x;
+bool public flag;
+
+// V2 (incorrect)
+bool public flag;
+uint256 public x; // now maps to a different storage slot
+</pre>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Mitigations</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+        <li>Use a reserved __gap array to keep slots available for future variables.</li>
+        <li>Keep a strict ordering policy and document slot usage per version.</li>
+        <li>Use OpenZeppelin’s storage layout checks and upgrade testing tools before upgrading on mainnet.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming adding a few variables is safe. Even small changes can shift slots and corrupt critical data. Always check layout compatibility.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

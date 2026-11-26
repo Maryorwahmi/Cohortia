@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;tab-size:2;white-space:pre-wrap}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Message Queue</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <h2 class="text-xl font-bold text-slate-900">Message Queue</h2>
+      <p class="text-sm text-slate-600 mt-2">A queue holds messages until a single consumer processes each one. This pattern ensures tasks are handled exactly once by a worker, when implemented carefully.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold">Producer</div>
+          <div class="text-sm text-slate-600 mt-1">Sends messages into a queue; should include correlation or idempotency keys if retries are possible.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold">Consumer</div>
+          <div class="text-sm text-slate-600 mt-1">Receives and processes messages; implement durable acknowledgements and idempotency checks.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example</div>
+      <pre><code>{
+  "event": "PaymentRequest",
+  "requestId": "req-12345",
+  "orderId": "order-987",
+  "amount": 125.50,
+  "timestamp": "2023-10-01T12:34:56Z"
+}</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Include a requestId so the PaymentService can deduplicate retries. If processing fails repeatedly, the message should land in a dead-letter queue for manual review.</div>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 text-emerald-700">Key Takeaway: Queues are ideal for reliable, single-consumer work. Always plan for redelivery and idempotent processing.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

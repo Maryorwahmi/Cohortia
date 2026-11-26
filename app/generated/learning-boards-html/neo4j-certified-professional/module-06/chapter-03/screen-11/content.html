@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 3</span>
+    <span>›</span>
+    <span class="text-slate-700">Live-coding demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Starter Schema (file: schema.graphql)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Define the User type
+type User {
+  id: ID!
+  username: String!
+  email: String
+  posts: [Post!]
+  friends: [User!]
+}
+
+# Define the Post type
+type Post {
+  id: ID!
+  content: String!
+  timestamp: String!
+  author: User
+}
+
+# Define the root Query type
+type Query {
+  user(username: String!): User
+  post(id: ID!): Post
+}
+      </pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Playground Query</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+query GetUserAndFriends($username: String!) {
+  user(username: $username) {
+    username
+    email
+    friends {
+      username
+      email
+    }
+  }
+}
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Run this in the GraphQL Playground, inspect the returned JSON shape, and monitor the number of Cypher calls to validate whether batching or generated Cypher is sufficient.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

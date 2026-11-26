@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Invalidation Strategies</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-800">Invalidation Strategies</div>
+    <div class="text-sm text-slate-600 mt-2">Trade correctness, latency, and risk across three write strategies.</div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3 flex-1">
+      <div class="rounded-lg p-3 bg-blue-50">
+        <div class="font-semibold text-blue-700">Write-Through</div>
+        <div class="text-xs text-slate-600 mt-2">Writes update both cache and primary store synchronously. Consistent cache state, slower writes.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-violet-50">
+        <div class="font-semibold text-violet-700">Write-Back</div>
+        <div class="text-xs text-slate-600 mt-2">Writes update cache first and flush to primary asynchronously. Faster writes, possible data loss on cache failure.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-amber-50">
+        <div class="font-semibold text-amber-700">Write-Around</div>
+        <div class="text-xs text-slate-600 mt-2">Writes go to primary only; cache populated on next read. Avoids filling cache with rare writes but risks an initial slow read.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-white card-border p-3">
+        <div class="text-sm font-semibold">Concrete scenario</div>
+        <div class="text-xs text-slate-600 mt-1">For inventory where absolute freshness matters choose write-through or immediate invalidation; for analytics metrics write-back may be acceptable.</div>
+      </div>
+
+      <div class="rounded-lg bg-white card-border p-3">
+        <div class="text-sm font-semibold">Common pitfall</div>
+        <div class="text-xs text-slate-600 mt-1">Picking a strategy without considering failure modes: write-back without durability guarantees risks data loss on cache crash.</div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">State the required freshness and write latency constraints, then pick the invalidation strategy whose trade-offs match those constraints.</p>
+      </div>
+    </div>
+  </div>
+</div>

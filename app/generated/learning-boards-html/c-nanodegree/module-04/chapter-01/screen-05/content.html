@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:white}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Code Duplication</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Why duplication happens</h3>
+    <p class="text-sm text-slate-600 mt-1">Two nearly identical functions for different types increase maintenance and risk inconsistent behavior.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[62%]">
+    <div class="card p-4 shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Non-template example</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;"><code>// Separate functions for each type
+int max_int(int a, int b) {
+  return (a > b) ? a : b;
+}
+
+double max_double(double a, double b) {
+  return (a > b) ? a : b;
+}
+</code></pre>
+      <div class="text-xs text-slate-600 mt-2">Maintenance: fix logic in multiple places. Tests must cover each overload.</div>
+    </div>
+
+    <div class="card p-4 shadow-sm h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Template solution</div>
+      <pre class="text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;"><code>// One template replaces many overloads
+template &lt;typename T&gt;
+T max(T a, T b) {
+  return (a > b) ? a : b;
+}
+</code></pre>
+      <div class="text-xs text-slate-600 mt-2">The compiler instantiates concrete functions like max&lt;int&gt; and max&lt;double&gt; for calls you make.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 bg-amber-50 rounded shadow-sm">
+      <div class="text-xs font-semibold text-amber-700">Example</div>
+      <div class="text-sm text-slate-700">max(5, 10) deduces int, max(3.14, 2.71) deduces double.</div>
+    </div>
+    <div class="p-3 bg-rose-50 rounded shadow-sm">
+      <div class="text-xs font-semibold text-rose-700">Common mistake</div>
+      <div class="text-sm text-slate-700">Writing many overloads instead of a template duplicates logic and creates drift between implementations.</div>
+    </div>
+    <div class="p-3 bg-emerald-50 rounded shadow-sm">
+      <div class="text-xs font-semibold text-emerald-700">Key takeaway</div>
+      <div class="text-sm text-slate-700">One template keeps behavior consistent and reduces maintenance surface.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

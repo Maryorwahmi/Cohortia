@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.panel{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Rate Limiter</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-2xl p-5 panel shadow-sm h-full">
+      <div class="text-lg font-bold text-slate-800">Rate limiting pattern</div>
+      <div class="mt-3 text-sm text-slate-600">Increment a per-minute key and set expiration to window length. Reject when count exceeds limit.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50">Key form: user:ID:requests:minute_timestamp. Expire set to 60 seconds.</div>
+        <div class="rounded-lg p-3 bg-emerald-50">Atomicity: use a pipeline to increment and set expiry in one go for efficiency.</div>
+        <div class="rounded-lg p-3 bg-amber-50">Distributed safety: Redis centralizes counters so multiple app instances see the same counts.</div>
+      </div>
+    </div>
+
+    <div class="w-1/3 bg-white rounded-2xl p-5 panel shadow-sm h-full">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Starter logic</div>
+      <pre class="mt-3 text-sm bg-slate-50 p-3 rounded"># Pipeline pseudo-steps
+pipe = r.pipeline()
+pipe.incr(key)
+pipe.expire(key, 60)
+count, _ = pipe.execute()</pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use a short-lived counter per window and pipeline increment plus expire for efficient, consistent rate limiting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

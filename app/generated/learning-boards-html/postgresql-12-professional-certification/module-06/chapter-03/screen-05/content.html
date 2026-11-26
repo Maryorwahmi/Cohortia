@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">OLTP vs OLAP</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xl font-bold text-slate-800">OLTP (Online Transaction Processing)</div>
+      <div class="text-sm text-slate-600 mt-2">Many small transactions, low latency, high concurrency.</div>
+      <ul class="mt-4 text-sm text-slate-600 list-disc pl-5">
+        <li>Prioritize connection pooling and low per-request latency.</li>
+        <li>Be cautious with per-operation memory like work_mem to avoid exhausting RAM.</li>
+        <li>Ensure WAL and checkpoint settings support many small commits.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 text-amber-800 text-sm">Example: e-commerce checkout with thousands of short writes and reads per minute.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xl font-bold text-slate-800">OLAP (Online Analytical Processing)</div>
+      <div class="text-sm text-slate-600 mt-2">Complex, long-running queries scanning many rows for analytics and reporting.</div>
+      <ul class="mt-4 text-sm text-slate-600 list-disc pl-5">
+        <li>Favor larger shared_buffers and higher work_mem to keep scans and sorts in memory.</li>
+        <li>Tune effective_cache_size so the planner trusts cached data availability.</li>
+        <li>Expect long-running queries and tune checkpointing to reduce excessive I/O during reports.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 text-emerald-800 text-sm">Example: nightly data warehouse queries aggregating millions of rows.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm mt-2">
+      <div class="text-sm font-semibold text-slate-800">Checklist to classify workload</div>
+      <div class="mt-3 grid grid-cols-3 gap-3 text-sm text-slate-600">
+        <div class="p-3 bg-white border rounded">Transaction size: small vs large</div>
+        <div class="p-3 bg-white border rounded">Concurrency: many short vs few long</div>
+        <div class="p-3 bg-white border rounded">Queries: index lookups vs full scans</div>
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <div class="flex-1 rounded-lg p-3 bg-white border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-sm text-slate-800">Tune to the workload: settings that help OLAP can harm OLTP if applied without care.</div>
+        </div>
+        <div class="w-64 rounded-lg p-3 bg-white border shadow-sm">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Common mistake</div>
+          <div class="text-sm text-slate-700">Copying benchmark settings from different workload types without testing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

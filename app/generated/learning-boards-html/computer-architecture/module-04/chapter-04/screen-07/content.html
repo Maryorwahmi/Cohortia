@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ForwardA / ForwardB Logic</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-lg font-bold text-slate-900">Comparator rules</div>
+      <div class="text-sm text-slate-600 mt-1">Priority to EX/MEM, then MEM/WB; ignore register zero.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-bold text-slate-800">Behavior</div>
+          <div class="text-sm text-slate-600 mt-1">Check EX/MEM first. If it matches and writes a nonzero destination, forward from EX/MEM. Else, if MEM/WB matches and writes, forward from MEM/WB. Else use register file.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-bold text-slate-800">Subtle checks</div>
+          <div class="text-sm text-slate-600 mt-1">Always require the write-enable signal and that the destination register is not zero to avoid false matches and incorrect forwarding.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg bg-slate-50 p-3 flex-1 card-border">
+        <div class="text-sm font-bold text-slate-800">Pseudocode (visual)</div>
+        <pre class="mt-2 p-2 bg-white rounded text-[13px]">
+ForwardA =
+  if (EX/MEM.RegWrite and EX/MEM.Rd != 0 and EX/MEM.Rd == ID/EX.Rs1) then 01
+  else if (MEM/WB.RegWrite and MEM/WB.Rd != 0 and MEM/WB.Rd == ID/EX.Rs1) then 10
+  else 00
+
+ForwardB =
+  if (EX/MEM.RegWrite and EX/MEM.Rd != 0 and EX/MEM.Rd == ID/EX.Rs2) then 01
+  else if (MEM/WB.RegWrite and MEM/WB.Rd != 0 and MEM/WB.Rd == ID/EX.Rs2) then 10
+  else 00
+        </pre>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Test idea</div>
+        <div class="text-sm text-slate-800 mt-1">Run a sequence where two previous instructions write the same register to confirm EX/MEM forwarding wins over MEM/WB.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">INFO replication</span>
+    </div>
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-[62vh] flex">
+      <div class="w-1/2 pr-4 flex flex-col">
+        <h3 class="text-2xl font-bold mt-1 text-slate-900">Read replication state with INFO</h3>
+        <p class="text-sm text-slate-600 mt-2">INFO replication surfaces role, connected replicas, master link status, and offsets. Use it frequently to monitor health.</p>
+        <div class="mt-4 rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example output (master)</div>
+          <pre class="mt-2 p-3 rounded bg-slate-50 border text-sm"><code># Replication
+role:master
+connected_slaves:2
+slave0:ip=127.0.0.1,port=6380,state=online,offset=1498000
+slave1:ip=127.0.0.1,port=6381,state=online,offset=1497990
+master_repl_offset:1500000</code></pre>
+        </div>
+      </div>
+      <div class="w-1/2 pl-4 flex flex-col">
+        <div class="rounded-lg p-3 bg-white card-border mb-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Interpreting offsets</div>
+          <div class="text-sm text-slate-700 mt-1">Offset gap equals master_repl_offset minus replica offset. A growing gap signals lag; stable small gaps are normal under load.</div>
+        </div>
+        <div class="flex-1 rounded-lg p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Actionable checks</div>
+          <ul class="list-disc ml-4 text-sm text-slate-700 space-y-1">
+            <li>Alert on master_repl_offset - replica_offset exceeding a threshold.</li>
+            <li>Investigate network, CPU, or disk IO if offsets grow consistently.</li>
+            <li>Check master_link_status on replicas; if down, replication is broken and requires reconnection or investigation.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

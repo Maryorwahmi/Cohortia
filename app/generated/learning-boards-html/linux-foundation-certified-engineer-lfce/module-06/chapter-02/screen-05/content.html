@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">pam_pwquality configuration</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Configuration example</div>
+      <div class="text-sm text-slate-600 mt-2">Add or update the password module line with specific options for length and character classes.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># Example pam_pwquality configuration line (place in common-password or system-auth)
+password    requisite     pam_pwquality.so retry=3 minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 enforce_for_root
+</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Notes</div>
+        <ul class="text-sm text-slate-700 list-disc pl-5 mt-2 space-y-1">
+          <li>minlen sets the shortest allowed password length.</li>
+          <li>ucredit, lcredit, dcredit, and ocredit require character classes by using negative values.</li>
+          <li>retry configures how many times a user may retry during password entry.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Lab test sequence</div>
+      <ol class="text-sm text-slate-700 list-decimal pl-5 mt-3 space-y-2">
+        <li>Create a test account and try to set an intentionally weak password. Expect a PAM rejection with a reason.</li>
+        <li>Set a compliant password using the required classes and confirm success.</li>
+        <li>If rejection persists, confirm you edited the correct PAM file and that the service uses that stack.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700">Editing the wrong PAM file or failing to restart the service that sources a different pam.d entry will make changes appear ineffective.</div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use pam_pwquality options to set a strict baseline and always validate by creating a test user and trying weak and strong passwords.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

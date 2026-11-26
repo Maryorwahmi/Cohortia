@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">ABAC policy example</div>
+        <pre class="bg-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:StartInstances",
+        "ec2:StopInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "${aws:PrincipalTag/Project}"
+        }
+      }
+    }
+  ]
+}
+        </pre>
+
+        <div class="mt-3 text-sm text-slate-600">This policy allows actions only when the resource's Project tag matches the principal's Project tag. Use a single policy to cover many projects and avoid per-project role proliferation.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Governance and checks</div>
+        <ul class="text-sm text-slate-600 list-disc pl-4 mt-2">
+          <li>Enforce tagging standards via automation and resource creation pipelines.</li>
+          <li>Use Policy Simulator to test tag-based conditions before deployment.</li>
+          <li>Monitor mismatches and implement remediation to avoid access failure or over-permission.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">ABAC greatly reduces policy count when tags are accurate; invest in tagging governance to make ABAC reliable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

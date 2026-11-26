@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--card-border:rgba(226,232,240,0.95);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">R1 / R2 Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 border" style="border-color:var(--card-border);">
+      <div class="text-xl font-bold text-slate-800">R1 Template</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded"># R1 Configuration
+edit interfaces
+set ge-0/0/0 unit 0 family inet address 192.168.10.1/30
+set lo0 unit 0 family inet address 1.1.1.1/32
+top
+edit protocols ospf
+set router-id 1.1.1.1
+set area 0.0.0.0 interface ge-0/0/0.0
+commit and-quit</pre>
+
+      <div class="mt-4 text-sm text-slate-700">After commit run show ospf neighbor and expect R2's RID with state Full. If not Full, work through the troubleshooting checklist.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border" style="border-color:var(--card-border);">
+      <div class="text-xl font-bold text-slate-800">R2 Template</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded"># R2 Configuration
+edit interfaces
+set ge-0/0/0 unit 0 family inet address 192.168.10.2/30
+set lo0 unit 0 family inet address 2.2.2.2/32
+top
+edit protocols ospf
+set router-id 2.2.2.2
+set area 0.0.0.0 interface ge-0/0/0.0
+commit and-quit</pre>
+
+      <div class="mt-4 text-sm text-slate-700">Verification steps: show ospf neighbor, show ospf database, show route protocol ospf, then ping 2.2.2.2 source 1.1.1.1 from R1 to validate end-to-end reachability.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl p-4 bg-emerald-50 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Lab troubleshooting hint</div>
+      <div class="text-sm text-slate-800">If ping fails while adjacency is Full, check show ospf database for missing LSAs, inspect route filters, and confirm the OSPF routes are installed in the routing table using show route protocol ospf.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

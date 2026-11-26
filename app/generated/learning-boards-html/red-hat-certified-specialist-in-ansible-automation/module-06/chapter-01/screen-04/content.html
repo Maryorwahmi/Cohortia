@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Block / Rescue / Always</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex-1">
+        <div class="text-xl font-bold text-slate-800">Definition</div>
+        <div class="text-sm text-slate-600 mt-2">Block groups tasks; rescue runs on failure; always runs regardless.</div>
+        <ul class="mt-4 text-sm text-slate-700 list-disc pl-5 space-y-2">
+          <li>Design blocks for a single logical operation, like deploy or migrate.</li>
+          <li>Keep rescue steps safe, idempotent, and informative.</li>
+          <li>Use always for guaranteed cleanup such as removing temporary files or releasing locks.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-2">Deploy: download, extract, configure. If download or extract fails, rescue prints a critical message and removes partial files. Always removes temporary downloads and logs status.</div>
+      </div>
+    </div>
+    <div class="w-3/5 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm text-slate-500 uppercase tracking-wider mb-2">Annotated playbook snippet</div>
+      <pre class="flex-1 bg-slate-50 p-3 rounded-md overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2;"><code>- name: Deploy application (block example)
+  block:
+    - name: Download application package
+      ansible.builtin.get_url: ...
+      register: download_result
+      failed_when: download_result.status != 200 or download_result.status is not defined
+    - name: Extract package
+      ansible.builtin.unarchive: ...
+  rescue:
+    - name: Notify and rollback
+      ansible.builtin.debug: msg: "CRITICAL ERROR: deployment failed"
+    - name: Clean up partial files
+      ansible.builtin.file: path: "/tmp/app-{{ app_version }}.tar.gz" state: absent
+  always:
+    - name: Final log
+      ansible.builtin.debug: msg: "Deployment attempt finished"</code></pre>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-amber-50 p-3 text-amber-800">Misconception: rescue always fixes state — rescue should attempt safe recovery but may require manual intervention.</div>
+        <div class="rounded-lg bg-emerald-50 p-3 text-emerald-800">Pro tip: Keep rescue tasks idempotent so repeated runs are safe.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

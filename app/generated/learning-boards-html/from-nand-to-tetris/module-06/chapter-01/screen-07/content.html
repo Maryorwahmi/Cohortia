@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}.step{background:#f8fafc;padding:10px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">call</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 p-4 card">
+      <div class="text-sm font-semibold text-slate-700">Step-by-step call sequence</div>
+      <div class="mt-3 space-y-3">
+        <div class="step"><strong>1.</strong> push return-address (unique label)</div>
+        <div class="step"><strong>2.</strong> push LCL</div>
+        <div class="step"><strong>3.</strong> push ARG</div>
+        <div class="step"><strong>4.</strong> push THIS</div>
+        <div class="step"><strong>5.</strong> push THAT</div>
+        <div class="step"><strong>6.</strong> ARG = SP - nArgs - 5</div>
+        <div class="step"><strong>7.</strong> LCL = SP</div>
+        <div class="step"><strong>8.</strong> goto functionName</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Example: call Foo 2</div>
+        <pre class="mt-3 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+@RETURN_LABEL
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// push LCL
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// push ARG, THIS, THAT ...
+// compute ARG = SP - 2 - 5
+        </pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Pitfall</div>
+        <p class="text-sm text-slate-600 mt-2">Do not compute ARG before pushing the five saved values. SP must reflect the pushes so ARG points to the correct argument base.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

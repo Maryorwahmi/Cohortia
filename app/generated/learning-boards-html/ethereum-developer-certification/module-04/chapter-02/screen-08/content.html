@@ -1,0 +1,53 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <style>pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Test Skeleton</div>
+      <pre class="mt-3 rounded bg-slate-100 p-3"><code>// test/TokenSale.js (skeleton)
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("TokenSale integration", function () {
+  let Token, token, TokenSale, tokenSale, owner, buyer;
+  const TOKEN_PRICE = ethers.utils.parseUnits("1", "wei"); // example price in Wei
+
+  beforeEach(async function () {
+    Token = await ethers.getContractFactory("ERC20Token");
+    TokenSale = await ethers.getContractFactory("TokenSale");
+    [owner, buyer] = await ethers.getSigners();
+
+    token = await Token.deploy(ethers.utils.parseUnits("1000", 18));
+    await token.deployed();
+
+    tokenSale = await TokenSale.deploy(token.address, TOKEN_PRICE);
+    await tokenSale.deployed();
+
+    // Arrange: transfer tokens to tokenSale so it can sell
+    await token.transfer(tokenSale.address, ethers.utils.parseUnits("500", 18));
+  });
+
+  it("Deployment sets correct initial state", async function () {
+    expect(await tokenSale.token()).to.equal(token.address);
+    expect(await tokenSale.tokenPrice()).to.equal(TOKEN_PRICE);
+  });
+
+  // More tests: successful purchase, insufficient funds, insufficient tokens
+});
+</code></pre>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="card bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example assertion</div>
+        <p class="text-sm text-slate-700 mt-2">A successful purchase test should assert the TokensPurchased event, buyer token balance increased by expected token amount, and tokenSale Ether balance increased by msg.value. Keep token amount calculations explicit so the test documents intent.</p>
+      </div>
+      <div class="card p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-sm font-medium text-slate-800">Convert values using ethers.utils to avoid unit mistakes. Be explicit about decimals and tokenPrice units.</p>
+      </div>
+      <div class="card p-3 bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-sm font-medium text-slate-800">Not transferring tokens into the sale contract during setup. Tests should arrange contract balances, not assume them.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Common GRUB Failures</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Causes vs Effects</div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Cause</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-2 list-disc pl-4">
+            <li>MBR/GPT corruption</li>
+            <li>grub.cfg points to wrong UUID</li>
+            <li>Bootloader installed to wrong disk</li>
+            <li>Missing kernel or initramfs</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-800">Effect</div>
+          <ul class="text-sm text-slate-700 mt-2 space-y-2 list-disc pl-4">
+            <li>No boot menu or "no bootable device"</li>
+            <li>GRUB error and kernel not found</li>
+            <li>System drops to firmware or rescue shell</li>
+            <li>Boot into emergency or fail to mount root</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-700">Check partition tables and /boot contents before reinstalling the bootloader; the correct disk and visible kernel files are prerequisites for a successful repair.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+      <div class="mt-3 p-3 rounded-lg bg-blue-50 text-sm text-slate-800">If /dev/sda originally held your bootloader but you ran grub-install to /dev/sdb after disk replacement, the system won’t find GRUB on the real boot disk and will report "No bootable device found".</div>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+      <div class="mt-2 text-sm text-slate-700">Assuming device names did not change. Always verify with lsblk and use stable identifiers like device names or verify by UUID in grub.cfg.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">When in doubt, inspect /boot and /boot/grub/grub.cfg in the mounted root before reinstalling. Back up grub.cfg first.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

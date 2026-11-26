@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.step{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px;padding:14px}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <div class="text-xl font-semibold text-slate-800">LUKS workflow</div>
+
+      <div class="grid grid-cols-3 gap-3 mt-3 flex-1">
+        <div class="step">
+          <div class="font-semibold text-slate-800">1. Prepare device</div>
+          <div class="text-sm text-slate-600 mt-2">Ensure the device is the correct target and is unmounted. This will overwrite existing data.</div>
+        </div>
+        <div class="step">
+          <div class="font-semibold text-slate-800">2. Format with LUKS</div>
+          <div class="text-sm text-slate-600 mt-2">Run cryptsetup luksFormat /dev/device and choose a strong passphrase.</div>
+        </div>
+        <div class="step">
+          <div class="font-semibold text-slate-800">3. Backup header</div>
+          <div class="text-sm text-slate-600 mt-2">Immediately run luksHeaderBackup to an off-device location.</div>
+        </div>
+        <div class="step">
+          <div class="font-semibold text-slate-800">4. Open mapping</div>
+          <div class="text-sm text-slate-600 mt-2">cryptsetup luksOpen creates /dev/mapper/name for formatting.</div>
+        </div>
+        <div class="step">
+          <div class="font-semibold text-slate-800">5. Format mapped device</div>
+          <div class="text-sm text-slate-600 mt-2">mkfs.ext4 /dev/mapper/name then mount as usual.</div>
+        </div>
+        <div class="step">
+          <div class="font-semibold text-slate-800">6. Close mapping</div>
+          <div class="text-sm text-slate-600 mt-2">umount then cryptsetup luksClose to remove mapping.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Command snapshot</div>
+        <pre class="mt-2"><code>sudo cryptsetup luksFormat /dev/sdb
+sudo cryptsetup luksHeaderBackup /dev/sdb --header-backup-file /root/sdb_header.img
+sudo cryptsetup luksOpen /dev/sdb mydisk
+sudo mkfs.ext4 /dev/mapper/mydisk
+sudo mount /dev/mapper/mydisk /mnt/secure
+# close when done
+sudo umount /mnt/secure
+sudo cryptsetup luksClose mydisk</code></pre>
+      </div>
+      <div class="card p-3 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Not backing up the LUKS header or storing keyfiles on the encrypted device will make recovery impossible.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Follow the full workflow and test recovery immediately after creating backups.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

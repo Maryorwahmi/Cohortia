@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;font-size:13px;background:#f8fafc;padding:10px;border-radius:10px;border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Containerization</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="bg-white p-4 rounded-2xl safe-border h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Dockerfile example</h3>
+        <div class="mt-3 mono"># Example Dockerfile for a Node.js application
+FROM node:16-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]</div>
+        <div class="mt-4 text-sm text-slate-700">This sequence installs dependencies separately to leverage build cache, then copies source and defines the default command. Smaller base images and multi-stage builds reduce final image size.</div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full">
+      <div class="bg-white p-4 rounded-2xl safe-border h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical notes</div>
+        <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+          <li>Use multi-stage builds to remove build-time dependencies from final images.</li>
+          <li>Scan images for vulnerabilities and minimize layers for faster pulls.</li>
+          <li>Push images to ECR and reference them in task definitions or manifests.</li>
+        </ul>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Containers give runtime control and portability. Optimize image size and scan for security before deployment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

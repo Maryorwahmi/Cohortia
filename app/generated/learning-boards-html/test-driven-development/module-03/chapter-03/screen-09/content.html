@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{ background:#f8fafc; } pre.code{ background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;font-size:13px;white-space:pre-wrap;tab-size:2; } </style>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-800">Mocking an Audit Logger</div>
+    <div class="text-sm text-slate-600 mt-1">Starter test file to complete and run</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div>
+        <pre class="code">import unittest
+from unittest.mock import MagicMock
+from transaction_processor import TransactionProcessor, AuditLogger
+
+class TestTransactionProcessor(unittest.TestCase):
+    def setUp(self):
+        self.mock_logger = MagicMock(spec=AuditLogger)
+        self.processor = TransactionProcessor(self.mock_logger)
+
+    def test_successful_payment_logs_completed_status(self):
+        transaction_id = "TXN123"
+        amount = 100.0
+        user_id = 456
+
+        result = self.processor.process_payment(transaction_id, amount, user_id)
+
+        # Assert the return value and the logger call
+        # TODO: replace with proper assertions
+        pass
+
+    def test_invalid_amount_payment_logs_failed_status(self):
+        transaction_id = "TXN456"
+        amount = 0.0
+        user_id = 789
+
+        result = self.processor.process_payment(transaction_id, amount, user_id)
+
+        # TODO: assert the logger was called with FAILED_INVALID_AMOUNT and result is False
+        pass</pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hints</div>
+        <ul class="mt-2 text-sm text-slate-700 ml-4 list-disc">
+          <li>For success, assert log_transaction called once with status "COMPLETED" and result is True.</li>
+          <li>For invalid amount, assert log_transaction called once with status "FAILED_INVALID_AMOUNT" and result is False.</li>
+          <li>Use spec=AuditLogger so misuse of API surfaces as test errors.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Mock the audit logger to assert that important audit events are recorded without writing to real logs or databases in unit tests.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

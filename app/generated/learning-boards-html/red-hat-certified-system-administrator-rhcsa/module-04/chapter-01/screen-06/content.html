@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on nmcli: configure a static IP</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Starter checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Identify interface with ip addr show.</li>
+        <li>Remove or disable conflicting default connection names.</li>
+        <li>Add a named static profile and set method to manual.</li>
+        <li>Bring the profile up and verify with ping and ip commands.</li>
+      </ul>
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Lab commands (visual only)</div>
+      <pre class="mt-2 bg-slate-900 text-slate-100 rounded-md p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace;">
+# Identify interface
+ip addr show
+
+# (Optional) Delete a default connection
+sudo nmcli connection delete "System enp0s3"
+
+# Add static profile - example values
+sudo nmcli connection add type ethernet con-name my-static-eth0 ifname enp0s3 ip4 192.168.1.100/24 gw4 192.168.1.1 dns "8.8.8.8 8.8.4.4"
+sudo nmcli connection modify my-static-eth0 ipv4.method manual
+sudo nmcli connection up my-static-eth0
+
+# Verify
+ip addr show enp0s3
+ping -c 3 8.8.8.8
+ping -c 3 google.com
+      </pre>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-5 border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation and traps</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Deleting a default connection avoids naming collisions when adding a new profile with the same interface.</li>
+        <li>Setting ipv4.method to manual is essential; otherwise NetworkManager may keep using DHCP.</li>
+        <li>Confirm both IP-level reachability and DNS resolution; they test different parts of the network stack.</li>
+      </ul>
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete scenario</div>
+        <div class="text-xs text-slate-800 mt-1">You set a static IP for a backup server so nightly backups always target the same address. Verify connections on completion.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

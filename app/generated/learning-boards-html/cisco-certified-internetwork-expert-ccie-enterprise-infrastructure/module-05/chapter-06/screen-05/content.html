@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}
+    pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">FIFO</div>
+      <div class="text-lg font-bold text-slate-900">First-In, First-Out</div>
+      <div class="text-sm text-slate-600 mt-3">Packets forwarded in arrival order. When queues fill, new packets are dropped until space frees.</div>
+      <ul class="mt-4 space-y-2 text-sm text-slate-700">
+        <li>• Simple to implement and low processing cost.</li>
+        <li>• Poor for mixed workloads; can starve real-time traffic.</li>
+        <li>• Tail drop may cause bursty retransmits in TCP flows.</li>
+      </ul>
+      <div class="mt-4 p-3 bg-rose-50 rounded text-sm">Analogy: a single checkout line where one slow customer delays everyone.</div>
+    </div>
+
+    <div class="w-1/2 p-4 flex flex-col">
+      <div class="card p-3 flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">WFQ</div>
+        <div class="text-lg font-bold text-slate-900">Weighted Fair Queuing</div>
+        <div class="text-sm text-slate-600 mt-2">Identifies flows and gives each its own queue, then services queues in a weighted round-robin. Weights can reflect DSCP or IP Precedence.</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>• Prevents a single flow from monopolizing the link.</li>
+          <li>• Provides proportional fairness, not strict bandwidth guarantees.</li>
+          <li>• Works automatically without manual classes.</li>
+        </ul>
+        <div class="mt-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">WFQ is a good default for mixed TCP-dominated flows, but if voice needs absolute protection, move to CBWFQ + LLQ.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

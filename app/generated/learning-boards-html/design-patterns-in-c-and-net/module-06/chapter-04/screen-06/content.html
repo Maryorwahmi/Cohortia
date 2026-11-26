@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Testing the Decorator Pattern</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Decorator example (reference)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-xl p-4 text-sm font-mono" style="white-space:pre-wrap; tab-size:2;">public class LoggingNotifierDecorator : INotifier
+{
+  private readonly INotifier _wrappedNotifier;
+  private readonly ILogger _logger;
+
+  public LoggingNotifierDecorator(INotifier wrappedNotifier, ILogger logger)
+  {
+    _wrappedNotifier = wrappedNotifier;
+    _logger = logger;
+  }
+
+  public void Send(string message)
+  {
+    _logger.LogInfo($"Before sending: {message}");
+    _wrappedNotifier.Send(message);
+    _logger.LogInfo($"After sending: {message}");
+  }
+}
+</pre>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-3">
+        <div class="text-sm font-semibold text-slate-800">Test structure</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>Arrange: Create mocks for INotifier and ILogger, then construct the decorator with those mocks.</li>
+          <li>Act: Call Send on the decorator with a test message.</li>
+          <li>Assert: Verify ILogger.LogInfo called twice and INotifier.Send called once with the message.</li>
+        </ul>
+      </div>
+
+      <div class="bg-rose-50 rounded-xl border border-[rgba(226,232,240,0.9)] p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Using real loggers or real notifiers in unit tests converts them into integration tests and obscures interaction details.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Mock collaborators and assert both added behavior and delegation to the wrapped component to keep tests precise.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

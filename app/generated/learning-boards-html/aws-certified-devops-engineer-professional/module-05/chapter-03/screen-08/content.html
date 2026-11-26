@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Remediation Targets</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Choose the right target for remediation</h3>
+      <p class="text-sm text-slate-700 mt-3">Match target complexity to the remediation need and design handlers to be safe to rerun.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-emerald-700">Lambda</div>
+          <div class="mt-1 text-sm text-slate-800">Short-lived handlers for inspection and immediate fixes, such as attempting to restart an EC2 instance and logging details.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-violet-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-violet-700">Step Functions</div>
+          <div class="mt-1 text-sm text-slate-800">Orchestrate multi-step remediation: isolate, collect forensic data, patch, and validate. Good for conditional workflows and retries.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-amber-700">SNS & SQS</div>
+          <div class="mt-1 text-sm text-slate-800">SNS for notifications to ops, SQS for buffering and decoupling processing when you need durability or rate control.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm text-slate-700">Design constraint: idempotency. Ensure your target actions can be repeated without harmful side effects because events may be retried or delivered more than once.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-lg p-4 bg-white border border-[rgba(226,232,240,0.9)] flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Scenario</div>
+        <div class="text-sm text-slate-800 mt-2">EC2 instance stops unexpectedly. Option A: Lambda checks health and restarts. Option B: Step Functions capture logs, snapshot volumes, notify team, then decide to restart.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Safety checklist</div>
+            <ul class="text-sm text-slate-700 mt-2 list-disc pl-4 space-y-1">
+              <li>Make actions idempotent.</li>
+              <li>Log inputs and outputs for audit.</li>
+              <li>Keep retries and backoff in mind.</li>
+              <li>Buffer noisy events with SQS if needed.</li>
+            </ul>
+          </div>
+
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Start with the simplest target that meets your SLA; move to orchestration for multi-step or conditional remediation while ensuring idempotency.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">MVCC Internals</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="flex-1 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Row versioning and visibility</h3>
+      <p class="text-sm text-slate-600 mt-3">PostgreSQL keeps multiple versions of a row. Each version is annotated with xmin and xmax transaction IDs to control visibility to transactions.</p>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="font-semibold text-slate-800">xmin</div>
+          <div class="text-sm text-slate-600 mt-1">Transaction ID that inserted this version; it identifies when the version became visible.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="font-semibold text-slate-800">xmax</div>
+          <div class="text-sm text-slate-600 mt-1">Transaction ID that deleted or superseded the version; if set, visibility may end for later transactions.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+          <div class="font-semibold text-slate-800">Snapshot</div>
+          <div class="text-sm text-slate-600 mt-1">A transaction's view is determined by which transaction IDs it considers visible at its start.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-96 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Maintenance</div>
+      <h4 class="text-lg font-semibold text-slate-800 mt-2">VACUUM</h4>
+      <div class="text-sm text-slate-600 mt-3">VACUUM removes row versions that are no longer visible to any active transaction. Without it, storage grows indefinitely because old versions are retained for snapshot isolation.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="font-semibold text-slate-800">Practical example</div>
+        <div class="text-sm text-slate-700 mt-1">T1 starts and sees row V1. T2 updates row creating V2 and commits. T1 still sees V1 until it finishes. VACUUM later cleans V1 if no transactions need it.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-slate-50 border">
+        <div class="font-semibold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">MVCC prevents readers from blocking writers but does not replace explicit locking when you require exclusive modification ordering.</div>
+      </div>
+    </div>
+  </div>
+</div>

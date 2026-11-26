@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Data Fetching</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl p-4 bg-white border border-gray-100 shadow-sm">
+      <div class="text-sm font-semibold text-slate-900 mb-2">Fetch pattern (excerpt)</div>
+      <pre class="mono text-sm p-3 rounded-md bg-slate-50 border" style="white-space:pre-wrap;tab-size:2;"><code>const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() =&gt; {
+  let mounted = true;
+  const fetchData = async () =&gt; {
+    try {
+      const resp = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+      const json = await resp.json();
+      if (mounted) setData(json);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      if (mounted) setLoading(false);
+    }
+  };
+  fetchData();
+  return () =&gt; { mounted = false; };
+}, []);</code></pre>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white border border-gray-100 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-900 mb-2">UI states</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700">
+        <li>Show loading indicator while loading is true.</li>
+        <li>Show data when available; show an error message when fetch fails.</li>
+        <li>Guard state updates if the component unmounts before fetch completes.</li>
+      </ul>
+    </div>
+
+    <div class="col-span-2 rounded-xl p-4 bg-white border border-gray-100 shadow-sm">
+      <div class="text-sm font-semibold text-slate-900 mb-2">Concrete example output</div>
+      <div class="text-sm text-slate-700">Fetched Data: use the json response's title or id to render a summary. This gives a predictable user experience during asynchronous loads.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

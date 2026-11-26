@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">systemd timers</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-semibold uppercase text-slate-500">Service unit example</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+[Unit]
+Description=My daily backup service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup.sh
+User=backupuser
+WorkingDirectory=/home/backupuser
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">Type oneshot signals a task that runs to completion and exits. Use User to avoid running as root when unnecessary.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-semibold uppercase text-slate-500">Timer unit example</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3 text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+[Unit]
+Description=Runs my daily backup script
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">OnCalendar provides flexible calendar-style schedules. Persistent=true ensures missed runs are executed after boot.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-slate-50 p-4 card-border shadow-sm">
+    <div class="text-sm font-semibold text-slate-800">Practical notes</div>
+    <ul class="mt-2 text-sm text-slate-600 list-disc list-inside space-y-2">
+      <li>Place both files in /etc/systemd/system/ and run systemctl daemon-reload.</li>
+      <li>Enable and start the timer with systemctl enable --now name.timer.</li>
+      <li>Inspect timers with systemctl list-timers and logs with journalctl -u name.service.</li>
+    </ul>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

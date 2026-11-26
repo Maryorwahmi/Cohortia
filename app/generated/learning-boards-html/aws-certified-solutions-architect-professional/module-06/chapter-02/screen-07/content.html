@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">SAML 2.0 flow (human users)</div>
+        <div class="text-sm text-slate-600 mt-2">IdP authenticates user → IdP issues signed SAML assertion → AWS STS exchanges SAML for temporary credentials mapped to a role.</div>
+
+        <div class="mt-3">
+          <div class="text-xs font-semibold text-slate-700">Trust policy example (SAML)</div>
+          <pre class="bg-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::ACCOUNT_ID:saml-provider/YOUR_SAML_PROVIDER_NAME"
+      },
+      "Action": "sts:AssumeRoleWithSAML",
+      "Condition": {
+        "StringEquals": {
+          "SAML:aud": "https://signin.aws.amazon.com/saml"
+        }
+      }
+    }
+  ]
+}
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Practical checks</div>
+        <ul class="text-sm text-slate-600 list-disc pl-4 mt-2">
+          <li>Ensure the assertion is signed and audience matches AWS SAML endpoint.</li>
+          <li>Map SAML attributes to roles and limit role permissions to minimum required.</li>
+          <li>Enforce IdP-side policies like MFA or conditional access for stronger assurance.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">SAML centralizes authentication; AWS still enforces permissions through the IAM role attached to the SAML trust.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

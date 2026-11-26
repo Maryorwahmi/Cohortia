@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">SSE-KMS CLI Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card rounded-2xl p-5 border shadow-sm overflow-hidden">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Commands</div>
+      <pre class="rounded-md bg-slate-50 p-4 text-sm"><code>aws kms create-key --description "KMS key for S3 bucket encryption"
+# Note the KeyId or Arn
+
+aws kms create-alias --alias-name alias/MyS3EncryptionKey --target-key-id YOUR_KMS_KEY_ID
+
+aws s3api put-bucket-encryption \
+  --bucket my-kms-encrypted-data-unique-name-123 \
+  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"arn:aws:kms:YOUR_REGION:YOUR_ACCOUNT_ID:key/YOUR_KMS_KEY_ID"}}]}'
+
+# Upload a file
+echo "This is sensitive data." &gt; sensitive.txt
+aws s3 cp sensitive.txt s3://my-kms-encrypted-data-unique-name-123/sensitive.txt
+
+# Verify object encryption using the console or object metadata
+</code></pre>
+    </div>
+
+    <div class="w-1/2 card rounded-2xl p-5 border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Explanation & checks</div>
+      <ul class="text-sm text-slate-600 list-inside space-y-2">
+        <li>Ensure the CMK key policy allows principals or the S3 service to use the key for GenerateDataKey and Decrypt.</li>
+        <li>After upload, check object metadata for x-amz-server-side-encryption: aws:kms and the KMS key id.</li>
+        <li>Use CloudTrail to see KMS:GenerateDataKey and kms:Decrypt events for audit trails.</li>
+      </ul>
+
+      <div class="mt-4 text-sm bg-emerald-50 p-3 rounded-lg border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">SSE-KMS combines managed encryption with customer control and auditability—validate both encryption metadata and key policies.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

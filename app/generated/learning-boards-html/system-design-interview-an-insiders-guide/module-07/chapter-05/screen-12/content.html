@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">JWT Validation & Storage</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col justify-between">
+      <div>
+        <div class="text-xl font-bold text-slate-800">Where to validate</div>
+        <div class="text-sm text-slate-600 mt-2">Validate at an API gateway or resource server. Reject tokens with invalid signatures, wrong issuer, audience, or expired timestamps.</div>
+
+        <div class="mt-4 rounded-xl bg-white p-4 card-border">
+          <div class="text-sm font-bold text-slate-800">Validation checklist</div>
+          <ul class="mt-2 text-sm text-slate-600 space-y-1">
+            <li>Check signature matches expected algorithm and key.</li>
+            <li>Verify exp and nbf claims.</li>
+            <li>Confirm iss and aud refer to expected values.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Storing refresh tokens in local storage exposes them to XSS. Prefer secure HTTP-only cookies or server-side storage.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-grow">
+        <div class="text-sm font-bold text-slate-800">Revocation strategy</div>
+        <div class="text-sm text-slate-600 mt-3">Since JWTs are stateless, immediate revocation is hard. Use short-lived access tokens, secure refresh tokens, and a revocation list for tokens that must be invalidated immediately. Store the blacklist in a fast cache checked by the gateway.</div>
+
+        <div class="mt-4 text-sm text-slate-600">
+          <div class="font-bold">Concrete scenario:</div>
+          <div class="mt-2">If an account is compromised, add the token's identifier to a revocation list in Redis. The gateway checks this list on each request; if present, the request is rejected even if the JWT is otherwise valid.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Combine validation, short expirations, and secure refresh token storage. Introduce a revocation list when immediate invalidation is required.</p>
+      </div>
+    </div>
+  </div>
+</div>

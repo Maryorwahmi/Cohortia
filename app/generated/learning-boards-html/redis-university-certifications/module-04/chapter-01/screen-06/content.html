@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>redis-py Example</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Python starter (read-only example)</div>
+      <pre class='mt-3 bg-slate-900 text-slate-100 p-3 rounded-md text-sm' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>import redis
+
+try:
+    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    r.ping()
+    print('Connected to Redis!')
+
+    r.set('mykey', 'Hello Cohortia!')
+    value = r.get('mykey')
+    print(f"Value for 'mykey': {value}")
+
+except redis.exceptions.ConnectionError as e:
+    print(f'Could not connect to Redis: {e}')
+except Exception as e:
+    print(f'An unexpected error occurred: {e}')
+</pre>
+      <div class='mt-3 text-xs text-slate-600'>Note: decode_responses=True ensures the client returns native strings instead of byte strings.</div>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Pool awareness and tips</div>
+      <ul class='mt-3 space-y-2 text-sm text-slate-600'>
+        <li>redis-py uses a ConnectionPool by default for each Redis instance.</li>
+        <li>You can explicitly create a ConnectionPool to share among clients or tune max_connections.</li>
+        <li>During shutdown, allow the pool to release sockets or call disconnect on the pool to close resources.</li>
+      </ul>
+
+      <div class='mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-100'>
+        <div class='text-xs font-bold text-emerald-700'>Concrete takeaway</div>
+        <div class='text-sm text-slate-800 mt-2'>Instantiate Redis with decode_responses when you want strings, and rely on the built-in pool unless you need custom sizing.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

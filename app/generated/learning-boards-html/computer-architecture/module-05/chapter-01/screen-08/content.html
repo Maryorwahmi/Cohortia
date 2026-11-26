@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center justify-between mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+    <div class="text-xs text-slate-500">2‑way in‑order timing</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Instruction sequence</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+ADD R1, R2, R3
+SUB R4, R1, R5
+ADD R6, R7, R8
+LW  R9, 0(R6)
+BEQ R1, R2, label
+ADD R10, R11, R12
+label: SUB R13, R14, R15
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">This block is the same sequence used in the chapter activity. We'll build a cycle table to show issue slots and stalls.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Simplified timing table (conceptual)</div>
+      <div class="mt-3 grid grid-cols-1 gap-2 flex-1 overflow-auto">
+        <div class="rounded-lg bg-slate-50 p-3 border border-slate-100 text-xs">
+          <div class="font-semibold text-slate-800">Cycle 1</div>
+          <div class="text-slate-600">Issue: ADD (slot A), SUB cannot issue because it reads R1 produced by ADD (RAW). Slot B idle or filled with a later independent instruction if available.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3 border border-slate-100 text-xs">
+          <div class="font-semibold text-slate-800">Cycle 2+</div>
+          <div class="text-slate-600">ADD moves through pipeline stages; SUB can issue once operand is forwarded and unit available. LW may introduce long latency, blocking later in‑order instructions.</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-3 border border-slate-100 text-xs">
+          <div class="font-semibold text-slate-800">Takeaway</div>
+          <div class="text-slate-600">Count empty slots to compute effective IPC. In many realistic sequences, the average IPC falls well below 2 even on a 2‑way core.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

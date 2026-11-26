@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="h-full grid grid-cols-2 gap-4">
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Inspect and renew DHCP leases</h3>
+      <p class="text-sm text-slate-700 mt-2">Run the appropriate command for the OS, read the lease details, and if necessary force a release and renew to observe errors and timeouts.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Windows example</div>
+        <pre class="bg-slate-50 p-3 rounded-md">C:\&gt; ipconfig /all
+Ethernet adapter Wi-Fi:
+   DHCP Enabled . . . . . . . . : Yes
+   Autoconfiguration Enabled . . : Yes
+   IPv4 Address. . . . . . . . . : 169.254.23.18(Preferred)
+   Default Gateway . . . . . . . : 
+
+C:\&gt; ipconfig /renew
+Windows IP Configuration
+   An error occurred while renewing interface Wi-Fi: The operation timed out.</pre>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-bold">Interpretation</div>
+        <div class="text-sm text-slate-700 mt-1">The APIPA address and renew timeout confirm DHCP did not complete. Next steps: check DHCP server reachability, relay configuration, and UDP port access.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Linux/macOS example</div>
+      <pre class="bg-slate-50 p-3 rounded-md">$ ip a
+3: wlp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500
+    inet 192.168.1.45/24 brd 192.168.1.255 scope global dynamic wlp2s0
+
+$ ip route
+default via 192.168.1.1 dev wlp2s0 proto dhcp metric 600</pre>
+
+      <div class="mt-3 text-sm text-slate-700">If ip a shows an address and no default route appears in ip route, there may be a gateway misconfiguration. Confirm that the gateway IP is in the same subnet and reachable with ping.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your assumption</div>
+          <p class="text-sm text-slate-800">Do not assume a displayed IP is sufficient; confirm mask and gateway to ensure proper routing beyond the local segment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

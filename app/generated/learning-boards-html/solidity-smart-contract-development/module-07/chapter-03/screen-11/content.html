@@ -1,0 +1,67 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style> .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:white;} pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;} .note{background:#f8fafc;padding:10px;border-radius:8px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class='flex h-full gap-6'>
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500'>Step-by-step</div>
+      <div class='text-2xl font-bold text-slate-800 mt-2'>Counter contract and deploy script</div>
+      <div class='text-sm text-slate-600 mt-3'>Create the contract, write the script, compile, then run the CLI to deploy locally or to a testnet.</div>
+
+      <div class='mt-4'>
+        <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Counter.sol</div>
+        <div class='rounded-xl border border-var(--slate-border) p-3'>
+          <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract Counter {
+  uint public count;
+
+  constructor() {
+    count = 0;
+  }
+
+  function increment() public {
+    count++;
+  }
+
+  function decrement() public {
+    count--;
+  }
+}
+</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 panel p-5 flex flex-col'>
+      <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>deploy_counter.js</div>
+      <div class='rounded-xl border border-var(--slate-border) p-3'>
+        <pre><code>const { ethers } = require('hardhat');
+
+async function main() {
+  const Counter = await ethers.getContractFactory('Counter');
+  console.log('Deploying Counter contract...');
+  const counter = await Counter.deploy();
+  await counter.deployed();
+
+  console.log(`Counter contract deployed to: ${'${counter.address}'}`);
+  console.log(`Deployment transaction hash: ${'${counter.deployTransaction.hash}'}`);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+</code></pre>
+      </div>
+
+      <div class='mt-4 note'>
+        <div class='text-sm text-slate-700'>Run locally: npx hardhat run scripts/deploy_counter.js --network localhost. For Sepolia, ensure your wallet has test ETH and run with --network sepolia after configuring RPC and key.</div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>This activity ties compilation, script writing, CLI execution, and output recording into a single deploy cycle you can repeat and adapt.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,Menlo,monospace;} .label{font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#475569}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Sudoers Syntax</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Row format</div>
+        <pre class="code mt-3">user_spec  host_spec=(runas_spec)  tag_list:  command_spec
+
+# Example
+user_name  ALL=(ALL)  ALL</pre>
+        <div class="mt-3 text-sm text-slate-700">Elements: user or %group, host constraint, runas user or group, optional tags like NOPASSWD, and the allowed commands. Use absolute paths for commands.</div>
+      </div>
+
+      <div class="rounded-lg bg-white p-4 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example: safer use</div>
+        <pre class="code mt-2">Cmnd_Alias WEB_SERVICES = /usr/sbin/systemctl restart httpd, /usr/sbin/systemctl status httpd
+WEBADMINS ALL=(root) WEB_SERVICES</pre>
+        <div class="text-sm text-slate-600 mt-2">This grants only two commands to the WEBADMINS alias, improving readability and limiting scope.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-5 shadow-sm border border-slate-100 h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Runas specifics</div>
+        <p class="text-sm text-slate-700 mt-2">Runas allows specifying a user and optionally a group using (user:group). When omitted, commands run as root by default. For database maintenance, you may want commands to run as the postgres user.</p>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception check</div>
+          <p class="text-sm text-slate-700 mt-2">Never assume an entry applied system-wide. If the host field restricts a rule to a hostname, it will not apply elsewhere. Use host specifications intentionally.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

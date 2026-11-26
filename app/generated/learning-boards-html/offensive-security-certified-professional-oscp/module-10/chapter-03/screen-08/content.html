@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span><span>›</span><span>Chapter 10.3</span><span>›</span><span class="text-slate-700">Code Walkthrough</span></div><h1 class="text-3xl font-extrabold text-slate-900 mb-2">Practical Sandbox Detection in C++</h1><p class="text-md text-slate-700 mb-6">Querying system resources to identify a VM.</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto flex-grow" style="white-space: pre-wrap; tab-size: 2;"><pre><code>#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+
+    printf("Physical Memory: %lld MB
+", statex.ullTotalPhys / (1024 * 1024));
+    printf("Number of Processors: %d
+", sysInfo.dwNumberOfProcessors);
+
+    if (statex.ullTotalPhys / (1024 * 1024) &lt; 2048 || sysInfo.dwNumberOfProcessors &lt; 2) {
+        printf("Possible VM/Sandbox detected. Exiting or performing benign actions.
+");
+        // Exit or execute benign code path
+        return 0;
+    }
+
+    printf("Looks like a real system. Proceeding with malicious payload...
+");
+    // Execute actual malicious payload
+    return 0;
+}</code></pre></div></div><div class="w-1/2 flex flex-col gap-4"><div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4 flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Code Explanation</div><ul class="list-disc list-inside text-sm text-slate-800 space-y-2"><li><code>GlobalMemoryStatusEx</code>: Retrieves information about the system's physical and virtual memory. We use <code>ullTotalPhys</code> to get total physical RAM.</li><li><code>GetSystemInfo</code>: Provides details about the current system, including <code>dwNumberOfProcessors</code>.</li><li><strong>Conditional Logic:</strong> If total physical memory is less than 2GB (2048 MB) OR the number of processors is less than 2, it's flagged as a potential VM/Sandbox.</li><li><strong>Payload Behavior:</strong> The code then prints a message indicating detection and suggests exiting or performing benign actions. Otherwise, it proceeds with the 'malicious' payload.</li></ul></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-sm font-medium text-slate-800">Simple system resource checks like memory and CPU count are effective initial indicators for sandbox detection, allowing payloads to adapt their behavior to avoid analysis.</p></div><div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-4"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pro Tip</div><p class="text-sm font-medium text-slate-800">Combine multiple checks (e.g., registry keys, specific process names, user activity) for more robust sandbox detection, as sophisticated sandboxes can emulate basic resource configurations.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

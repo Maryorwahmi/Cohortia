@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">Verification steps</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Step sequence</div>
+      <ol class="mt-3 text-sm text-slate-600 space-y-2 list-decimal ml-5">
+        <li>Run show ospf neighbor on all routers and confirm Full state for expected adjacencies.</li>
+        <li>On stub routers, run show ospf database extensive to confirm Type 4 and 5 are absent.</li>
+        <li>On NSSA ASBR, confirm Type 7 LSAs exist for redistributed prefixes.</li>
+        <li>On ABRs, verify Type 7 to Type 5 translation and presence of Type 3 injected default routes into stub/TSA.</li>
+        <li>Check show route protocol ospf to validate routing table contents and default routes.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Troubleshooting tips</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>If adjacencies fail, confirm all routers in the area use the same area type.</li>
+        <li>If expected LSAs are missing, re-check export/import policies on the ASBR and ABR.</li>
+        <li>Use LSDB and route checks to isolate whether the issue is area-internal or inter-area.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Check</div>
+        <div class="text-sm text-slate-800 mt-1">After verification, document LSDB and route table snapshots so you can compare after future changes.</div>
+      </div>
+    </div>
+  </div>
+</div>

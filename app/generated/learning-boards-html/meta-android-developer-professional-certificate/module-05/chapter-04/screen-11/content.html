@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">TaskDetailFragmentTest</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Starter Code</div>
+      <pre class="rounded-md p-3 bg-slate-900 text-white text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+@RunWith(AndroidJUnit4::class)
+class TaskDetailFragmentTest {
+
+    @get:Rule
+    val activityRule = ActivityScenarioRule(TaskListActivity::class.java)
+
+    @Test
+    fun editTaskDetail_updatesAndDisplaysCorrectly() {
+        val originalTitle = "Task for Detail"
+        val originalDescription = "Original description"
+        val updatedDescription = "Updated description for task"
+
+        // Add a new task
+        onView(withId(R.id.editText_task_title)).perform(typeText(originalTitle), closeSoftKeyboard())
+        onView(withId(R.id.editText_task_description)).perform(typeText(originalDescription), closeSoftKeyboard())
+        onView(withId(R.id.button_add_task)).perform(click())
+
+        // Click on the added task to navigate to detail
+        onView(withId(R.id.recyclerView_tasks))
+            .perform(RecyclerViewActions.actionOnItem< TaskAdapter.TaskViewHolder >(hasDescendant(withText(originalTitle)), click()))
+
+        // Verify detail and edit
+        onView(withId(R.id.task_detail_title_edit_text)).check(matches(withText(originalTitle)))
+        onView(withId(R.id.task_detail_description_edit_text)).check(matches(withText(originalDescription)))
+
+        onView(withId(R.id.task_detail_description_edit_text))
+            .perform(clearText(), typeText(updatedDescription), closeSoftKeyboard())
+
+        onView(withId(R.id.button_save_task)).perform(click())
+
+        // Navigate back and verify updated description in list
+        Espresso.pressBack()
+        onView(withText(updatedDescription)).check(matches(isDisplayed()))
+    }
+}
+      </pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold text-slate-700">Teaching note</div>
+        <p class="text-sm text-slate-700 mt-1">This flow tests adding, navigating, editing, saving, and returning — a full end-to-end UI verification for the task detail scenario.</p>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Checklist</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Ensure test data is added before interacting with the RecyclerView.</li>
+        <li>Use hasDescendant(withText(...)) to find the item by its title.</li>
+        <li>Close the keyboard after typing and before clicking Save or navigation controls.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A well-structured end-to-end UI test verifies that changes made on a detail screen propagate back to the list screen as expected.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

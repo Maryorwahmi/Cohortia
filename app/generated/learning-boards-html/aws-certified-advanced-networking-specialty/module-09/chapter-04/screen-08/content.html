@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Script Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Main flow (excerpt)</div>
+      <pre class="text-sm p-3 bg-slate-50 rounded-md border mt-2" style="white-space: pre-wrap; tab-size: 2;">print(f"Creating VPC with CIDR: {vpc_cidr}")
+vpc_response = ec2.create_vpc(CidrBlock=vpc_cidr)
+vpc_id = vpc_response['Vpc']['VpcId']
+waiter = ec2.get_waiter('vpc_available')
+waiter.wait(VpcIds=[vpc_id])
+igw_response = ec2.create_internet_gateway()
+igw_id = igw_response['InternetGateway']['InternetGatewayId']
+ec2.attach_internet_gateway(VpcId=vpc_id, InternetGatewayId=igw_id)</pre>
+      <div class="mt-3 text-sm text-slate-600">The script prints progress for operator visibility and uses waiters to avoid racing dependent steps.</div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="rounded-xl bg-white p-3 card shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Cleanup note</div>
+        <div class="text-sm text-slate-700">Implement cleanup that deletes resources in reverse order and handles dependencies such as detaching the internet gateway and disassociating route tables.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 p-3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Scripts should include both create and destroy logic, and use waits and tags so each step completes cleanly and is discoverable later.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

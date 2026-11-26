@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style> .card{ border:1px solid rgba(226,232,240,0.9); border-radius:12px; padding:12px; background:white; } .mono{ font-family: ui-monospace, Menlo, monospace; font-size:13px; white-space:pre-wrap; tab-size:2; background:#0b122a0a; padding:8px; border-radius:8px; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Custom Resource Safety</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card">
+      <div class="text-sm font-bold text-slate-800">Idempotency rules</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+        <li>Detect existing resources and avoid duplicate creation.</li>
+        <li>Use stable identifiers so repeated calls converge to the same state.</li>
+        <li>Make delete handlers tolerant of partial or missing state.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="text-sm font-bold text-slate-800">Error handling</div>
+      <div class="mt-2 text-sm text-slate-600">Wrap logic in try-except blocks, log a clear status reason to CloudWatch, and ensure the handler sends a FAILED signal when necessary so CloudFormation receives meaningful feedback.</div>
+    </div>
+
+    <div class="card col-span-2">
+      <div class="text-sm font-bold text-slate-800">Concrete scenario</div>
+      <div class="mt-2 mono"># Lambda create handler must check for existing resource
+# If resource exists, return success with its identifier
+# On error, log and return a clear failure reason to CloudFormation
+</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Treat custom resource handlers as durable APIs: predictable, idempotent, and well-logged so rollbacks and retries are safe.</p>
+      </div>
+    </div>
+  </div>
+</div>

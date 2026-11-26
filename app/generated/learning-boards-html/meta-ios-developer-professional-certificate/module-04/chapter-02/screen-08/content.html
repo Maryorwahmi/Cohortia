@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo; font-size:13px;}</style>
+  <div class="h-full grid grid-cols-1 gap-4">
+    <div class="rounded-2xl bg-white p-4 card-border h-full overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Code walkthrough</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">GameManager</div>
+      <div class="text-sm text-slate-600 mt-3">A plain ObservableObject implementation you can use in the hands-on activity.</div>
+
+      <div class="mt-4 mono bg-slate-50 p-3 rounded-lg" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>import Combine
+
+class GameManager: ObservableObject {
+  @Published var currentScore: Int = 0
+  @Published var gameName: String = "My Awesome Game"
+
+  init(initialScore: Int = 0, name: String = "My Awesome Game") {
+    self.currentScore = initialScore
+    self.gameName = name
+    print("GameManager initialized for: \(gameName)")
+  }
+
+  deinit {
+    print("GameManager deinitialized for: \(gameName)")
+  }
+
+  func addScore(_ points: Int) {
+    currentScore += points
+    print("Score updated to: \(currentScore)")
+  }
+
+  func resetGame() {
+    currentScore = 0
+    print("Game reset.")
+  }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Example</div>
+          <div class="text-sm text-slate-800 mt-1">Create with @StateObject in ContentView and pass to children as @ObservedObject.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-800 mt-1">Don’t mix UI responsibilities into the manager; keep it testable and view-agnostic.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">A well-scoped ObservableObject simplifies state sharing and lifecycle control.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

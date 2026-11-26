@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Free List: Allocation and Reclamation</h3>
+    <p class="mt-1 text-sm text-slate-600">A queue or bitmap tracking unused physical registers; allocate at issue, free at commit.</p>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-bold text-slate-800">Allocation steps</div>
+      <ol class="mt-2 text-sm text-slate-600 list-decimal list-inside">
+        <li>Issue: request a free physical register for the destination.</li>
+        <li>RAT write: map the architectural destination to the allocated physical register.</li>
+        <li>Record old mapping: save the previous physical register to be freed on commit.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Freeing</div>
+        <p class="mt-2 text-sm text-slate-600">Commit: return the saved old physical register to the free list so it can be reused safely.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="p-4 rounded-xl border border-slate-100 bg-white">
+        <div class="text-sm font-bold text-slate-800">Sizing consideration</div>
+        <p class="mt-2 text-sm text-slate-600">Free-list depth must handle the number of in-flight register-allocating instructions. If empty, instruction issue stalls until commit frees resources.</p>
+      </div>
+
+      <div class="p-4 rounded-xl border border-slate-100 bg-rose-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common misconception</div>
+        <p class="mt-2 text-sm text-rose-700">Thinking the free list can be arbitrarily small because values are freed quickly; in practice speculative allocations can accumulate and exhaust the list.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A properly sized free list prevents stalls and must be coordinated with checkpointing to reclaim speculative registers on misprediction.</p>
+      </div>
+    </div>
+  </div>
+</div>

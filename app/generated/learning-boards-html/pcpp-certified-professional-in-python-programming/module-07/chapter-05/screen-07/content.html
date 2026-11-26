@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+    <div class="text-2xl font-bold text-slate-900">DictReader & DictWriter</div>
+    <div class="text-sm text-slate-600">Column-oriented IO for clearer, maintainable code.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Write with DictWriter</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">import csv
+
+data = [
+  {'Name':'Alice','City':'New York','Description':'A vibrant city, known for its culture.'},
+]
+fieldnames = ['Name','City','Description']
+with open('custom_data_dict.csv','w',newline='',encoding='utf-8') as file:
+  writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+  writer.writeheader()
+  writer.writerows(data)
+# custom_data_dict.csv created</pre>
+      <div class="mt-3 text-sm text-slate-600">writeheader writes the header row so others can read by name. Provide fieldnames to control column order.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-bold mb-2">Read with DictReader</div>
+      <pre class="mono text-sm bg-slate-50 p-3 rounded overflow-auto">with open('custom_data_dict.csv','r',newline='',encoding='utf-8') as file:
+  reader = csv.DictReader(file, delimiter=',')
+  for row in reader:
+    print(row['Name'], row['City'], row['Description'])</pre>
+      <div class="mt-3 text-sm text-slate-600">Accessing row['Name'] is clearer and safer than row[0]. If the file lacks headers, pass fieldnames to DictReader.</div>
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-800">Prefer DictReader/DictWriter for column-rich files to improve readability and reduce index errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

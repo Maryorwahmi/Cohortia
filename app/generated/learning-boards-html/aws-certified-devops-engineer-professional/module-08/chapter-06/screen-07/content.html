@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px}</style>
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Lambda-backed Config Rule</div>
+      <div class="text-sm text-slate-600 mb-3">The Lambda inspects the invoking event and returns COMPLIANT, NON_COMPLIANT, or NOT_APPLICABLE.</div>
+
+      <div class="text-sm font-semibold text-slate-700 mb-2">Example code (simplified)</div>
+      <div class="bg-slate-50 rounded-lg p-3 overflow-auto card-border">
+        <pre><code>import json
+
+def lambda_handler(event, context):
+  invoking_event = json.loads(event['invokingEvent'])
+  configuration_item = invoking_event['configurationItem']
+
+  resource_type = configuration_item['resourceType']
+  resource_id = configuration_item['resourceId']
+
+  if resource_type == "AWS::S3::Bucket":
+    tags = configuration_item.get('tags', {})
+    if tags.get('Environment') == 'Production':
+      if configuration_item['supplementaryConfiguration']['BucketVersioningConfiguration']['Status'] == 'Enabled':
+        compliance_type = 'COMPLIANT'
+      else:
+        compliance_type = 'NON_COMPLIANT'
+    else:
+      compliance_type = 'NOT_APPLICABLE'
+  else:
+    compliance_type = 'NOT_APPLICABLE'
+
+  return {'compliance_type': compliance_type, 'annotation': f"Resource {resource_id} is {compliance_type}"}</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Guidance</div>
+      <ul class="text-sm text-slate-600 list-disc pl-5 space-y-2 mb-3">
+        <li>Give the Lambda least privilege—read Config and resource metadata only.</li>
+        <li>Unit-test the handler with mocked invoking events for each state.</li>
+        <li>Keep evaluation separate from remediation for auditability.</li>
+      </ul>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Implement custom rules as safe evaluators and test them before enabling wide-scope evaluations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

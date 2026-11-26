@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.3</span>
+    <span>›</span>
+    <span class="text-slate-700">OpenTelemetry and Cloud Trace</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Architecture</div>
+      <h3 class="text-xl font-bold text-slate-900">How instrumentation reaches Cloud Trace</h3>
+      <p class="text-sm text-slate-700 mt-3">SDKs create spans and an exporter sends them to Cloud Trace. You configure a TracerProvider, exporter, and processors to control export behavior.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="p-3 bg-white rounded-lg border card-border">
+          <div class="text-sm font-bold">TracerProvider</div>
+          <div class="text-xs text-slate-600 mt-1">Registers instrumentation and resources like service name.</div>
+        </div>
+        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <div class="text-sm font-bold text-blue-700">Exporter</div>
+          <div class="text-xs text-slate-600 mt-1">Transforms and sends spans to Cloud Trace using your project credentials.</div>
+        </div>
+        <div class="p-3 bg-white rounded-lg border card-border">
+          <div class="text-sm font-bold">Instrumentation</div>
+          <div class="text-xs text-slate-600 mt-1">Automatic or manual; ensures spans are created for framework and library operations.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Concrete example</div>
+      <pre style="white-space:pre-wrap;tab-size:2" class="bg-slate-900 text-white rounded-lg p-3 text-sm overflow-auto"># Configure OpenTelemetry TracerProvider and Cloud Trace exporter
+resource = Resource.create({"service.name": "my-python-service"})
+provider = TracerProvider(resource=resource)
+cloud_trace_exporter = CloudTraceSpanExporter(project_id="YOUR_PROJECT_ID")
+provider.add_span_processor(SimpleSpanProcessor(cloud_trace_exporter))
+trace.set_tracer_provider(provider)
+</pre>
+      <div class="mt-4 text-xs text-slate-600">This setup creates a provider, attaches the Cloud Trace exporter, and registers it so spans flow to Cloud Trace.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900">Files and directives</h3>
+      <p class="text-sm text-slate-600 mt-2">nginx.conf holds global settings; server blocks define domains and behavior for each site.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">listen</div>
+          <div class="text-sm text-slate-600 mt-1">Bind address and port, e.g., listen 80; or listen [::]:80; for IPv6.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">server_name</div>
+          <div class="text-sm text-slate-600 mt-1">Domain names the block responds to; specificity avoids accidental matches.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">root & index</div>
+          <div class="text-sm text-slate-600 mt-1">Document root and default files like index.html. Use correct paths to avoid 404s.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example server block</div>
+      <pre class="mt-2 p-3 bg-slate-50 rounded-md overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace">server {
+    listen 80;
+    listen [::]:80;
+    server_name static.example.com www.static.example.com;
+    root /var/www/static.example.com/html;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    error_log /var/log/nginx/static.example.com_error.log;
+    access_log /var/log/nginx/static.example.com_access.log;
+}</pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconfiguration pitfall</div>
+          <p class="text-xs font-medium text-slate-800">Using incorrect root paths or misplacing files is the most common cause of site 404s; verify filesystem paths and permissions.</p>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Understand directive roles and always test with nginx -t before reloading to avoid service interruption.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.4</span>
+      <span>›</span>
+      <span class='text-slate-700'>Saga Pattern</span>
+    </div>
+  </div>
+
+  <div class='flex flex-col h-full card p-4'>
+    <div class='text-xs uppercase tracking-wider text-slate-500 mb-2'>Pattern</div>
+    <div class='text-lg font-bold text-slate-900 mb-2'>Saga: sequence + compensation</div>
+    <div class='text-sm text-slate-600 mb-4'>Sagas coordinate by events; each step commits locally and publishes an event for the next step. Failures trigger compensations.</div>
+
+    <div class='flex-1 flex flex-col justify-between'>
+      <div class='grid grid-cols-4 gap-3'>
+        <div class='p-3 rounded-lg bg-slate-50 text-sm text-slate-700'>1. OrderService: create OrderPending and publish OrderCreated.</div>
+        <div class='p-3 rounded-lg bg-slate-50 text-sm text-slate-700'>2. InventoryService: reserve stock and publish StockReserved.</div>
+        <div class='p-3 rounded-lg bg-slate-50 text-sm text-slate-700'>3. PaymentService: process payment and publish PaymentProcessed.</div>
+        <div class='p-3 rounded-lg bg-slate-50 text-sm text-slate-700'>4. OrderService: mark OrderConfirmed.</div>
+      </div>
+
+      <div class='mt-4 grid grid-cols-2 gap-4'>
+        <div class='p-3 rounded-lg bg-rose-50 border border-rose-100'>
+          <div class='text-xs font-bold uppercase text-rose-600'>Failure example</div>
+          <div class='text-sm text-rose-700 mt-1'>If payment fails, PaymentService emits PaymentFailed; InventoryService releases stock; OrderService marks order cancelled.</div>
+        </div>
+
+        <div class='p-3 rounded-lg bg-amber-50 border border-amber-100'>
+          <div class='text-xs font-bold uppercase text-amber-700'>Important constraint</div>
+          <div class='text-sm text-amber-800 mt-1'>Every step should be idempotent and publish clear events so retries and compensations are safe and observable.</div>
+        </div>
+      </div>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Sagas provide a practical way to manage distributed workflows by sequencing local transactions and defining compensations to recover from failures.</p>
+      </div>
+    </div>
+  </div>
+</div>

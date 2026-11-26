@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#fff}
+    .terminal{background:#0b1220;color:#dbeafe;border-radius:12px;padding:14px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
+    .label{font-size:10px;font-weight:700;letter-spacing:0.08em}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Show Commands</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h2 class="text-xl font-bold text-slate-900 mt-2">show — read device state</h2>
+      <p class="text-sm text-slate-700 mt-3">Show commands return a static snapshot of operational data and are used to confirm link status, error counters, routing, and protocol states before any corrective action.</p>
+
+      <div class="mt-4 flex-1">
+        <div class="text-sm font-semibold text-slate-800">Key examples</div>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+            <div class="font-semibold text-slate-800">show interfaces &lt;name&gt; extensive</div>
+            <div class="text-sm text-slate-600 mt-1">Detailed counters, link speed, duplex, and media info — essential for Layer 1/2 diagnosis.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+            <div class="font-semibold text-slate-800">show interfaces terse</div>
+            <div class="text-sm text-slate-600 mt-1">Concise status of all interfaces for a quick health check.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+            <div class="font-semibold text-slate-800">show route [prefix] | show bgp summary</div>
+            <div class="text-sm text-slate-600 mt-1">Inspect routing table entries and BGP peer states to troubleshoot Layer 3 reachability.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always verify device state with show before making changes. Snapshots reveal counters and states that explain symptoms.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm h-full flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Terminal examples</div>
+      <div class="mt-3 terminal h-full">
+        <pre class="m-0">user@router> show interfaces ge-0/0/0 extensive
+Physical interface: ge-0/0/0, Enabled, Physical link is Up
+  Link-level type: Ethernet, MTU: 1514
+  Input errors: 0, Output errors: 0
+  Last flapped: 2d 04:12:33
+
+user@router> show interfaces terse
+Interface               Admin Link Proto    Local                 Remote
+ge-0/0/0                up    up   inet     192.168.1.1/24
+ge-0/0/1                up    down
+
+user@router> show route 172.16.1.10
+inet.0: 10 destinations, 10 routes (10 active)
+172.16.1.0/24      *[OSPF/10] 00:01:23, metric 20
+  > to 192.168.2.1 via ge-0/0/1.0</pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">If the interface shows input errors incrementing, suspect a physical issue before blaming routing.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Misconception</div>
+          <div class="text-sm text-slate-600 mt-2">A successful ping does not prove proper device configuration; always confirm routes and interfaces with show commands.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

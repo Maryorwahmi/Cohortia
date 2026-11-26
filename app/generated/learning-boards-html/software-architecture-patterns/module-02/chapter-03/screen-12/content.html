@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Python Code Walkthrough</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-xl font-bold text-slate-800">Core and Plugins (code)</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-lg p-4" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+# Core System (Microkernel)
+class Microkernel:
+  def __init__(self):
+    self._plugins = {}
+    print("Microkernel initialized.")
+
+  def register_plugin(self, plugin_name, plugin_instance):
+    if not hasattr(plugin_instance, 'execute') or not callable(getattr(plugin_instance, 'execute')):
+      raise TypeError(f"Plugin '{plugin_name}' must have an 'execute' method.")
+    self._plugins[plugin_name] = plugin_instance
+    print(f"Plugin '{plugin_name}' registered.")
+
+  def get_plugin(self, plugin_name):
+    return self._plugins.get(plugin_name)
+
+  def run_command(self, command_name, *args, **kwargs):
+    plugin = self.get_plugin(command_name)
+    if plugin:
+      print(f"Core: Executing command '{command_name}' via plugin.")
+      return plugin.execute(*args, **kwargs)
+    else:
+      print(f"Core: Command '{command_name}' not found. No plugin registered for this command.")
+      return None
+
+# Example plugins omitted for brevity
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">This code demonstrates a small core that only manages registration and delegation; plugin implementations provide execute.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-600">Explanation & Example Output</div>
+      <div class="mt-4 grid gap-3 flex-1">
+        <div class="p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example run</div>
+          <div class="text-sm text-slate-800 mt-1">Register format_text and count_words plugins, then call run_command('format_text', sample_text). Core prints registration messages and delegates execution.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Misconception</div>
+          <div class="text-sm text-slate-600 mt-1">The core does not need to know plugin internals—only the interface and metadata for management.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Try this</div>
+          <div class="text-sm text-slate-600 mt-1">Add a summarizer plugin that implements execute(text) and register it without changing the core.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A minimal core delegates to plugins via a simple interface; this keeps the core stable while enabling features to grow independently.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

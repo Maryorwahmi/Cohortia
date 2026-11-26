@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Postfix Logs</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Subsystem mapping</h3>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><strong>postfix/smtpd</strong> — incoming SMTP sessions and command responses.</li>
+        <li><strong>postfix/qmgr</strong> — queue manager, enqueue and handoffs to delivery agents.</li>
+        <li><strong>postfix/smtp</strong> — outbound deliveries and remote SMTP responses.</li>
+        <li><strong>postfix/local / postfix/pipe</strong> — local delivery and external delivery agents like dovecot-lda.</li>
+      </ul>
+
+      <div class="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Commands & filters</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 border text-sm"><code>sudo journalctl -u postfix -n 50
+sudo journalctl -u postfix -f
+sudo journalctl -u postfix | grep "reject" | less
+sudo journalctl -u postfix | grep "<queue_id>"</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="rounded-lg bg-amber-50 p-3 mt-2">
+        <div class="text-sm text-slate-800">If you see a line with 'status=deferred' and a 450 response in postfix/smtp, the remote host returned a temporary error. Retry or investigate network/DNS reachability.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+        <div class="rounded-lg bg-rose-50 p-3 mt-2">
+          <div class="text-sm text-slate-800">Treating all 'reject' entries as permanent. Check the numeric SMTP code (4xx vs 5xx) — 4xx is temporary and often resolves, 5xx is permanent and needs content or routing fixes.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Match the Postfix subsystem to the observed symptom and use queue IDs to correlate across logs and mailq output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

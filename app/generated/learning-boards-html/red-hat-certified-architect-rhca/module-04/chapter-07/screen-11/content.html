@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">rsyslog TLS</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-1">
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-lg font-bold text-slate-800 mb-2">Client TLS snippet</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Liberation Mono', monospace;">
+# Configure TLS for sending logs
+$DefaultNetstreamDriverCAFile /etc/pki/tls/certs/ca.pem
+$DefaultNetstreamDriverCertFile /etc/pki/tls/certs/client-cert.pem
+$DefaultNetstreamDriverKeyFile /etc/pki/tls/private/client-key.pem
+$DefaultNetstreamDriver gtls
+$ActionSendStreamDriverMode 1
+$ActionSendStreamDriverAuthMode x509/name
+*.* @@(o)logserver.example.com:6514
+      </pre>
+      <div class="text-sm text-slate-600 mt-3">Ensure the server is configured to accept TLS and validate client certificates for mutual authentication when required.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm border card-border h-full">
+      <div class="text-lg font-bold text-slate-800 mb-2">Operational tips</div>
+      <ul class="text-sm text-slate-600 list-disc list-inside space-y-1">
+        <li>Protect private keys and limit file permissions.</li>
+        <li>Automate certificate rotation and monitoring.</li>
+        <li>Test forwarding with a manual logger message.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Performance & Mistakes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Best Practices</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Avoid heavy scans; paginate and trim</h3>
+      <p class="text-sm text-slate-600 mt-3">Never assume retrieving everything is free. Plan for bounded responses and iterative retrieval when sets or lists grow large.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-md p-3 bg-slate-50 card-border">
+          <div class="text-sm font-semibold text-slate-800">List pitfalls</div>
+          <div class="text-sm text-slate-600 mt-1">LRANGE 0 -1 can be dangerous on long lists. Use pagination and LTRIM to limit growth.</div>
+        </div>
+
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Set pitfalls</div>
+          <div class="text-sm text-slate-600 mt-1">SMEMBERS is convenient but can be heavy; prefer SSCAN for large sets and cursored processing.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">Design your system with predictable list sizes, iterative scans, and stored intermediate results for repeated queries.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Practical mitigations</div>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-md p-3 bg-emerald-50 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Trim & Paginate</div>
+          <div class="text-sm text-slate-700 mt-1">After LPUSH, run LTRIM to keep a fixed window, and use LRANGE with small ranges for pagination.</div>
+        </div>
+
+        <div class="rounded-md p-3 bg-violet-50 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Iterate</div>
+          <div class="text-sm text-slate-700 mt-1">Use SSCAN to iterate sets incrementally and avoid blocking the server with a single large SMEMBERS call.</div>
+        </div>
+
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Store results</div>
+          <div class="text-sm text-slate-700 mt-1">Use SUNIONSTORE or SINTERSTORE when you need to reuse computed set results often.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

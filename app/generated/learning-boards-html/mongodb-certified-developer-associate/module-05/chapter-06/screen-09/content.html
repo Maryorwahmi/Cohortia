@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">$merge Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pipeline excerpt</div>
+      <pre><code>db.sales.aggregate([
+  { $match: { date: { $gte: ISODate("2023-11-20T00:00:00Z") } } },
+  { $group: {
+      _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+      dailyRevenue: { $sum: { $multiply: ["$price", "$quantity"] } },
+      dailyItems: { $sum: "$quantity" }
+    }
+  },
+  { $merge: {
+      into: "dailySales",
+      on: "_id",
+      whenMatched: "merge",
+      whenNotMatched: "insert"
+    }
+  }
+])</code></pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes & pitfalls</div>
+      <ul class="list-disc ml-5 mt-3 text-sm text-slate-700">
+        <li>WhenMatched: merge overwrites colliding fields but preserves others.</li>
+        <li>If you need to replace entire documents, use replace as whenMatched.</li>
+        <li>Ensure match keys are indexed for performance.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">$merge supports safe, atomic incremental updates. Validate semantics on a staging collection before production runs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

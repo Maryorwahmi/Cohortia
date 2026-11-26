@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{border-color:rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Watch Hygiene</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 shadow-sm card">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Safe control flow</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600">
+        <li>WATCH keys you care about.</li>
+        <li>Read values and evaluate preconditions quickly.</li>
+        <li>If preconditions fail, call UNWATCH and exit or reset the pipeline.</li>
+        <li>If proceeding, call MULTI, queue commands, and call EXEC.</li>
+        <li>On abort or exception, reset the pipeline in a finally block to ensure fresh state.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-600">Using context managers that call reset on exit is a practical way to avoid leaving watches active. Keep the code between WATCH and EXEC minimal to lower the probability of concurrent modification and repeated retries.</div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-2">Forgetting UNWATCH or not resetting the pipeline after early returns increases aborts and contention.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-2">Use small randomized backoff before retrying to reduce contention in hot keys.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm card">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Try</div>
+        <div class="text-sm text-slate-800 mt-2">Wrap pipeline usage in a context manager to ensure reset is always called.</div>
+      </div>
+    </div>
+  </div>
+</div>

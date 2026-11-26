@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Sharding the Message Database</div>
+      <div class="text-sm text-slate-600 mt-1">Use chat_id as the primary shard key so conversation lookups are single-shard operations.</div>
+      <div class="mt-4 flex-1">
+        <div class="text-sm text-slate-700">• chat_id groups a conversation's messages on one shard, making history reads cheap and ordered.</div>
+        <div class="text-sm text-slate-700">• Pair chat_id with message_time as a clustering key to return recent messages quickly and in order.</div>
+        <div class="text-sm text-slate-700">• Example schema thought: partition by chat_id, cluster by message_time DESC, limit 50 returns latest messages from one shard.</div>
+        <div class="text-sm text-slate-700">• Misconception: sharding by message_id spreads writes but forces expensive cross-shard reads for history; avoid this for chat history queries.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Choose a sharding key that aligns with your query patterns; chat_id is optimal for per-conversation history reads.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card-border flex-1">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <pre class="mt-3 p-3 bg-white rounded-md text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+-- Retrieve latest 50 messages for a conversation
+SELECT * FROM messages
+WHERE chat_id = 'group_x'
+ORDER BY message_time DESC
+LIMIT 50;
+        </pre>
+        <div class="mt-3 text-xs text-slate-500">This query hits a single shard when chat_id is the partition key.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Mitigation</div>
+          <div class="text-sm text-slate-800 mt-1">For very hot chats, sub-partition by time or use a broadcast architecture to distribute load.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Warning</div>
+          <div class="text-sm text-slate-800 mt-1">A poor sharding key creates hotspots and expensive cross-shard queries.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

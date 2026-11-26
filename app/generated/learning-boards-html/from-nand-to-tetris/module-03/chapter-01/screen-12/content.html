@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Walkthrough: Tracing a Short Program</span>
+    </div>
+    <h3 class="text-xl font-bold mt-2 text-slate-800">A concrete fetch-execute trace</h3>
+    <p class="text-sm text-slate-600 mt-2">We will step through four instructions and record PC, A, D, and the ALU output at each stage.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[72%]">
+    <div class="bg-white rounded-2xl p-4 card-border overflow-y-hidden">
+      <div class="text-sm font-semibold text-slate-700 mb-3">Program (Hack assembly)</div>
+      <pre class="text-sm p-3 bg-slate-50 rounded-md text-slate-800" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+@5     // Load 5 into A register
+D=A    // Copy A to D register
+@6     // Load 6 into A register
+D=D+A  // Add A to D, store in D
+      </pre>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Trace summary</div>
+        <div class="text-sm text-slate-600 space-y-2">
+          <div><span class="font-semibold text-slate-700">Instruction 1 (@5)</span>: PC->fetch, decode as load-immediate, execute sets A=5, PC increments.</div>
+          <div><span class="font-semibold text-slate-700">Instruction 2 (D=A)</span>: D becomes 5 after execute, PC increments.</div>
+          <div><span class="font-semibold text-slate-700">Instruction 3 (@6)</span>: A becomes 6 after execute, PC increments.</div>
+          <div><span class="font-semibold text-slate-700">Instruction 4 (D=D+A)</span>: ALU computes 5+6=11 and stores result in D.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-3">State table (after each execute)</div>
+      <div class="text-sm text-slate-600 space-y-2">
+        <div><span class="font-semibold">After 1:</span> PC=1, A=5, D=unknown/0, ALU output=—</div>
+        <div><span class="font-semibold">After 2:</span> PC=2, A=5, D=5, ALU output=—</div>
+        <div><span class="font-semibold">After 3:</span> PC=3, A=6, D=5, ALU output=—</div>
+        <div><span class="font-semibold">After 4:</span> PC=4, A=6, D=11, ALU output=11</div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Tracing each fetch, decode, execute, and PC update shows exactly how instructions change CPU and memory state and builds intuitive understanding.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .code {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">FileLock & log_calls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Starter template</div>
+      <pre class="code text-sm bg-slate-50 p-3 rounded-md text-slate-800"><code>import functools
+import time
+from contextlib import contextmanager
+
+# log_calls decorator (brief)
+def log_calls(func):
+  @functools.wraps(func)
+  def wrapper(*args, **kwargs):
+    print(f"--- Calling {func.__name__} with args: {args}, kwargs: {kwargs} ---")
+    result = func(*args, **kwargs)
+    print(f"--- {func.__name__} returned: {result} ---")
+    return result
+  return wrapper
+
+# Class-based FileLock
+class FileLock:
+  def __init__(self, filename):
+    self.filename = filename
+  def __enter__(self):
+    print(f"Acquiring lock for {self.filename}")
+    return self
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    if exc_type:
+      print(f"An error occurred in file_lock: {exc_val}")
+    print(f"Releasing lock for {self.filename}")
+    return False
+
+@log_calls
+def write_temp(filename):
+  print(f"Performing operations on {filename}...")
+  time.sleep(0.05)
+  return 'done'
+
+with FileLock('my_data.txt') as lock:
+  write_temp(lock.filename)</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Run this demo and then raise an exception inside the with block to observe that release still runs and logs show the decorator output and lock messages in a clear sequence.</div>
+    </div>
+
+    <div class="w-2/5 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Expected printed sequence</div>
+      <div class="rounded-lg p-3 bg-slate-50 text-slate-800">Acquiring lock for my_data.txt<br/>--- Calling write_temp with args: ('my_data.txt',), kwargs: {} ---<br/>Performing operations on my_data.txt...<br/>--- write_temp returned: done ---<br/>Releasing lock for my_data.txt</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 mb-1">Check</div>
+        <div class="text-sm text-slate-700">Raise an error inside the with block and confirm that Releasing lock still prints and exceptions propagate unless suppressed.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

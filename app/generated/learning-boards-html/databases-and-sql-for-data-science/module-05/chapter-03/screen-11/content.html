@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .panel { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 1rem; }
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Update function</span>
+    </div>
+    <h3 class="text-xl font-bold">Implement update_user_email(username, new_email)</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="panel p-4 code">
+      <div class="text-sm">def update_user_email(username, new_email):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+
+        # Parameterized UPDATE - safe binding of values
+        update_sql = "UPDATE users SET email = ? WHERE username = ?;"
+        cursor.execute(update_sql, (new_email, username))
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            print(f"Successfully updated email for user '{username}'.")
+        else:
+            print(f"User '{username}' not found, no update performed.")
+
+    except sqlite3.Error as e:
+        print(f"Database error during update: {e}")
+    finally:
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if conn:
+            conn.close()</div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="panel p-3">
+        <div class="text-xs uppercase tracking-wider text-slate-700">Verification steps</div>
+        <div class="text-sm text-slate-600 mt-2">1. Print the user before update with a parameterized SELECT. 2. Run update_user_email for 'bob' to 'robert@example.com'. 3. Re-run the SELECT to confirm the change. 4. Try a malicious username and confirm no error and no unintended change.</div>
+      </div>
+      <div class="panel p-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Why check rowcount</div>
+        <div class="text-sm text-slate-600 mt-2">cursor.rowcount indicates whether an UPDATE matched any rows, providing clear feedback for logging or UI messages.</div>
+      </div>
+      <div class="panel p-3">
+        <div class="text-xs uppercase tracking-wider text-rose-600">Safety First!</div>
+        <div class="text-sm text-slate-600 mt-2">Treat all inputs as untrusted. Parameterized UPDATE prevents the username from being interpreted as SQL.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

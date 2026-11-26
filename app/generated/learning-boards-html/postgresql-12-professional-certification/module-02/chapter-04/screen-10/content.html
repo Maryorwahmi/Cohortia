@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">EXPLAIN and EXPLAIN ANALYZE</div>
+      <div class="text-sm text-slate-600 mt-3">Use EXPLAIN to see the planned operations. Use EXPLAIN ANALYZE to run the query and capture actual times and row counts.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border border-slate-100">
+        <pre style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:12px; margin:0;">-- Before creating index
+EXPLAIN ANALYZE
+SELECT * FROM customers WHERE email = 'email500@example.com';
+
+-- After creating index
+EXPLAIN ANALYZE
+SELECT * FROM customers WHERE email = 'email500@example.com';</pre>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-slate-800">What to inspect in a plan</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Operation type: Index Scan, Bitmap Index Scan, or Sequential Scan.</li>
+        <li>Estimated cost vs actual time and rows to detect planner misestimates.</li>
+        <li>Whether an explicit sort was avoided because the index supplied ordering.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 border border-amber-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common pitfall</div>
+        <div class="text-xs text-slate-800">The planner may choose Sequential Scan if an index is not selective or if estimates suggest a full scan is cheaper.</div>
+      </div>
+    </div>
+
+    <div class="col-span-2 mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Always compare EXPLAIN ANALYZE output before and after index changes; look for Index Scan and lower actual times to confirm benefits.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Command Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900 mb-2">Hex-encode and build NFT identifier</div>
+      <pre class="rounded-md bg-slate-900 text-slate-100 p-3 text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2;"><code># Example assignments
+NFT_ASSET_NAME_HEX="436f686f7274696147656e657369734e46542331"  # "CohortiaGenesisNFT#1"
+POLICY_ID=$(cat policyID)  # From Chapter 3.2
+NFT_FULL_ASSET="$POLICY_ID.$NFT_ASSET_NAME_HEX"
+
+echo "$NFT_FULL_ASSET"</code></pre>
+      <div class="mt-3 text-sm text-slate-800">Keep NFT_FULL_ASSET as the single source of truth used in both --mint and --tx-out. Validate the metadata 721 object keys match exactly.</div>
+    </div>
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example Check</div>
+      <div class="text-sm text-slate-800 mb-2">Open your metadata JSON and confirm the 721 object has a key equal to POLICY_ID and inside it a key equal to NFT_ASSET_NAME_HEX. If either differs, explorers won't link the metadata to the asset.</div>
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-800">Hex string copied with whitespace or newlines. Strip whitespace and use exact hex characters only.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800">One canonical NFT_FULL_ASSET variable prevents mismatches between the mint operation and metadata entries.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

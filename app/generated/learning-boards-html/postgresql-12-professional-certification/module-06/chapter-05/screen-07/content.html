@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">naptime & max_workers</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full">
+    <div class="text-lg font-bold text-slate-800">Frequency and parallelism</div>
+    <div class="text-sm text-slate-600 mt-2">Tune how often autovacuum wakes and how many workers can run at once.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">autovacuum_naptime</div>
+        <div class="text-sm text-slate-700 mt-2">Sleep time between autovacuum launcher checks. Default 1min. Shorten to detect work sooner, but test for CPU and IO impact.</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-xs"><code># postgresql.conf
+autovacuum_naptime = 30s</code></pre>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">autovacuum_max_workers</div>
+        <div class="text-sm text-slate-700 mt-2">Maximum concurrent autovacuum worker processes. Default 3. Increase for many busy tables, but monitor total resource use.</div>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-xs"><code># postgresql.conf
+autovacuum_max_workers = 5</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-amber-50 p-3 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Practical tip</div>
+      <div class="text-sm text-slate-700 mt-2">When only a few tables need more aggressive vacuuming, prefer per-table ALTER TABLE ... SET (...) rather than cluster-wide changes.</div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Tune frequency and workers together: more checks without capacity to process will still leave backlog; more workers without frequent checks delays detection.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#f8fafc;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">Security Groups</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Security Group example</div>
+      <div class="mono bg-slate-50 rounded-md p-3 text-sm h-full overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+MyWebServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: Enable HTTP/HTTPS and SSH access
+    VpcId: !Ref MyVPC
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 192.168.1.0/24
+    SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: WebServerSG
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 h-full">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Explanation</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 leading-relaxed">
+        <li>Security group rules shown allow HTTP/HTTPS from anywhere and restrict SSH to a CIDR range to reduce exposure.</li>
+        <li>SecurityGroupEgress typically allows all outbound; tighten this only when necessary for segmentation.</li>
+        <li>NACLs should be used when you need subnet-level stateless filtering; remember to define both allow and return rules.</li>
+      </ul>
+
+      <div class="mt-4 rounded-md p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common Mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Leaving SSH open to 0.0.0.0/0 in templates is a frequent security error. Prefer limited CIDR ranges or bastion patterns.</div>
+      </div>
+    </div>
+  </div>
+</div>

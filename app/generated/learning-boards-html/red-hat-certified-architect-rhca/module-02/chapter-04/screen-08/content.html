@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span class="text-slate-700">Passing Variables and set_fact</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm mono">
+      <h3 class="text-lg font-bold text-slate-900">Provisioning playbook (excerpt)</h3>
+      <pre class="text-sm mt-2 p-3 bg-white rounded border card-border" style="white-space:pre-wrap; tab-size:2;"><code>---
+- name: Provision a VM
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Simulate VM creation
+      ansible.builtin.debug:
+        msg: "Simulating VM provisioning for {{ vm_name }} with {{ vm_os }}"
+      register: vm_provision_result
+
+    - name: Output VM IP (simulated)
+      ansible.builtin.set_fact:
+        provisioned_vm_ip: "192.168.1.100"
+      when: vm_provision_result is success</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border shadow-sm mono">
+      <h3 class="text-lg font-bold text-slate-900">Configuration playbook (excerpt)</h3>
+      <pre class="text-sm mt-2 p-3 bg-white rounded border card-border" style="white-space:pre-wrap; tab-size:2;"><code>---
+- name: Configure the Provisioned VM
+  hosts: "{{ provisioned_vm_ip }}"
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Simulate Nginx install
+      ansible.builtin.debug:
+        msg: "Simulating Nginx installation on {{ inventory_hostname }}"</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-lg p-3 bg-emerald-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Best practice</div>
+      <div class="text-sm text-slate-800 mt-1">Return minimal, well-named facts to downstream jobs instead of entire objects.</div>
+    </div>
+    <div class="rounded-lg p-3 bg-rose-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+      <div class="text-sm text-slate-800 mt-1">Don't store transient values on CI runners; prefer Controller artifacts or extra_vars between templates.</div>
+    </div>
+    <div class="rounded-lg p-3 bg-blue-50">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Check</div>
+      <div class="text-sm text-slate-800 mt-1">Ensure provisioned variables are defined before configuration steps run to avoid broken playbooks.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

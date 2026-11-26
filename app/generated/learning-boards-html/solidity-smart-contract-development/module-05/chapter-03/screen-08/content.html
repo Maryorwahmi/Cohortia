@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .codebox{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700">hardhat.config.js example</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-900 mt-3">hardhat.config.js — example and explanation</div>
+    <div class="text-sm text-slate-600 mt-1">A small configuration that sets the compiler and networks.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white codebox p-4 shadow-sm overflow-auto">
+      <pre><code>// hardhat.config.js
+require("@nomicfoundation/hardhat-toolbox");
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: "0.8.19", // Specify the Solidity compiler version
+  networks: {
+    hardhat: {
+      // Configuration for the Hardhat Network (local development)
+      chainId: 31337, // Default Hardhat Network chain ID
+    },
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/YOUR_INFURA_API_KEY", // Example for Sepolia testnet
+      accounts: [process.env.PRIVATE_KEY] // Accounts for deployment
+    }
+  }
+};</code></pre>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white border p-4 shadow-sm">
+      <div class="font-semibold text-slate-900">Annotated highlights</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li><strong>require</strong> loads plugins that extend Hardhat with utilities.</li>
+        <li><strong>solidity</strong> selects the compiler version; keep it compatible with contract pragmas.</li>
+        <li><strong>networks</strong> lists deployment targets; use environment variables for secrets.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+        <div class="text-sm text-slate-800">Changing the compiler here automatically changes pragma lines in contracts. It does not. Verify compatibility explicitly in source files.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

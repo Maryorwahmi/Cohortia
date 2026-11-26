@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre { white-space: pre-wrap; tab-size:2; } .panel{border:1px solid rgba(226,232,240,0.9);border-radius:12px;background:#fff} </style>
+  <div class="mb-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">Best Practice</div>
+    <div class="text-2xl font-bold text-slate-900">Functions with arguments and exit codes</div>
+    <div class="text-sm text-slate-600 mt-1">Keep inputs local and communicate failures via exit status.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 panel p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Function template</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm"><code>report_errors() {
+  local file="$1"
+  if [ -z "$file" ] || [ ! -r "$file" ]; then
+    echo "Error: log file missing or unreadable" >&2
+    return 2
+  fi
+
+  local count
+  count=$(grep -i "ERROR" "$file" | wc -l)
+  echo "Total errors: $count"
+  grep -i "ERROR" "$file" | awk '{print $1, $2, $0}'
+}
+
+# Caller example
+# report_errors "/var/log/app.log" || echo "Report failed"</code></pre>
+    </div>
+
+    <div class="w-1/2 panel p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+        <li>Use local variables to avoid clobbering globals in the caller.</li>
+        <li>Return numeric codes for different failure modes to allow precise handling.</li>
+        <li>Write human-readable diagnostics to standard error so output streams remain machine-parseable.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Printing errors to standard output without returning a non-zero status makes automated callers misinterpret success.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

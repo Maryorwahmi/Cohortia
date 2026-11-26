@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Data Replication Strategies</span>
+  </div>
+  <div class="flex-grow flex gap-6">
+    <div class="w-1/2 flex flex-col justify-center">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Process Flow</div>
+      <div class="text-3xl font-bold text-slate-800 mb-3">Data Replication Strategies</div>
+      <div class="text-lg text-slate-600 mb-6">Ensuring availability and low RPO through continuous data copying.</div>
+      <div class="text-sm text-slate-700 space-y-3">
+        <p>Replication continuously copies data for high availability and low RPO.</p>
+        <p><strong>Database Replication:</strong> Multi-AZ for HA, cross-region replicas for DR.</p>
+        <p><strong>Object Storage Replication:</strong> S3 Cross-Region Replication (CRR) for durability across geographies.</p>
+        <p>Protects against failures and regional outages.</p>
+      </div>
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Benefit</div>
+          <p class="text-xs font-medium text-slate-800">Achieve near-zero data loss (RPO) and rapid failover capabilities by keeping data synchronized across locations.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col justify-center items-center bg-slate-50 rounded-xl p-4 border border-slate-200">
+      <div class="text-sm font-bold text-slate-700 mb-3">S3 Cross-Region Replication (CRR)</div>
+      <pre class="w-full h-full overflow-auto text-xs font-mono text-slate-800 bg-slate-800 text-white p-3 rounded-lg">
+<code class="whitespace-pre-wrap"># Simplified CloudFormation snippet for S3 CRR
+Resources:
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-source-bucket-prod
+      ReplicationConfiguration:
+        Role: !GetAtt ReplicationRole.Arn
+        Rules:
+          - Id: MyReplicationRule
+            Status: Enabled
+            Destination:
+              Bucket: !GetAtt DestinationBucket.Arn
+              StorageClass: STANDARD
+  DestinationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-destination-bucket-dr</code></pre>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-3">Automating object replication between buckets in different regions.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

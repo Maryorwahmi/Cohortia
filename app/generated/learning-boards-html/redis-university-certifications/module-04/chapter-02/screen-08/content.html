@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">WATCH & Optimistic Locking</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">transfer_funds example (Python)</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 overflow-auto"><code>import redis
+
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+user_balance_key = "user:101:balance"
+r.set(user_balance_key, 100)  # Initial balance
+
+def transfer_funds(from_user, to_user, amount):
+    with r.pipeline() as pipe:
+        while True:
+            try:
+                pipe.watch(from_user, to_user)
+                from_balance = int(pipe.get(from_user))
+                to_balance = int(pipe.get(to_user))
+
+                if from_balance < amount:
+                    pipe.unwatch()
+                    return False
+
+                pipe.multi()
+                pipe.set(from_user, from_balance - amount)
+                pipe.set(to_user, to_balance + amount)
+
+                results = pipe.execute()
+                if results is None:
+                    continue
+                else:
+                    return True
+            except redis.exceptions.WatchError:
+                continue
+            finally:
+                pipe.reset()</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">This code watches the two accounts, reads balances, and queues the updates inside MULTI. If another client modifies a watched key, execute aborts and the loop retries.</div>
+    </div>
+
+    <div class="w-1/3 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Retry logic</div>
+        <div class="text-sm text-slate-800 mt-2">Detect None or WatchError and retry with small delays to avoid busy-waiting.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Danger</div>
+        <div class="text-sm text-slate-800 mt-2">Long processing between WATCH and EXEC increases the chance of aborts. Keep the window minimal.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">Use WATCH for check-and-set patterns and always implement retry on abort.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,67 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.step{border-radius:12px;border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Request Accounts</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="step bg-white p-4 shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Process: Request flow</div>
+        <ol class="mt-3 list-decimal list-inside text-sm text-slate-600">
+          <li>Check for window.ethereum.</li>
+          <li>Present an explicit Connect Wallet control to the user.</li>
+          <li>On user action call window.ethereum.request({ method: 'eth_requestAccounts' }).</li>
+          <li>On success set accounts in state. On error show a helpful message.</li>
+        </ol>
+      </div>
+
+      <div class="step bg-white p-4 shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Example handling</div>
+        <pre class="mono bg-slate-50 p-3 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2">async function connectWallet() {
+  if (!window.ethereum) return; // prompt install
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    setAccounts(accounts);
+  } catch (err) {
+    // user denied or other error
+    console.error('Error connecting to MetaMask:', err);
+  }
+}</pre>
+      </div>
+
+      <div class="step bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-600">Triggering eth_requestAccounts automatically on page load. This should be user-initiated to respect browser behavior and user expectation.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="bg-white p-4 shadow-sm rounded-xl">
+        <div class="text-sm font-semibold text-slate-800">Concrete scenario</div>
+        <p class="text-sm text-slate-600 mt-3">User clicks Connect Wallet. The call opens MetaMask. If the user approves, your app receives an array like ['0xabc...'] and you display the connected account. If they deny, show a retry or instructions.</p>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Check your UX</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+            <li>Avoid repeated prompts after denial.</li>
+            <li>Display clear success and error messages.</li>
+            <li>Keep connect logic in one place so it is easy to test.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Request accounts only after explicit user intent, handle both success and denial, and update state without reloading the page.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

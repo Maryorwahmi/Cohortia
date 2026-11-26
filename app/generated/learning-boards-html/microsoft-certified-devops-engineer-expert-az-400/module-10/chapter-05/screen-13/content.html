@@ -1,0 +1,20 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span><span>›</span><span>Chapter 10.5</span><span>›</span><span class="text-slate-700">Custom Telemetry</span></div><div class="flex flex-col h-full"><div class="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="flex flex-col bg-white rounded-2xl p-6 shadow-md border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Code Walkthrough</div><h2 class="text-2xl font-bold text-slate-900 mb-4">Tracking Custom Events in .NET</h2><p class="text-base text-slate-700 mb-4">Use the <code>TelemetryClient</code> to send custom events with properties and measurements for business-specific insights.</p><div class="bg-slate-800 rounded-lg p-4 font-mono text-sm text-white overflow-x-auto mb-4" style="tab-size: 2; white-space: pre-wrap;"><pre><code>// Example: Tracking a custom event in .NET
+using Microsoft.ApplicationInsights;
+
+public class MyService
+{
+    private readonly TelemetryClient _telemetryClient;
+
+    public MyService(TelemetryClient telemetryClient)
+    {
+        _telemetryClient = telemetryClient;
+    }
+
+    public void ProcessOrder(Order order)
+    {
+        // ... order processing logic ...
+        _telemetryClient.TrackEvent("OrderProcessed",
+            new Dictionary&lt;string, string&gt; { { "OrderId", order.Id.ToString() } },
+            new Dictionary&lt;string, double&gt; { { "OrderValue", order.TotalAmount } });
+    }
+}</code></pre></div><div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Conceptual Example</div><p class="text-xs font-medium text-slate-800">Track a 'UserLoggedIn' event with properties like 'UserId' and 'LoginMethod' to understand user authentication patterns.</p></div></div><div class="flex flex-col bg-white rounded-2xl p-6 shadow-md border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-600 mb-2">Explanation</div><h2 class="text-2xl font-bold text-slate-900 mb-4">Understanding Custom Telemetry Components</h2><p class="text-base text-slate-700 mb-4">Custom telemetry allows you to capture specific data points relevant to your application's unique logic.</p><ul class="list-disc list-inside text-sm text-slate-700 mb-4 space-y-2"><li class="flex items-start"><span class="mr-2 text-blue-500">•</span> <div><strong class="text-slate-800">`TelemetryClient`:</strong> The primary class used to send telemetry to Application Insights. It's typically injected via dependency injection.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span> <div><strong class="text-slate-800">`TrackEvent()`:</strong> Used to track discrete business events, such as 'UserRegistered', 'ItemAddedToCart', or 'CheckoutCompleted'.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span> <div><strong class="text-slate-800">Properties:</strong> Key-value pairs (strings) that provide context to an event, e.g., `OrderId`, `UserId`, `LoginMethod`.</div></li><li class="flex items-start"><span class="mr-2 text-blue-500">•</span> <div><strong class="text-slate-800">Measurements:</strong> Key-value pairs (doubles) for numerical values associated with an event, e.g., `OrderValue`, `LoginDurationMs`.</div></li></ul><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Custom telemetry empowers you to collect specific business-level data, providing insights into user behavior and application logic that go beyond standard performance metrics.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

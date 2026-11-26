@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Calculator Tests</span>
+    </div>
+    <div class="grid grid-cols-2 gap-6 h-[70vh]">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Starter ViewModel</div>
+        <pre class="mt-3 bg-slate-100 text-slate-900 rounded-md p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+import Foundation
+
+class CalculatorViewModel: ObservableObject {
+  @Published var result: Double = 0.0
+
+  func add(_ a: Double, _ b: Double) { result = a + b }
+  func subtract(_ a: Double, _ b: Double) { result = a - b }
+  func multiply(_ a: Double, _ b: Double) { result = a * b }
+  func divide(_ a: Double, _ b: Double) { if b == 0 { result = .nan } else { result = a / b } }
+}
+        </pre>
+        <div class="mt-3 text-sm text-slate-700">Task: create a Unit Testing Bundle, add CalculatorViewModelTests, implement setUpWithError, and write tests for each operation including division by zero.</div>
+      </div>
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Example test methods</div>
+        <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;">
+import XCTest
+@testable import YourAppName
+
+final class CalculatorViewModelTests: XCTestCase {
+  var vm: CalculatorViewModel!
+
+  override func setUpWithError() throws { vm = CalculatorViewModel() }
+
+  func testAddition() throws {
+    vm.add(2, 3)
+    XCTAssertEqual(vm.result, 5.0)
+  }
+
+  func testDivisionByZero() throws {
+    vm.divide(5, 0)
+    XCTAssertTrue(vm.result.isNaN)
+  }
+}
+        </pre>
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Write small, focused tests; run them frequently and keep each test independent to catch regressions early.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

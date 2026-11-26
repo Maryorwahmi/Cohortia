@@ -1,0 +1,104 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; } </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">AR Anchor Manager</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Placement lifecycle</div>
+      <ol class="text-sm text-slate-700 mt-3 list-decimal pl-4">
+        <li>Raycast to find hit pose on a plane.</li>
+        <li>Call arAnchorManager.AddAnchor(hitPose).</li>
+        <li>Instantiate or parent object to the returned ARAnchor transform.</li>
+        <li>On move, remove old anchor and create a new one.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Edge case</div>
+        <div class="text-sm text-slate-700 mt-2">AddAnchor can fail if tracking is not ready. Always null-check and provide a fallback placement strategy.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border shadow-sm p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example integration</div>
+      <div class="text-sm text-slate-600 mt-3">Below is the ARPlacementManager example modified to use ARAnchorManager. It demonstrates creating an anchor and parenting the placed object, including anchor removal when relocating the object.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-900 text-white p-3">
+        <pre><code>using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+using System.Collections.Generic;
+
+public class ARPlacementManager : MonoBehaviour
+{
+    [SerializeField] private GameObject objectToPlace;
+    private ARRaycastManager arRaycastManager;
+    private ARAnchorManager arAnchorManager;
+    private static List&lt;ARRaycastHit&gt; hits = new List&lt;ARRaycastHit&gt;();
+
+    private GameObject placedObject;
+    private ARAnchor placedObjectAnchor;
+
+    void Awake()
+    {
+        arRaycastManager = GetComponent&lt;ARRaycastManager&gt;();
+        arAnchorManager = GetComponent&lt;ARAnchorManager&gt;();
+    }
+
+    void Update()
+    {
+        if (Input.touchCount &gt; 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (arRaycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+                {
+                    Pose hitPose = hits[0].pose;
+
+                    if (placedObject == null)
+                    {
+                        placedObjectAnchor = arAnchorManager.AddAnchor(hitPose);
+                        if (placedObjectAnchor != null)
+                        {
+                            placedObject = Instantiate(objectToPlace, placedObjectAnchor.transform);
+                            placedObject.transform.localPosition = Vector3.zero;
+                            placedObject.transform.localRotation = Quaternion.identity;
+                        }
+                    }
+                    else
+                    {
+                        if (placedObjectAnchor != null)
+                        {
+                            arAnchorManager.RemoveAnchor(placedObjectAnchor);
+                        }
+                        placedObjectAnchor = arAnchorManager.AddAnchor(hitPose);
+                        if (placedObjectAnchor != null)
+                        {
+                            placedObject.transform.SetParent(placedObjectAnchor.transform);
+                            placedObject.transform.localPosition = Vector3.zero;
+                            placedObject.transform.localRotation = Quaternion.identity;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Anchors should be created at confirmed hit poses and removed when relocating content to maintain a clean anchor lifecycle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

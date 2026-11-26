@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">addTask Test</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <pre class="rounded-md p-3 bg-slate-900 text-white text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// src/androidTest/java/com/cohortia/taskapp/ui/tasklist/TaskListActivityTest.kt
+@RunWith(AndroidJUnit4::class)
+class TaskListActivityTest {
+
+    @get:Rule
+    val activityRule = ActivityScenarioRule(TaskListActivity::class.java)
+
+    @Test
+    fun addTask_displaysInList() {
+        val taskTitle = "Buy Groceries"
+        val taskDescription = "Milk, Eggs, Bread"
+
+        onView(withId(R.id.editText_task_title))
+            .perform(typeText(taskTitle), closeSoftKeyboard())
+
+        onView(withId(R.id.editText_task_description))
+            .perform(typeText(taskDescription), closeSoftKeyboard())
+
+        onView(withId(R.id.button_add_task))
+            .perform(click())
+
+        onView(withText(taskTitle))
+            .check(matches(isDisplayed()))
+
+        onView(withText(taskDescription))
+            .check(matches(isDisplayed()))
+    }
+}
+      </pre>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold text-emerald-700">Concrete example</div>
+          <div class="text-sm text-slate-800 mt-1">Typing and clicking Add should result in the new task text being visible on screen.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold text-rose-700">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Omitting closeSoftKeyboard causes the keyboard to cover the Add button and may make the click fail.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>ActivityScenarioRule launches the activity and handles lifecycle in tests.</li>
+        <li>onView(withId(...)) finds a view by resource id; withText finds by visible text.</li>
+        <li>perform runs actions such as typeText and click; closeSoftKeyboard hides the keyboard.</li>
+        <li>check with matches(assertion) verifies view state like isDisplayed().</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Follow the find-act-assert pattern and handle the soft keyboard to avoid false negatives in UI tests.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

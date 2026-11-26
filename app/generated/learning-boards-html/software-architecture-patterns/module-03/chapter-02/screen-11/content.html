@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">RabbitMQ publisher</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-white p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+import pika
+import json
+import time
+
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+
+channel.queue_declare(queue='order_events')
+
+def publish_order_created(order_id, customer_id, items):
+  event_data = {
+    'eventType': 'OrderCreated',
+    'orderId': order_id,
+    'customerId': customer_id,
+    'items': items,
+    'timestamp': time.time()
+  }
+  channel.basic_publish(
+    exchange='',
+    routing_key='order_events',
+    body=json.dumps(event_data),
+    properties=pika.BasicProperties(
+      delivery_mode=2,  # make message persistent
+    )
+  )
+  print(f" [x] Published 'OrderCreated' event for Order ID: {order_id}")
+
+if __name__ == '__main__':
+  publish_order_created(101, 'user-abc', ['Laptop', 'Mouse'])
+  publish_order_created(102, 'user-xyz', ['Keyboard'])
+  connection.close()
+      </pre>
+    </div>
+
+    <div class="flex-1 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explainer</div>
+      <p class="text-sm text-slate-600 mt-2">This script shows the core steps: connect, declare queue, publish JSON events with persistent delivery mode, and close the connection. Persistent messages plus durable queues allow subscribers to resume and consume missed events.</p>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-sm font-semibold text-slate-800">Practical note</div>
+        <div class="text-sm text-slate-600 mt-2">Persistence helps, but you still must implement consumer acknowledgements and dead-letter handling for robust error recovery.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Publish minimal, well-structured events and set durability flags so the broker can safely retain messages for consumers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

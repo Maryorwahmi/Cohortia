@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#fbfdff} .card-border{border:1px solid rgba(226,232,240,0.9)} </style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">SSTables</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">SSTables and reads</div>
+      <div class="text-sm text-slate-600 mt-2">Immutable files that reads must consult; many SSTables increase read work.</div>
+
+      <div class="mt-4 flex-1">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="font-semibold text-slate-800">Read amplification</div>
+          <div class="text-sm text-slate-600 mt-1">More SSTables equals more file scanning and higher tail latency for reads.</div>
+        </div>
+
+        <div class="rounded-lg bg-violet-50 p-3 mt-3">
+          <div class="font-semibold text-violet-700">Compaction role</div>
+          <div class="text-sm text-slate-700 mt-1">Compaction merges SSTables and removes tombstones, reducing the number of files a read must examine.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Common pitfall: tracking only disk usage without SSTable counts can miss growing read amplification even when free space remains.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical checks</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Use cfstats to read SSTable counts per table.</li>
+        <li>Correlate SSTable changes with read latency and compaction backlog.</li>
+        <li>Consider targeted compaction for a hot table during low load if backlog is high.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">SSTable count directly affects read cost; monitoring it alongside compaction backlog prevents read amplification surprises.</p>
+      </div>
+    </div>
+  </div>
+</div>

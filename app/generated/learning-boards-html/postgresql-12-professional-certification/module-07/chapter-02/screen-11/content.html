@@ -1,0 +1,35 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.2</span>
+      <span>›</span>
+      <span class='text-slate-700'>Read-only test</span>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='card p-4'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Commands on the primary</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'>sudo -u postgres psql -c "CREATE TABLE test_replication (id SERIAL PRIMARY KEY, data TEXT);"
+sudo -u postgres psql -c "INSERT INTO test_replication (data) VALUES ('Hello from primary');"</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Wait briefly for the standby to replay WAL and then query the standby for the inserted row.</div>
+    </div>
+
+    <div class='card p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Commands on the standby</div>
+      <pre class='cmd bg-slate-50 p-3 rounded-md border border-slate-100 text-sm'>sudo -u postgres psql -c "SELECT * FROM test_replication;"
+# Attempting a write will fail
+sudo -u postgres psql -c "CREATE TABLE should_fail (id int);"</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Expected: SELECT returns the row; CREATE TABLE returns an error about read-only transactions.</div>
+
+      <div class='mt-auto rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Misconception</div>
+        <p class='text-xs font-medium text-slate-800'>Standbys are read-only while in recovery. They do not accept DDL or data changes until promoted.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

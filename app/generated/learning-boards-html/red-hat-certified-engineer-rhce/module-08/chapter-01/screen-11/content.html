@@ -1,0 +1,95 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace} .cohortia-bg{background:#ffffff}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Playbook</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-[calc(100%-48px)]">
+    <div class="col-span-8 h-full">
+      <div class="rounded-2xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm h-full overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Troubleshoot playbook (template)</div>
+        <pre class="mt-3 text-sm text-slate-800">---
+- name: Troubleshoot Web Service Issues
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Check httpd service status
+      systemd:
+        name: httpd
+        state: started
+      register: httpd_status
+      ignore_errors: true
+
+    - name: Gather journalctl output for httpd
+      shell: journalctl -u httpd --since "1 hour ago" -n 50 --no-pager
+      register: journal_output
+      changed_when: false
+
+    - name: Gather dmesg output
+      shell: dmesg -T | tail -n 20
+      register: dmesg_output
+      changed_when: false
+
+    - name: Create diagnostic report directory
+      delegate_to: localhost
+      file:
+        path: "./diagnostics/{{ inventory_hostname }}"
+        state: directory
+      run_once: true
+
+    - name: Save httpd service status to file
+      delegate_to: localhost
+      copy:
+        content: |
+          HTTPD Service Status for {{ inventory_hostname }}:
+          -------------------------------------------------
+          {{ httpd_status.stdout | default('Service status check failed or service not found.') }}
+        dest: "./diagnostics/{{ inventory_hostname }}/httpd_status.txt"
+      when: httpd_status is defined
+
+    - name: Save journalctl output to file
+      delegate_to: localhost
+      copy:
+        content: |
+          Journalctl Output for httpd on {{ inventory_hostname }}:
+          -----------------------------------------------------
+          {{ journal_output.stdout }}
+        dest: "./diagnostics/{{ inventory_hostname }}/journal_httpd.log"
+      when: journal_output is defined
+
+    - name: Save dmesg output to file
+      delegate_to: localhost
+      copy:
+        content: |
+          Dmesg Output for {{ inventory_hostname }}:
+          ------------------------------------------
+          {{ dmesg_output.stdout }}
+        dest: "./diagnostics/{{ inventory_hostname }}/dmesg.log"
+      when: dmesg_output is defined</pre>
+
+        <div class="text-xs text-slate-600 mt-3">This playbook isolates collection and writes per-host diagnostics to the control node for centralized analysis.</div>
+      </div>
+    </div>
+
+    <div class="col-span-4 flex flex-col gap-3 h-full">
+      <div class="rounded-xl p-3 bg-slate-50 border flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Best practices</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Keep collection and remediation separate.</li>
+          <li>Include run_once and delegate_to for control-node writes.</li>
+          <li>Use changed_when: false for read-only tasks.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-2">Combining fixes with collection can hide whether a repair actually fixed the root cause or introduced new errors. Collect first, then remediate.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

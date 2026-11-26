@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Efficient Data Types</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col justify-center">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2">Optimization Strategy</div>
+      <h2 class="text-3xl font-bold text-slate-900 leading-tight mb-3">Efficient Data Types & Storage Packing</h2>
+      <p class="text-lg text-slate-700 mb-6">Choosing the right types for gas savings</p>
+
+      <div class="space-y-4">
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4m0-10.416L4.75 3.75M4.75 3.75L4 4.5V19.5L12 23.25L20 19.5V4.5L12 0.75L4.75 3.75z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">Storage Variable Packing</p>
+          </div>
+          <p class="text-xs text-slate-600">Compiler can pack consecutive small storage variables (e.g., `uint8`, `bool`) into a single 256-bit slot, saving `SSTORE` costs.</p>
+        </div>
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V3m0 9v3m0 0h3.242M12 15h-3.242m6.484 0H12m-6.484 0H9.75M12 15a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h5.25S12 15 12 15z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">`uint256` vs. Smaller `uint`s</p>
+          </div>
+          <p class="text-xs text-slate-600">For local variables, `uint256` is often cheaper due to EVM's 256-bit word size. Smaller types for storage only save gas if packed.</p>
+        </div>
+        <div class="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h10M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1H7a2 2 0 00-2 2v4a2 2 0 002 2h10a2 2 0 002-2v-4a2 2 0 00-2-2h-3.586a1 1 0 00-.707.293L11 11.586V13z"></path></svg>
+            <p class="text-sm font-semibold text-slate-800">`bytes32` over `string`/`bytes`</p>
+          </div>
+          <p class="text-xs text-slate-600">For short, fixed-length data, `bytes32` is much cheaper than dynamic `string` or `bytes` arrays.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col justify-center items-center bg-slate-50 rounded-xl p-6 border border-slate-200">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-4">Storage Packing Example</div>
+      <div class="grid grid-cols-2 gap-4 w-full">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col items-center text-center">
+          <p class="text-sm font-semibold text-slate-800 mb-1">Non-Packed</p>
+          <pre class="bg-slate-100 text-slate-800 p-2 rounded text-xs w-full text-left" style="white-space: pre-wrap; tab-size: 2;"><code>
+uint256 a;
+uint8 b;
+uint256 c;
+</code></pre>
+          <p class="text-xs text-slate-500 mt-2">3 storage slots</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col items-center text-center">
+          <p class="text-sm font-semibold text-slate-800 mb-1">Packed</p>
+          <pre class="bg-slate-100 text-slate-800 p-2 rounded text-xs w-full text-left" style="white-space: pre-wrap; tab-size: 2;"><code>
+uint8 b;
+uint8 c;
+uint256 a;
+</code></pre>
+          <p class="text-xs text-slate-500 mt-2">2 storage slots (b & c packed)</p>
+        </div>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-6 w-full">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Order storage variables to allow the compiler to pack smaller types, reducing `SSTORE` operations.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

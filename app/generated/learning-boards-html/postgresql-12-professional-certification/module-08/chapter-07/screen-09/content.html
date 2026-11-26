@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Logical conflicts</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border p-6 shadow-sm h-[calc(100%-28px)] flex flex-col">
+    <h3 class="text-lg font-bold text-slate-800">Logical replication conflicts</h3>
+    <p class="text-sm text-slate-600 mt-2">Conflicts occur when incoming DML violates subscriber constraints; resolve data then resume.</p>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg p-3 bg-slate-50 border">
+        <div class="text-sm font-semibold">Example error</div>
+        <div class="text-sm text-slate-700 mt-2">ERROR: duplicate key value violates unique constraint "my_table_pkey" on subscriber; subscription stops and logs the LSN.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-slate-50 border">
+        <div class="text-sm font-semibold">Immediate actions</div>
+        <ol class="text-sm text-slate-700 mt-2 list-decimal ml-5">
+          <li>Identify the conflicting row on the subscriber with the logged key.</li>
+          <li>Decide whether to DELETE or UPDATE the row to match the publisher.</li>
+          <li>Run ALTER SUBSCRIPTION my_subscription SKIP (LSN '...') to skip the transaction.</li>
+        </ol>
+      </div>
+
+      <div class="col-span-2 rounded-lg p-3 bg-white border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Long-term strategies</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc ml-5">
+          <li>Ensure replicated tables are not modified locally on the subscriber.</li>
+          <li>Use careful initial sync so subscriber starts identical to publisher.</li>
+          <li>Consider binary or controlled writes if necessary, but accept the trade-offs.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

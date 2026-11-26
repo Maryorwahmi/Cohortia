@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Connection tracking</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-lg font-bold text-slate-800">What is connection tracking?</div>
+      <p class="text-sm text-slate-600 mt-2">A kernel facility that classifies packets as new, established, related, or invalid so the firewall can apply stateful rules.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Rule example</div>
+        <pre class="mt-2 p-3 bg-slate-900 text-slate-50 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;">
+sudo nft add rule inet filter input ct state established,related accept
+        </pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Best practice</div>
+        <ul class="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-2">
+          <li>Allow established and related to enable replies without opening new inbound ports.</li>
+          <li>Drop invalid state packets explicitly to reduce malformed traffic risks.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l">
+      <div class="text-sm font-bold text-slate-800">Concrete scenario</div>
+      <p class="text-sm text-slate-700 mt-2">A client connects to your server's HTTPS port. The server replies. The connection tracker marks both directions as part of the same session, allowing the server's replies to be accepted if established is permitted.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3 border border-amber-100">
+          <div class="text-xs uppercase font-semibold text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Relying only on broad accept rules for replies instead of using ct state can allow unexpected inbound sessions. Be explicit.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use connection tracking to keep stateful policies concise; always handle invalid state packets explicitly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

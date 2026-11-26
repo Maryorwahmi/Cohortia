@@ -1,0 +1,63 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+      <span>›</span>
+      <span>Chapter 2.4</span>
+      <span>›</span>
+      <span class="text-slate-700">SimpleStorage Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="flex-grow flex gap-6">
+    <div class="w-1/2 rounded-2xl bg-slate-50 p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Code</div>
+      <pre class="mt-3 bg-white rounded-md p-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+  uint public storedData; // State variable, publicly readable
+
+  function set(uint x) public {
+    storedData = x;
+  }
+
+  function get() public view returns (uint) {
+    return storedData;
+  }
+
+  event DataChanged(uint indexed oldValue, uint newValue, address changer);
+
+  function updateDataAndEmit(uint _newValue) public {
+    uint _oldValue = storedData;
+    storedData = _newValue;
+    emit DataChanged(_oldValue, _newValue, msg.sender);
+  }
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Explainer bullets</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li><strong>storedData</strong> is a state variable persisted on-chain and exposed via an automatic getter because it is public.</li>
+        <li><strong>set</strong> modifies state and requires a transaction with gas when called on-chain.</li>
+        <li><strong>get</strong> is a view function and does not change state; it can be called off‑chain without a transaction.</li>
+        <li><strong>event</strong> records a log that off‑chain apps can subscribe to; emitting does not change contract storage directly.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use events to notify off‑chain systems and respect view/payable differences when designing functions that read or change state.</p>
+        </div>
+
+        <div class="mt-3 rounded-xl p-3 bg-rose-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Believe that emitting an event is a substitute for storing important state. Events are logs and can be pruned by clients; critical data should live in contract storage when needed on-chain.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

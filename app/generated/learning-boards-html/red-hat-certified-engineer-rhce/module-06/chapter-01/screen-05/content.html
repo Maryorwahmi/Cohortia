@@ -1,0 +1,52 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Group management</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full grid grid-cols-2 gap-4">
+    <div class="flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Group creation and GID</div>
+      <div class="text-sm text-slate-600 mt-2">Use gid for consistent numeric identities across systems.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold">Example</div>
+        <div class="mt-2 rounded-lg bg-slate-50 p-3 card-border">
+          <pre class="text-xs" style="white-space:pre-wrap;tab-size:2;margin:0">- name: Ensure 'developers' group exists
+  ansible.builtin.group:
+    name: developers
+    gid: 2000
+    state: present</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold">Why GID matters</div>
+        <ul class="list-disc pl-5 text-sm text-slate-700 mt-2">
+          <li>File ownership uses numeric GID; fixed GIDs keep permissions stable across hosts.</li>
+          <li>Migrating data between systems benefits from matching numeric IDs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Safe removal</div>
+      <div class="text-xs text-slate-600 mt-2">Before setting state: absent, ensure no user has the group as their primary group and reassign any critical file ownership.</div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 card-border">
+        <div class="text-sm font-bold text-amber-700">Misconception</div>
+        <div class="text-xs text-slate-700 mt-2">Deleting a group is not risk-free; it may leave files with unexpected ownership or cause access issues.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Declare GIDs when you need deterministic ownership and audit primary group usage before deletion.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

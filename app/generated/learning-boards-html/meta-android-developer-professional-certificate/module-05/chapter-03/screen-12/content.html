@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Repository Tests</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-xl bg-white card-border p-4 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Test examples</div>
+      <pre class='code'><code>val mockTaskDao: TaskDao = mock()
+val repository = TaskRepository(mockTaskDao)
+
+@Test
+fun `getAllTasks returns flow from DAO`() = runTest {
+  val tasks = listOf(Task(1, "Repo Task 1", "Desc 1"))
+  whenever(mockTaskDao.getAllTasks()).thenReturn(flowOf(tasks))
+
+  val resultFlow = repository.getAllTasks()
+  var actualTask: Task? = null
+  resultFlow.collect {
+    actualTask = it
+    cancel()
+  }
+
+  assertEquals(tasks, actualTask)
+  verify(mockTaskDao).getAllTasks()
+}</code></pre>
+    </div>
+
+    <div class='rounded-xl bg-white card-border p-4 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Helper note</div>
+      <div class='text-sm text-slate-600'>Collect only the first value from a Flow in tests to avoid hanging. The chapter's collectForValue helper cancels collection after one emission.</div>
+    </div>
+
+    <div class='col-span-2 rounded-xl bg-white card-border p-4 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Practical checklist</div>
+      <ul class='text-sm text-slate-600 space-y-2'>
+        <li>Mock the DAO and stub returns for Flows.</li>
+        <li>Collect one value and assert equality.</li>
+        <li>Verify DAO methods are called for mutation operations.</li>
+      </ul>
+      <div class='mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Repository tests confirm delegation to data sources while remaining fast by mocking external components.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

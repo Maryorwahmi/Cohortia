@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">What is a Transaction?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl bg-white border p-5 shadow-sm" style="border-color: rgba(226,232,240,0.9); min-height: 320px;">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Transaction = atomic unit of work</h3>
+      <p class="text-sm text-slate-600 mt-3">A transaction groups multiple SQL statements so they commit or roll back together. Use this to maintain integrity for multi-step business operations.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color: rgba(226,232,240,0.9);">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">Placing an order: insert order, insert items, update stock. All must succeed or none should persist.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-700 mt-2">Autocommit makes single statements safe — not when several related statements must be grouped. Explicit transactions are needed for multi-step operations.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-amber-50 border" style="border-color: rgba(226,232,240,0.9);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-2">Model transactions around business actions, not individual SQL statements.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white border p-5 shadow-sm flex flex-col" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Visual</div>
+      <div class="mt-3 flex-1 rounded-lg p-4 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-800">Terminal-style example</div>
+        <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+BEGIN;
+INSERT INTO orders (customer_id, total_amount) VALUES (1, 1620.00);
+INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES (currval('orders_order_id_seq'), 1, 1, 1500.00);
+UPDATE products SET stock_quantity = stock_quantity - 1 WHERE product_id = 1;
+COMMIT;
+        </pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A transaction groups related statements into a unit that either completes entirely or does not apply at all.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

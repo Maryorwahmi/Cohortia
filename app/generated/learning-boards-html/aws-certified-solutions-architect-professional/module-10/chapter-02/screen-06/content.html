@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">ENA & SR-IOV</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Enable and verify</div>
+      <div class="text-sm text-slate-600 mt-2">Driver checks and simple commands give confidence that networking will perform as expected.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-grow">
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">ENA</div>
+          <div class="text-xs text-slate-600 mt-1">High bandwidth adapter used by modern instance types. Verify with ethtool reporting the ena driver.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">SR-IOV</div>
+          <div class="text-xs text-slate-600 mt-1">Provides virtual functions to bypass the hypervisor. Useful for the lowest latency and highest packet rates when supported.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-800">Verification steps</div>
+          <div class="text-xs text-slate-600 mt-1">Run ethtool -i eth0 and lspci -vv to confirm driver and SR-IOV capabilities; include this in AMI migration checklists.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-rose-50 border-l-4 border-l-rose-500 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming security group rules are the only network limiter. Missing or wrong drivers can silently cap packet rates and increase latency.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+        <div class="text-sm font-bold text-slate-700">Concrete example</div>
+        <div class="text-xs text-slate-600 mt-2">After migrating to a custom AMI, ethtool reported a generic driver rather than ena. Packet rates were low until the ENA driver was reinstalled, restoring expected throughput.</div>
+
+        <div class="mt-4 text-sm font-bold text-slate-800">Pro tip</div>
+        <div class="text-xs text-slate-600 mt-1">Automate driver verification in your build pipeline so each AMI includes tests that confirm ENA and SR-IOV where required.</div>
+
+        <div class="mt-4 flex-grow">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+          <div class="text-xs text-slate-600 mt-1">If an instance supports ENA but your network benchmarks are poor after migration, what is a likely first check? (Answer: verify ENA driver and kernel modules on the instance.)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

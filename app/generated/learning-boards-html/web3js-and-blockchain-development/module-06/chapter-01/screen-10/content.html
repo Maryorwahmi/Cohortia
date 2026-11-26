@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>Using ABI and contract address with Web3.js</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='bg-white rounded-2xl border p-5' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-700'>How it works</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>ABI defines a contract's callable functions and event signatures.</li>
+        <li>Contract address tells Web3 which deployed instance to target.</li>
+        <li>Create a Web3 contract using new web3.eth.Contract(ABI, address) and call methods.</li>
+      </ul>
+
+      <div class='mt-4 text-sm text-slate-600'>
+        <div class='text-xs uppercase tracking-wider text-slate-500 font-bold'>Misconception</div>
+        <p class='mt-2'>The ABI is not secret. It is a public interface description required for interaction and safe to commit to the repository.</p>
+      </div>
+    </div>
+
+    <div class='bg-white rounded-2xl border p-5' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-700'>Code preview (visual)</div>
+      <pre class='mt-3 bg-slate-900 text-white p-3 rounded-lg' style='font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space:pre-wrap; tab-size:2'>&lt;!-- src/hooks/useContract.js --&gt;
+import Web3 from 'web3'
+import TokenABI from '../contracts/TokenABI.json'
+
+export function createContract(){
+  const web3 = new Web3(Web3.givenProvider || 'https://mainnet.example')
+  const address = import.meta.env.VITE_CONTRACT_ADDRESS
+  const contract = new web3.eth.Contract(TokenABI, address)
+  return contract
+}
+
+// Usage: const contract = createContract(); contract.methods.name().call().then(...)
+      </pre>
+
+      <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-xs font-medium text-slate-800'>Keep ABIs in contracts/ and addresses in env vars; create contract instances in hooks for reuse.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

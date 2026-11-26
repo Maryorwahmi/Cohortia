@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Enforcing Multi-Factor Authentication (MFA)</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-md mb-4 inline-block w-fit">Security Best Practice</div>
+      <div class="text-3xl font-bold text-slate-800 mb-3">Enforcing Multi-Factor Authentication (MFA)</div>
+      <div class="text-lg text-slate-600 mb-6">A Non-Negotiable Layer of Security</div>
+      <div class="flex-grow space-y-4 text-base text-slate-700">
+        <p>MFA adds a crucial second layer of security beyond passwords, requiring multiple verification factors.</p>
+        <p><strong>Factors typically include:</strong></p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Something you know (e.g., password)</li>
+          <li>Something you have (e.g., authenticator app code, hardware token)</li>
+          <li>Something you are (e.g., fingerprint - less common for cloud access)</li>
+        </ul>
+        <p><strong>Enforcement:</strong></p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Mandatory for root/owner accounts and privileged IAM users.</li>
+          <li>Can be enforced via IAM policies (e.g., denying actions if MFA is not present).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col justify-center items-center bg-slate-50 rounded-xl p-6 border border-slate-200">
+      <div class="text-center mb-4">
+        <div class="text-lg font-bold text-slate-800">MFA Enforcement Example</div>
+        <div class="text-sm text-slate-600">AWS IAM Policy Condition</div>
+      </div>
+      <div class="w-full max-w-md">
+        <pre class="language-json"><code class="text-xs font-mono text-left whitespace-pre-wrap p-3 rounded-lg bg-slate-800 text-slate-200 overflow-x-auto" style="tab-size: 2;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": {
+          "aws:MultiFactorAuthPresent": "false"
+        }
+      }
+    }
+  ]
+}</code></pre>
+      </div>
+      <div class="text-xs text-slate-500 mt-4">This policy denies all actions if MFA is not present.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

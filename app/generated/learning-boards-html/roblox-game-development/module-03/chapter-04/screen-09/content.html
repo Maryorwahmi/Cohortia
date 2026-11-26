@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px; white-space:pre-wrap; tab-size:2 }
+  </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Example Script</div>
+      <pre class="mono"><code>-- Script placed inside a Part named "Coin"
+local coin = script.Parent
+local clickDetector = coin:FindFirstChildOfClass("ClickDetector") or Instance.new("ClickDetector")
+if not clickDetector.Parent then clickDetector.Parent = coin end -- Ensure ClickDetector exists
+
+local SCORE_AMOUNT = 10
+local collected = false -- Debounce for collection
+
+local function onCoinCollected(player)
+  if collected then return end
+  collected = true
+
+  coin.Transparency = 1
+  coin.CanCollide = false
+  coin.CanTouch = false -- Prevent further Touched events
+
+  local leaderstats = player:FindFirstChild("leaderstats")
+  if not leaderstats then
+    leaderstats = Instance.new("Folder")
+    leaderstats.Name = "leaderstats"
+    leaderstats.Parent = player
+  end
+
+  local score = leaderstats:FindFirstChild("Score")
+  if not score then
+    score = Instance.new("IntValue")
+    score.Name = "Score"
+    score.Parent = leaderstats
+  end
+
+  score.Value = score.Value + SCORE_AMOUNT
+  task.wait(1)
+  coin:Destroy()
+end
+
+clickDetector.MouseClick:Connect(onCoinCollected)
+print("Coin script initialized!")</code></pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2">
+        <li>The script ensures a ClickDetector exists and is parented to the coin.</li>
+        <li>collected prevents duplicate collection when multiple players interact fast.</li>
+        <li>leaderstats and Score are created if missing to avoid nil errors.</li>
+        <li>Setting CanTouch = false prevents additional Touched events after hiding.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Protect collection paths and always validate or create player data containers before writing values.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

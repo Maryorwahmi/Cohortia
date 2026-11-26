@@ -7,6 +7,8 @@ import {
   chapterRepairResponseSchema,
   generateChapterJson,
   normalizeChapterResponse,
+  completeMissingTaskSupport,
+  repairDeterministicScriptFields,
   isGeminiSchemaComplexityError,
   validateGeneratedPracticalCompleteness,
   validateChapterRepairScript,
@@ -220,6 +222,34 @@ test("incomplete authored content is reported together rather than silently synt
   );
 });
 
+test("completes only missing task coaching fields from an otherwise authored cloud task", () => {
+  const practical = {
+    instructions: "Inspect the Azure resource state and document the verification result.",
+    tasks: [{
+      id: "inspect-resource",
+      title: "Inspect the resource state",
+      stepType: "observe",
+      instruction: "",
+      hints: [],
+      structuredHints: { concept: "Use the portal state as evidence." },
+      inlineSuggestions: [
+        { id: "existing", label: "Check status", text: "" },
+        { id: "keep", label: "Keep this", text: "Retain this authored coaching text." },
+      ],
+      tests: [{ type: "manual", explanation: "The learner records the observed resource state." }],
+    }],
+  };
+
+  completeMissingTaskSupport(practical);
+  const [task] = practical.tasks;
+  assert.match(task.instruction, /Inspect the resource state/);
+  assert.equal(task.hints.length, 3);
+  assert.equal(task.structuredHints.concept, "Use the portal state as evidence.");
+  assert.equal(task.inlineSuggestions[0].id, "existing");
+  assert.match(task.inlineSuggestions[0].text, /Check status:/);
+  assert.equal(task.inlineSuggestions[1].text, "Retain this authored coaching text.");
+});
+
 test("chapter repair schema makes the non-code board-copy contract explicit", () => {
   const schema = chapterRepairResponseSchema(entry("Scenario & Design Exercise"));
   const displayText = schema.properties.practical.properties
@@ -311,7 +341,7 @@ test("detects Gemini response-schema state-limit errors for JSON-mode fallback",
   }), false);
 });
 
-test("retries schema complexity errors in JSON mode and leaves validation to the chapter pipeline", async () => {
+test("uses JSON mode directly so schema complexity never costs an API call", async () => {
   const requests = [];
   const result = await generateChapterJson({
     prompt: "Generate one practical.",
@@ -321,17 +351,13 @@ test("retries schema complexity errors in JSON mode and leaves validation to the
     model: "gemini-test",
   }, async (request) => {
     requests.push(request);
-    return requests.length === 1
-      ? { success: false, error: "Gemini rejected the request: schema produces a constraint that has too many states for serving." }
-      : { success: true, data: { practical: { title: "Generated in JSON mode" } } };
+    return { success: true, data: { practical: { title: "Generated in JSON mode" } } };
   });
 
   assert.equal(result.success, true);
-  assert.equal(requests.length, 2);
-  assert.ok(requests[0].responseSchema);
-  assert.equal(requests[1].responseSchema, undefined);
-  assert.equal(requests[1].prompt, requests[0].prompt);
-  assert.equal(requests[1].maxTokens, 1024);
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].responseSchema, undefined);
+  assert.equal(requests[0].maxTokens, 1024);
 });
 
 test("does not retry unrelated Gemini request errors without a schema", async () => {
@@ -349,7 +375,23 @@ test("does not retry unrelated Gemini request errors without a schema", async ()
 
   assert.equal(result.success, false);
   assert.equal(requests.length, 1);
-  assert.ok(requests[0].responseSchema);
+  assert.equal(requests[0].responseSchema, undefined);
+});
+
+test("locally removes opening framing and compacts middle walkthrough code", () => {
+  const practical = {
+    codeWalkthrough: [
+      { speakerText: "Welcome to this chapter. Start by observing the value stored in count." },
+      { codeLine: "#include <stdio.h>\nint main(void)\n{\n  int count = 1;\n  printf(\"%d\\n\", count);\n  return 0;\n}" },
+      { codeLine: "int count = 1;\ncount += 2;\nprintf(\"%d\\n\", count);\nreturn 0;\n}" },
+      { codeLine: "int main(void) { return 0; }" },
+    ],
+  };
+  repairDeterministicScriptFields(practical, entry("Terminal Coding Lab"));
+
+  assert.match(practical.codeWalkthrough[0].speakerText, /^Start by observing/);
+  assert.ok(practical.codeWalkthrough[1].codeLine.split("\n").length <= 5);
+  assert.ok(practical.codeWalkthrough[2].codeLine.split("\n").length <= 5);
 });
 
 test("terminal walkthrough validation rejects repeated snapshots and learner editing during watch mode", () => {

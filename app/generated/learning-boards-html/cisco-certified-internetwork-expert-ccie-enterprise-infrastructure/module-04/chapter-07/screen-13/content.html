@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #f8fafc;">
+  <style>
+    .card { border-radius: 12px; border:1px solid rgba(226,232,240,0.9); background: white }
+    pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 4.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Hands-on Scenario</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[72%]">
+      <div class="card p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">CLI outputs</div>
+        <pre class="mt-2"><code>FabricEdge1#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.255.255.2      1   FULL/DR         00:00:34    192.168.10.2    GigabitEthernet1/0/1
+
+FabricEdge1#show lisp eid-table vlan 100 summary
+LISP EID-Table for VLAN 100 (VRF: VN_Users)
+  Total EIDs: 1
+  192.168.1.10 (Local, RLOC: 10.255.255.1)
+
+FabricEdge1#show lisp map-cache 192.168.2.20
+LISP map-cache for EID 192.168.2.20, uptime: 00:00:00, expires: never
+  No mapping found</code></pre>
+      </div>
+      <div class="card p-5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Path Trace (text)</div>
+        <div class="text-sm font-semibold text-slate-800 mt-2">Source: 192.168.1.10 (SGT 10 — Employees)
+Destination: 192.168.2.20 (SGT 30 — Servers)
+Policy Applied: "Employees to Servers" Result: DENY (TCP 80, 443)</div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Diagnose</div>
+            <p class="text-xs font-medium text-slate-800">1) Immediate problem: no LISP map-cache entry for the server. 2) Ultimate reason: Path Trace shows SGACL denied the ports. 3) Next step: check ISE Live Logs for the SGACL and verify FabricEdge2 has registered the server EID.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 card p-3">
+      <div class="text-sm font-semibold text-slate-800">Recommended troubleshooting actions</div>
+      <ul class="text-xs text-slate-600 mt-2 list-disc pl-5">
+        <li>Confirm server EID registration on the Fabric Control Plane Node and FabricEdge2.</li>
+        <li>Check ISE Live Logs for the client and review the Employees→Servers SGACL.</li>
+        <li>If SGACL is intentional, adjust policy or create an exception after security review; otherwise fix registration or control plane reachability.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

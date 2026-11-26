@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: EBS attach</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Mount workflow</div>
+      <div class="text-sm text-slate-600 mt-2">A safe step-by-step sequence for preparing a test volume.</div>
+
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Attach a secondary EBS volume and confirm device name with lsblk.</li>
+        <li>Format the volume, for example using XFS for general performance testing.</li>
+        <li>Create a mount point and mount the device, then add an fstab entry using nofail for safety.</li>
+        <li>Install fio and run representative read/write tests on the mounted volume.</li>
+        <li>Unmount and remove fstab entries when done to clean up the instance.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-xs text-slate-800">Formatting the root volume by accident. Always verify lsblk output carefully before running mkfs.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Concrete commands</div>
+      <div class="text-xs text-slate-600 mt-2">Example commands used in the lab. Do not run these on production volumes without backups.</div>
+
+      <pre class="rounded-md bg-slate-900 text-white p-3 text-xs mt-3" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Identify the new device
+lsblk
+
+# Format (example) and mount
+sudo mkfs -t xfs /dev/nvme1n1
+sudo mkdir /data
+sudo mount /dev/nvme1n1 /data
+echo "/dev/nvme1n1 /data xfs defaults,nofail 0 2" | sudo tee -a /etc/fstab
+
+# Install fio and run a basic test
+sudo yum install -y fio
+sudo fio --name=randwrite --ioengine=libaio --iodepth=16 --rw=randwrite --bs=4k --direct=1 --size=1G --numjobs=1 --runtime=60 --group_reporting --filename=/data/testfile.fio
+      </pre>
+
+      <div class="mt-3 text-xs text-slate-600">After running fio, compare observed IOPS and throughput to your provisioned gp3 or io2 values to decide if changes are needed.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

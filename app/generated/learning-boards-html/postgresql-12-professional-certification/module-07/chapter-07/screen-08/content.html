@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 7.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Sync vs Async</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Synchronous vs Asynchronous Replication</div>
+    <div class="text-sm text-slate-600 mt-1">Compare guarantees and performance to choose the right placement and mode.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Synchronous</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>RPO=0 for transactions that wait for standby confirmation.</li>
+        <li>Best for local standbys where latency is low.</li>
+        <li>Can impact commit latency if standby is slow.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 rounded-xl card-border bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Asynchronous</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Primary commits without waiting, preserving write throughput.</li>
+        <li>Accepts a non-zero RPO, often used for cross-region standbys.</li>
+        <li>Requires WAL archiving or careful monitoring to cover lag windows.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded-lg bg-slate-50 card-border">
+      <div class="text-xs font-bold text-slate-700">When to use sync</div>
+      <div class="text-sm text-slate-600 mt-1">Critical local standbys with zero data loss requirements.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-slate-50 card-border">
+      <div class="text-xs font-bold text-slate-700">When to use async</div>
+      <div class="text-sm text-slate-600 mt-1">Remote standbys where latency would otherwise harm performance.</div>
+    </div>
+    <div class="p-3 rounded-lg bg-slate-50 card-border">
+      <div class="text-xs font-bold text-slate-700">Complement with WAL</div>
+      <div class="text-sm text-slate-600 mt-1">Use WAL archives and base backups to allow PITR and cover asynchronous gaps.</div>
+    </div>
+  </div>
+</div>

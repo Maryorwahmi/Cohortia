@@ -1,0 +1,10 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span><span>›</span><span>Chapter 10.6</span><span>›</span><span class="text-slate-700">Analyzing Performance and Aggregating Errors</span></div><div class="flex flex-col h-full w-full gap-6"><div class="w-full p-4 bg-white rounded-2xl shadow-lg border border-slate-200"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Practical Application</div><h2 class="text-2xl font-bold text-slate-900 mb-2">Analyzing Performance and Aggregating Errors</h2><p class="text-sm text-slate-700 mb-4">Identifying bottlenecks and summarizing issues.</p><div class="bg-slate-800 rounded-xl p-4 text-white font-mono text-xs overflow-x-auto"><div class="text-slate-400 mb-2">// Find the top 10 slowest requests in Application Insights data</div><pre style="white-space: pre-wrap; tab-size: 2;"><code>requests
+| where TimeGenerated > ago(1h)
+| order by DurationMs desc
+| take 10
+| project TimeGenerated, Name, DurationMs, Url</code></pre><div class="text-slate-400 mt-4 mb-2">// Count 5xx errors per hour for a specific API endpoint</div><pre style="white-space: pre-wrap; tab-size: 2;"><code>requests
+| where TimeGenerated > ago(24h)
+| where Url contains "/api/v1/products"
+| where ResultCode startswith "5"
+| summarize ErrorCount = count() by bin(TimeGenerated, 1h)
+| render timechart</code></pre></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">KQL enables powerful performance analysis to find slow requests and aggregate error trends, providing critical insights for maintaining application health.</p></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

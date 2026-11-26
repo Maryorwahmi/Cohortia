@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Manual SQLi Detection: Column Count</span>
+  </div>
+  <div class="flex-grow flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-1/2 flex flex-col gap-4">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h2 class="text-3xl font-bold text-slate-800">Manual SQLi Detection: Column Count</h2>
+      <p class="text-lg font-medium text-slate-600">Finding the Right Number of Columns</p>
+      <p class="text-base text-slate-700 leading-relaxed">To perform a UNION-based SQL injection, you first need to know how many columns the original query selects. This is because the injected `UNION SELECT` statement must match the original query's column count. A common manual technique involves using the `ORDER BY` clause. By incrementally increasing the number in `ORDER BY N--`, you can determine the maximum number of columns. When `ORDER BY` exceeds the actual column count, the database will return an error, revealing the correct number.</p>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Systematically testing `ORDER BY N--` is essential for preparing UNION-based SQLi attacks.</p>
+      </div>
+    </div>
+    <div class="lg:w-1/2 flex flex-col gap-4 justify-center">
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Example Query Structure</div>
+        <p class="text-base font-medium text-slate-800">Original Query:</p>
+        <pre class="text-xs font-mono text-slate-800 bg-slate-100 p-2 rounded-md whitespace-pre-wrap"><code>SELECT name, price FROM products WHERE id = <user_input_id>;</code></pre>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Manual Test Steps</div>
+        <p class="text-sm text-slate-600">Test payloads like:</p>
+        <ul class="list-disc list-inside text-sm text-slate-600 ml-2">
+          <li><code>?id=1' ORDER BY 1--</code> (Works)</li>
+          <li><code>?id=1' ORDER BY 2--</code> (Works)</li>
+          <li><code>?id=1' ORDER BY 3--</code> (Error!)</li>
+        </ul>
+        <p class="text-sm text-slate-600 mt-2">Conclusion: 2 columns.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

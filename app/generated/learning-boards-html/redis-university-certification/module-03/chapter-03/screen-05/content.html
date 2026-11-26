@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span class="">›</span>
+    <span class="text-slate-700">How RDB snapshots work</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <h3 class="text-xl font-bold text-slate-800">Snapshot lifecycle</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Trigger by save rules or BGSAVE command.</li>
+        <li>The server calls fork() to create a child process.</li>
+        <li>The child serializes memory and writes a temporary RDB file.</li>
+        <li>On completion the temporary file replaces the prior dump.rdb atomically.</li>
+        <li>Parent process continues serving clients while child writes.</li>
+      </ol>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+          <div class="text-sm text-slate-600 mt-2">Run BGSAVE; check that a child process performs the write and dump.rdb timestamp updates afterwards.</div>
+        </div>
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-xs font-semibold uppercase tracking-wider text-rose-700">Warning</div>
+          <div class="text-sm text-rose-700 mt-2">Frequent snapshots increase fork activity and disk I/O; tune save directives for your workload.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 border-l card-border flex flex-col">
+      <div class="rounded-lg bg-blue-50 p-3">
+        <div class="text-sm font-semibold text-slate-800">Visualized sequence</div>
+        <div class="text-xs text-slate-600 mt-2">Trigger → fork → child writes temp file → rename to dump.rdb</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Example command</div>
+          <pre class="mono text-xs bg-slate-50 p-2 rounded mt-2" style="white-space: pre-wrap; tab-size: 2;">BGSAVE</pre>
+          <div class="text-xs text-slate-600 mt-2">Use BGSAVE in production to avoid blocking.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">RDB is efficient for backups and fast restarts, but snapshots create a data-loss window between saves.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

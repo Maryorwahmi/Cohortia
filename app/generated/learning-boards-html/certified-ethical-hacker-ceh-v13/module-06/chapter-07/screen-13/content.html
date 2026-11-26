@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">IAM Lab</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 flex flex-col gap-4">
+      <div class="card p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Objective</div>
+        <div class="text-lg font-bold text-slate-800">Enumerate IAM policies using read-only commands</div>
+        <p class="text-sm text-slate-600 mt-2">Use a lab account with read-only credentials. Capture policy documents and flag wildcards in actions or resources.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Commands (read-only)</div>
+        <pre class="mono p-3 rounded-md bg-slate-50 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"># Configure CLI with lab read-only credentials
+aws configure
+
+# List IAM users
+aws iam list-users
+
+# List managed policies attached to a user
+aws iam list-attached-user-policies --user-name my-test-user
+
+# Get an inline policy for a user
+aws iam get-user-policy --user-name my-test-user --policy-name my-inline-policy
+
+# Retrieve a managed policy document (sanitized)
+aws iam get-policy-version --policy-arn arn:aws:iam::123456789012:policy/my-policy-name --version-id v1
+        </pre>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-2">Common Pitfall</div>
+        <div class="text-sm text-slate-700">Do not run destructive commands in the lab that change policies. Your goal is enumeration and analysis only unless the SOW explicitly allows modifications.</div>
+      </div>
+    </div>
+
+    <div class="w-6/12 flex flex-col gap-4">
+      <div class="card p-4 flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Analyzing a policy document</div>
+        <pre class="mono p-3 rounded-md bg-slate-50 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*"
+    }
+  ]
+}
+        </pre>
+        <div class="text-sm text-slate-700 mt-3">This sanitized policy shows a wildcard action and resource. Flag it as critical and recommend replacing wildcards with least-privilege actions and resources.</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2">Verification</div>
+        <div class="text-sm text-slate-800">After remediation, rerun the same read-only commands to confirm that wildcard actions and permissive resources were removed and that role trust policies are tightened.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

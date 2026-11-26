@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:12px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Environment Variables & Script</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Example Swift post-action script</div>
+      <pre class="rounded-lg bg-slate-900 text-white p-3"><code>&#47;&#47; Example of a simple Swift script run as a post-action in CI
+import Foundation
+
+let buildNumber = ProcessInfo.processInfo.environment["CI_BUILD_NUMBER"] ?? "N/A"
+let branchName = ProcessInfo.processInfo.environment["CI_BRANCH"] ?? "N/A"
+
+print("--- CI/CD Post-Action Script ---")
+print("Build Number: \(buildNumber)")
+print("Branch: \(branchName)")
+print("Build completed successfully!")
+
+if let slackWebhookURLString = ProcessInfo.processInfo.environment["SLACK_WEBHOOK_URL"],
+   let slackWebhookURL = URL(string: slackWebhookURLString) {
+    let message = "iOS App Build #\(buildNumber) on branch \(branchName) completed successfully!"
+    let json: [String: Any] = ["text": message]
+    let jsonData = try? JSONSerialization.data(withJSONObject: json)
+
+    var request = URLRequest(url: slackWebhookURL)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.httpBody = jsonData
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Error sending Slack notification: \(error.localizedDescription)")
+        } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            print("Slack notification failed with status code: \(httpResponse.statusCode)")
+        } else {
+            print("Slack notification sent!")
+        }
+    }
+    task.resume()
+} else {
+    print("SLACK_WEBHOOK_URL not configured. Skipping Slack notification.")
+}
+
+print("--- End of Script ---")</code></pre>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Explanation</div>
+      <ul class="list-disc list-inside text-sm text-slate-700">
+        <li>Access env vars with ProcessInfo to avoid hardcoding secrets.</li>
+        <li>Use conditional logic to skip notifications when webhooks are absent.</li>
+        <li>Keep scripts idempotent and safe for concurrent runs.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 text-amber-800">Misconception: Putting keys in code is quick but creates security and rotation headaches. Use CI secret storage instead.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

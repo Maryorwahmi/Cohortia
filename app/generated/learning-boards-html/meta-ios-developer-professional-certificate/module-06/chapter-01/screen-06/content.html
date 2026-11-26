@@ -1,0 +1,102 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Task List Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white p-5 card shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">Model and ViewModel</div>
+      <div class="text-sm text-slate-700 mt-2">Below is the Model and ViewModel code excerpt from the chapter. Read it to see how Model data is prepared and published for the View.</div>
+
+      <div class="mt-3">
+        <div class="code">
+&lt;!-- Model --&gt;
+struct Task: Identifiable, Codable {
+  let id = UUID()
+  var title: String
+  var isCompleted: Bool
+}
+
+&lt;!-- ViewModel --&gt;
+import Foundation
+import Combine
+
+class TaskListViewModel: ObservableObject {
+  @Published var tasks: [Task] = []
+  private var cancellables = Set&lt;AnyCancellable&gt;()
+
+  init() {
+    loadTasks()
+  }
+
+  func addTask(title: String) {
+    let newTask = Task(title: title, isCompleted: false)
+    tasks.append(newTask)
+    saveTasks()
+  }
+
+  func toggleTaskCompletion(task: Task) {
+    if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+      tasks[index].isCompleted.toggle()
+      saveTasks()
+    }
+  }
+
+  private func loadTasks() {
+    // simplified loading example from UserDefaults or mock data
+  }
+
+  private func saveTasks() {
+    // simplified saving example
+  }
+}
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-md p-3 bg-violet-50 text-violet-700">Tip: ViewModels can call services in the Model layer but should not reference Views.</div>
+    </div>
+
+    <div class="w-1/2 bg-white p-5 card shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">View (excerpt)</div>
+      <div class="text-sm text-slate-700 mt-2">The View displays tasks and invokes ViewModel methods for actions. Views bind to @Published properties so state changes re-render the UI.</div>
+
+      <div class="mt-3 code">
+&lt;!-- View --&gt;
+import SwiftUI
+
+struct TaskListView: View {
+  @StateObject var viewModel = TaskListViewModel()
+  @State private var newTaskTitle: String = ""
+
+  var body: some View {
+    NavigationView {
+      VStack {
+        HStack { /* input and Add button that calls viewModel.addTask */ }
+        List {
+          ForEach(viewModel.tasks) { task in
+            HStack {
+              Text(task.title)
+              Spacer()
+              Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                .onTapGesture { viewModel.toggleTaskCompletion(task: task) }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">ViewModels publish state, Views bind to it. Keep persistence and networking in Model or ViewModel, not in View rendering code.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-lg font-bold text-slate-900">CREATE EXTERNAL FUNCTION</div>
+      <div class="text-sm text-slate-600 mt-2">Map a SQL callable function to your API endpoint and the API_INTEGRATION you created earlier.</div>
+
+      <div class="mt-4">
+        <pre class="p-3 rounded bg-slate-50 text-sm">-- As a role with CREATE EXTERNAL FUNCTION privilege
+CREATE OR REPLACE EXTERNAL FUNCTION my_external_sentiment_analyzer(text VARCHAR)
+  RETURNS VARCHAR
+  API_INTEGRATION = my_api_integration
+  AS 'https://abcdef123.execute-api.us-east-1.amazonaws.com/prod/my_function';</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600 space-y-2">
+        <div>Call it like any UDF: SELECT my_external_sentiment_analyzer('I love this product');</div>
+        <div>Snowflake serializes the input and deserializes the response for SQL use.</div>
+        <div>Ensure the AS URL matches an allowed prefix in your integration.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pro Tip</div>
+          <p class="text-xs font-medium text-slate-800">Start by calling the function on a single test row and inspect returned values and error messages before scaling to many rows.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example Scenario</div>
+      <div class="mt-3 text-sm text-slate-600">You have a product reviews table and want a sentiment label for each row. Define an External Function that calls an existing sentiment API. Test on a small sample to measure latency and accuracy, then consider batched enrichment outside queries if cost is high.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Common mistake</div>
+      <div class="mt-2 text-sm text-slate-600">Treating external calls as zero-latency operations. They are network calls with potential failures; design queries and error handling accordingly.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">An External Function is a SQL facade over an external endpoint. Verify integration prefixes and role permissions, and plan for latency and retries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

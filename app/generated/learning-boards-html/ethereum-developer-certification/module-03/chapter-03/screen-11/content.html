@@ -1,0 +1,89 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Pausable activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Files to create</div>
+
+      <div class="mt-2">
+        <div class="text-sm font-semibold text-slate-800">IPausable.sol (interface)</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded"><code>// IPausable.sol
+interface IPausable {
+  event Paused(address account);
+  event Unpaused(address account);
+
+  function paused() external view returns (bool);
+  function pause() external;
+  function unpause() external;
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-sm font-semibold text-slate-800">Pausable.sol (abstract)</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded"><code>// Pausable.sol
+abstract contract Pausable is IPausable {
+  bool private _paused;
+  constructor(){ _paused = false; }
+  function paused() public view virtual override returns (bool) { return _paused; }
+
+  modifier whenNotPaused(){ require(!_paused, "Pausable: paused"); _; }
+  modifier whenPaused(){ require(_paused, "Pausable: not paused"); _; }
+
+  function _pause() internal virtual { require(!_paused, "Pausable: already paused"); _paused = true; emit Paused(msg.sender); }
+  function _unpause() internal virtual { require(_paused, "Pausable: not paused"); _paused = false; emit Unpaused(msg.sender); }
+
+  function pause() public virtual override {}
+  function unpause() public virtual override {}
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">MyPausableToken.sol (implementation)</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded"><code>// MyPausableToken.sol
+contract MyPausableToken is Pausable {
+  address public owner;
+  event ImportantActionDone(address indexed by, uint256 timestamp);
+
+  modifier onlyOwner(){ require(msg.sender == owner, "Only owner can call this function"); _; }
+
+  constructor(){ owner = msg.sender; }
+
+  function pause() public override onlyOwner { _pause(); }
+  function unpause() public override onlyOwner { _unpause(); }
+
+  function doSomethingImportant() public whenNotPaused {
+    emit ImportantActionDone(msg.sender, block.timestamp);
+  }
+
+  function getContractBalance() public view returns (uint256) {
+    return address(this).balance;
+  }
+}
+</code></pre>
+
+      <div class="mt-3 rounded-lg bg-amber-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Verification steps</div>
+        <ol class="text-sm text-slate-700 pl-4 list-decimal mt-2">
+          <li>Deploy MyPausableToken and call pause; observe Paused emitted.</li>
+          <li>Call doSomethingImportant while paused and confirm it reverts.</li>
+          <li>Unpause and call doSomethingImportant; confirm ImportantActionDone event.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">This activity demonstrates how interfaces define the contract, abstract contracts provide partial implementations and events, and children implement ownership and expose safe, audited behavior.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

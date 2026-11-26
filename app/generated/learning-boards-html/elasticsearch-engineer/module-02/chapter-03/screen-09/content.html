@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Concurrency in Action</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Concurrency Control in Action</h2>
+      <p class="text-lg text-slate-700 mb-6">Using <code>if_seq_no</code> and <code>if_primary_term</code> in an update request.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Example: Retrieve document to get _seq_no and _primary_term</div>
+        <div class="text-blue-400 mb-2"># (Assume product_101 has _seq_no: 5, _primary_term: 1)</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X GET "localhost:9200/products/_doc/product_101?pretty"</code></pre>
+        <div class="text-emerald-400 mt-4 mb-2"># Expected GET Response Snippet:</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">{
+  "_index": "products",
+  "_id": "product_101",
+  "_version": 4,
+  "_seq_no": 5, <span class="text-slate-500"># Capture this value</span>
+  "_primary_term": 1, <span class="text-slate-500"># Capture this value</span>
+  "found": true,
+  "_source": { ... }
+}</code></pre>
+        <div class="text-blue-400 mt-4 mb-2"># Attempt to update using optimistic concurrency control</div>
+        <div class="text-blue-400 mb-2"># This will only succeed if _seq_no is 5 and _primary_term is 1.</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X POST "localhost:9200/products/_update/product_101?if_seq_no=5&amp;if_primary_term=1&amp;pretty" -H 'Content-Type: application/json' -d'
+{
+  "doc": {
+    "last_updated_by": "admin"
+  }
+}
+'</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Retrieve Current State</div>
+        <p class="text-sm font-medium text-slate-800">Always `GET` the document first to obtain its current `_seq_no` and `_primary_term` values.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Include in Update</div>
+        <p class="text-sm font-medium text-slate-800">Pass the retrieved `_seq_no` and `_primary_term` as URL parameters in your `_update` request.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Conflict Response</div>
+        <p class="text-sm font-medium text-slate-800">If the values don't match, Elasticsearch returns a `409 Conflict` error, preventing an outdated update.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Optimistic concurrency is a robust way to ensure data integrity in concurrent environments by validating document versions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

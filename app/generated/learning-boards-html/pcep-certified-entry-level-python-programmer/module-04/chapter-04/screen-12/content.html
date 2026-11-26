@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Parse orders activity</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter Code</div>
+      <pre class="mt-3 text-sm bg-transparent p-3 rounded" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;">
+raw_order_input = "  apples:10 , BANANAS:5,   oranges:2   "
+
+def parse_order_string(order_string):
+    order_dict = {}
+    # 1. Strip leading/trailing whitespace from the whole string
+    cleaned_string = order_string.strip()
+
+    # 2. Split by comma to get individual product entries
+    product_entries = cleaned_string.split(',')
+
+    for entry in product_entries:
+        # 3. For each entry, strip whitespace and split by colon
+        parts = entry.strip().split(':')
+        if len(parts) == 2:
+            product_name = parts[0].strip()
+            quantity_str = parts[1].strip()
+            try:
+                quantity = int(quantity_str)
+                order_dict[product_name] = quantity
+            except ValueError:
+                print(f"Warning: Could not parse quantity for '{product_name}'. Skipping.")
+    return order_dict
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Complete the starter code by normalizing product keys to a consistent case, summing quantities if needed, and building a generate_order_summary function that uses f-strings to format output and a total count. Test with extra spaces and invalid quantities to ensure robust behavior.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Expected outcome</div>
+          <p class="text-sm text-slate-700">A parsed dictionary of normalized products and a text summary showing capitalized product names and the total items ordered.</p>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Try this</div>
+          <p class="text-sm text-slate-700">Test with mixed case product names and extra commas to see that your parser filters and normalizes correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

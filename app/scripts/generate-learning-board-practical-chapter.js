@@ -90,6 +90,119 @@ function normalizeAuthoredTaskIds(practical) {
   });
 }
 
+function nonEmptyText(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function taskFallbackText(task, practical, index) {
+  const title = nonEmptyText(task?.title) ? task.title.trim() : `task ${index + 1}`;
+  const activity = nonEmptyText(practical?.instructions)
+    ? practical.instructions.trim()
+    : "Use the chapter activity and record what you observe.";
+  return { title, activity };
+}
+
+// Cloud chapters use Gemini JSON mode because their workspace contract is too
+// large for Gemini's response-schema state limit. JSON mode sometimes retains
+// a task shell but drops its repeatable coaching fields. Those fields are
+// presentation support, not a replacement for the authored task, so complete
+// only absent/blank values from the task's own title, instruction, and hints.
+// This keeps a good response usable and avoids retrying an entire large cloud
+// practical just to restore boilerplate-shaped task metadata.
+function completeMissingTaskSupport(practical) {
+  if (!Array.isArray(practical?.tasks)) return;
+
+  practical.tasks.forEach((task, index) => {
+    if (!task || typeof task !== "object") return;
+    const { title, activity } = taskFallbackText(task, practical, index);
+    if (!nonEmptyText(task.instruction)) {
+      task.instruction = `Complete the ${title} milestone. ${activity}`;
+    }
+    if (!["observe", "modify", "experiment", "verify"].includes(task.stepType)) {
+      task.stepType = ["observe", "modify", "experiment", "verify"][Math.min(index, 3)];
+    }
+
+    const authoredHints = Array.isArray(task.hints)
+      ? task.hints.filter(nonEmptyText).map((hint) => hint.trim())
+      : [];
+    const structured = task.structuredHints && typeof task.structuredHints === "object"
+      ? task.structuredHints
+      : {};
+    const nudge = nonEmptyText(structured.nudge)
+      ? structured.nudge.trim()
+      : `Start with the concrete evidence needed for ${title}.`;
+    const concept = nonEmptyText(structured.concept)
+      ? structured.concept.trim()
+      : `Use the chapter concept behind ${title} to explain what the evidence means.`;
+    const walkthrough = nonEmptyText(structured.walkthrough)
+      ? structured.walkthrough.trim()
+      : `First identify the relevant detail, then perform ${title}, and finally record the result.`;
+    task.structuredHints = { ...structured, nudge, concept, walkthrough };
+    task.hints = [authoredHints[0] || nudge, authoredHints[1] || concept, authoredHints[2] || walkthrough];
+
+    const suggestions = Array.isArray(task.inlineSuggestions)
+      ? task.inlineSuggestions.filter((suggestion) => suggestion && typeof suggestion === "object").slice(0, 3)
+      : [];
+    if (!suggestions.length) suggestions.push({});
+    task.inlineSuggestions = suggestions.map((suggestion, suggestionIndex) => {
+      const label = nonEmptyText(suggestion.label) ? suggestion.label.trim() : `Coach ${suggestionIndex + 1}`;
+      return {
+        ...suggestion,
+        id: nonEmptyText(suggestion.id) ? suggestion.id.trim() : `suggestion-${index + 1}-${suggestionIndex + 1}`,
+        label,
+        text: nonEmptyText(suggestion.text)
+          ? suggestion.text.trim()
+          : `${label}: ${[nudge, concept, walkthrough][Math.min(suggestionIndex, 2)]}`,
+      };
+    });
+  });
+}
+
+function removeOpeningScreenIntro(text) {
+  const value = typeof text === "string" ? text.trim() : "";
+  if (!/^(?:(?:welcome|hello|hi)\b|in this (?:chapter|lesson|course)\b|today\s+(?:we(?:'re| are| will|'ll)|you(?:'re| are| will|'ll))\b|our mission\b|let(?:'s| us) begin\b)/i.test(value)) {
+    return value;
+  }
+  // The opening screen already owns greetings and chapter framing. Removing a
+  // leading sentence is mechanical and preserves the model's activity-specific
+  // teaching content for the canonical first phase.
+  const remainder = value.replace(/^[^.!?]+[.!?]\s*/, "").trim();
+  return remainder || value;
+}
+
+function focusedCodeBlock(code, phaseIndex) {
+  const lines = String(code || "").split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length <= 5) return lines.join("\n");
+  // Middle walkthrough stages are illustrative snippets, not runnable files.
+  // Pick a stable 1-5 line window away from the file header so the board shows
+  // the concept being discussed instead of a repeated complete snapshot.
+  const maxStart = Math.max(0, lines.length - 5);
+  const start = Math.min(maxStart, Math.max(1, phaseIndex));
+  return lines.slice(start, start + 5).join("\n");
+}
+
+function repairDeterministicScriptFields(practical, entry) {
+  if (!practical || typeof practical !== "object") return;
+  const canonicalKey = canonicalScriptKeyForEntry(entry);
+  const steps = practical[canonicalKey];
+  if (!Array.isArray(steps) || !steps.length) return;
+
+  if (steps[0] && typeof steps[0] === "object") {
+    steps[0].speakerText = removeOpeningScreenIntro(steps[0].speakerText);
+  }
+
+  if (canonicalKey !== "codeWalkthrough") return;
+  for (let index = 1; index < steps.length - 1; index += 1) {
+    const step = steps[index];
+    if (!step || typeof step !== "object") continue;
+    step.codeLine = focusedCodeBlock(step.codeLine || step.code, index);
+    // Avoid an identical adjacent board snapshot after compacting a large file.
+    if (step.codeLine && step.codeLine === String(steps[index - 1]?.codeLine || "").trim()) {
+      step.codeLine = focusedCodeBlock(`${step.codeLine}\n${String(steps[index + 1]?.codeLine || "")}`, index + 1);
+    }
+  }
+}
+
 function chapterResponseSchema(entry) {
   const { sourceContext } = entry;
   const category = sourceContext.source.category;
@@ -408,7 +521,6 @@ function isGeminiSchemaComplexityError(result) {
 }
 
 async function generateChapterJson({ prompt, entry, maxTokens, temperature, model }, requestJson = generateCompleteJson) {
-  const isCloudChapter = entry.sourceContext.source.category === "Cloud Console Lab";
   const request = {
     prompt,
     systemPrompt: "",
@@ -416,20 +528,11 @@ async function generateChapterJson({ prompt, entry, maxTokens, temperature, mode
     temperature,
     model,
   };
-  // The nested cloud contract exceeds Gemini's response-schema state limit.
-  // Cloud chapters already have strict local validation and repair guidance,
-  // so request JSON directly instead of paying for a guaranteed schema-
-  // rejection round trip followed by the same JSON request.
-  if (!isCloudChapter) request.responseSchema = chapterResponseSchema(entry);
-  const result = await requestJson(request);
-  if (result?.success || !isGeminiSchemaComplexityError(result)) return result;
-
-  console.warn(
-    "Gemini rejected the chapter response schema as too complex; retrying in JSON mode with local validation.",
-  );
-  const jsonModeRequest = { ...request };
-  delete jsonModeRequest.responseSchema;
-  return requestJson(jsonModeRequest);
+  // The complete chapter contract is larger than Gemini's practical serving
+  // limit. Supplying responseSchema therefore consumed a failed API request
+  // before every real generation. JSON mode plus our strict local validator is
+  // the reliable one-request path for every category.
+  return requestJson(request);
 }
 
 function validateChapterRepairScript(raw, entry) {
@@ -686,15 +789,10 @@ function validateGeneratedPracticalCompleteness(practical, entry) {
   // Do not reject a recoverable workspace envelope before that normalizer runs;
   // doing so caused Gemini repairs to loop on an omission the code already
   // knows how to complete.
-  if (category === "Terminal Coding Lab") {
-    const sourceFile = practical?.files?.some((file) => (
-      typeof file?.path === "string"
-      && /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path)
-      && typeof file.content === "string"
-      && file.content.trim()
-    ));
-    if (!sourceFile) issues.push("practical.files must include a non-empty editable source file.");
-  }
+  // normalizePractical() deterministically supplies a runnable starter file
+  // for terminal labs when a model omits files or returns only a README. Do
+  // not reject before that recovery path can run; a missing file is not a
+  // reason to spend four model repair calls.
 
   if (issues.length) {
     throw new Error(`Generated practical is incomplete:\n- ${issues.join("\n- ")}`);
@@ -980,6 +1078,8 @@ function normalizeChapterResponse(raw, entry) {
     try {
       normalizeTeachingPhaseLabels(candidate.practical, canonicalKey);
       normalizeAuthoredTaskIds(candidate.practical);
+      completeMissingTaskSupport(candidate.practical);
+      repairDeterministicScriptFields(candidate.practical, entry);
       validateGeneratedPracticalCompleteness(candidate.practical, entry);
       practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata, {
         requireGeneratedContent: true,
@@ -1389,7 +1489,12 @@ phase's narration against its displayText before returning the response.`
         let repairedEntry;
         let lastValidationError = error;
         let lastRejectedPractical = rejectedItem?.practical;
-        const maxChapterRepairAttempts = 4;
+        // A repair receives the rejected object plus precise validation
+        // feedback, so one corrective generation is the useful budget. The
+        // mechanical omissions are already repaired locally above; repeatedly
+        // asking the model to rewrite the same large chapter mainly burns quota
+        // and tends to introduce a different defect.
+        const maxChapterRepairAttempts = 1;
         for (let repairAttempt = 1; repairAttempt <= maxChapterRepairAttempts; repairAttempt += 1) {
           const chapterPrompt = lastValidationError
             ? buildChapterContinuationPrompt(
@@ -1511,6 +1616,8 @@ export {
   findCourseChapter,
   generateChapter,
   normalizeChapterResponse,
+  completeMissingTaskSupport,
+  repairDeterministicScriptFields,
   validateGeneratedPracticalCompleteness,
   parseOptions,
   resolveSyllabusPath,

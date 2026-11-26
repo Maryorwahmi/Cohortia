@@ -1,0 +1,42 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#f8fafc;">
+  <style>.code{background:#0f172a;color:#e6eef8;border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 11.10</span>
+    <span>›</span>
+    <span class="text-slate-700">CloudFront Access Logs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs uppercase text-slate-500 mb-2">Log anatomy</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li><span class="font-semibold text-slate-800">Viewer IP</span>: locate affected client regions.</li>
+        <li><span class="font-semibold text-slate-800">Date/Time, Method, URI</span>: reproduce the request.</li>
+        <li><span class="font-semibold text-slate-800">Status & Bytes</span>: detect errors or heavy transfers.</li>
+        <li><span class="font-semibold text-slate-800">x-edge-result-type</span>: Hit vs Miss classification.</li>
+        <li><span class="font-semibold text-slate-800">TLS fields</span>: diagnose certificate or protocol issues.</li>
+      </ul>
+
+      <div class="mt-4 text-xs uppercase text-slate-500 mb-2">Common mistake</div>
+      <div class="text-sm text-slate-700">Assuming 'Miss' equals origin failure. Often a Miss results from a changed cache key or forwarded query strings; check request URI and query parameters first.</div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <div class="text-xs uppercase text-slate-500 mb-2">Example excerpt</div>
+      <div class="code" role="region" aria-label="log example"><pre><code>2026-09-01 12:02:33 ABCDE12345 example.com GET /index.html?rand=123 200 1024 "-" "Mozilla/5.0" Miss 0.002 x-edge-response-result-type:Miss</code></pre></div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-white border border-gray-100">
+          <div class="text-xs uppercase text-slate-500">Investigation</div>
+          <div class="text-sm text-slate-700 mt-1">Filter for x-edge-result-type:Miss and group by query string to find whether unique parameters cause misses.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-gray-100">
+          <div class="text-xs uppercase text-slate-500">Next step</div>
+          <div class="text-sm text-slate-700 mt-1">If many unique query parameters appear, review cache policy for unnecessary forwarded query strings and revert or tighten policy.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

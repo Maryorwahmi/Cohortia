@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;white-space:pre-wrap;tab-size:2} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Activity setup</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-[68vh] overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Attach LayoutManager and Adapter</h3>
+      <p class="text-sm text-slate-600 mt-2">A few lines in onCreate wiring the RecyclerView make the list visible and interactive.</p>
+
+      <div class="mt-4">
+        <pre class="code">// In MainActivity.onCreate
+val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+
+// Sample data
+val userList = listOf(
+  User(1, "Alice Smith", "alice@example.com"),
+  User(2, "Bob Johnson", "bob@example.com"),
+  // ... more users
+)
+
+recyclerView.layoutManager = LinearLayoutManager(this)
+val adapter = UserAdapter(userList) { user -&gt;
+  Toast.makeText(this, "Clicked on ${user.name}", Toast.LENGTH_SHORT).show()
+}
+recyclerView.adapter = adapter</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Example</div>
+          <div class="text-[12px] text-slate-600 mt-1">Set LinearLayoutManager for a simple vertical list and pass a click lambda to show a toast.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Common mistake</div>
+          <div class="text-[12px] text-slate-600 mt-1">Forgetting to call setLayoutManager causes an empty view with no runtime error explaining the missing manager.</div>
+        </div>
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Tip</div>
+          <div class="text-[12px] text-slate-600 mt-1">Prepare data off the main thread for real apps; only set adapter on the main thread after data is ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

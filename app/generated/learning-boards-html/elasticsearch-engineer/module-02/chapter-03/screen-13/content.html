@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">_delete_by_query Responses</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Understanding <code>_delete_by_query</code> Responses</h2>
+      <p class="text-lg text-slate-700 mb-6">Interpreting results and monitoring asynchronous tasks.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Example: Execute _delete_by_query with conflicts=proceed</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X POST "localhost:9200/products/_delete_by_query?pretty&amp;conflicts=proceed" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match": {
+      "category.keyword": "Wearables"
+    }
+  }
+}
+'</code></pre>
+        <div class="text-emerald-400 mt-4 mb-2"># Expected Response Snippet:</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">{
+  "took": 123,
+  "timed_out": false,
+  "total": 5,
+  "deleted": 5, <span class="text-slate-500"># Number of documents successfully deleted</span>
+  "batches": 1,
+  "version_conflicts": 0, <span class="text-slate-500"># Documents skipped due to conflicts</span>
+  "noops": 0,
+  "retries": {
+    "bulk": 0,
+    "search": 0
+  },
+  "throttled_millis": 0,
+  "requests_per_second": -1,
+  "throttled_until_remained": "0s",
+  "failures": [], <span class="text-slate-500"># Any errors encountered</span>
+  "task": "&lt;task_id&gt;" <span class="text-slate-500"># Use this to monitor progress</span>
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">`task_id` for Monitoring</div>
+        <p class="text-sm font-medium text-slate-800">The `task` field provides an ID to track the asynchronous operation's progress via the `_tasks` API.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">`deleted` Count</div>
+        <p class="text-sm font-medium text-slate-800">Indicates the total number of documents that were successfully removed from the index.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">`version_conflicts` &amp; `failures`</div>
+        <p class="text-sm font-medium text-slate-800">These fields highlight documents skipped due to concurrency issues or any errors that prevented deletion.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Always review the `_delete_by_query` response to confirm successful execution and identify any issues.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

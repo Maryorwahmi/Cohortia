@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Setup in Node.js</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step-by-step setup</div>
+      <div class="text-sm text-slate-600 mt-2">Install, import, create instance, verify listening and network ID.</div>
+
+      <div class="mt-4 flex-1">
+        <pre class="bg-slate-900 text-white p-4 rounded-md overflow-auto text-sm" style="white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// First, install web3: npm install web3
+const Web3 = require('web3');
+
+const providerUrl = 'http://127.0.0.1:7545';
+const web3 = new Web3(providerUrl);
+
+async function verify() {
+  try {
+    const isListening = await web3.eth.net.isListening();
+    console.log('Connected:', isListening);
+    if (isListening) {
+      const networkId = await web3.eth.net.getId();
+      const blockNumber = await web3.eth.getBlockNumber();
+      console.log('Network ID:', networkId, 'Block:', blockNumber);
+    }
+  } catch (err) {
+    console.error('Connection error:', err.message);
+  }
+}
+
+verify();
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Explanation & tips</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc list-inside flex-1">
+        <li>Use await because these methods return Promises; otherwise you’ll see pending results.</li>
+        <li>Wrap calls in try...catch to handle unreachable providers or timeouts gracefully.</li>
+        <li>Log the provider URL in error messages to help debugging.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Printing the Promise instead of awaiting it. Always await asynchronous web3 calls inside an async function.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

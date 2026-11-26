@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.step{background:#f8fafc;border-radius:10px}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Chapter 3.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Fetch → Decode → Execute → Update</span>
+    </div>
+    <h3 class="text-2xl font-bold mt-3">The 4-step rhythm</h3>
+    <p class="text-sm text-slate-600 mt-1">Repeatable state transitions that make the CPU predictable and traceable.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="card p-3 flex-1">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Step cards</div>
+        <div class="mt-3 grid gap-3">
+          <div class="p-3 step">
+            <div class="text-sm font-semibold">1. Fetch</div>
+            <div class="text-xs mt-1 text-slate-600">PC→ROM address, ROM returns instruction available at cycle start.</div>
+          </div>
+          <div class="p-3 step">
+            <div class="text-sm font-semibold">2. Decode</div>
+            <div class="text-xs mt-1 text-slate-600">Check bit 15 for A vs C, extract a, comp, dest, jump fields for C-instructions.</div>
+          </div>
+          <div class="p-3 step">
+            <div class="text-sm font-semibold">3. Execute</div>
+            <div class="text-xs mt-1 text-slate-600">ALU computes result, prepares writes to A, D, or M; flags set for jump checks.</div>
+          </div>
+          <div class="p-3 step">
+            <div class="text-sm font-semibold">4. Update</div>
+            <div class="text-xs mt-1 text-slate-600">On the clock edge all writes take effect, and PC either increments or is loaded from A.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Treat each cycle as a snapshot: reads happen early, writes commit on the clock edge for deterministic updates.</p>
+      </div>
+    </div>
+
+    <div class="w-7/12 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="mt-3 grid grid-cols-3 gap-3 h-full">
+        <div class="p-3 rounded-xl border border-slate-100 bg-blue-50 flex flex-col">
+          <div class="text-sm font-semibold">PC holds address</div>
+          <div class="text-xs text-slate-600 mt-2">The cycle begins with PC pointing to the next instruction.</div>
+        </div>
+        <div class="p-3 rounded-xl border border-slate-100 bg-violet-50 flex flex-col">
+          <div class="text-sm font-semibold">ROM returns instruction</div>
+          <div class="text-xs text-slate-600 mt-2">ROM output is stable for decode and execute during this cycle.</div>
+        </div>
+        <div class="p-3 rounded-xl border border-slate-100 bg-amber-50 flex flex-col">
+          <div class="text-sm font-semibold">ALU computes & flags</div>
+          <div class="text-xs text-slate-600 mt-2">ALU sets zr and ng which determine jump behavior.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg border border-slate-100 bg-white">
+          <div class="text-xs font-semibold text-slate-500 uppercase">Example</div>
+          <div class="text-sm font-medium mt-1">Instruction D=A at PC=1 reads A and writes D; PC will increment at update.</div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-100 bg-white">
+          <div class="text-xs font-semibold text-slate-500 uppercase">Common mistake</div>
+          <div class="text-sm font-medium mt-1">Assuming writes happen immediately during execute; in Hack they commit at the clock edge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0b1220;color:#d6e9ff;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">WebDriver Wait</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <h3 class="text-xl font-bold text-slate-900">Java example: waiting for order status</h3>
+      <p class="mt-3 text-slate-700">The step definition uses WebDriverWait to wait up to 10 seconds for the status text to appear, then asserts equality.</p>
+
+      <div class="mt-4 flex-1">
+        <div class="code">
+import io.cucumber.java.en.Then;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class OrderStatusSteps {
+    private WebDriver driver; // Injected WebDriver
+    private WebDriverWait wait;
+
+    public OrderStatusSteps(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Max wait time
+    }
+
+    @Then("the order status should be {string}")
+    public void theOrderStatusShouldBe(String expectedStatus) {
+        // Wait for the status element to contain the expected text
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id("orderStatusText"), expectedStatus));
+        // Once the wait passes, we can assert or simply consider it successful
+        String actualStatus = driver.findElement(By.id("orderStatusText")).getText();
+        assertEquals(expectedStatus, actualStatus, "Order status mismatch!");
+    }
+}
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Why this helps</div>
+        <div class="mt-2 text-sm text-slate-700">The wait observes a specific condition, so it adapts to variable latency and gives deterministic failures when the timeout is exceeded.</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="mt-2 text-sm text-slate-700">Using Thread.sleep to pause. This is brittle and slows the suite without guaranteeing the condition is met.</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your design</div>
+        <div class="mt-2 text-sm text-slate-700">Choose the element or endpoint that best signals completion and use a wait tied to that observable condition.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

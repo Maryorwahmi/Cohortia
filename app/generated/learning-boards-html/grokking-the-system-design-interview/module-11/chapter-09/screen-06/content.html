@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Connection Management & Load Balancing</div>
+      <div class="text-sm text-slate-600 mt-1">Keep connections sticky, plan for reconnection, and monitor server health.</div>
+      <div class="mt-4 space-y-3 flex-1">
+        <div class="text-sm text-slate-700">1) Client performs WebSocket handshake. Load balancer chooses a healthy chat server and establishes stickiness.</div>
+        <div class="text-sm text-slate-700">2) Chat server registers presence to external service and subscribes to message queue partitions for that user's chats.</div>
+        <div class="text-sm text-slate-700">3) If the server reports unhealthy, it drains connections gracefully, clients reconnect with backoff, and the load balancer routes to healthy servers.</div>
+        <div class="text-sm text-slate-700">4) On reconnect, client fetches unread messages and presence data from external stores to restore state.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Misconception: sticky sessions replace the need for durable state. They do not; they are an operational convenience, not a source of truth.</div>
+    </div>
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl bg-slate-50 p-4 card-border flex-1">
+        <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+        <div class="mt-3 text-sm text-slate-700">During a region outage, load balancer health checks detect a failing chat server. It starts draining, clients reconnect to nearby servers, and presence entries are updated in the presence service. Message delivery continues because messages flow through the queue to available consumers.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Pro Tip</div>
+          <div class="text-sm text-slate-800 mt-1">Use connection draining to avoid abrupt disconnects and provide time for clients to reconnect gracefully.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50 border card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common Mistake</div>
+          <div class="text-sm text-slate-800 mt-1">Not planning backoff leads to reconnection storms that overwhelm healthy servers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

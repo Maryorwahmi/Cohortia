@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+      <span class="text-slate-700">if, else if, else — building decision chains</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Sequential checks, nesting, and readable fallbacks</h3>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <p class="mt-2 text-sm text-slate-700">A chain evaluates each condition in order. The first true condition executes its block and the rest are skipped. Use else to handle everything else explicitly.</p>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Order tests from strict to broad to avoid accidental matches.</li>
+        <li>Keep nested ifs for cases where a subsequent test only makes sense when the earlier one is true.</li>
+        <li>Test with boundary values to catch off-by-one errors.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded bg-slate-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Checking overlapping ranges in the wrong order can produce incorrect grades. Always place the highest threshold first.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4 mono">
+      <div class="text-sm font-semibold text-slate-800">Code example — trace with values</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2;"><code>#include &lt;iostream&gt;
+
+int main() {
+  int score = 85;
+  bool isStudent = true;
+
+  if (score >= 90) {
+    std::cout << "Grade: A" << std::endl;
+  } else if (score >= 80) {
+    std::cout << "Grade: B" << std::endl;
+  } else if (score >= 70) {
+    std::cout << "Grade: C" << std::endl;
+  } else {
+    std::cout << "Grade: F" << std::endl;
+  }
+
+  if (score >= 60) {
+    if (isStudent) {
+      std::cout << "Passed as a student." << std::endl;
+    } else {
+      std::cout << "Passed." << std::endl;
+    }
+  }
+  return 0;
+}</code></pre>
+
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When ranges overlap, ordering decides which branch runs. Trace a few example inputs to confirm behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

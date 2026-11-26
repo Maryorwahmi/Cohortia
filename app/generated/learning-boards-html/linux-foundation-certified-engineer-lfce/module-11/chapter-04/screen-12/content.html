@@ -1,0 +1,35 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Resource Contention</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Resource contention and wider system checks</h3>
+    <p class="text-sm text-slate-600 mt-2">Measure system resources and limits before concluding an application bug is the cause of failure.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Commands to inspect resources</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>top or htop        # CPU and memory
+free -h             # memory summary
+vmstat 1 5          # short-term IO and CPU stats
+df -h               # check disk usage
+ulimit -n           # current file descriptor soft limit</code></pre>
+      <div class="mt-2 text-sm text-slate-600">If ulimit is too low, services may exhaust file descriptors; adjust LimitNOFILE in the systemd unit or increase ulimit for the service user where appropriate.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Scenario example</div>
+      <div class="text-sm text-slate-600">A database service runs but refuses new connections under load. top shows high memory usage and lsof -p shows thousands of open sockets. The root cause may be a runaway query or leaking connections; investigate queries and tune connection pooling rather than restarting repeatedly.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-700 mt-1">Collect resource usage evidence and adjust limits or capacity to prevent recurring failures tied to contention.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

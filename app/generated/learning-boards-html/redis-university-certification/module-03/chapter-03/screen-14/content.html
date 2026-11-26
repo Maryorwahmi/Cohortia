@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Lab Walkthrough</span>
+    <span class="">›</span>
+    <span class="text-slate-700">Hands-on activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+    <div class="text-sm text-slate-800 font-semibold">Quick configuration snippet for testing</div>
+    <pre class="mono text-xs bg-slate-50 p-3 rounded mt-3" style="white-space: pre-wrap; tab-size: 2;"># RDB configuration
+save 5 1
+dbfilename dump.rdb
+dir ./
+
+# AOF configuration
+appendonly yes
+appendfilename "appendonly.aof"
+appendfsync everysec
+    </pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">Steps</div>
+        <ol class="mt-2 text-sm text-slate-600 list-decimal pl-5 space-y-2">
+          <li>Edit redis.conf and start Redis with it.</li>
+          <li>Run SET and LPUSH commands to add data.</li>
+          <li>Run BGSAVE and check dump.rdb timestamp.</li>
+          <li>Check appendonly.aof content by reading the file.</li>
+          <li>Simulate crash with a forceful stop and restart server.</li>
+          <li>Verify data with GET and LRANGE commands.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-lg bg-white p-3 card-border">
+        <div class="text-sm font-semibold">What to observe</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>Does dump.rdb timestamp update after BGSAVE?</li>
+          <li>Does appendonly.aof contain your commands?</li>
+          <li>After restart, which data returns and from which file?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">This lab demonstrates persistence in action: configuration, snapshot timing, AOF logging, and real recovery behavior after a crash.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

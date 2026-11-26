@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre.sql{background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:13px;white-space:pre-wrap;tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Logs Insights</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code walkthrough</div>
+        <div class="text-xl font-bold text-slate-800 mt-2">Find and aggregate error messages across Lambda streams</div>
+        <div class="text-sm text-slate-600 mt-3">Use filters and parse expressions to extract the error text, then group by the message to see frequency and recency.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sample query</div>
+        <pre class="sql"><code>fields @timestamp, @message
+| filter @logStream like /my-lambda-function/
+| filter @message like /ERROR/
+| parse @message "*ERROR: *" as errorMessage
+| stats count() as errorCount, latest(@timestamp) as lastSeen by errorMessage
+| sort errorCount desc
+| limit 20</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Why it matters</div>
+        <div class="text-sm text-slate-700 mt-2">Logs Insights helps you quickly find the most frequent or recent errors, which speeds incident response and pinpoints the code paths to inspect.</div>
+
+        <div class="mt-4 rounded-xl bg-amber-50 border border-amber-100 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <div class="text-sm text-slate-800">Use parse to extract structured fields from JSON logs and include those fields in stats to get counts by endpoint, user, or request ID.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key takeaway</div>
+        <div class="text-sm text-slate-800">Interactive log queries let you triage incidents faster by surfacing the highest-impact errors and their contributing fields.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

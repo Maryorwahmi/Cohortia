@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Expose & Scrape</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-lg font-bold text-slate-900">Scrape lifecycle</h3>
+      <ol class="list-decimal list-inside text-sm text-slate-700 mt-3 space-y-2">
+        <li>Application or exporter exposes metrics at /metrics in the Prometheus text format.</li>
+        <li>Prometheus sends an HTTP GET to the target on the configured interval.</li>
+        <li>Prometheus parses the response and appends samples to each time series.</li>
+        <li>Stored series are available via the Prometheus UI and PromQL queries.</li>
+      </ol>
+
+      <div class="mt-4 p-3 bg-slate-50 rounded text-sm text-slate-800">
+        Use curl to inspect an endpoint: curl http://localhost:9100/metrics and look for node_ prefixed metrics from the Node Exporter.
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Important note</div>
+        <div class="text-sm text-slate-700">Prometheus pulls metrics. If Prometheus cannot reach the endpoint due to firewall or network isolation, targets will show DOWN in the UI.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Practical tip</div>
+        <div class="text-sm text-slate-700">Adjust scrape_interval to balance data granularity and load. For exporters exposing system metrics, 15 seconds is a common default.</div>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key takeaway</div>
+        <div class="text-sm font-medium text-slate-800">Expose /metrics reliably and ensure Prometheus can reach targets; use curl to validate endpoints before editing prometheus.yml.</div>
+      </div>
+    </div>
+  </div>
+</div>

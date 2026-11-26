@@ -1,0 +1,48 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class='text-slate-700'>Hardhat Configuration</span>
+  </div>
+
+  <div class='grid grid-cols-2 gap-4 h-full'>
+    <div class='rounded-2xl bg-white border p-6'>
+      <div class='text-lg font-bold text-slate-800'>Recommended hardhat.config.js</div>
+      <div class='mt-3 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm' style='white-space:pre-wrap; tab-size:2;'>require(&quot;@nomicfoundation/hardhat-toolbox&quot;);
+require(&quot;dotenv&quot;).config(); // Load environment variables
+
+const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+module.exports = {
+  solidity: &quot;0.8.20&quot;,
+  networks: {
+    sepolia: {
+      url: SEPOLIA_RPC_URL,
+      accounts: [PRIVATE_KEY]
+    }
+  }
+};
+      </div>
+      <div class='mt-4 text-sm text-slate-700'>This setup lets Hardhat use the provided RPC and signing account without exposing secrets in your repo.</div>
+    </div>
+
+    <div class='rounded-2xl bg-white border p-6 flex flex-col'>
+      <div class='text-lg font-bold text-slate-800'>.env file (local)</div>
+      <div class='mt-3 rounded-lg bg-slate-50 p-3 font-mono text-sm' style='white-space:pre-wrap; tab-size:2;'>SEPOLIA_RPC_URL=&quot;https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID&quot;
+PRIVATE_KEY=&quot;YOUR_ACTUAL_PRIVATE_KEY_HERE&quot;
+      </div>
+      <div class='mt-4 text-sm text-slate-700'>Remember to add .env to .gitignore. Test connectivity with a simple run of a Hardhat task to ensure the RPC URL and key are correct.</div>
+
+      <div class='mt-auto'>
+        <div class='rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1'>Common Mistake</div>
+          <p class='text-xs font-medium text-slate-800'>Do not commit a .env file or hardcode keys — an exposed private key can drain funds on mainnet.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

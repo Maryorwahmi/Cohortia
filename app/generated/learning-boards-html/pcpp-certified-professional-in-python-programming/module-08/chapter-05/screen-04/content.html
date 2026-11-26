@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span>›</span>
+    <span class="text-slate-700">Event Loop</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-5/12 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <h3 class="text-xl font-bold text-slate-900">Definition</h3>
+      <p class="text-sm text-slate-700 mt-2">An event loop coordinates awaitable operations and schedules coroutines when events are ready.</p>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+        <ul class="text-sm text-slate-600 list-disc list-inside mt-2">
+          <li>Enables many concurrent network connections without a thread per connection.</li>
+          <li>Makes programs efficient when most time is spent waiting for I/O.</li>
+          <li>Reduces context switch and memory overhead compared to threads for I/O-bound workloads.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Analogy</div>
+          <div class="text-sm text-slate-800">Imagine a single chef who works on several dishes and moves between them as each dish simmers. The chef acts when a dish needs active work and steps away while it simmers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-7/12 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Visual explanation</div>
+      <div class="mt-3 flex-1 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Coroutine</div>
+          <div class="text-sm text-slate-700 mt-2">Defined with async def. Can pause at await and return later with resumed state.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Awaitable I/O</div>
+          <div class="text-sm text-slate-700 mt-2">Reader.read and writer.drain are awaitables that yield control while waiting.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+          <div class="text-sm text-slate-700 mt-2">A coroutine handling a socket will await reader.read(100). While it awaits, the event loop may run another coroutine that is ready to send data to a different client.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Assuming await creates a new thread. It does not; it only yields control to the event loop on the current thread.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Await points are the safe places where tasks yield control. Use them to design cooperative concurrency for I/O-bound tasks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

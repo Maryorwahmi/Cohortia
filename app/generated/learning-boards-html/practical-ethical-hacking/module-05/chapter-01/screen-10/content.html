@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.1</span><span>›</span><span class="text-slate-700">Windows Network Config</span></div><div class="flex flex-col lg:flex-row h-full w-full gap-6"><div class="flex-1 flex flex-col p-6 bg-white rounded-2xl shadow-lg border border-slate-200"><div class="flex items-center gap-3 mb-4"><span class="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Network Reconnaissance</span><h3 class="text-2xl font-semibold text-slate-900">Mapping Windows Network Details</h3></div><p class="text-base text-slate-700 mb-6">On Windows, understanding network interfaces, IP addresses, and active connections is crucial for identifying lateral movement opportunities.</p><ul class="list-disc list-inside text-sm text-slate-700 space-y-2 mb-6"><li class="flex items-start"><span class="mr-2 text-amber-600">•</span><div><strong><code>ipconfig /all</code>:</strong> Provides detailed network configuration for all adapters, including IP, MAC, DNS, and DHCP info.</div></li><li class="flex items-start"><span class="mr-2 text-amber-600">•</span><div><strong><code>netstat -ano</code>:</strong> Displays all active TCP connections and listening ports, along with the Process ID (PID) for each.</div></li><li class="flex items-start"><span class="mr-2 text-amber-600">•</span><div><strong>PID Correlation:</strong> The PID allows you to identify the specific process owning a connection, revealing its purpose.</div></li><li class="flex items-start"><span class="mr-2 text-amber-600">•</span><div><strong>Lateral Movement:</strong> Active connections to other internal systems are prime targets for pivoting.</div></li></ul><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Detailed network information on Windows, especially active connections and their associated processes, provides clear pathways for expanding your access within the network.</p></div></div><div class="flex-1 flex flex-col p-6 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 text-slate-100"><div class="flex items-center gap-3 mb-4"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-400"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9-8.418L9.75 7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg><h3 class="text-xl font-semibold text-blue-400">Terminal Demo: Windows Network Config</h3></div><div class="bg-slate-900 p-4 rounded-lg text-sm font-mono overflow-x-auto mb-4"><pre><code style="white-space: pre-wrap; tab-size: 2;"><span class="text-green-400">C:\Users\user></span> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : WIN-SERVER
+   Primary Dns Suffix  . . . . . . . : MYDOMAIN.LOCAL
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+
+Ethernet adapter Ethernet0:
+
+   Connection-specific DNS Suffix  . : 
+   Description . . . . . . . . . . . : Intel(R) 82574L Gigabit Network Connection
+   Physical Address. . . . . . . . . : 00-0C-29-1A-2B-3C
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   IPv4 Address. . . . . . . . . . . : 192.168.1.100(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+   DNS Servers . . . . . . . . . . . : 192.168.1.10
+   NetBIOS over Tcpip. . . . . . . . : Enabled
+
+<span class="text-green-400">C:\Users\user></span> netstat -ano
+
+Active Connections
+
+  Proto  Local Address          Foreign Address        State           PID
+  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       888
+  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4
+  TCP    192.168.1.100:49667    192.168.1.10:389       ESTABLISHED     1234  (LDAP to Domain Controller)
+  TCP    192.168.1.100:49668    192.168.1.200:1433     ESTABLISHED     5678  (SQL Server connection)</code></pre></div><div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-900 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-violet-300 mb-1">Example Context</div><p class="text-xs font-medium text-slate-200">An <code>ESTABLISHED</code> connection to <code>192.168.1.10:389</code> (LDAP) indicates communication with a Domain Controller, a high-value target.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

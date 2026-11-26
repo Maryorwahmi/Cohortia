@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Grant Roles & Switch Context</span>
+  </div>
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Granting</div>
+      <div class="mt-3 text-sm text-slate-700">Use GRANT ROLE to assign roles to users. Set DEFAULT_ROLE on user creation to define the initial session role.</div>
+      <div class="mt-4 mono">
+        <pre class="text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2;">-- As SECURITYADMIN
+GRANT ROLE DATA_ANALYST TO USER JOHN_DOE;
+GRANT ROLE DATA_ENGINEER TO USER JANE_SMITH;
+
+-- Create user with default role
+CREATE USER ANNA_SMITH PASSWORD = 'password123' DEFAULT_ROLE = FINANCE_DEV;
+GRANT ROLE FINANCE_DEV TO USER ANNA_SMITH;</pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">Verification: have the user USE ROLE and run a SELECT to confirm read rights, then try a write to check for missing privileges.</div>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Runtime behavior</div>
+      <div class="mt-3 text-sm text-slate-700">A user's active role determines the privileges available. Switching roles changes effective permissions immediately for that session.</div>
+      <div class="mt-4">
+        <div class="rounded bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Concrete scenario</div>
+          <div class="text-xs text-slate-700 mt-2">An engineer sets DATA_ENGINEER as default to create tables, then switches to DATA_ANALYST to run read-only reports, preventing accidental writes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

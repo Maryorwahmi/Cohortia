@@ -1,0 +1,25 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff">  <style>    pre code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2;}  </style>  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>    <span>›</span>    <span>Chapter 2.5</span>    <span>›</span>    <span class="text-slate-700">awx-cli Walkthrough</span>  </div>  <div class="flex gap-4 h-full">    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Conceptual Commands</div>      <pre class="rounded-md bg-slate-900 text-slate-50 p-3 text-sm" style="white-space:pre-wrap;tab-size:2;"><code># Create organization
+awx-cli organizations create --name "DevOps Team"
+
+# Create team
+awx-cli teams create --name "AppDeployers" --organization "DevOps Team"
+
+# Create user
+awx-cli users create --username "devops_user" --password "SecurePassword123!" --email "devops@example.com" --first_name "DevOps" --last_name "User"
+
+# Add user to team
+awx-cli teams add_member --team "AppDeployers" --user "devops_user"
+
+# Create project
+awx-cli projects create --name "WebApp Deployment" --organization "DevOps Team" --scm_type git --scm_url "https://github.com/yourorg/webapp-playbooks.git" --scm_update_on_launch true
+
+# Create credential (Machine)
+# Assumes SSH key file at ~/.ssh/id_rsa_appdeploy
+awx-cli credentials create --name "WebApp SSH Key" --organization "DevOps Team" --credential_type "Machine" --inputs "ssh_key_data=$(cat ~/.ssh/id_rsa_appdeploy)" --inputs "username=ansible"
+
+# Grant team use on credential
+awx-cli credentials grant_role --role "use" --credential "WebApp SSH Key" --team "AppDeployers"
+
+# Create job template and grant execute
+awx-cli job_templates create --name "Deploy WebApp Staging" --project "WebApp Deployment" --inventory "Staging Inventory" --credential "WebApp SSH Key" --playbook "deploy_staging.yml" --organization "DevOps Team"
+awx-cli job_templates grant_role --role "execute" --job_template "Deploy WebApp Staging" --team "AppDeployers"</code></pre>    </div>    <div class="flex-1 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">      <div class="text-sm font-semibold text-slate-800 mb-2">Explanation & Checks</div>      <ul class="list-disc pl-5 text-sm text-slate-700">        <li>After creation, verify that the team only has the 'use' role on the credential and 'execute' on the job template.</li>        <li>Log in as devops_user to confirm they can launch the job but cannot view the SSH key material.</li>        <li>Rotate the SSH key and update the credential periodically to reduce exposure time.</li>      </ul>      <div class="mt-4">        <div class="text-sm font-semibold text-slate-800 mb-2">Common Mistakes</div>        <div class="rounded-md p-3 bg-rose-50 text-sm text-rose-700">Pasting real private keys into example commands or granting view permissions to too many users.</div>      </div>      <div class="mt-auto">        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>          <p class="text-xs font-medium text-slate-800">Use awx-cli to automate secure setup, then validate effective permissions with test accounts before production use.</p>        </div>      </div>    </div>  </div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

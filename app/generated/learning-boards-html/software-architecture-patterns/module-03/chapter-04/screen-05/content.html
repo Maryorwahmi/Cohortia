@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">What is a Saga?</span>
+  </div>
+  <div class="grid grid-cols-12 gap-6 flex-1">
+    <div class="col-span-6 rounded-2xl p-6 bg-white card-border shadow-sm h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Saga pattern explained</div>
+      <div class="text-sm text-slate-600 mt-1">Local transactions emit events and compensations undo effects on failure</div>
+      <div class="mt-4 text-sm text-slate-700 space-y-3">
+        <p>A Saga breaks a distributed operation into local ACID steps. Each step updates one service and triggers the next by publishing an event or returning a response.</p>
+        <p>If a step later fails, the Saga executes compensating transactions that bring the earlier services back to a consistent business state.</p>
+        <p>Compensations are business-level undo actions and must be designed to be safe for retries.</p>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete Example</div>
+        <div class="text-sm text-slate-800 mt-2">In an order Saga, steps include creating the order, processing payment, decrementing inventory, and scheduling shipping. If payment fails, compensations cancel the order and restore inventory.</div>
+      </div>
+    </div>
+    <div class="col-span-6 rounded-2xl p-6 bg-white card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Design hints</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Make local transactions idempotent so retries are safe.</li>
+        <li>Design compensations to handle partial state and external side effects.</li>
+        <li>Accept that consistency is eventual—plan user-facing messages and states accordingly.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Treating compensation as a simple rollback. Instead, implement compensations as business-aware operations that return the system to a valid state.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

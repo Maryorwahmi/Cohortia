@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Player Interaction System</span>
+  </div>
+
+  <div class="flex grow gap-6">
+    <div class="w-7/12 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Starter Code Template</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+-- PlayerInteractionSystem
+local playerInventory = {}
+
+local function AddItemToInventory(itemName, quantity)
+  print("Attempting to add " .. quantity .. "x " .. itemName .. " to inventory.")
+  table.insert(playerInventory, {Name = itemName, Quantity = quantity})
+  print(quantity .. "x " .. itemName .. " added successfully!")
+  return true
+end
+
+local function CheckInventorySpace(itemCount)
+  print("Checking inventory space for " .. itemCount .. " items...")
+  if #playerInventory + itemCount <= 5 then
+    print("Enough space available.")
+    return true
+  else
+    print("Not enough space! Inventory full.")
+    return false
+  end
+end
+
+-- Demonstration
+local itemsToGet = 2
+if CheckInventorySpace(itemsToGet) then
+  AddItemToInventory("Sword", itemsToGet)
+end
+
+-- Anonymous event simulation
+local giveItemPart = Instance.new("Part")
+giveItemPart.Name = "GiveItemPart"
+
+giveItemPart.Touched:Connect(function(otherPart)
+  local playerCharacter = otherPart.Parent
+  local player = game.Players:GetPlayerFromCharacter(playerCharacter)
+  if player then
+    if CheckInventorySpace(1) then
+      AddItemToInventory("Health Potion", 1)
+    end
+  end
+end)
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This template simulates inventory logic and demonstrates event-driven invocation of helper functions. Replace prints with real inventory updates in a real project.</div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Exercise</div>
+        <p class="text-sm text-slate-700 mt-2">Modify the CheckInventorySpace limit, then call AddItemToInventory several times and observe when adding fails. This helps you understand guard conditions.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <p class="text-xs font-medium text-slate-800">Keep event handlers thin: validate inputs there and delegate logic to local functions that return clear results.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="safe-area h-full flex flex-col">
+    <div class="mb-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800">Configuring PAT (NAT Overload)</h3>
+      <p class="text-sm text-slate-600 mt-1">Create an ACL, apply NAT with overload, and verify translations using show commands.</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-700 mb-2">ACL defining internal hosts</div>
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>R1(config)# access-list 1 permit 192.168.1.0 0.0.0.255</code></pre>
+        <div class="mt-3 text-sm text-slate-600">This ACL selects which internal source addresses are eligible for PAT translation.</div>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-700 mb-2">Apply PAT using overload</div>
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>R1(config)# ip nat inside source list 1 interface GigabitEthernet0/0 overload</code></pre>
+        <div class="mt-3 text-sm text-slate-600">The router uses the outside interface IP as the shared public address and assigns translated source ports per session.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-700 mb-2">Interpretation</div>
+      <p class="text-sm text-slate-600">In show ip nat translations, you will see entries with the same inside global IP but different source port numbers. This confirms PAT is multiplexing sessions correctly. If sessions fail, confirm the ACL, interface flags, and that the outside interface IP is the intended public address to use for translation.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

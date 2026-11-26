@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Storage trigger</span>
+    </div>
+
+    <div class="card p-5">
+      <div class="text-sm font-semibold text-slate-900">Thumbnail generator (conceptual example)</div>
+      <pre class="code mt-3 rounded-md p-3 bg-slate-50 text-slate-800">exports.generateThumbnail = functions.storage.object().onFinalize(async (object) => {
+  const fileBucket = object.bucket;
+  const filePath = object.name;
+  const contentType = object.contentType;
+
+  if (!filePath || object.resourceState === 'not_exists' || !contentType.startsWith('image/')) {
+    return null;
+  }
+  if (filePath.startsWith('thumbnails/')) return null;
+
+  const bucket = admin.storage().bucket(fileBucket);
+  const file = bucket.file(filePath);
+  const thumbnailFilePath = `thumbnails/${filePath.split('/').pop()}`;
+  const thumbnailFile = bucket.file(thumbnailFilePath);
+
+  const [imageBuffer] = await file.download();
+  const resizedBuffer = await sharp(imageBuffer).resize(200,200).toBuffer();
+  await thumbnailFile.save(resizedBuffer, { contentType });
+  return null;
+});
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Test with the emulator or a staging project, ensure the function skips thumbnails and handles non-image uploads safely. Log actions for observability.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

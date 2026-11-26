@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Write Request Handling</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Steps</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Handling a write</div>
+      <ol class="mt-4 text-sm text-slate-700 list-decimal pl-4 space-y-2">
+        <li>Uncached: forward to memory; set owner=requester; state=Modified.</li>
+        <li>Shared: send Inv to all sharers; wait for Acks; set owner=requester; state=Modified.</li>
+        <li>Modified: forward to owner; owner supplies data or invalidates; update owner.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Why wait for Acks?</div>
+        <div>Waiting for acknowledgments prevents lingering valid copies in sharers and ensures only the new owner may modify the block.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Illustration</div>
+      <div class="mt-2 text-sm text-slate-700">P1 and P2 hold a Shared block. P3 issues WrReq. Directory: Inv -> P1,P2. P1,P2 -> Ack. Directory: state=Modified, owner=P3.</div>
+
+      <div class="mt-4 rounded-xl bg-rose-50 p-3 text-rose-700">
+        <div class="text-xs font-bold uppercase tracking-wider">Common mistake</div>
+        <div class="text-sm">Issuing ownership before receiving Acks may result in two caches believing they have modified copies; always wait for invalidation acknowledgments.</div>
+      </div>
+    </div>
+  </div>
+</div>

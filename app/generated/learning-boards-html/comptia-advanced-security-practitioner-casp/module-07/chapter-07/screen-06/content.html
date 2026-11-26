@@ -1,0 +1,47 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre.code{background:#0f1724;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>Disk Imaging & Verification</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-4 h-1/2'>
+        <div class='text-sm font-semibold text-slate-900'>Why bit-for-bit imaging?</div>
+        <div class='text-sm text-slate-600 mt-2'>It captures every sector, including slack space and deleted content, so analysts can reconstruct file artifacts without altering originals.</div>
+        <div class='mt-4 text-xs text-slate-500'>Use a hardware write-blocker and compute hashes immediately after imaging.</div>
+      </div>
+      <div class='card p-3 h-1/2'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600'>Commands (illustrative)</div>
+        <pre class='code' style='white-space:pre-wrap;tab-size:2'><code>sudo dd if=/dev/sdb of=/media/forensics/suspect_drive_image.dd bs=4M status=progress
+
+# After imaging, create SHA256 hashes
+sha256sum /dev/sdb   # run while drive is connected through write-blocker
+sha256sum /media/forensics/suspect_drive_image.dd</code></pre>
+        <div class='text-xs text-slate-500 mt-2'>Compare both SHA256 values; mismatch indicates alteration.</div>
+      </div>
+    </div>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='card p-3'>
+        <div class='text-sm font-semibold text-slate-900'>Evidence Handling Steps</div>
+        <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+          <li>Photograph the scene and document connections.</li>
+          <li>Remove drive carefully, label it, and connect via write-blocker.</li>
+          <li>Hash original, image, then hash image; document all values.</li>
+          <li>Secure original in tamper-evident bag and continue analysis on the copy.</li>
+        </ul>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-rose-600'>Common Mistake</div>
+        <div class='text-sm text-rose-700 mt-2'>Imaging without a write-blocker or failing to hash the original can create doubt about evidence integrity and may render findings inadmissible.</div>
+      </div>
+      <div class='card p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700'>Key Takeaway</div>
+        <p class='text-xs text-slate-800 mt-2'>Preserve the original by never writing to it. Image via a write-blocker, verify with hashes, then analyze the copy.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

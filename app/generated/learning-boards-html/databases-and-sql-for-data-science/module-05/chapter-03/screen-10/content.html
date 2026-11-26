@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .term { background: #ffffff; border: 1px solid rgba(226,232,240,0.9); border-radius: 0.75rem; padding: 0.75rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2; }
+  </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Check existing rows</span>
+    </div>
+    <h3 class="text-xl font-bold">Check existing rows before bulk insert</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[68%]">
+    <div class="term mono p-4 text-sm">
+# Prepare new users list
+new_users_data = [
+  ('diana', 'diana@example.com'),
+  ('eve', 'eve@example.com'),
+  ('frank', 'frank@example.com')
+]
+
+# Parameterized select to find existing usernames
+existing_users_query = "SELECT username FROM users WHERE username IN (?, ?, ?);"
+cursor.execute(existing_users_query, tuple(u[0] for u in new_users_data))
+existing_usernames = {row[0] for row in cursor.fetchall()}
+
+# Filter and batch insert
+filtered_new_users = [user for user in new_users_data if user[0] not in existing_usernames]
+if filtered_new_users:
+  insert_many_sql = "INSERT INTO users (username, email) VALUES (?, ?);"
+  cursor.executemany(insert_many_sql, filtered_new_users)
+  conn.commit()</div>
+
+    <div class="flex flex-col gap-3">
+      <div class="term p-3">
+        <div class="text-xs uppercase tracking-wider text-slate-700">Why this helps</div>
+        <div class="text-sm text-slate-600 mt-2">Avoids IntegrityError, keeps runs idempotent, and provides a clear audit of how many new rows were added.</div>
+      </div>
+      <div class="term p-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700">Edge case</div>
+        <div class="text-sm text-slate-600 mt-2">If you expect many names, generate the IN clause programmatically with the correct number of placeholders to match the parameter list length.</div>
+      </div>
+      <div class="term p-3">
+        <div class="text-xs uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">Hardcoding a fixed IN clause without matching the number of parameters will cause errors. Build the placeholders to match your tuple length.</div>
+      </div>
+    </div>
+  </div>
+</div>

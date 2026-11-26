@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} .card{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Minimize Storage Writes</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Step-by-step patterns</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Read state once, store in a local variable if used repeatedly.</li>
+        <li>Modify the local copy and write back only if necessary.</li>
+        <li>Use mapping(address =&gt; bool) for existence instead of pushing to arrays.</li>
+        <li>Emit events for off-chain storage needs rather than persisting transient data.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Example</div>
+        <pre class="bg-slate-50 p-3 rounded"><code>// Cache example
+uint current = profiles[_user].reputationScore; // single read
+uint updated = current + 1;
+profiles[_user].reputationScore = updated; // single write back
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800">Why it matters</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Fewer writes directly reduce transaction gas and cost to users.</li>
+        <li>Events let you preserve auditability off-chain without paying storage costs.</li>
+        <li>Avoid unnecessary helper calls that cause extra storage access.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Plan writes: read once, change locally, write once. Events are cheap alternatives to persistent storage when the data is only needed off-chain.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

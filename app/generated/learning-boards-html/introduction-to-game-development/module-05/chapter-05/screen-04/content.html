@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Health Essentials</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4">
+    <div class="col-span-6 bg-white rounded-2xl border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">What a HealthSystem contains</h3>
+      <ul class="mt-4 space-y-3 text-sm text-slate-700">
+        <li>• maxHealth: a public value set in the editor for tuning difficulty.</li>
+        <li>• currentHealth: an internal value exposed via a read-only property or event.</li>
+        <li>• TakeDamage(amount) and Heal(amount): validated methods that modify health through the setter.</li>
+        <li>• OnHealthChanged events to update UI and other reactions.</li>
+      </ul>
+
+      <div class="mt-6 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 border bg-amber-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Analogy</div>
+          <div class="text-sm text-slate-800 mt-1">Think of health as a water tank with a labeled maximum. Damage removes water, healing adds it, but valves keep it between empty and full.</div>
+        </div>
+
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Updating UI from many scripts instead of subscribing to a single health event causes inconsistent displays and harder debugging.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl border p-6 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+      <div class="mt-2 text-sm text-slate-700">A property setter clamps values and invokes a UnityEvent for UI updates. The code snippet below shows the currentHealth setter used throughout the class.</div>
+
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-4 rounded-md overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">
+private int _currentHealth;
+public int currentHealth
+{
+  get { return _currentHealth; }
+  private set
+  {
+    _currentHealth = Mathf.Clamp(value, 0, maxHealth);
+    OnHealthChanged?.Invoke(_currentHealth, maxHealth);
+    if (_currentHealth <= 0)
+    {
+      Die();
+    }
+  }
+}
+      </pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use a clamped setter and events to make health authoritative and observable across systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

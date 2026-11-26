@@ -1,0 +1,38 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Application logs: where to look and how to parse them</span>
+  </div>
+  <div class='grid grid-cols-2 gap-6 h-full'>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Common locations</div>
+      <ul class='mt-3 text-sm text-slate-600 space-y-2'>
+        <li>/var/log/httpd/ — Apache access_log and error_log</li>
+        <li>/var/log/mariadb/ or /var/log/mysql/ — database server logs</li>
+        <li>Application-specific directories under /var/log or within app install path</li>
+      </ul>
+      <div class='mt-4 text-sm font-bold text-slate-800'>Useful commands</div>
+      <pre class='mt-2 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+# Follow errors live
+tail -f /var/log/httpd/error_log
+
+# Get last 100 lines
+tail -n 100 /var/log/httpd/error_log
+
+# Filter for errors
+grep -iE "error|fail|exception" /var/log/httpd/error_log
+</pre>
+    </div>
+    <div class='rounded-2xl bg-white border p-4 shadow-sm flex flex-col' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Example scenario</div>
+      <div class='text-sm text-slate-600 mt-2'>While reproducing a blank page, you run tail -f on the Apache error_log and see a permission denied entry with matching timestamp. That shows the server process couldn't read a file. Next steps include ls -l to check ownership and ls -Zd to check SELinux context.</div>
+      <div class='mt-4 rounded-xl p-3 bg-amber-50 border' style='border-color: rgba(226,232,240,0.9)'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro Tip</div>
+        <div class='text-xs text-slate-800'>Use grep with a time range or use awk to extract timestamps so you can correlate application logs with journalctl entries and firewall events.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,90 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--card-border: rgba(226,232,240,0.9);}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.10</span>
+    <span>›</span>
+    <span class="text-slate-700">Justify Service Choices</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <!-- Left: comparison cards -->
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm" style="border-color:var(--card-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-2">Comparison</div>
+        <div class="text-xl font-bold text-slate-800 mb-1">DynamoDB vs RDS: cart & orders</div>
+        <p class="text-sm text-slate-600 mb-3">A compact comparison focused on scale, consistency, and operational effort.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-blue-50">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h18"></path></svg>
+              <div class="font-bold text-sm text-blue-700">DynamoDB</div>
+            </div>
+            <ul class="text-sm text-slate-700 list-disc pl-4 space-y-1">
+              <li>High-scale key-value throughput</li>
+              <li>Single-digit ms reads/writes</li>
+              <li>Eventual consistency by default; strong reads optional</li>
+            </ul>
+          </div>
+
+          <div class="p-3 rounded-lg bg-amber-50">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+              <div class="font-bold text-sm text-amber-700">Amazon RDS</div>
+            </div>
+            <ul class="text-sm text-slate-700 list-disc pl-4 space-y-1">
+              <li>Relational schemas, transactions, strong consistency</li>
+              <li>Vertical scaling and read replicas</li>
+              <li>More operational and backup considerations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border bg-white p-4 shadow-sm flex-1" style="border-color:var(--card-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Trade-off template</div>
+        <div class="grid grid-cols-1 gap-2">
+          <div class="p-3 rounded-lg bg-white border" style="border-color:var(--card-border)">
+            <div class="text-sm font-semibold text-slate-800">Requirement</div>
+            <div class="text-sm text-slate-600">Low-latency writes for shopping cart; eventual loss tolerable for abandoned carts.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border" style="border-color:var(--card-border)">
+            <div class="text-sm font-semibold text-slate-800">Candidate</div>
+            <div class="text-sm text-slate-600">DynamoDB with DAX for read caching.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white border" style="border-color:var(--card-border)">
+            <div class="text-sm font-semibold text-slate-800">Trade-offs & Mitigations</div>
+            <div class="text-sm text-slate-600">Eventual consistency handled with idempotent updates; backups via on-demand exports; TTL for abandoned carts to control storage cost.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: example, takeaway, checklist -->
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm h-1/2" style="border-color:var(--card-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Concrete Example</div>
+        <div class="text-lg font-bold text-slate-800 mb-2">Global Retail Co. Order Path</div>
+        <ol class="list-decimal pl-5 text-slate-700 space-y-2">
+          <li>Cart sessions in DynamoDB with TTL and on-demand scaling.</li>
+          <li>Transactional order creation in Amazon RDS (Aurora) with cross-region read replicas for reporting.</li>
+          <li>Event: order placed → publish to EventBridge → downstream inventory update via Lambda and SQS.</li>
+        </ol>
+        <div class="mt-3 text-sm text-slate-600">This hybrid choice balances low-latency user experience with transactional integrity where required.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Tie each service to a clear requirement, call out the trade-offs, and include mitigations such as retries, idempotency, and backups.</p>
+      </div>
+
+      <div class="rounded-2xl border bg-white p-3 shadow-sm" style="border-color:var(--card-border)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-2">Common Mistake</div>
+        <div class="text-sm text-slate-700">Selecting a service solely because an engineer is familiar with it. Always link choices to scale, cost, and pillar alignment instead.</div>
+      </div>
+    </div>
+  </div>
+</div>

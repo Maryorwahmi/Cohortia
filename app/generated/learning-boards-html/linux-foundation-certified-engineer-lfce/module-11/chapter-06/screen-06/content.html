@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex justify-between items-start">
+    <div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900">Interactive system checks</div>
+      <div class="text-sm text-slate-600 mt-1">Commands to profile logins, processes, and network sockets</div>
+    </div>
+    <div class="text-xs text-slate-500">Investigate • Record • Preserve</div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-4 h-[64%]">
+    <div class="rounded-xl bg-white safe-card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Command panel</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+# Check recent successful logins
+last
+
+# Check recent failed logins
+lastb
+
+# Who is logged in now
+w
+who
+
+# List processes and arguments
+ps aux
+
+# Find network listeners and connections
+lsof -i
+      </pre>
+      <div class="mt-3 text-xs text-slate-600">Record outputs to files for later evidence preservation before making changes.</div>
+    </div>
+
+    <div class="rounded-xl bg-white safe-card p-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example workflow</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Spot spike of failed logins with lastb and note timestamps.</li>
+        <li>Run ps aux to find processes started at nearby times and record PID and exe path.</li>
+        <li>Use lsof -p &lt;PID&gt; to see network activity before taking containment actions.</li>
+      </ol>
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Collect live evidence first; do not destroy volatile data by killing processes or rebooting without capture.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <div class="text-sm text-slate-700 mt-2">An unknown listener on port 31337: use lsof -i :31337 and ps aux | grep &lt;PID&gt; to capture binary path and arguments before containment.</div>
+    </div>
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common Mistake</div>
+      <div class="text-sm text-slate-700 mt-2">Killing processes without collecting evidence; doing so may destroy artifacts needed for forensic analysis.</div>
+    </div>
+    <div class="rounded-lg bg-white safe-card p-3">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check</div>
+      <div class="text-sm text-slate-700 mt-2">If you find matching PIDs across servers, consider network containment steps and centralized logging review next.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

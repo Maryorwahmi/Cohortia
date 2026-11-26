@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Live coding</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 shadow-sm card-border h-full flex flex-col">
+    <h3 class="text-xl font-bold text-slate-700">Starter code</h3>
+    <p class="text-sm text-slate-600 mt-2">Run this script and observe the printed output and the updated file on disk. It follows the chapter activity exactly.</p>
+
+    <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:0.88rem;">
+import configparser
+import os
+
+config_file = 'app_config.ini'
+config = configparser.ConfigParser()
+
+# Ensure the config file exists for the activity
+if not os.path.exists(config_file):
+    config['DEFAULT'] = {'app_name': 'MyWebApp', 'version': '1.0'}
+    config['Database'] = {'type': 'SQLite', 'path': '/var/data/app.db', 'timeout': '30'}
+    config['Features'] = {'user_registration': 'yes', 'email_notifications': 'no'}
+    with open(config_file, 'w') as f:
+        config.write(f)
+    print(f"Created initial {config_file}")
+
+# 1. Read the configuration
+config.read(config_file)
+
+# 2. Print current settings
+print(f"Current Database Path: {config['Database']['path']}")
+current_email_status = config.getboolean('Features', 'email_notifications')
+print(f"Current Email Notifications Status: {'Enabled' if current_email_status else 'Disabled'}")
+
+# 3. Toggle email_notifications
+if current_email_status:
+    config['Features']['email_notifications'] = 'no'
+    print("Email notifications toggled to Disabled.")
+else:
+    config['Features']['email_notifications'] = 'yes'
+    print("Email notifications toggled to Enabled.")
+
+# 4. Add a new API section
+if 'API' not in config:
+    config['API'] = {'api_key': 'ABC123XYZ'}
+    print("Added API section with api_key.")
+
+# 5. Save the updated configuration
+with open(config_file, 'w') as f:
+    config.write(f)
+print(f"Configuration saved to {config_file}")
+
+# 6. Re-read and confirm changes
+config_confirm = configparser.ConfigParser()
+config_confirm.read(config_file)
+new_email_status = config_confirm.getboolean('Features', 'email_notifications')
+print(f"Confirmed New Email Notifications Status: {'Enabled' if new_email_status else 'Disabled'}")
+print(f"Confirmed API Key: {config_confirm['API']['api_key']}")
+</pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-emerald-50 card-border">
+        <div class="text-sm font-bold text-emerald-700">Exercise</div>
+        <div class="text-sm text-slate-700 mt-2">Modify the script to add a timestamped backup before writing, and assert the API key exists after re-read.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-amber-50 card-border">
+        <div class="text-sm font-bold text-amber-700">Reflection</div>
+        <div class="text-sm text-slate-700 mt-2">How will you prevent accidental commits of the updated file with test API keys? Use example files and .gitignore rules.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

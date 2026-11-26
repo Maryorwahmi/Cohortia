@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Create a Share</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Create the share object with CREATE SHARE.</li>
+        <li>Grant USAGE on the database to the share.</li>
+        <li>Grant USAGE on the schema to the share.</li>
+        <li>Grant SELECT on the specific tables or views to the share.</li>
+        <li>Add consumer accounts to the share with ALTER SHARE ... ADD ACCOUNTS.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl bg-amber-50 p-3 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-700">Granting SELECT without USAGE on the database/schema prevents consumers from navigating to the objects.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example SQL</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3"><code>-- As ACCOUNTADMIN or role with CREATE SHARE
+CREATE SHARE my_sales_share;
+
+-- Grants to the share
+GRANT USAGE ON DATABASE SALES_DB TO SHARE my_sales_share;
+GRANT USAGE ON SCHEMA SALES_DB.PUBLIC_SCHEMA TO SHARE my_sales_share;
+GRANT SELECT ON TABLE SALES_DB.PUBLIC_SCHEMA.SALES_ORDERS TO SHARE my_sales_share;
+
+-- Add the consumer account
+ALTER SHARE my_sales_share ADD ACCOUNTS = 'ORG1.ACCOUNTXYZ';</code></pre>
+      <div class="text-xs text-slate-500 mt-3">Tip: run SHOW GRANTS OF SHARE my_sales_share to verify.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white}.mono{font-family:ui-monospace,monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Terminal</div>
+      <div class="mono card p-3 mt-2 text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>cardano-cli query utxo --address $(cat payment.addr) --testnet-magic 1 &gt; utxo.out
+# Parse utxo.out to find a UTXO with enough lovelace
+# Example line:
+# 9a8b7c6d...     0     100000000 lovelace + 1000000 MyToken
+# Use: TX_IN="9a8b7c6d...#0"
+# ADA_IN="100000000"</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Why it matters</div>
+        <div class="text-sm text-slate-600 mt-1">A single UTXO must cover fees plus the minimum ADA attached to the token output; otherwise the build or submit will fail.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Selection checklist</div>
+      <ul class="mt-2 text-sm text-slate-700 list-disc ml-4">
+        <li>Confirm lovelace amount in candidate UTXO.</li>
+        <li>Account for MinUTXO increase when adding native assets.</li>
+        <li>Reserve enough for estimated fee before building final tx.</li>
+      </ul>
+
+      <div class="mt-4 card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-1">Trying to combine many tiny UTXOs without consolidating; pick or consolidate into one UTXO that meets the minima.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

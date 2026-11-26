@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Run Command</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">How it works</div>
+      <div class="text-sm text-slate-700">Run Command sends a document to the SSM Agent on each target instance. The agent executes commands and returns status and output. Use pre-built documents or custom ones that run shell or PowerShell commands.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Example script</div>
+        <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700 overflow-auto">
+          <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular,Menlo,monospace">#!/bin/bash
+echo "Updating iptables rules..."
+# Allow inbound SSH from a specific CIDR
+sudo iptables -A INPUT -p tcp --dport 22 -s 192.168.1.0/24 -j ACCEPT
+# Drop all other inbound SSH
+sudo iptables -A INPUT -p tcp --dport 22 -j DROP
+# Save iptables rules (distribution specific)
+sudo service iptables save
+echo "iptables rules updated."</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Giving overly permissive IAM on instance profiles. Limit the instance profile to only the SSM actions and any resources it truly needs, such as S3 for script storage.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-2/5">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Targets & outputs</div>
+        <div class="text-sm text-slate-700">Target by instance ID, tag, or resource group. Choose CloudWatch Logs or S3 to store command output for audit and troubleshooting.</div>
+      </div>
+
+      <div class="rounded-2xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)] h-2/5">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Auditability</div>
+        <div class="text-sm text-slate-700">Run Command executions appear in CloudTrail. Use output destinations to capture standard output for validation and compliance records.</div>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4 shadow-sm border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">Key takeaway</div>
+        <div class="text-sm text-slate-700">Run Command is the right tool for remote execution at scale. Always plan for persistence and limit permissions to reduce risk.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

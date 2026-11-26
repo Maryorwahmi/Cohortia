@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Toggle & Delete</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <pre class="rounded-md p-3 bg-slate-900 text-white text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+@Test
+fun toggleTaskCompletion_updatesUI() {
+    val taskTitle = "Clean Room"
+    val taskDescription = "Vacuum and dust"
+
+    // Add a task
+    onView(withId(R.id.editText_task_title))
+        .perform(typeText(taskTitle), closeSoftKeyboard())
+    onView(withId(R.id.editText_task_description))
+        .perform(typeText(taskDescription), closeSoftKeyboard())
+    onView(withId(R.id.button_add_task)).perform(click())
+
+    // Toggle completion by clicking the item
+    onView(withText(taskTitle)).perform(click())
+
+    // Verification may require a custom matcher; here we check it is still displayed
+    onView(withText(taskTitle)).check(matches(isDisplayed()))
+}
+
+@Test
+fun deleteTask_removesFromList() {
+    val taskTitle = "Task to Delete"
+
+    // Add task and then perform long click to delete
+    onView(withId(R.id.editText_task_title)).perform(typeText(taskTitle), closeSoftKeyboard())
+    onView(withId(R.id.button_add_task)).perform(click())
+
+    onView(withText(taskTitle)).perform(longClick())
+
+    // Verify the task no longer exists
+    onView(withText(taskTitle)).check(doesNotExist())
+}
+      </pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold text-slate-700">Testing tip</div>
+          <p class="text-sm text-slate-700 mt-1">Prefer explicit delete controls or test-only hooks so tests can trigger removal reliably without complex gestures.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl border p-6 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Use longClick or a delete button to trigger removal in tests.</li>
+        <li>Check absence with doesNotExist() to confirm the view was removed from the hierarchy.</li>
+        <li>Custom visual checks may need custom matchers for color or strikethrough.</li>
+      </ul>
+
+      <div class="mt-6 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common pitfall</div>
+        <p class="text-xs font-medium text-slate-800">Using not(isDisplayed()) can pass even when the view still exists but is hidden; use doesNotExist() for removal assertions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hazard detection</span>
+  </div>
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+    <div class="text-sm font-bold text-slate-700">Detection logic</div>
+    <div class="mt-3 text-sm text-slate-600">The canonical boolean condition is shown below. It checks that the instruction in ID/EX is performing a memory read and that its destination register matches one of the sources in IF/ID.</div>
+    <pre class="mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+ID/EX.MemRead && (ID/EX.Rd == IF/ID.Rs1 || ID/EX.Rd == IF/ID.Rs2)
+    </pre>
+    <div class="mt-3 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Why MemRead?</div>
+        <div class="text-sm text-slate-700 mt-2">Only loads require waiting for memory; other instructions produce data earlier and are handled by forwarding.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-white border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Register equality</div>
+        <div class="text-sm text-slate-700 mt-2">Compare register IDs, taking care with encoding for register zero if the ISA defines it specially.</div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl p-3 bg-amber-50 text-amber-800">
+      <div class="text-[10px] font-bold uppercase tracking-wider">Misconception check</div>
+      <div class="text-sm mt-1">Do not check IF/ID destination registers; the comparison must use ID/EX destination against IF/ID sources to detect an imminent load-use pair.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

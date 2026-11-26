@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab Walkthrough: Modular Web Application</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Task Checklist</div>
+      <ol class="mt-2 list-decimal pl-5 text-sm text-slate-700">
+        <li>Create vpc-template.yaml with VPC, subnet, IGW, route table, and Outputs for VPCId and PublicSubnetId.</li>
+        <li>Modify webserver-template.yaml to accept VPCId and PublicSubnetId, add SG and IAM role, output WebServerPublicIP.</li>
+        <li>Create database-template.yaml with CreateDatabase parameter and Condition to gate the RDS resource.</li>
+        <li>Upload templates to S3 and create parent-stack.yaml referencing those TemplateURLs.</li>
+        <li>Create stack-policy.json to deny delete on WebServerInstance and MyRDSInstance.</li>
+        <li>Deploy parent stack with CreateDatabase=false; create and review a change set to set CreateDatabase=true.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">CLI Snippets (examples)</div>
+      <pre class="mt-2 bg-slate-900 text-white rounded p-3"><code># Upload templates
+aws s3 cp vpc-template.yaml s3://your-cf-templates-bucket/vpc-template.yaml
+aws s3 cp webserver-template.yaml s3://your-cf-templates-bucket/webserver-template.yaml
+aws s3 cp database-template.yaml s3://your-cf-templates-bucket/database-template.yaml
+
+# Deploy parent stack initial
+aws cloudformation deploy \
+  --template-file parent-stack.yaml \
+  --stack-name MyModularWebAppStack \
+  --parameter-overrides KeyPairName=YOUR_KEY_PAIR_NAME AMIId=YOUR_AMI_ID CreateDatabase=false \
+  --capabilities CAPABILITY_IAM \
+  --stack-policy-during-update file://stack-policy.json
+
+# Create change set to enable DB
+aws cloudformation create-change-set \
+  --stack-name MyModularWebAppStack \
+  --template-body file://parent-stack.yaml \
+  --change-set-name EnableDatabaseChangeSet \
+  --parameter-overrides KeyPairName=YOUR_KEY_PAIR_NAME AMIId=YOUR_AMI_ID CreateDatabase=true \
+  --capabilities CAPABILITY_IAM
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

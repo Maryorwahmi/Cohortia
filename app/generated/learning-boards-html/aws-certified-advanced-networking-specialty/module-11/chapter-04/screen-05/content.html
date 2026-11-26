@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Traffic Flow</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Step-by-step flow</div>
+      <ol class="mt-4 list-decimal list-inside text-sm text-slate-600 space-y-3">
+        <li><strong>Client connects</strong> to a static Anycast IP advertised by the closest Edge Location.</li>
+        <li><strong>Listener matches</strong> protocol and port to route the connection.</li>
+        <li><strong>Endpoint group selection</strong> chooses a region; traffic dials and weights adjust distribution.</li>
+        <li><strong>AWS backbone</strong> carries traffic to the chosen regional endpoint over a private route.</li>
+        <li><strong>Health checks</strong> detect problems and trigger automatic reroute to healthy endpoints.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-semibold text-slate-700">Concrete scenario</div>
+        <div class="text-sm text-slate-600 mt-2">A VoIP client opens a UDP session to the Anycast IP. The session is ingested at the nearest PoP and moved over the AWS backbone to the regional endpoint, reducing jitter and packet loss compared to a full public internet route.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Diagrammed callouts</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-700">Ingress behavior</div>
+          <div class="text-sm text-slate-600 mt-1">Anycast advertisements mean the same IP can be learned from many PoPs; routing chooses the closest one from the user’s network perspective.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-700">Regional control</div>
+          <div class="text-sm text-slate-600 mt-1">Endpoint groups map listeners to regions and allow traffic dials for gradual rollouts or failover.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-700">Availability behavior</div>
+          <div class="text-sm text-slate-600 mt-1">Health checks drive automatic traffic rerouting to healthy regions or endpoints without client reconfiguration.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception check</div>
+        <p class="text-xs font-medium text-slate-800">Anycast IPs alone don’t control traffic splits. Use endpoint groups and traffic dials to manage distribution across regions.</p>
+      </div>
+    </div>
+  </div>
+</div>

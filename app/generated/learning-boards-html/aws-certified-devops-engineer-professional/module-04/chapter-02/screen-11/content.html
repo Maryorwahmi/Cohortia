@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">InstallNginxAutomation Lab</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step-by-step</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+        <li>Create IAM role for Automation and attach AmazonSSMAutomationRole policy.</li>
+        <li>Open Systems Manager Automation and create a new YAML document.</li>
+        <li>Paste the InstallNginxAutomation YAML and save with a name like InstallNginxAutomation.</li>
+        <li>Execute the document, select the automation role, pass InstanceId, and run.</li>
+        <li>Monitor steps and review the verify step output for a successful curl response.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Safety note</div>
+        <div class="mt-1">If you open port 80 to verify the welcome page, close it immediately after verification.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold">Document snippet</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 mono" style="min-height:180px;">
+<pre><code>description: "Installs Nginx on a specified EC2 instance."
+schemaVersion: "0.3"
+parameters:
+  InstanceId:
+    type: String
+mainSteps:
+  - name: installNginx
+    action: aws:runShellScript
+    inputs:
+      InstanceIds: ["{{ InstanceId }}"]
+      Commands:
+        - "sudo yum update -y"
+        - "sudo amazon-linux-extras install nginx1 -y"
+        - "sudo systemctl enable nginx"
+        - "sudo systemctl start nginx"
+  - name: verifyNginx
+    action: aws:runShellScript
+    inputs:
+      InstanceIds: ["{{ InstanceId }}"]
+      Commands: ["curl -I localhost"]
+    outputs:
+      - Name: NginxStatus
+        Selector: "$.stdout"
+        Type: String
+</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

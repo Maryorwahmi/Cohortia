@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Optimistic concurrency and commit conflicts</div>
+      <div class="text-sm text-slate-600 mb-4">Multi-writer flows, conflict detection at commit, and common mitigation patterns.</div>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-blue-50 p-2 text-blue-700 font-bold">1</div>
+          <div>
+            <div class="text-sm font-semibold">Read snapshot and plan write</div>
+            <div class="text-xs text-slate-600">Writer reads a consistent snapshot and writes new data files based on that view.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-amber-50 p-2 text-amber-700 font-bold">2</div>
+          <div>
+            <div class="text-sm font-semibold">Prepare commit</div>
+            <div class="text-xs text-slate-600">Writer stages files and prepares a commit entry referencing them.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 p-2 text-violet-700 font-bold">3</div>
+          <div>
+            <div class="text-sm font-semibold">Conflict check at commit</div>
+            <div class="text-xs text-slate-600">Delta verifies the commit does not conflict with newer commits since the original snapshot.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-emerald-50 p-2 text-emerald-700 font-bold">4</div>
+          <div>
+            <div class="text-sm font-semibold">Append or fail</div>
+            <div class="text-xs text-slate-600">If no conflict, the commit is appended; otherwise it fails and requires a retry or reconciliation.</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+          <div class="text-xs text-slate-700 mt-2">Design writes around keys or partitions and use idempotent upserts to minimize conflicts on hot partitions.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl card-border bg-white p-5 flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Concrete scenario</div>
+      <div class="text-xs text-slate-600 mb-3">Two ETL jobs update daily metrics for the same partition. If both run concurrently and update overlapping rows, one commit will fail. To fix this, serialize updates for that partition or shard keys to reduce collisions.</div>
+      <div class="rounded-lg bg-rose-50 p-3 mb-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-2">Assuming automatic merging of concurrent changes. Delta rejects conflicting commits rather than silently merging them.</div>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Optimistic concurrency lets writers run fast but requires conflict-aware design and retry patterns for reliability.</p>
+      </div>
+    </div>
+  </div>
+</div>

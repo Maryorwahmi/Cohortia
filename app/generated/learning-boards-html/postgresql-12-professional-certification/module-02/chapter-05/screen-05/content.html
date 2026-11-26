@@ -1,0 +1,53 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-[rgba(245,166,35,0.1)]'>Process Flow</span>
+    <span>›</span>
+    <span class='text-slate-700'>Validate with EXPLAIN ANALYZE</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-4'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Command sequence</div>
+      <div class='bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;'>
+<pre><code>-- Refresh planner stats for accurate decisions
+ANALYZE orders;
+
+-- Representative query for pending orders
+EXPLAIN ANALYZE SELECT * FROM orders
+WHERE status = 'pending' AND order_date &lt; '2023-10-01';
+
+-- Look for 'Index Scan using idx_orders_pending_date' in the plan output
+</code></pre>
+      </div>
+
+      <div class='mt-4 space-y-2'>
+        <div class='text-sm text-slate-700'>• ANALYZE updates table statistics so the planner has accurate cardinality estimates.</div>
+        <div class='text-sm text-slate-700'>• Run EXPLAIN ANALYZE rather than EXPLAIN alone to see the actual plan chosen at runtime.</div>
+        <div class='text-sm text-slate-700'>• Use realistic parameter values; different parameters can cause different plan choices.</div>
+      </div>
+
+    </div>
+
+    <div class='w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-4 flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Interpreting results</div>
+      <ul class='mt-3 space-y-2 text-sm text-slate-700'>
+        <li>• 'Index Scan' or 'Index Only Scan' indicates the planner used the index; the index name will be shown.</li>
+        <li>• High cost estimates with a sequential scan may mean the index is not selective enough.</li>
+        <li>• If the partial index is unused, confirm the query predicate exactly matches the index WHERE clause.</li>
+      </ul>
+
+      <div class='mt-auto grid grid-cols-1 gap-3'>
+        <div class='rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Example Output Marker</div>
+          <div class='text-sm text-slate-700 mt-2'>You should see a line like: Index Scan using idx_orders_pending_date on orders (cost=... rows=...)</div>
+        </div>
+
+        <div class='rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-bold uppercase tracking-wider text-rose-600'>Misconception</div>
+          <div class='text-sm text-slate-700 mt-2'>Seeing an index in the planner without ANALYZE or without representative parameters is not proof of consistent use.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg data-theme="light"">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Full Document Replacement</span>
+  </div>
+
+  <div class="flex flex-grow gap-6">
+    <div class="w-1/2 flex flex-col">
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">Full Document Replacement</h2>
+      <p class="text-lg text-slate-700 mb-6">Replacing an entire document with new data using the <code>PUT</code> method.</p>
+
+      <div class="flex-grow bg-slate-800 rounded-xl p-4 font-mono text-sm text-slate-200 overflow-auto shadow-lg">
+        <div class="text-blue-400 mb-2"># Retrieve product_101 to see its current state and version</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X GET "localhost:9200/products/_doc/product_101?pretty"</code></pre>
+        <div class="text-blue-400 mt-4 mb-2"># Example of a full document replacement (re-index)</div>
+        <div class="text-blue-400 mb-2"># We change the price and description, but must send the entire document again.</div>
+        <pre><code style="white-space: pre-wrap; tab-size: 2;">curl -X PUT "localhost:9200/products/_doc/product_101?pretty" -H 'Content-Type: application/json' -d'
+{
+  "name": "Wireless Ergonomic Mouse",
+  "description": "An updated description: A comfortable, high-precision mouse designed for long working hours.",
+  "category": "Electronics",
+  "sku": "WM-ERGO-001",
+  "price": 54.99, # Price updated
+  "available": true,
+  "created_at": "2023-01-15 10:00:00"
+}
+'</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">How it Works</div>
+        <p class="text-sm font-medium text-slate-800">When you `PUT` a document with an existing `_id`, Elasticsearch internally marks the old document as deleted and indexes the new one. This is not an in-place modification.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-violet-500 bg-violet-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">Version Increment</div>
+        <p class="text-sm font-medium text-slate-800">Each full replacement causes the document's `_version` number to increment, reflecting a new state of the document.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Consideration</div>
+        <p class="text-sm font-medium text-slate-800">You must send the *entire* document, even if only a small part has changed. This can be inefficient for partial updates.</p>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Full document replacement is simple but less efficient for minor changes, as it re-indexes the whole document.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

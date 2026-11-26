@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">What is a pipeline hazard?</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Definition & Analogy</div>
+      <p class="text-sm text-slate-600 mt-3">A pipeline hazard is any condition that prevents an instruction from moving on schedule. Use the road analogy: resource conflict, missing data, or unknown route cause different kinds of delays.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3 border border-blue-100">
+          <div class="font-semibold text-blue-700">Structural = lane conflict</div>
+          <div class="text-sm text-slate-700 mt-1">Two stages need the same hardware simultaneously; one must wait or hardware must be replicated.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3 border border-violet-100">
+          <div class="font-semibold text-[--violet]">Data = missing sign</div>
+          <div class="text-sm text-slate-700 mt-1">An instruction depends on a value not yet produced by an earlier instruction.</div>
+        </div>
+        <div class="rounded-lg bg-amber-50 p-3 border border-amber-100">
+          <div class="font-semibold text-amber-600">Control = missing signpost</div>
+          <div class="text-sm text-slate-700 mt-1">A branch makes the next fetch address uncertain until it is resolved.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat hazards by class: hardware duplication for structural, forwarding/renaming for data, and prediction/speculation for control.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Common misconceptions</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>All stalls are the same: no, the cause determines the cheapest fix.</li>
+        <li>Forwarding solves everything: forwarding cannot eliminate load-use hazards where data arrives too late.</li>
+        <li>Prediction always helps: incorrect speculation forces flushes that cost cycles; accuracy matters.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <pre class="mt-2 bg-slate-100 p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">ADD R1, R2, R3   # I writes R1
+SUB R4, R1, R5   # J reads R1 (RAW)</pre>
+        <div class="text-xs text-slate-600 mt-2">This RAW case can be resolved by forwarding from EX/MEM to the SUB's ALU input so no stall is necessary.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

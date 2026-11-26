@@ -1,0 +1,108 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--blue:#2563eb;--violet:#7b42e8;--amber:#f5a623;--emerald:#10b981;--rose:#ef6675}
+    .cohortia-bg{background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Reorder Buffer Overview</span>
+  </div>
+
+  <div class="flex-grow grid grid-cols-12 gap-5 h-[calc(100%-64px)]">
+    <div class="col-span-7 bg-white rounded-2xl p-6 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider">Interactive 16:9 Masterclass</div>
+        <div class="text-sm font-semibold text-slate-700">Orientation</div>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Reorder Buffer and In-Order Commit</h1>
+      <p class="text-sm text-slate-600 leading-relaxed">Learn why the ROB is essential to make out-of-order execution safe, how it records results and speculation state, and how commit ensures precise exceptions.</p>
+
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        <div class="rounded-xl p-4 border bg-blue-50" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1">Problem</div>
+          <div class="text-sm font-medium text-slate-800">Imprecise exceptions break recovery because later instructions may have modified the architectural state.</div>
+        </div>
+        <div class="rounded-xl p-4 border bg-emerald-50" style="border-color:rgba(226,232,240,0.9);">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Solution</div>
+          <div class="text-sm font-medium text-slate-800">ROB buffers results until commit, guaranteeing the register file reflects program order and enabling precise exception handling.</div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="text-sm font-semibold text-slate-700 mb-2">What you'll explore</div>
+        <ul class="text-sm text-slate-600 space-y-2 list-inside">
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-violet-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>ROB fields and ready/speculative bits</li>
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8"/></svg>Dispatch, execute, commit, flush lifecycle</li>
+          <li class="flex items-start gap-2"><svg class="w-5 h-5 text-emerald-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M6 7v10M18 7v10"/></svg>Register file vs. physical register file trade-offs</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 border flex flex-col h-full" style="border-color:rgba(226,232,240,0.9);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="rounded-full p-2 bg-violet-50 text-violet-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M6 7v10M18 7v10"/></svg></div>
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Visual Concept</div>
+            <div class="text-sm font-semibold text-slate-800">ROB as a conveyor belt of in-order slots</div>
+          </div>
+        </div>
+
+        <div class="flex-1 grid grid-rows-5 gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-10 rounded-md bg-slate-50 border flex items-center justify-center text-sm font-semibold">Head</div>
+            <div class="flex-1 grid grid-cols-4 gap-2">
+              <div class="rounded-xl bg-white p-2 border text-xs">I1 ready</div>
+              <div class="rounded-xl bg-white p-2 border text-xs">I2 spec</div>
+              <div class="rounded-xl bg-white p-2 border text-xs">I3 exec</div>
+              <div class="rounded-xl bg-white p-2 border text-xs">I4 free</div>
+            </div>
+          </div>
+
+          <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
+            The belt holds instructions in program order. Results are stored in ROB entries until commit; only the head can write architectural state. Flushed entries never touch the register file.
+          </div>
+
+          <div class="flex gap-2">
+            <div class="rounded-lg p-3 bg-white border flex-1 text-sm">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Why precise exceptions</div>
+              <div class="text-sm text-slate-700">Committing in program order ensures that when an exception is raised, the processor can roll back to a known clean state and transfer control to the OS safely.</div>
+            </div>
+            <div class="rounded-lg p-3 bg-white border w-40 text-sm">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this</div>
+              <div class="text-sm text-slate-700">Later we'll simulate a mispredicted branch and count the cycles wasted when speculative entries are flushed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Explore Key Topics</div>
+        <div class="flex items-start gap-3">
+          <div class="w-3.5 h-3.5 rounded-full bg-blue-600 mt-1"></div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Dispatch & Reserve</div>
+            <div class="text-xs text-slate-600">ROB entries allocated in program order and reservation stations hold instructions for execution.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 mt-3">
+          <div class="w-3.5 h-3.5 rounded-full bg-violet-600 mt-1"></div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Commit & Exception</div>
+            <div class="text-xs text-slate-600">Results are written to registers only at commit, enabling precise exception handling and recoverable state.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 mt-3">
+          <div class="w-3.5 h-3.5 rounded-full bg-amber-500 mt-1"></div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Speculation & Flush</div>
+            <div class="text-xs text-slate-600">Speculative entries carry a bit; on mispredict they are discarded and the map table or register file is restored as needed.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

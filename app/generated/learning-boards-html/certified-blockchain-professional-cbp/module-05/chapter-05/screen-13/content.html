@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Conceptual CLI Flow</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Phase 1 — Deposit (Conceptual)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-800" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+# Approve bridge contract to spend 100 MyToken (18 decimals)
+cast send MyToken_Contract_Address "approve(address,uint256)" Bridge_Contract_Address 100000000000000000000 --rpc-url &lt;ETHEREUM_RPC_URL&gt; --private-key &lt;YOUR_PRIVATE_KEY&gt;
+
+# Deposit 100 MyToken into the bridge to mint on TargetChain
+cast send Bridge_Contract_Address "deposit(address,uint256,address)" MyToken_Contract_Address 100000000000000000000 Your_TargetChain_Address --rpc-url &lt;ETHEREUM_RPC_URL&gt; --private-key &lt;YOUR_PRIVATE_KEY&gt;
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">Note: amounts include token decimals. The deposit emits an event observed by relayers that will trigger minting on the destination chain.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Phase 2 — Withdraw (Conceptual)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-800" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+# Burn WrappedMyToken on TargetChain to initiate withdrawal
+targetchain-cli tx WrappedMyToken_Contract_Address burnAndInitiateWithdrawal 100 Your_Ethereum_Address --from &lt;YOUR_TARGETCHAIN_KEY&gt; --chain-id targetchain --node &lt;TARGETCHAIN_RPC_URL&gt;
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">Relayers detect the burn, verify it, and submit proof to the source chain to unlock the original tokens.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Self-reflection</div>
+    <div class="text-sm text-slate-800">Which components must remain honest for your assets to be safe, and how would you validate their honesty before using a bridge?</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

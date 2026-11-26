@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">AIDE Init & Test</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border p-5 border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Terminal commands</div>
+      <pre class="mt-3 bg-black text-slate-100 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;">
+sudo apt update && sudo apt install aide aide-common
+sudo aide --init
+sudo mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+sudo aide --check
+# Test: sudo touch /etc/testfile.txt
+sudo aide --check
+# If change is verified:
+sudo aide --update
+sudo mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+      </pre>
+      <div class="text-xs text-slate-600 mt-3">Inspect the output carefully. The check lists attribute differences so you can triage changes effectively.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border p-5 border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Investigation checklist</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-700 space-y-2">
+        <li>Verify who changed the file and when from logs.</li>
+        <li>Check for related suspicious entries in auth and syslogs.</li>
+        <li>Do not update baseline until the change is validated.</li>
+        <li>Preserve the pre-change database copy offline for forensics.</li>
+      </ul>
+      <div class="mt-auto text-xs text-slate-600">If you see unexpected changes to core files like /etc/passwd, escalate and preserve evidence immediately.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

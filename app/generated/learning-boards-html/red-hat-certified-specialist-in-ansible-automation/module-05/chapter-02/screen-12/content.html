@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Demo</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Live role build</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white p-4 rounded-xl card overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Terminal steps (editor)</div>
+      <pre class="mt-2 p-3 bg-slate-900 text-white rounded-lg" style="white-space: pre-wrap; tab-size: 2;">$ mkdir -p my_webserver_role/{defaults,vars,tasks,handlers,templates,files}
+$ vim my_webserver_role/defaults/main.yml   # add nginx_port, nginx_root_dir
+$ vim my_webserver_role/files/index.html    # add static HTML
+$ vim my_webserver_role/templates/nginx.conf.j2  # add template using {{ nginx_port }}
+$ vim my_webserver_role/handlers/main.yml   # add Restart Nginx handler
+$ vim my_webserver_role/tasks/main.yml      # add install, template with notify, copy, service</pre>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Run the playbook</div>
+        <pre class="mt-1 p-3 bg-slate-800 text-white rounded-lg" style="white-space: pre-wrap; tab-size: 2;">$ ansible-playbook deploy_nginx.yml -i inventory.ini
+# First run: template changed -> handler runs
+# Second run: no changes -> handler not run</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white p-4 rounded-xl card">
+      <div class="text-sm font-bold text-slate-800">Checks to observe</div>
+      <ul class="text-sm text-slate-600 list-disc pl-5 mt-2 space-y-1">
+        <li>First run shows package install, file copy, and handler execution if template changed.</li>
+        <li>Second run should show no changes and no handler execution when files match.</li>
+        <li>Override nginx_port in a playbook to see template re-render and handler triggering.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Reflect</div>
+          <p class="text-xs font-medium text-slate-800">This demo shows the practical value of idempotency and notify-driven handlers for safe automation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

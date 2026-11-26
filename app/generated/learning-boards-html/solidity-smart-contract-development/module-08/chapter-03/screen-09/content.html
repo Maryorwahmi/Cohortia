@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Event</div>
+      <div class="text-xl font-bold text-slate-800">chainChanged</div>
+      <div class="text-sm text-slate-600 mt-2">Switching network changes the chainId; validate and reinitialize to ensure contract interactions target the correct chain.</div>
+
+      <div class="mt-4">
+        <pre class="mono bg-slate-50 rounded-lg p-3 border border-slate-100"><code>const handleChainChanged = (chainId) =&gt; {
+  console.log('Network changed to:', chainId);
+  // Simple and safe: reload to re-initialize app state
+  window.location.reload();
+};
+
+window.ethereum.on('chainChanged', handleChainChanged);</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 p-4">
+      <div class="card p-3">
+        <div class="text-sm font-semibold text-slate-700">Concrete Guidance</div>
+        <div class="text-sm text-slate-700 mt-2">If your dApp only supports Sepolia, detect the connected chain and show a clear banner asking the user to switch. Offer guidance rather than failing silently.</div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-700 mb-2">Pitfall</div>
+          <div class="text-sm text-rose-700 bg-rose-50 p-3 rounded-md border border-rose-100">Attempting to reuse contract addresses across networks causes transactions to fail or perform unintended actions on a different chain.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat chain changes seriously: either reload or reinitialize providers and contracts, and inform the user when the connected network is unsupported.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

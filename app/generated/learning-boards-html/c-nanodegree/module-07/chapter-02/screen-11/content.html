@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">Withdraw example (starter)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;vector&gt;
+#include &lt;mutex&gt;
+#include &lt;chrono&gt;
+
+int g_balance = 1000;
+std::mutex g_balance_mutex;
+
+void withdraw(int amount) {
+  std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " attempting to withdraw " &lt;&lt; amount &lt;&lt; std::endl;
+
+  // TODO: Introduce std::lock_guard here to protect g_balance
+  // std::lock_guard&lt;std::mutex&gt; lock(g_balance_mutex);
+
+  if (g_balance &gt;= amount) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    g_balance -= amount;
+    std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " withdrew " &lt;&lt; amount &lt;&lt; ". New balance: " &lt;&lt; g_balance &lt;&lt; std::endl;
+  } else {
+    std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " Insufficient funds to withdraw " &lt;&lt; amount &lt;&lt; ". Current balance: " &lt;&lt; g_balance &lt;&lt; std::endl;
+  }
+}
+
+int main() {
+  std::vector&lt;std::thread&gt; threads;
+  threads.emplace_back(withdraw, 300);
+  threads.emplace_back(withdraw, 500);
+  threads.emplace_back(withdraw, 200);
+  threads.emplace_back(withdraw, 400);
+  threads.emplace_back(withdraw, 100);
+  for (std::thread &amp; t : threads) t.join();
+  std::cout &lt;&lt; "
+Final balance: " &lt;&lt; g_balance &lt;&lt; std::endl;
+}</pre>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Fix: add std::lock_guard</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto" style="white-space:pre-wrap; tab-size:2;">void withdraw(int amount) {
+  std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " attempting to withdraw " &lt;&lt; amount &lt;&lt; std::endl;
+
+  std::lock_guard&lt;std::mutex&gt; lock(g_balance_mutex);
+
+  if (g_balance &gt;= amount) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    g_balance -= amount;
+    std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " withdrew " &lt;&lt; amount &lt;&lt; ". New balance: " &lt;&lt; g_balance &lt;&lt; std::endl;
+  } else {
+    std::cout &lt;&lt; "Thread " &lt;&lt; std::this_thread::get_id() &lt;&lt; " Insufficient funds to withdraw " &lt;&lt; amount &lt;&lt; ". Current balance: " &lt;&lt; g_balance &lt;&lt; std::endl;
+  }
+}</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Explanation: the lock_guard ensures the check and update are atomic. Logging outside the locked region can reduce contention if necessary.</div>
+
+      <div class="mt-auto">
+        <div class="rounded p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Protect check-and-update sequences with a mutex to preserve invariants and prevent negative balances.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,39 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Permissions</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Permissions and ownership troubleshooting</h3>
+    <p class="text-sm text-slate-600 mt-2">Verify ownership and directory traversal to ensure the service user can access required files.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Commands to inspect access</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>$ ls -l /opt/my_app/my_app.py
+-rw-r--r-- 1 root root 234 Jan 1 11:59 /opt/my_app/my_app.py
+
+$ namei -l /opt/my_app/my_app.py
+f: /opt/my_app/my_app.py
+ d root root /
+ d root root opt
+ d root root my_app
+ - root root my_app.py</code></pre>
+      <div class="mt-2 text-sm text-slate-600">If the file is owned by root and service runs as www-data, change ownership with sudo chown -R www-data:www-data /opt/my_app and restrict permissions appropriately.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example scenario</div>
+      <div class="text-sm text-slate-600">A web server returns 403. You check the webroot and find the directory lacks the execute bit for the web server user. After running sudo chmod o+x /var/www/html and confirming ownership is correct, requests succeed. Always prefer minimal permission changes that grant exactly the access required.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Setting files to 777 hides the real access model and can create security problems. Fix ownership and fine-grained permissions instead.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}
+    .safe-pre{white-space:pre-wrap;tab-size:2}
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-[rgba(123,66,232,0.08)]">Code Example</span>
+      <span>›</span>
+      <span class="text-slate-700">Custom Metrics</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-lg font-bold text-slate-900">OpenTelemetry metric snippet</div>
+      <div class="text-sm text-slate-600 mt-2">An example that creates a counter and increments it with labels. Validate the metric in Cloud Monitoring after deployment.</div>
+
+      <div class="mt-4 code safe-pre"><pre>from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.google_cloud import GoogleCloudMetricExporter
+from opentelemetry.sdk.resources import Resource
+
+resource = Resource.create({"service.name": "my-order-service"})
+metric_reader = PeriodicExportingMetricReader(
+  exporter=GoogleCloudMetricExporter(project_id="YOUR_PROJECT_ID"),
+  export_interval_millis=5000
+)
+provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+metrics.set_meter_provider(provider)
+
+meter = metrics.get_meter(__name__)
+orders_counter = meter.create_counter(
+  name="orders_processed_total",
+  description="Total number of orders processed",
+  unit="1",
+)
+
+# In application logic:
+def process_new_order(order_data):
+  # ... business logic ...
+  orders_counter.add(1, {"status": "success", "region": "us-west1"})
+</pre></div>
+
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-800">Best practices</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-700 space-y-2">
+        <li>Use low-cardinality labels like region or status, not unique user IDs.</li>
+        <li>Choose export intervals that balance freshness and cost.</li>
+        <li>Validate the metric in Cloud Monitoring before relying on it for alerts.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Custom metrics give you business visibility. Instrument carefully, label sensibly, and verify charts and alerts consume the metric correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

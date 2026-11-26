@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="mb-3">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+    <div class="text-2xl font-bold text-slate-800">Integer overflow and safety in Solidity 0.8+</div>
+    <div class="text-sm text-slate-600 mt-1">Automatic checks prevent silent wrap-around; still validate ranges and casts.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Behavior example</div>
+      <div class="rounded-md bg-slate-50 p-3 border card-border">
+        <pre><code>function calculateValue() public pure returns (uint8) {
+  uint8 x = 250;
+  uint8 y = 10;
+  uint8 result = x + y; // reverts in Solidity 0.8+ due to overflow
+  return result;
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">The operation above would have silently wrapped in older versions but now causes a revert, protecting contracts from unexpected values.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Practical rules</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Prefer default checked arithmetic to reduce vulnerabilities.</li>
+        <li>Validate user inputs before arithmetic to avoid frequent reverts in expected flows.</li>
+        <li>Use unchecked blocks only for optimized, thoroughly tested code where wrapping is intentional.</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+          <div class="text-sm text-rose-600 mt-1">Developers sometimes assume math is free from reverts; always consider whether a revert in a function is acceptable for your UX and gas model.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

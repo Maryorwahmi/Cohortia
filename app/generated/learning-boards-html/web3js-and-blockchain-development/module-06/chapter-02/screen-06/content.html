@@ -1,0 +1,54 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <style>.panel{border-radius:12px;border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Handle Wallet Events</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 panel bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Event: accountsChanged</div>
+      <p class="text-sm text-slate-600 mt-2">Fires when the user selects a different account or disconnects. Handler receives an array of accounts.</p>
+
+      <pre class="mono bg-slate-50 p-3 rounded text-sm text-slate-700 mt-3" style="white-space:pre-wrap; tab-size:2">window.ethereum.on('accountsChanged', (newAccounts) =&gt; {
+  setAccounts(newAccounts);
+  if (newAccounts.length === 0) {
+    setWeb3(null); // user disconnected
+  } else {
+    setWeb3(new Web3(window.ethereum));
+  }
+});</pre>
+    </div>
+
+    <div class="w-1/2 panel bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Event: chainChanged</div>
+      <p class="text-sm text-slate-600 mt-2">Fires when the user switches networks. Update chainId and reinitialize Web3 so requests target the correct blockchain.</p>
+
+      <pre class="mono bg-slate-50 p-3 rounded text-sm text-slate-700 mt-3" style="white-space:pre-wrap; tab-size:2">window.ethereum.on('chainChanged', (newChainId) =&gt; {
+  setChainId(newChainId);
+  setWeb3(new Web3(window.ethereum));
+});</pre>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-4">
+    <div class="bg-white p-3 panel shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">Assuming account and chain never change during a session. They do, so update UI and provider state accordingly.</div>
+    </div>
+
+    <div class="bg-white p-3 panel shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+      <div class="text-sm text-slate-600 mt-2">Recreate the Web3 instance after chainChanged so your provider points to the new network IDs and RPC endpoints tied to the wallet.</div>
+    </div>
+
+    <div class="bg-white p-3 panel shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Check your cleanup</div>
+      <div class="text-sm text-slate-600 mt-2">Remove listeners on unmount: if window.ethereum.removeListener exists, unregister accountsChanged and chainChanged to prevent duplicate handlers.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

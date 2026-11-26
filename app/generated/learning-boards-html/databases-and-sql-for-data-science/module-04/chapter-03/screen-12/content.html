@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Assessment examples</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Q1 — Courses and enrollment counts</div>
+      <pre class="bg-slate-100 rounded p-3 mt-3"><code>SELECT
+  c.course_name,
+  COUNT(e.enrollment_id) AS num_enrolled_students
+FROM
+  Courses AS c
+LEFT JOIN
+  Enrollments AS e ON c.course_id = e.course_id
+GROUP BY
+  c.course_name
+ORDER BY
+  c.course_name;</code></pre>
+      <div class="text-sm text-slate-600 mt-3">COUNT on the joined id returns zero for courses with no enrollments — a reliable way to show all courses with counts.</div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Q2 — Users who never logged in</div>
+      <pre class="bg-slate-100 rounded p-3 mt-3"><code>SELECT
+  u.username
+FROM
+  Users AS u
+LEFT JOIN
+  Logins AS l ON u.user_id = l.user_id
+WHERE
+  l.login_id IS NULL;</code></pre>
+      <div class="text-sm text-slate-600 mt-3">This preserves all users and selects those with no login entries, exposing inactive accounts for follow-up.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

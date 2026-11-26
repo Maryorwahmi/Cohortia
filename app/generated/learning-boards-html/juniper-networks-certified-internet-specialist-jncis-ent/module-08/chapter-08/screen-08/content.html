@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+    pre.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}
+    .badge{font-size:11px;letter-spacing:0.06em}
+  </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter: Troubleshooting</span>
+      <span>›</span>
+      <span class="text-slate-700">Diagnosing VLAN & Trunks</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-2xl font-bold text-slate-800">Diagnosing VLAN access vs trunk problems</div>
+        <div class="text-sm text-slate-600 mt-1">Follow an ordered check list to isolate access-port faults from trunk misconfiguration.</div>
+      </div>
+      <div class="text-xs font-bold uppercase tracking-wider badge bg-amber-50 text-amber-700 px-3 py-2 rounded-lg card-border">Core Concept</div>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-bold text-slate-700 mb-2">Comparison: Access port vs Trunk</div>
+      <div class="flex gap-3 mb-3">
+        <div class="rounded-xl bg-violet-50 p-3 w-1/2">
+          <div class="flex items-center gap-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-700"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><div class="text-sm font-bold text-slate-700">Access Port</div></div>
+          <p class="text-sm text-slate-600 mt-2">Carries a single VLAN. Check host IP, VLAN membership and MAC learning on the interface.</p>
+          <div class="text-xs text-slate-500 mt-2">Mnemonic: single lane</div>
+        </div>
+        <div class="rounded-xl bg-blue-50 p-3 w-1/2">
+          <div class="flex items-center gap-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-700"><line x1="3" y1="12" x2="21" y2="12"/></svg><div class="text-sm font-bold text-slate-700">Trunk</div></div>
+          <p class="text-sm text-slate-600 mt-2">Carries multiple VLANs. Verify allowed VLAN list, native VLAN and physical link state.</p>
+          <div class="text-xs text-slate-500 mt-2">Mnemonic: multi-lane</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="font-semibold text-slate-700 mb-2">Quick verification commands</div>
+        <pre class="code">show configuration vlans
+show configuration interfaces ge-0/0/0
+show interfaces ge-0/0/0 terse
+show ethernet-switching table</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-bold text-slate-700 mb-2">Diagnostic flow and example</div>
+      <div class="text-sm text-slate-600 mb-3">Follow these steps, confirm after each step before changing configuration.</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2 mb-3">
+        <li>Confirm host IP, mask, and gateway on both ends.</li>
+        <li>Check switch VLAN definition with <span class="font-mono">show configuration vlans</span>.</li>
+        <li>Verify trunk membership and native VLAN; add missing VLANs if needed.</li>
+        <li>Confirm MAC learning with <span class="font-mono">show ethernet-switching table</span>.</li>
+        <li>Check physical link and errors with <span class="font-mono">show interfaces terse</span>.</li>
+      </ol>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Diagnose in order: addressing, VLAN presence, MAC learning, trunk membership, and physical link. This avoids unnecessary changes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

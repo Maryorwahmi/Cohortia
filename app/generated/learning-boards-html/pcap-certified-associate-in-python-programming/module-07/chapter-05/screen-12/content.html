@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Process Flow</div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-lg font-bold">Compile for reuse</div>
+      <div class="text-sm text-slate-600 mt-2">Create a regex object once and call its methods multiple times to avoid repeated compilation overhead.</div>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+import re
+email_pattern = re.compile(r"[\w\.-]+@[\w\.-]+")
+for line in log_lines:
+    m = email_pattern.search(line)
+    if m:
+        print(m.group())
+        </pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Concrete example: compiling an IP or timestamp pattern once is efficient when scanning thousands of log lines.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold">Practical guidance</div>
+      <div class="text-sm text-slate-700 mt-2">Use compile when patterns are used repeatedly, and pass flags like re.IGNORECASE at compile time for consistent behavior across calls.</div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Compile for clarity and speed when using patterns multiple times; prefer method calls on the compiled object.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

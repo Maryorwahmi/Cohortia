@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+    <span class='text-slate-700'>PDA derivation</span>
+  </div>
+
+  <div class='grid grid-cols-12 gap-6 flex-1'>
+    <div class='col-span-6 rounded-2xl bg-white border p-4' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Step-by-step</div>
+      <div class='space-y-3'>
+        <div class='p-3 rounded-lg bg-white border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-bold text-slate-800'>1. Wait for wallet connect</div>
+          <div class='text-sm text-slate-600'>Ensure publicKey and program exist before deriving.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-white border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-bold text-slate-800'>2. Derive PDA deterministically</div>
+          <div class='text-sm text-slate-600'>Use PublicKey.findProgramAddressSync with the same seeds used on-chain.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-white border' style='border-color:rgba(226,232,240,0.9)'>
+          <div class='font-bold text-slate-800'>3. Store PDA in state</div>
+          <div class='text-sm text-slate-600'>Set counterAccountPda and trigger fetch via useEffect.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='col-span-6 rounded-2xl bg-white border p-4' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Visual code hint</div>
+      <div class='rounded-lg bg-slate-100 p-3 font-mono text-sm'>
+        <pre style='white-space:pre-wrap; tab-size:2;'><code>const [counterPda, setCounterPda] = useState&lt;PublicKey | null&gt;(null);
+useEffect(() =&gt; {
+  if (connected &amp;&amp; publicKey &amp;&amp; program) {
+    setCounterPda(getCounterPda());
+  } else {
+    setCounterPda(null);
+    setCurrentCount(null);
+  }
+}, [connected, publicKey, program, getCounterPda]);</code></pre>
+      </div>
+      <div class='mt-3 text-sm text-slate-600'>Avoid deriving inside render. Use useCallback or useMemo for getCounterPda to keep effects stable.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

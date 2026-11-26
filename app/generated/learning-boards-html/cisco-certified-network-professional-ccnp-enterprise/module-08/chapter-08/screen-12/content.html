@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:linear-gradient(180deg,#ffffff,#f8fafc);} .card{border:1px solid rgba(226,232,240,0.9);} .node{border-radius:12px;padding:12px;} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-2xl font-bold text-slate-800">CI/CD Toolchain Overview</h3>
+    <div class="text-sm text-slate-600">How components work together to deliver safe network changes.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-4 card shadow-sm flex flex-col">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="node bg-blue-50 text-blue-700">Git (single source of truth)</div>
+        <div class="node bg-violet-50 text-violet-700">CI Server (pipeline orchestration)</div>
+        <div class="node bg-amber-50 text-amber-700">Automation (Ansible, scripts)</div>
+        <div class="node bg-emerald-50 text-emerald-700">Test Frameworks (validation, emulation)</div>
+        <div class="node bg-slate-50 text-slate-800">Lab/Emulator</div>
+        <div class="node bg-white text-slate-700 card">Devices / APIs (target)</div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <p>Each commit to Git triggers the CI server. The CI server runs linters and dry-run steps, then executes automation against labs. Test frameworks validate post-deploy state and produce artifacts for human review and automated gates.</p>
+      </div>
+    </div>
+
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Common Tools (illustrative)</div>
+        <ul class="text-sm text-slate-700 list-disc pl-5">
+          <li>Git for version control.</li>
+          <li>CI servers like Jenkins or GitLab CI to run pipelines.</li>
+          <li>Automation engines (Ansible) to apply changes.</li>
+          <li>Testing frameworks to validate device state and lab behavior.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-slate-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Pipeline Job Example (concept)</div>
+        <pre class="code">stages:
+  - lint
+  - test
+  - lab-deploy
+  - validate
+  - approve
+  - deploy
+
+# Each job runs commands like:
+# ansible-playbook site.yml --check
+# ansible-playbook site.yml   (in lab or target after approval)
+# run validation scripts and collect artifacts</pre>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Practice</div>
+        <p class="text-sm text-slate-800">Keep test artifacts and logs attached to CI runs so reviewers can make informed approvals quickly.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

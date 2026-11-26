@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">CLI Hands-on</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Create Transit Gateway (example)</div>
+      <pre class="mt-3 text-sm text-slate-800"># Replace with your desired region
+AWS_REGION="us-east-1"
+TGW_NAME="MyAdvancedNetworkingTGW"
+
+aws ec2 create-transit-gateway \
+    --description "$TGW_NAME" \
+    --options "DnsSupport=enable,VpnEcmpSupport=enable,DefaultRouteTableAssociation=enable,DefaultRouteTablePropagation=enable,AmazonSideAsn=64512" \
+    --tag-specifications "ResourceType=transit-gateway,Tags=[{Key=Name,Value=$TGW_NAME}]" \
+    --region $AWS_REGION</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Create VPCs, subnets, attachments, and routes (example snippets)</div>
+      <pre class="mt-3 text-sm text-slate-800"># Create VPCs, subnets (one per AZ shown abbreviated)
+VPC_A_CIDR="10.1.0.0/16"; VPC_B_CIDR="10.2.0.0/16"
+
+# Attach VPC A
+aws ec2 create-transit-gateway-vpc-attachment \
+  --transit-gateway-id tgw-0123456789abcdef0 \
+  --vpc-id $VPC_A_ID \
+  --subnet-ids $SUBNET_A_ID1 $SUBNET_A_ID2 \
+  --tag-specifications "ResourceType=transit-gateway-attachment,Tags=[{Key=Name,Value=${VPC_A_NAME}-TGW-Attachment}]"
+
+# Update VPC route tables to point to TGW
+aws ec2 create-route --route-table-id $VPC_A_RT_ID --destination-cidr-block $VPC_B_CIDR --transit-gateway-id tgw-0123456789abcdef0</pre>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-lg p-4 bg-white card-border">
+      <div class="text-sm font-semibold text-slate-800">Verification & Common mistake</div>
+      <div class="mt-2 text-sm text-slate-600">After creating attachments, check the TGW route table for propagated CIDRs and ensure each VPC route table has routes pointing to the TGW. A common mistake is to skip adding VPC routes and expect the TGW propagation alone to allow communication.</div>
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the CLI sequence as a lab script and verify with instance-level connectivity tests.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

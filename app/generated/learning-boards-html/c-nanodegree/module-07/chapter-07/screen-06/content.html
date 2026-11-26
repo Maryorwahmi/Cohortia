@@ -1,0 +1,62 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class='text-slate-700'>unique_ptr Thread Handoff</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Step-by-step</div>
+      <div class='flex flex-col gap-3'>
+        <div class='flex items-start gap-3'>
+          <div class='w-8 h-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold'>1</div>
+          <div>
+            <div class='text-sm font-bold'>Create resource</div>
+            <div class='text-sm text-slate-700'>Factory returns std::unique_ptr indicating ownership belongs to caller.</div>
+          </div>
+        </div>
+
+        <div class='flex items-start gap-3'>
+          <div class='w-8 h-8 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center font-bold'>2</div>
+          <div>
+            <div class='text-sm font-bold'>Move into thread</div>
+            <div class='text-sm text-slate-700'>Use std::move to pass the unique_ptr into the thread function parameter.</div>
+          </div>
+        </div>
+
+        <div class='flex items-start gap-3'>
+          <div class='w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold'>3</div>
+          <div>
+            <div class='text-sm font-bold'>Thread owns and cleans up</div>
+            <div class='text-sm text-slate-700'>When the thread finishes, the unique_ptr is destroyed and the resource is released automatically.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class='mt-auto text-xs text-slate-600'>Misconception check: moving does not copy; if you find yourself needing copies, reconsider whether shared ownership is the correct model.</div>
+    </div>
+
+    <div class='w-1/2 card p-5 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Example snippet</div>
+      <pre class='bg-slate-50 rounded-md p-3 text-sm overflow-auto' style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+// Producer thread
+std::unique_ptr<Resource> make_resource() {
+  return std::make_unique<Resource>(...);
+}
+
+// Consumer thread entry
+void consumer(std::unique_ptr&lt;Resource&gt; r) {
+  r->use();
+} 
+
+// Handoff
+std::thread t(consumer, std::move(make_resource()));
+</pre>
+
+      <div class='mt-3 text-sm text-slate-700'>Why it matters: the move expresses intent clearly and prevents accidental shared state that would require complex synchronization.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

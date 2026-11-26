@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2; font-family:ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 10</span>
+    <span>›</span>
+    <span>Chapter 10.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on scenario: diagnosing a down tunnel</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <h3 class="text-2xl font-bold text-slate-800">CLI checklist for Router A</h3>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">First commands</div>
+          <pre><code>show crypto isakmp sa
+show crypto ipsec sa
+show crypto map
+show access-lists
+show ip nat translations</code></pre>
+        </div>
+
+        <div class="rounded-md p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Concrete checks</div>
+          <ul class="text-sm text-slate-700 mt-2 list-disc list-inside">
+            <li>Look for peer IP and Status QM_IDLE or UP.</li>
+            <li>Confirm pkts encaps/decaps increment after test traffic.</li>
+            <li>Verify crypto ACL lists 10.1.1.0/24 and 10.2.2.0/24.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] h-full flex flex-col">
+      <div class="font-semibold text-slate-700">Example debug usage</div>
+      <p class="text-sm text-slate-600 mt-2">If show crypto isakmp sa shows no entry, enable debug crypto isakmp on the side that is rejecting negotiations, watch for authentication failures, then immediately stop the debug after you capture the error.</p>
+
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3" style="min-height:160px;">
+        <pre><code>! Example outputs to interpret
+show crypto isakmp sa  -> expect QM_IDLE or UP with peer 198.51.100.1
+show crypto ipsec sa   -> look for pkts encaps = X, pkts decaps = Y
+
+! If counters are zero, inspect crypto ACL and NAT exemptions</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Key Takeaway</div>
+        <p class="text-sm text-slate-700 mt-1">Collect the same show outputs before and after a fix to confirm the problem is resolved by observing state changes and packet counters.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

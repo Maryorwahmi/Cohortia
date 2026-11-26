@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code{background:#0b1220;color:#d6e9ff;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;white-space:pre-wrap;tab-size:2}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">Profile Update</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+      <h3 class="text-xl font-bold text-slate-900">Activity steps</h3>
+      <ol class="mt-3 list-decimal pl-5 text-slate-700 space-y-2">
+        <li>Mock NotificationService and inject into UserService.</li>
+        <li>Call updateProfile which triggers an async notification call.</li>
+        <li>Simulate UI message update after a short delay and implement an explicit wait for it.</li>
+        <li>After the wait succeeds, verify mockNotificationService.sendConfirmation was called.</li>
+      </ol>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+      <h3 class="text-sm font-bold text-slate-800">Key code snippets (conceptual)</h3>
+      <div class="mt-3 code">// UserService with async notification (conceptual)
+public class UserService {
+  private NotificationService notificationService;
+  public UserService(NotificationService notificationService) { this.notificationService = notificationService; }
+  public void updateProfile(String email, String newDisplayName) {
+    // update logic
+    new Thread(() -> { try { Thread.sleep(500); } catch (InterruptedException e) {} notificationService.sendConfirmation(email); }).start();
+  }
+}
+</div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your work</div>
+      <div class="text-sm text-slate-800">Ensure your step waits for the message to appear before verifying the mock. If you verify too early the mock may not have been invoked yet — instead rely on observable completion then assert interactions.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

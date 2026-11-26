@@ -1,0 +1,26 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Two-Level Caching Pattern</span>
+  </div>
+  <div class="flex gap-6 h-[76%]">
+    <div class="w-1/2 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Feed Cache (IDs)</div>
+      <div class="mt-3 text-sm text-slate-700">Stored as Redis Sorted Set: members are post_id, scores are timestamps. Efficient to slice most recent N items.</div>
+      <div class="mt-4 p-3 rounded bg-blue-50 border border-blue-100 text-sm text-blue-700">ZADD and ZREVRANGE are primary operations for this layer.</div>
+    </div>
+    <div class="w-1/2 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Post Cache (Objects)</div>
+      <div class="mt-3 text-sm text-slate-700">Store full post objects keyed by post_id, often a Redis hash, with an independent TTL to limit staleness.</div>
+      <div class="mt-4 p-3 rounded bg-violet-50 border border-violet-100 text-sm text-violet-700">HMSET/HGETALL and EXPIRE are common operations here.</div>
+    </div>
+  </div>
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="p-3 rounded bg-white border text-sm">Trim feed lists to control memory usage and keep reads fast.</div>
+    <div class="p-3 rounded bg-white border text-sm">Use different TTLs for ID lists and post objects to balance freshness and hit ratio.</div>
+    <div class="p-3 rounded bg-white border text-sm">On an update, invalidate the post object and update scores in ID lists if engagement changes.</div>
+  </div>
+</div>

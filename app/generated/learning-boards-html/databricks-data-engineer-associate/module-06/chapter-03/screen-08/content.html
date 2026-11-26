@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Credential Passthrough</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 rounded-2xl bg-white p-5 card shadow-sm overflow-hidden">
+      <div class="text-lg font-bold text-slate-800">Concept and example</div>
+      <div class="mt-3 text-sm text-slate-700">When credential passthrough is enabled, the cluster does not present shared storage credentials. Instead, the user's cloud identity is forwarded to the storage service, so access records show the individual user.</div>
+
+      <pre class="rounded p-3 bg-slate-900 text-slate-100 mt-3"><code># Example: Read a CSV from ADLS Gen2 with credential passthrough enabled
+# The cluster must be configured for credential passthrough and the user needs storage permissions
+df = spark.read.format("csv").load("abfss://mycontainer@mystorageaccount.dfs.core.windows.net/data.csv")
+df.display()</code></pre>
+
+      <div class="mt-4 text-sm text-slate-700">If passthrough is not enabled, the same read operation may fail with an access denied message even when the user has explicit permissions on the storage account, because the cluster credentials, not the user identity, are used by default.</div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Why choose passthrough?</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Eliminates shared secrets such as storage account keys.</li>
+        <li>Provides per-user audit trails in cloud storage logs.</li>
+        <li>Leverages existing cloud IAM for simpler management.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Enable credential passthrough when you need auditable, per-user storage access and want to avoid managing shared credentials on clusters.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

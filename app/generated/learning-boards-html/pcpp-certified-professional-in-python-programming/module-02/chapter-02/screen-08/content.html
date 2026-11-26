@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">MyMetaclass example</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Full example</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-slate-100 p-3 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;">
+class MyMetaclass(type):
+    def __new__(mcs, name, bases, attrs):
+        print(f"--- Metaclass __new__ called for class {name} ---")
+        print(f"  Bases: {bases}")
+        print(f"  Attributes before modification: {list(attrs.keys())}")
+
+        attrs['METACLASS_INJECTED_VAR'] = f"Hello from {name}"
+
+        if 'required_method' not in attrs:
+            print(f"  WARNING: Class {name} is missing 'required_method'. Adding a placeholder.")
+            def _placeholder_method(self):
+                raise NotImplementedError(f"'{name}' must implement 'required_method'")
+            attrs['required_method'] = _placeholder_method
+
+        cls = super().__new__(mcs, name, bases, attrs)
+        print(f"  Class object '{name}' created by __new__.")
+        return cls
+
+    def __init__(cls, name, bases, attrs):
+        print(f"--- Metaclass __init__ called for class {name} ---")
+        print(f"  Class attributes after creation: {list(cls.__dict__.keys())}")
+        if not name.startswith('Base'):
+            print(f"  INFO: Non-Base class '{name}' initialized.")
+        super().__init__(name, bases, attrs)
+      </pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Notes & behavior</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><strong>Prints at import time:</strong> You will see the metaclass prints when Python defines the class, not when you instantiate it.</li>
+        <li><strong>Injected attributes:</strong> METACLASS_INJECTED_VAR appears on the class and on instances as a normal attribute lookup.</li>
+        <li><strong>Placeholder methods:</strong> The placeholder raises NotImplementedError to force implementers to provide a real method.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">The example demonstrates how __new__ and __init__ can be combined to both alter and validate classes during creation.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

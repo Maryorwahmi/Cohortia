@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Registering Android Module</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl card p-4 overflow-auto">
+      <div class="text-lg font-bold text-slate-900">MyAppPackage.java</div>
+      <pre class="bg-slate-50 p-3 rounded-md border mt-3">
+// android/app/src/main/java/com/yourprojectname/MyAppPackage.java
+package com.yourprojectname;
+
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class MyAppPackage implements ReactPackage {
+
+    @NonNull
+    @Override
+    public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
+        return Collections.emptyList();
+    }
+
+    @NonNull
+    @Override
+    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
+        List<NativeModule> modules = new ArrayList<>();
+        modules.add(new ToastModule(reactContext)); // Add your module here
+        return modules;
+    }
+}
+      </pre>
+
+      <div class="text-sm text-slate-700 mt-3">Then add the package to MainApplication.java so the host loads it at startup and the module appears on NativeModules.</div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl card p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">MainApplication changes</div>
+      <pre class="bg-slate-50 p-3 rounded-md border text-sm">
+// In MainApplication.java add:
+packages.add(new MyAppPackage()); // <-- Add your package here!
+      </pre>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Debug tip</div>
+        <div class="bg-blue-50 rounded-xl p-3 text-sm text-slate-800">If NativeModules.YourModule is undefined, confirm the package is added and rebuild the native app. Check Android Studio Logcat for startup errors or package-not-found traces.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 text-xs font-medium text-slate-800">Registration ties your Java class to the RN host. Without it, JS cannot find or call the native module.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

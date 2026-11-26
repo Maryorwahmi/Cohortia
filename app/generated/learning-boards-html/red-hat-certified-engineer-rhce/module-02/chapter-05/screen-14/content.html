@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Nginx role</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <h4 class="text-lg font-bold text-slate-800 mb-2">deploy_web.yml</h4>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">---
+- name: Deploy Nginx web server using a role
+  hosts: webservers
+  become: yes
+  roles:
+    - nginx_webserver
+      </pre>
+
+      <h4 class="text-lg font-bold text-slate-800 mt-3 mb-2">defaults/main.yml</h4>
+      <pre class="bg-slate-50 p-3 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2">nginx_port: 80</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm border-[rgba(226,232,240,0.9)] overflow-auto">
+      <h4 class="text-lg font-bold text-slate-800 mb-2">tasks/main.yml & handlers</h4>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># tasks/main.yml
+---
+- name: Install Nginx package
+  ansible.builtin.dnf:
+    name: nginx
+    state: latest
+
+- name: Copy Nginx configuration template
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Ensure Nginx service is running and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes
+
+# handlers/main.yml
+---
+- name: Restart Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+      </pre>
+    </div>
+
+    <div class="col-span-2 mt-3 p-3 rounded-lg bg-white border">
+      <div class="text-sm text-slate-700">Verification: Run ansible-playbook deploy_web.yml, then check the host with system tools to confirm nginx is installed, running, and listening on the expected port. Override nginx_port in group_vars to test different environments without changing the role itself.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

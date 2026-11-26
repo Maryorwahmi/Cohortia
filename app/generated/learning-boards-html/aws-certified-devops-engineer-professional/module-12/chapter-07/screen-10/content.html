@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.code-mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Lambda Remediation</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl border p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">What the Lambda does</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">
+        <li>Parses invokingEvent to find resource name</li>
+        <li>Performs S3 actions such as put_public_access_block</li>
+        <li>Logs progress and returns status for Config to record</li>
+      </ul>
+
+      <div class="mt-6">
+        <div class="text-sm font-semibold text-slate-700">Permissions required</div>
+        <div class="text-sm text-slate-600 mt-2">Grant only the minimal S3 and Config permissions the function needs, and avoid wildcard actions where possible.</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-6 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Simplified Python snippet</div>
+      <pre class="mt-3 rounded-md bg-slate-800 text-slate-100 p-3 code-mono"><code>import json
+import boto3
+import os
+
+s3 = boto3.client('s3')
+
+def lambda_handler(event, context):
+    invoking_event = json.loads(event['invokingEvent'])
+    configuration_item = invoking_event['configurationItem']
+    bucket_name = configuration_item['resourceName']
+
+    s3.put_public_access_block(
+        Bucket=bucket_name,
+        PublicAccessBlockConfiguration={
+            'BlockPublicAcls': True,
+            'IgnorePublicAcls': True,
+            'BlockPublicPolicy': True,
+            'RestrictPublicBuckets': True
+        }
+    )
+</code></pre>
+      <div class="mt-3 text-xs text-slate-500">This example focuses on the Block Public Access API. In practice add error handling, retries, and logging for visibility.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Virtual Alias Domains and Maps</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Process</div>
+      <h3 class="text-2xl font-bold mt-2 text-slate-900">Create and enable virtual alias maps</h3>
+      <p class="mt-3 text-sm text-slate-700">Declare virtual_alias_domains and point virtual_alias_maps to a hash:/etc/postfix/virtual lookup table.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">main.cf snippet</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/postfix/main.cf
+virtual_alias_domains = your_virtual_domain.com another_virtual_domain.org
+virtual_alias_maps = hash:/etc/postfix/virtual</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Commands</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2">sudo postmap /etc/postfix/virtual
+sudo systemctl reload postfix</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">virtual_alias_maps are your central redirect table for hosted domains; always run postmap after editing the file.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] h-1/2">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Example /etc/postfix/virtual</div>
+        <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2"># /etc/postfix/virtual
+info@your_virtual_domain.com    john.doe@your_domain.com, jane.smith@your_domain.com
+support@your_virtual_domain.com helpdesk@external.com
+sales@your_virtual_domain.com   sales_team_list@your_domain.com
+
+# another domain
+admin@another_virtual_domain.org root
+webmaster@another_virtual_domain.org web_dev_team@your_domain.com</pre>
+      </div>
+
+      <div class="rounded-xl p-4 bg-amber-50 border border-amber-100">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-700">Misconception</div>
+        <p class="mt-2 text-sm text-slate-700">Do not use /etc/aliases when you manage many domain-scoped addresses; virtual_alias_maps scales better for multi-domain redirects.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Check</div>
+        <p class="mt-2 text-sm text-slate-700">Use postmap -q address /etc/postfix/virtual to query a single entry during troubleshooting, then reload Postfix.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

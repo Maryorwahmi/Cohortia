@@ -1,0 +1,60 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class='text-slate-700'>nginx Example</span>
+  </div>
+
+  <div class='rounded-2xl bg-white border p-5 shadow-sm h-full flex flex-col'>
+    <div class='text-xl font-bold text-slate-800'>nginx L7 reverse proxy snippet</div>
+    <div class='text-sm text-slate-600 mt-2'>This minimal config shows an upstream group and proxying of requests to backends.</div>
+
+    <div class='mt-4 flex-1 overflow-hidden'>
+      <div class='rounded-lg bg-slate-900 text-white p-4 h-full overflow-auto' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;'>
+<pre><code>http {
+    upstream backend_servers {
+        server backend1.example.com;
+        server backend2.example.com;
+        # Optional: use least_conn for algorithm
+        # least_conn;
+    }
+
+    server {
+        listen 80;
+        server_name myapp.com;
+
+        location / {
+            proxy_pass http://backend_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /admin {
+            # Route admin traffic to different servers if needed
+            # proxy_pass http://admin_servers;
+        }
+    }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class='mt-4 grid grid-cols-3 gap-3 text-sm'>
+      <div class='rounded-lg bg-emerald-50 p-3 border'>
+        <div class='font-semibold'>What to notice</div>
+        <div class='text-xs text-slate-700 mt-1'>upstream group defines backends; proxy_pass forwards to the group.</div>
+      </div>
+      <div class='rounded-lg bg-amber-50 p-3 border'>
+        <div class='font-semibold'>Headers</div>
+        <div class='text-xs text-slate-700 mt-1'>X-Real-IP and X-Forwarded-For preserve client origin for logging and security.</div>
+      </div>
+      <div class='rounded-lg bg-rose-50 p-3 border'>
+        <div class='font-semibold'>Production additions</div>
+        <div class='text-xs text-slate-700 mt-1'>Add health checks, SSL termination, timeouts, and logging integrations.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

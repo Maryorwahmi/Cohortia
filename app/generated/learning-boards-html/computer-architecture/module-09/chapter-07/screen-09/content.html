@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Software Pipelining</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-2">Overlap loop iterations into stages</h3>
+        <p class="text-sm text-slate-600 mt-2">Schedule operations from several iterations so each cycle performs work from multiple iterations.</p>
+        <div class="mt-4 rounded-lg bg-slate-50 p-3 card">
+          <div class="text-sm font-semibold">Three-stage example</div>
+          <pre class="mt-2">Without pipelining:
+Cycle 1: A[i]
+Cycle 2: B[i]
+Cycle 3: C[i]
+Cycle 4: A[i+1]
+
+With pipelining:
+Cycle 1: A[i]
+Cycle 2: A[i+1], B[i]
+Cycle 3: A[i+2], B[i+1], C[i]</pre>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">When to use</div>
+            <div class="text-xs text-slate-600 mt-2">Effective for long-running loops with independent operations across iterations.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Misconception</div>
+            <div class="text-xs text-slate-600 mt-2">Pipelining can harm short loops because prologue and epilogue overheads dominate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl bg-white p-5 card shadow-sm h-full flex flex-col">
+        <div class="text-sm font-semibold">Diagram-free pipeline view</div>
+        <div class="mt-3 space-y-3 flex-1">
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Prologue</div>
+            <div class="text-xs text-slate-600 mt-2">M-1 cycles to fill M stages before reaching steady state.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Steady state</div>
+            <div class="text-xs text-slate-600 mt-2">Once filled, each cycle completes parts of different iterations; throughput improves.</div>
+          </div>
+          <div class="rounded-lg bg-white p-3 card">
+            <div class="text-sm font-semibold">Epilogue</div>
+            <div class="text-xs text-slate-600 mt-2">M-1 cycles to drain remaining staged operations after the last iteration starts.</div>
+          </div>
+        </div>
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Software pipelining trades prologue/epilogue overhead for higher steady-state throughput on long loops.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

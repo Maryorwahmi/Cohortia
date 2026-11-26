@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Nested Stacks for Modularity</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Parent / Child Pattern</div>
+      <div class="text-sm text-slate-700 mt-2">Declare child stacks as AWS::CloudFormation::Stack resources with TemplateURL and Parameters. Upload child templates to S3 so the parent can reference them during deployment.</div>
+
+      <pre class="mt-3 bg-slate-900 text-white rounded p-3"><code># ParentStack.yaml (snippet)
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: s3://your-bucket/vpc-template.yaml
+      Parameters:
+        VPCCidr: 10.0.0.0/16
+
+  WebServerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: s3://your-bucket/webserver-template.yaml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnetId
+</code></pre>
+    </div>
+
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="rounded-xl bg-emerald-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Benefits</div>
+        <div class="text-sm text-slate-700 mt-2">Separation of concerns, easier updates, team ownership, and reusable building blocks across projects.</div>
+      </div>
+
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-2">If child templates are not uploaded or the TemplateURL is incorrect, the parent deployment fails. Test child stacks independently first.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

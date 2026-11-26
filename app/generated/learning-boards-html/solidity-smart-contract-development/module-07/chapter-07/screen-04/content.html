@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card{background:white;border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Solidity Events</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 min-w-0">
+      <div class="rounded-2xl card p-6 h-full flex flex-col">
+        <div class="text-lg font-bold text-slate-800">Event declaration and emit</div>
+        <div class="text-sm text-slate-600 mt-2">Design decisions: which params to index and why.</div>
+
+        <div class="mt-4">
+          <div class="rounded-lg bg-white border p-3 mono">
+            <pre><code>// Solidity event example
+pragma solidity ^0.8.20;
+
+contract Example {
+  event Transfer(address indexed from, address indexed to, uint256 value);
+
+  function send(address recipient, uint256 amount) public {
+    // state updates here
+    emit Transfer(msg.sender, recipient, amount);
+  }
+}
+</code></pre>
+          </div>
+
+          <div class="mt-4 text-sm text-slate-600">
+            <ul class="list-disc pl-4 space-y-2">
+              <li><strong>Indexed vs non-indexed:</strong> indexed fields are available as topics for efficient node-side filtering.</li>
+              <li><strong>Gas trade-off:</strong> emitting events costs gas but considerably less than storage writes.</li>
+              <li><strong>Off-chain target:</strong> events are read by UIs, backends, and analytics — not other contracts.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Choose indexed parameters for the fields you expect to filter by. Emit events for off-chain history instead of bulk storage.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl card p-6 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="text-xs text-slate-600 mt-2">Why index from/to in a transfer?</div>
+
+        <div class="mt-3 grid grid-cols-1 gap-3">
+          <div class="p-3 rounded-lg border bg-white">
+            <div class="font-semibold text-slate-800">Scenario</div>
+            <div class="text-sm text-slate-600 mt-1">A wallet UI needs to show recent transfers for a user address. If from and to are indexed, the UI can request only logs related to that address, avoiding scanning all Transfer logs.</div>
+          </div>
+
+          <div class="p-3 rounded-lg border bg-white">
+            <div class="font-semibold text-slate-800">Common mistake</div>
+            <div class="text-sm text-slate-600 mt-1">Marking too many fields as indexed without need increases complexity and can mislead expectations of searchable data. Only index fields you will filter by.</div>
+          </div>
+
+          <div class="p-3 rounded-lg border bg-white">
+            <div class="font-semibold text-slate-800">Check your understanding</div>
+            <div class="text-sm text-slate-600 mt-1">Name two fields you would index for a marketplace contract and explain why they help queries.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

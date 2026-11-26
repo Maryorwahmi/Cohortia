@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 12</span>
+    <span>›</span>
+    <span>Chapter 12.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Reference Architectures</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Reference Artifact</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Reference Architectures and Reusable Templates</h3>
+      <p class="mt-2 text-sm text-slate-600">Design templates with secure defaults, clear configuration, and validation to accelerate safe adoption.</p>
+
+      <div class="mt-4 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)] flex-1 overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Design Principles</div>
+        <ul class="text-xs text-slate-600 mt-2 list-disc list-inside">
+          <li>Opinionated secure defaults for encryption, access control, and logging.</li>
+          <li>Configurable parameters where teams need variation.</li>
+          <li>Validation checks and CI/CD gates to enforce standards.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example Template Snippet</div>
+      <div class="mt-3 rounded-lg bg-slate-900 text-white p-3 text-sm font-mono overflow-auto" style="white-space: pre-wrap; tab-size: 2;">
+<pre><code># S3 template fragment (illustrative)
+Resources:
+  SecureBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "${Project}-${Environment}-${Purpose}-${Region}-${AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Transition:
+              StorageClass: STANDARD_IA
+              Days: 30
+            ExpirationInDays: 365
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Pair templates with validation and documentation so teams adopt them quickly and safely.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

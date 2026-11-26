@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.tiny{font-size:10px}.card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">FCS & Retransmit</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="flex items-center gap-3 mb-3">
+        <svg class="w-6 h-6 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18" /><path d="M21 3L3 21" /></svg>
+        <div>
+          <div class="text-sm font-bold">What FCS Does</div>
+          <div class="text-xs text-slate-500">CRC-based integrity check</div>
+        </div>
+      </div>
+      <div class="text-sm text-slate-700 leading-relaxed">FCS is computed over the MAC header and frame body. A mismatch at the receiver means corruption. For unicast frames the receiver omits the ACK, signaling the sender to retry; for broadcast frames there is no ACK, so higher-layer reliability must be used if needed.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold tiny text-slate-500 mb-1">Practical Note</div>
+        <div class="text-sm text-slate-700">Some capture setups strip FCS. Confirm whether your capture includes the FCS before diagnosing corruption from capture data.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold tiny text-slate-500 mb-1">Retransmission Sequence</div>
+      <ol class="list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Sender transmits unicast frame with FCS.</li>
+        <li>Receiver recalculates FCS; if valid, sends ACK after SIFS.</li>
+        <li>If sender receives ACK, transmission succeeds and CW resets.</li>
+        <li>If no ACK, sender increments retry counter, doubles contention window and schedules backoff before retransmit.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <div class="text-xs text-slate-700">Interpreting missing ACKs as malicious drops; often they reflect interference or collisions detected via FCS failure upstream.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">FCS provides error detection. ACKs and retransmissions implement reliability for unicast frames; repeated retries usually indicate interference or poor link quality.</p>
+  </div>
+</div>

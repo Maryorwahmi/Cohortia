@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">DBFS &amp; CSV</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-lg font-bold text-slate-800">Upload and read pattern</div>
+      <div class="text-sm text-slate-600 mt-2">Use this safe pattern to read CSV files and get helpful error messages.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded text-sm"><code># Python pattern to read a CSV from DBFS
+csv_path = "/FileStore/tables/products.csv"
+try:
+  df = spark.read.option("header","true").option("inferSchema","true").csv(csv_path)
+  print("Loaded products.csv successfully")
+  df.printSchema()
+  df.show(5)
+except Exception as e:
+  print(f"Error loading CSV: {e}")
+  print("Check that the file exists in /FileStore/tables and that your cluster has access.")
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border h-full">
+      <div class="text-sm font-bold text-slate-700">Tips and checks</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>Confirm the uploaded path in DBFS UI before running the notebook.</li>
+        <li>If you see permission errors, verify cluster access to the storage account or object store.</li>
+        <li>For large datasets, prefer reading with an explicit schema to avoid the cost of inferSchema.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Practice</div>
+        <div class="text-sm text-slate-800">Upload a small products.csv with id,name,price, then read and inspect schema to validate the workflow.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

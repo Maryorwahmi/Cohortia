@@ -1,0 +1,49 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 pr-4 flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-500 mb-2'>Process Flow</div>
+      <h3 class='text-2xl font-extrabold text-slate-900'>Failover Routing Policy Mechanics</h3>
+      <p class='mt-3 text-sm text-slate-700'>Use primary and secondary record sets tied to health checks so Route 53 automatically redirects traffic when the primary fails.</p>
+      <div class='mt-4 grid gap-3'>
+        <div class='p-3 rounded-lg bg-white card-border'>
+          <div class='text-sm font-semibold text-slate-800'>Primary record</div>
+          <div class='text-sm text-slate-600 mt-1'>Attach a health check and mark as Primary within a failover routing policy.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-slate-50 border'>
+          <div class='text-sm font-semibold text-slate-800'>Secondary record</div>
+          <div class='text-sm text-slate-600 mt-1'>Marked as Secondary; it becomes the response when primary is unhealthy.</div>
+        </div>
+        <div class='p-3 rounded-lg bg-rose-50 border'>
+          <div class='text-sm font-semibold text-rose-700'>Common mistake</div>
+          <div class='text-sm text-slate-700 mt-1'>Two simple records without health-checking will not provide intelligent failover.</div>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 pl-4 flex flex-col'>
+      <div class='rounded-xl bg-white card-border shadow-sm p-4 flex-1'>
+        <div class='text-sm font-bold text-slate-800'>Configuration callout</div>
+        <div class='mt-3 text-sm text-slate-600'>Essential fields: Name, Type (A or alias), Routing policy: Failover, Failover record type: Primary or Secondary, Set Identifier, HealthCheckId attached to primary, TTL set appropriately.</div>
+        <div class='mt-4 grid grid-cols-1 gap-3'>
+          <div class='p-3 rounded-lg bg-slate-50 border'>
+            <div class='text-sm font-semibold text-slate-800'>Example pattern</div>
+            <div class='text-sm text-slate-700 mt-1'>Primary: app.example.com → us-east-1 ALB, HealthCheckId: PrimaryALBHealthCheck. Secondary: app.example.com → us-west-2 ALB, no primary health check required for basic failover.</div>
+          </div>
+          <div class='p-3 rounded-lg bg-white border'>
+            <div class='text-sm font-semibold text-slate-800'>Testing steps</div>
+            <ol class='list-decimal list-inside text-sm text-slate-600 mt-1 space-y-1'>
+              <li>Confirm primary resolves while healthy.</li>
+              <li>Simulate failure and watch health check go unhealthy.</li>
+              <li>Verify DNS resolves to secondary after TTL/propagation.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class='mt-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Use failover record sets with health checks — do not rely on simple records for automated disaster recovery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

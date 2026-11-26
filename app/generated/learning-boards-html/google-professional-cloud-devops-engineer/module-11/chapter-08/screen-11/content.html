@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Attest → Enforce</div>
+      <p class="text-sm text-slate-600 mt-3">Register attestors, have CI produce attestations after checks, and configure Binary Authorization policies to require those attestations at deploy time.</p>
+      <div class="mt-4 grid gap-2">
+        <div class="p-3 rounded-lg bg-slate-50 text-sm">Create attestor identities that your CI can use.</div>
+        <div class="p-3 rounded-lg bg-slate-50 text-sm">CI creates attestations after passing scans and tests.</div>
+        <div class="p-3 rounded-lg bg-slate-50 text-sm">Binary Authorization blocks any image lacking required attestations.</div>
+      </div>
+    </div>
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">CLI Conceptual Commands</div>
+      <pre class="mt-2 bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;"><code># Create an attestor
+gcloud container binauthz attestors create ci-attestor \
+  --project=YOUR_PROJECT_ID \
+  --description="CI/CD system attests to image quality"
+
+# Create an attestation after build (conceptual)
+gcloud container binauthz attestations create \
+  --artifact-url="gcr.io/your-project/my-app:v1.0" \
+  --attestor="projects/YOUR_PROJECT_ID/attestors/ci-attestor" \
+  --signature-file=./signature.pgp \
+  --key-version="projects/YOUR_PROJECT_ID/locations/global/keyRings/my-keyring/cryptoKeys/my-key/cryptoKeyVersions/1"
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Note: Attestations are cryptographic proofs tied to an attestor identity; policies should require attestations that reflect real, meaningful checks.</div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Binary Authorization enforces that only CI‑attested and scanned images are allowed to run in production.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Architecture</span>
+      <span>›</span>
+      <span class="text-slate-700">Fetch Unit Design</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Blocks and handling key cases</h3>
+  </div>
+
+  <div class="flex gap-4 flex-1">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="font-semibold text-slate-800 mb-2">Essential blocks</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li><strong>PC + Adder:</strong> computes sequential next PCs.</li>
+        <li><strong>Branch Predictor & BTB:</strong> supply next target and decide taken/not-taken.</li>
+        <li><strong>L1I + Line/Way predictor:</strong> deliver bytes with low latency.</li>
+        <li><strong>Predecoder:</strong> find instruction boundaries for variable-length ISAs.</li>
+        <li><strong>Instruction Queue:</strong> buffer decoded-start entries for decode to consume.</li>
+      </ul>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Case notes</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <div><strong>Sequential:</strong> With fixed 4-byte instructions and 64-byte lines, one read can hold 16 instructions. The fetcher forms a 4-instruction packet each cycle.</div>
+        <div><strong>Taken branch (unaligned):</strong> BTB supplies target; alignment logic and possibly a second line read reconstruct the contiguous stream before predecode.</div>
+        <div><strong>Cache miss:</strong> Fetch stalls on L1I; the instruction queue supplies entries to keep decode working until fill completes or the queue empties.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A robust fetch design uses predictors, alignment logic and a queue to hide the common disruptions of real code and maintain steady instruction delivery.</p>
+      </div>
+    </div>
+  </div>
+</div>

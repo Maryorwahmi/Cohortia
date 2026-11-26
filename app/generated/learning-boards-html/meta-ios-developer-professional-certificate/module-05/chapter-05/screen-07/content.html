@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Async/Await</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-6 card p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Key terms</div>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="rounded-lg bg-white border p-3"><strong>async</strong> — marks a function that can suspend.</div>
+        <div class="rounded-lg bg-white border p-3"><strong>await</strong> — pauses until an async call completes without blocking the thread.</div>
+        <div class="rounded-lg bg-white border p-3"><strong>Task</strong> — unit of async work; use Task { await ... } to call async from sync code.</div>
+        <div class="rounded-lg bg-white border p-3"><strong>MainActor</strong> — annotates code to always run on the main thread.</div>
+      </div>
+    </div>
+
+    <div class="col-span-6 card p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example snippet</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space: pre-wrap; tab-size: 2;">
+<pre><code>@MainActor
+class DataFetcher: ObservableObject {
+    @Published var data: String = "No data"
+    @Published var isLoading: Bool = false
+
+    func fetchData() async {
+        isLoading = true
+        try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+        data = "Data fetched successfully!"
+        isLoading = false
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">This pattern keeps UI state on the main actor and avoids explicit DispatchQueue.main.async calls when updating published properties.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

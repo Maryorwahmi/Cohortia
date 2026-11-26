@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-[rgba(123,66,232,0.08)]'>Definition</span>
+    <span>›</span>
+    <span class='text-slate-700'>Expression Index</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-3/5 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-4 overflow-auto'>
+      <div class='text-sm font-bold text-slate-800'>Examples</div>
+      <div class='mt-3 bg-slate-900 text-slate-100 rounded-lg p-3' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space: pre-wrap; tab-size: 2;'>
+<pre><code>-- Case-insensitive uniqueness and lookup
+CREATE UNIQUE INDEX idx_customers_email_lower ON customers (lower(email));
+
+EXPLAIN ANALYZE
+SELECT * FROM customers WHERE lower(email) = 'john.doe@example.com';
+
+-- Index on extracted year
+CREATE INDEX idx_orders_order_year ON orders (EXTRACT(YEAR FROM order_date));
+
+EXPLAIN ANALYZE
+SELECT * FROM orders WHERE EXTRACT(YEAR FROM order_date) = 2023;
+</code></pre>
+      </div>
+
+      <div class='mt-4 space-y-2 text-sm text-slate-700'>
+        <div>• The query must use the same expression so the planner can match the index entry.</div>
+        <div>• Expression indexes are ideal for commonly-used transformations like lower, date parts, and computed flags.</div>
+        <div>• Avoid indexing expressions with nondeterministic or volatile functions.</div>
+      </div>
+
+    </div>
+
+    <div class='w-2/5 flex flex-col gap-3'>
+      <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-4'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>Concrete Analogy</div>
+        <div class='text-sm text-slate-700 mt-2'>Think of an expression index as pre-sorting a photocopy of a document where certain values are already highlighted. A matching search finds highlights instantly instead of scanning and calculating highlights on the fly.</div>
+      </div>
+
+      <div class='rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Pro Tip</div>
+        <p class='text-xs font-medium text-slate-800'>When you need uniqueness on a transformed form, use an expression index combined with UNIQUE to enforce the rule at index level.</p>
+      </div>
+
+      <div class='rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-rose-600'>Misconception</div>
+        <div class='text-sm text-slate-700 mt-2'>Building many expression indexes for rare transformations increases maintenance cost; index only those you actually query frequently.</div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

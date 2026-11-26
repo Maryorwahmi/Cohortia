@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="flex-grow grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-12 bg-white rounded-2xl p-6 border card h-full flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Activity: Accept OSPF routes into BGP</div>
+      <div class="mt-3 text-sm text-slate-700">Recreate these steps in a lab: define lists, write the policy, apply it, and verify with show commands.</div>
+
+      <div class="mt-5 grid grid-cols-2 gap-4 flex-grow">
+        <div class="bg-slate-900 text-white rounded-xl p-4" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2;">
+<pre><code>set policy-options policy-statement ACCEPT_OSPF_ROUTES term OSPF_ACCEPT from protocol ospf
+set policy-options policy-statement ACCEPT_OSPF_ROUTES term OSPF_ACCEPT then accept
+set routing-options static route 192.168.50.0/24 next-hop 10.0.0.1
+set protocols bgp group EXTERNAL_PEER type external
+set protocols bgp group EXTERNAL_PEER neighbor 172.16.1.2
+set protocols bgp group EXTERNAL_PEER import ACCEPT_OSPF_ROUTES
+</code></pre>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 border card">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification steps</div>
+          <ol class="mt-2 text-sm text-slate-700 list-decimal pl-5 space-y-1">
+            <li>commit and-quit</li>
+            <li>show policy-options to view the policy</li>
+            <li>show route protocol ospf and show route protocol bgp to observe accepted prefixes</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-amber-50 p-3 rounded-xl border card">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Lab tip</div>
+        <div class="mt-2 text-sm text-slate-700">Use a static test route or a small OSPF instance to isolate and validate policy behavior without complex topologies.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

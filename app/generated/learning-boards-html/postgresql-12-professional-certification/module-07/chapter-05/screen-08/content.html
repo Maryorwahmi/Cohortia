@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Critical Step</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Update Application Connection Targets</div>
+      <div class="text-sm text-slate-600 mt-3">Failure to re-point clients causes continued downtime even after successful promotion.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Options</div>
+          <ul class="mt-2 text-sm text-slate-600 pl-5 list-disc space-y-1">
+            <li>Change load balancer target to new primary address.</li>
+            <li>Update DNS records with low TTL in advance.</li>
+            <li>Reconfigure application connection strings directly if needed.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-semibold text-amber-700">Tradeoffs</div>
+          <div class="text-sm text-slate-700 mt-1">DNS propagation can be slow; load balancers are faster but require pre-planned health checks and automation.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Consequence</div>
+          <div class="text-xs text-slate-800">Neglecting an update results in continued service outage despite a functioning primary.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl shadow-sm p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Scenario</div>
+      <div class="text-sm text-slate-600 mt-2">If load balancer health checks are configured, you can flip traffic quickly. For DNS, plan TTLs ahead of maintenance so clients refresh records promptly.</div>
+
+      <div class="mt-4 rounded-md bg-slate-50 p-3 mono text-sm text-slate-800">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0"># Example: verify connectivity to new primary
+psql -h new_primary_ip -U app_user -c "SELECT 1;"
+
+# If successful, proceed to switch application config or load balancer target</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Check your monitoring</div>
+          <div class="text-sm text-slate-600 mt-1">Ensure alerts and dashboards point at the new primary so future incidents are visible.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2">Comparison</div>
+      <h3 class="text-xl font-bold text-slate-800">How to read show route</h3>
+      <p class="text-sm text-slate-600 mt-2">Look for the destination prefix, the protocol tag and preference, and the active next-hop line that shows where packets will be sent.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common filters</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-600 space-y-2">
+          <li><span class="mono">show route &lt;prefix&gt;</span> — query a specific destination.</li>
+          <li><span class="mono">show route protocol ospf</span> — view routes learned by OSPF only.</li>
+          <li><span class="mono">show route table inet.0</span> — view the default IPv4 unicast table.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat the routing table as your source of truth for reachability; use filters to focus on protocol or table of interest.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-2 rounded" style="white-space:pre-wrap;tab-size:2;"># show route
+inet.0: 10 destinations, 10 routes (10 active, 0 holddown, 0 hidden)
+0.0.0.0/0          *[OSPF/10] 00:01:23, metric 1
+                    > to 192.168.1.2 via ge-0/0/0.0
+192.168.1.0/24     *[Direct/0] 00:02:45
+                    > via ge-0/0/0.0</pre>
+
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border border-slate-100">
+          <div class="text-xs font-bold text-slate-700">Misconception</div>
+          <div class="text-sm text-slate-600 mt-1">Seeing a protocol configured does not mean routes exist. Always check the routing table for active routes and next-hops.</div>
+        </div>
+
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-xs font-bold text-blue-700">Pro tip</div>
+          <div class="text-sm text-slate-600 mt-1">Use specific prefix queries to speed verification: show route 10.0.0.0/8 will tell you immediately if that destination is present.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

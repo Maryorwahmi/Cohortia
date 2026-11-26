@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">Cross-AZ vs Cross-Region</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 mt-2">Cross-AZ vs Cross-Region tradeoffs</h3>
+    <p class="text-sm text-slate-600 mt-1">Make locality a first-class cost decision and replicate strategically.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Design checklist</div>
+      <ol class="text-sm text-slate-700 space-y-2 list-decimal list-inside">
+        <li>Map service-to-service traffic volume and payload sizes.</li>
+        <li>Prefer local reads to keep cross-AZ traffic low.</li>
+        <li>Use asynchronous replication across regions when possible.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Scenario</div>
+        <div class="text-sm text-slate-700 mt-1">A database replica in another AZ should be used mainly for failover and local reads; avoid constant cross-AZ writes that generate large egress.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Estimate cost impact</div>
+      <div class="text-sm text-slate-700">Calculate average payload size × transactions per second × hours per month to estimate GB/month. Compare that number to the cost of replication or regional storage alternatives.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Assuming multi-AZ equals no cost. Cross-AZ data transfer is billed and can be significant for chatty systems.</div>
+      </div>
+
+      <div class="mt-auto text-xs text-slate-500">Why it matters: planned replication reduces surprise egress and keeps recovery objectives realistic.</div>
+    </div>
+  </div>
+</div>

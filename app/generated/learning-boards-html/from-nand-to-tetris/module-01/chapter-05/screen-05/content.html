@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Pin Connections & Wires</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Process Flow</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">How connections create signals</h2>
+      <div class="mt-3 space-y-3 text-sm text-slate-600">
+        <div>1. Write PARTS lines where each chip instance lists pinName=value pairs.</div>
+        <div>2. When a part outputs to a name, that name becomes an internal wire if not declared as an input or output.</div>
+        <div>3. Reuse that name as a value in another PARTS connection to connect the devices.</div>
+        <div>4. Verify every used name is either a top-level input/output or produced by some part.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 border border-amber-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example trace</div>
+        <pre class="text-sm m-0 bg-transparent" style="white-space:pre-wrap;tab-size:2">Not(in=sel, out=notSel);
+And(a=a, b=notSel, out=aAndNotSel);
+And(a=b, b=sel, out=bAndSel);
+Or(a=aAndNotSel, b=bAndSel, out=out);</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700">Cards</div>
+      <div class="mt-3 grid grid-rows-4 gap-3 h-full">
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-sm font-semibold">Internal wire</div>
+          <div class="text-sm text-slate-600 mt-1">A name assigned as out in one PARTS line and used elsewhere becomes a wire, e.g. notSel.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-sm font-semibold">Declared input</div>
+          <div class="text-sm text-slate-600 mt-1">Top-level inputs like sel are sources provided from outside the chip.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="text-sm font-semibold">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Trying to pass an expression instead of naming the output of a part; HDL requires explicit instances.</div>
+        </div>
+
+        <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat every PARTS out= name as a signal provider and trace it through subsequent PARTS lines to verify connectivity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

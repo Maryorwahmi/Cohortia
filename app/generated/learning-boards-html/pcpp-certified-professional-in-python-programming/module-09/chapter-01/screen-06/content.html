@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 9.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Connecting with sqlite3</span>
+    </div>
+
+    <div class="flex gap-5 h-[72%]">
+      <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+        <div class="text-lg font-bold text-slate-800">Quick connect example</div>
+        <div class="text-sm text-slate-600 mt-2">This code opens inventory.db and creates a cursor for SQL execution.</div>
+
+        <div class="mt-4 bg-slate-50 p-3 rounded-lg">
+          <pre class="code text-sm">import sqlite3
+
+conn = sqlite3.connect('inventory.db')
+cursor = conn.cursor()
+
+cursor.execute('CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL,
+  quantity INTEGER NOT NULL
+)')
+conn.commit()
+conn.close()</pre>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-slate-800">Explanation</div>
+          <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+            <li>sqlite3.connect returns a Connection bound to a file.</li>
+            <li>cursor.execute runs SQL; commit persists changes.</li>
+            <li>Always close the connection to release resources.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+        <div class="text-lg font-semibold text-slate-800">Common misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Assuming the database file appears only after commit. In fact, SQLite will create the file when connecting, but your DDL/DML changes are not permanent until you commit.</div>
+
+        <div class="mt-4">
+          <div class="font-semibold text-slate-800">Check your understanding</div>
+          <div class="text-sm text-slate-600 mt-2">After creating the table but before commit, what happens if the program crashes? You would lose uncommitted changes — that's why commits matter.</div>
+        </div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Open a connection, use a cursor to execute SQL, commit to persist, and close or use a context manager to auto-manage resources.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

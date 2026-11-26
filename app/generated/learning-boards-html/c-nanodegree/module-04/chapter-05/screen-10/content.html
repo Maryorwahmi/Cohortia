@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">concat using fold</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4 mono">
+      <div class="text-sm font-bold text-slate-700">Starter helper + concat</div>
+      <div class="mt-3 p-3 rounded-md border bg-slate-50" style="white-space: pre-wrap; tab-size:2;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;sstream&gt;
+
+template &lt;typename T&gt;
+std::string toString(const T&amp; val) {
+  std::ostringstream oss;
+  oss &lt;&lt; val;
+  return oss.str();
+}
+
+template &lt;typename... Args&gt;
+std::string concat(Args... args) {
+  return (std::string("") + ... + toString(args));
+}
+</div>
+
+      <div class="mt-3 text-sm text-slate-600">This uses a binary left fold with an empty-string initializer so concat() returns an empty string when called without arguments.</div>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example tests</div>
+      <div class="mt-3 text-sm text-slate-600">concat("Hello"," ","World") → "Hello World". concat() → "". concat("Num:", 42, ", pi=", 3.14) → "Num:42, pi=3.14".</div>
+
+      <div class="mt-4 p-3 rounded-md bg-amber-50 text-amber-700">Pitfall: relying on operator+ between mixed types without converting can lead to overload ambiguity. Convert first.</div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use a converter and a fold with an initializer to implement safe, variadic concatenation.</p>
+      </div>
+    </div>
+  </div>
+</div>

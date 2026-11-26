@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Dovecot Mail Quotas</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex-1 flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Configuration</div>
+      <h3 class="text-2xl font-bold mt-2 text-slate-900">Enable and configure quota plugin</h3>
+      <p class="mt-3 text-sm text-slate-700">Load quota in mail_plugins for IMAP and POP3 and set a storage limit in the plugin block.</p>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">20-imap.conf & 20-pop3.conf</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2">protocol imap {
+  mail_plugins = $mail_plugins quota imap_quota
+}
+protocol pop3 {
+  mail_plugins = $mail_plugins quota
+}</pre>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs uppercase tracking-wider text-slate-500">90-quota.conf</div>
+          <pre class="mt-2 text-sm text-slate-800" style="white-space:pre-wrap;tab-size:2">plugin {
+  quota = maildir:storage=100M # Test value
+}</pre>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common oversight</div>
+          <p class="mt-2 text-sm text-slate-700">Defining quota in 90-quota.conf without adding quota to mail_plugins results in quotas not being enforced.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Enable the quota plugin and set a storage limit, then reload Dovecot and verify with an IMAP client or doveadm.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-96 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Behavior</div>
+        <p class="mt-2 text-sm text-slate-700">When users exceed quotas, the MUA will see errors and delivery may be rejected; plan quota messaging and archival policies accordingly.</p>
+      </div>
+
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Check</div>
+        <p class="mt-2 text-sm text-slate-700">After reload, use an IMAP client or doveadm quota get to confirm the quota is visible and enforced for the user.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

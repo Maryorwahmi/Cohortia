@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style>.cohortia-bg{background-color:#f8fafc;}.card-border{border:1px solid rgba(226,232,240,0.9);}.accent-blue{color:#2563eb;}.accent-violet{color:#7b42e8;}.accent-amber{color:#f5a623;}.accent-emerald{color:#10b981;}.accent-rose{color:#ef6675;}</style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span><span>›</span><span>Chapter 5.5</span><span>›</span><span class="text-slate-700">BFD Configuration</span></div><div class="text-3xl font-extrabold text-slate-900 mb-2">Configuring BFD for VRRP</div><div class="text-lg text-slate-700 mb-6">Accelerating VRRP failover with BFD integration</div><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col gap-4"><div class="rounded-xl bg-white p-5 card-border shadow-sm flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Scenario & Task</div><p class="text-sm text-slate-700"><strong>Scenario:</strong> Improve VRRP convergence time on `Arista-SW1` for VLAN 10.<br><strong>Task:</strong> Enable BFD globally and associate it with VRRP group 1 on VLAN 10.</p></div><div class="rounded-xl bg-white p-5 card-border shadow-sm flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Instructions</div><ul class="list-decimal list-inside text-sm text-slate-700 space-y-2"><li>Access `Arista-SW1` CLI.</li><li>Enable BFD globally.</li><li>Configure BFD parameters on the VLAN 10 interface.</li><li>Associate BFD with VRRP group 1 on VLAN 10.</li><li>Verify BFD and VRRP status.</li></ul></div></div><div class="w-1/2 flex flex-col gap-4"><div class="rounded-xl bg-slate-800 p-5 shadow-lg flex-grow"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-2">Arista-SW1 Configuration</div><pre><code style="white-space: pre-wrap; tab-size: 2;" class="text-slate-200 text-sm">enable
+configure terminal
+
+! Enable BFD globally
+bfd enable
+
+! Configure BFD parameters on the interface
+interface Vlan10
+   ! Assuming Vlan10 is already configured with IP and VRRP
+   bfd interval 500 min_rx 500 multiplier 3
+
+! Associate BFD with VRRP group 1
+   vrrp 1 bfd
+
+end
+
+! Verification commands
+show bfd neighbors
+show vrrp interface Vlan10 detail</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 flex-grow flex flex-col justify-center"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Proper BFD configuration with VRRP significantly reduces failover times, enhancing the resilience of first-hop routing.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

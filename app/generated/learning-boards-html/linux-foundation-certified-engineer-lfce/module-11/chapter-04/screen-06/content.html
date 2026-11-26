@@ -1,0 +1,46 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 11.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Application Logs</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Application-specific logs in /var/log</h3>
+    <p class="text-sm text-slate-600 mt-2">Always check both systemd journal and the application's own logs to get complete diagnostic details.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common log locations</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2 flex-1">
+        <li>/var/log/nginx/error.log for nginx errors and config parse messages.</li>
+        <li>/var/log/mysql/error.log or /var/log/mysqld.log for database startup and runtime errors.</li>
+        <li>Application-specific paths configured in the service or application settings.</li>
+      </ul>
+      <div class="mt-3 text-sm text-slate-600">If application logs are empty, verify the service user can write to the log directory and that log rotation didn't move entries away.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white border card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example: check file ownership and existence</div>
+      <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>$ ls -l /var/log/nginx/error.log
+-rw-r----- 1 www-data adm 12345 Jan  1 12:00 /var/log/nginx/error.log
+
+# trace path permissions
+$ namei -l /var/log/nginx/error.log
+f: /var/log/nginx/error.log
+ d root root /
+ d root root var
+ d root root log
+ d root root nginx
+ - www-data adm error.log</code></pre>
+      <div class="mt-3 text-sm text-slate-600">namei -l shows ownership for each path element; missing execute bits on a parent directory prevents traversal even if the file itself is readable.</div>
+
+      <div class="mt-4 p-3 rounded-xl bg-emerald-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-xs text-slate-700 mt-1">Correlate timestamps between the journal and app logs to see both system-level context and application-level errors.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

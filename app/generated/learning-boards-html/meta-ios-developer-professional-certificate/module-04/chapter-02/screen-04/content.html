@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace; font-size:13px;}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-5/12 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">ObservableObject and @Published</div>
+      <div class="text-sm text-slate-600 mt-3">Classes that conform to ObservableObject can notify views when marked fields change. Use @Published for the fields that should broadcast changes.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-700">Concrete example</div>
+          <div class="text-sm text-slate-800 mt-1">A UserProfile class with @Published name and email updates all observing views when either property changes.</div>
+        </div>
+
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-sm font-bold text-amber-700">Common misconception</div>
+          <div class="text-sm text-slate-800 mt-1">ObservableObject is not a direct replacement for @State. It is for reference-type models that may be shared or owned by views.</div>
+        </div>
+
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-bold text-emerald-700">Tip</div>
+          <div class="text-sm text-slate-800 mt-1">If updating multiple properties, consider objectWillChange.send() to batch notifications and avoid multiple re-renders.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-7/12 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Example code</div>
+      <div class="mt-3 mono bg-slate-50 p-3 rounded-lg overflow-auto" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>class UserProfile: ObservableObject {
+  @Published var name: String = ""
+  @Published var email: String = ""
+
+  func update(name: String, email: String) {
+    // For multiple updates, you can batch notifications if needed
+    self.name = name
+    self.email = email
+  }
+}</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Use ObservableObject for shared, class-based models and mark fields with @Published to notify views.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Watchout</div>
+          <div class="text-sm text-slate-800 mt-1">Don’t confuse @State with ObservableObject—ownership and type semantics differ.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

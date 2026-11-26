@@ -1,0 +1,28 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-2">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Architecture</div>
+    <h3 class="text-2xl font-bold mt-2">Cross-Contract Assertions and Events</h3>
+    <p class="text-sm text-slate-600 mt-2">Assert each contract's state and emitted events to validate integrated behavior.</p>
+  </div>
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="font-semibold">Example assertion sequence</div>
+      <ol class="mt-3 text-sm text-slate-600 list-decimal pl-5 space-y-2">
+        <li>Assert myToken.allowance(user1, vault) equals depositAmount after approve.</li>
+        <li>Expect vault.deposit to emit Deposited(user1, depositAmount).</li>
+        <li>Assert myToken.balances(user1) decreased by depositAmount.</li>
+        <li>Assert myToken.balances(vault) increased by depositAmount.</li>
+        <li>Assert vault.deposits(user1) equals depositAmount.</li>
+      </ol>
+      <div class="mt-4 text-sm text-slate-500">Check events and state to ensure both sides of the token transfer reflect the operation.</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 card shadow-sm">
+      <div class="font-semibold">Pro tip</div>
+      <div class="mt-2 text-sm text-slate-600">Use expect(...).to.emit with .withArgs to tightly couple event arguments to your assertions and catch mismatches early.</div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Relying only on one contract's state can hide a failed transfer or an allowance bug; assert both sides.</p>
+      </div>
+    </div>
+  </div>
+</div>

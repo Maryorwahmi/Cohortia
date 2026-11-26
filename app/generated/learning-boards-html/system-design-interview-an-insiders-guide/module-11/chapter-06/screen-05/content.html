@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Feed Request Flow</span>
+  </div>
+  <div class="flex gap-6 h-[76%]">
+    <div class="w-1/2 card p-6 flex flex-col justify-between">
+      <div class="text-sm font-semibold text-slate-700">Step-by-step</div>
+      <ol class="mt-3 space-y-3 text-sm text-slate-700 list-decimal pl-5">
+        <li>Client requests feed with user_id, page, limit.</li>
+        <li>API Gateway routes to Feed Service.</li>
+        <li>Feed Service checks feed cache (ZREVRANGE).</li>
+        <li>On hit: fetch post content in parallel, apply final ranking, return.</li>
+        <li>On miss: retrieve follows, gather posts, merge/sort, cache result.</li>
+      </ol>
+      <div class="mt-4 text-xs text-slate-500">Note: parallel fetching should be bounded to avoid cascading slowdowns.</div>
+    </div>
+    <div class="w-1/2 card p-6">
+      <div class="text-sm font-semibold text-slate-700">Illustrative snippet</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># ZREVRANGE to get latest N post IDs
+feed_post_ids = redis_client.zrevrange(f"user:feed:{user_id}", 0, 19)
+
+# Parallel fetch of posts (conceptual)
+posts = parallel_map(get_full_post_content, feed_post_ids)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This pattern emphasizes fast ID lookups followed by parallel content fetches to minimize wall-clock time.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 11</span>
+    <span>›</span>
+    <span>Chapter 11.9</span>
+    <span>›</span>
+    <span class="text-slate-700">Fabric CA HSM</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Why use HSM for CA</div>
+      <div class="text-sm text-slate-700 mt-2">Keeping the CA signing key inside an HSM prevents certificate forgery by ensuring the key cannot be exported in plain text, preserving network trust.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold mb-1">Operational tips</div>
+        <ul class="list-disc list-inside">
+          <li>Verify token label and PIN with pkcs11-tool before starting the CA.</li>
+          <li>Use secrets or environment injection rather than static YAML for sensitive values.</li>
+          <li>Plan a rotation and re-issuance process for CA keys and certificates.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">YAML example</div>
+      <pre class="rounded-md bg-slate-900 text-white p-3 text-sm" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# fabric-ca-server-config.yaml snippet
+BCCSP:
+  Default: PKCS11
+  PKCS11:
+    Library: /usr/lib/softhsm/libsofthsm2.so
+    Pin: "1234"
+    Label: "my-ca-hsm-label"
+    hash: SHA2
+    security: 256
+    immutable: false
+      </pre>
+      <div class="text-xs text-slate-600 mt-2">Confirm the CA can access the PKCS#11 library from its runtime environment.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

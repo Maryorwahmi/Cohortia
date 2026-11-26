@@ -1,0 +1,65 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Expose & Instantiate</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1 min-h-0">
+    <div class="col-span-7 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Starter C++ pattern</div>
+      <pre class="mono mt-3 rounded-md bg-slate-900 text-slate-100 p-3"><code>// Header (relevant parts)
+UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+TSubclassOf&lt;UUserWidget&gt; PlayerHUDClass;
+
+UPROPERTY()
+UUserWidget* PlayerHUD;
+
+// Source (relevant parts)
+void AMyPlayerController::BeginPlay()
+{
+  Super::BeginPlay();
+  CreateAndAddPlayerHUD();
+}
+
+void AMyPlayerController::CreateAndAddPlayerHUD()
+{
+  if (PlayerHUDClass)
+  {
+    PlayerHUD = CreateWidget&lt;UUserWidget&gt;(this, PlayerHUDClass);
+    if (PlayerHUD)
+    {
+      PlayerHUD->AddToViewport();
+      UE_LOG(LogTemp, Warning, TEXT("Player HUD created and added to viewport."));
+    }
+  }
+  else
+  {
+    UE_LOG(LogTemp, Error, TEXT("PlayerHUDClass is not set in MyPlayerController!"));
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Make the TSubclassOf editable so designers assign the Blueprint asset.</li>
+        <li>CreateWidget returns a UUserWidget instance you store and manage.</li>
+        <li>Call AddToViewport to make the widget visible to the player.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Expose the class to Blueprints, create the widget in BeginPlay, and log errors if the class is unset.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

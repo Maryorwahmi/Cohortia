@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#f1f5f9;padding:10px;border-radius:8px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Item interactions</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm h-[68vh]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Click listeners and delegation</h3>
+      <p class="text-sm text-slate-600 mt-2">Install listeners in the ViewHolder and call a host-provided lambda to react to taps.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-semibold">Pattern</div>
+          <pre class="code">// Pass lambda to adapter
+val adapter = UserAdapter(users) { user -&gt;
+  // Host handles navigation or toast
+}
+
+// Inside ViewHolder.bind
+itemView.setOnClickListener { onItemClick(user) }</pre>
+        </div>
+
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-sm font-semibold">Pitfalls</div>
+          <div class="text-xs text-slate-600 mt-2">Avoid performing navigation or heavy work directly inside the Adapter. Use the adapterPosition at click time to avoid off-by-one when the list changes.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Concrete use</div>
+          <div class="text-[12px] text-slate-600 mt-1">Click shows a toast with the user's name, or launches a details Activity from the host.</div>
+        </div>
+
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Check</div>
+          <div class="text-[12px] text-slate-600 mt-1">If clicks map to wrong items after updates, verify you use adapterPosition at click time and update the underlying list correctly.</div>
+        </div>
+
+        <div class="rounded-lg p-3 border bg-white">
+          <div class="text-xs font-semibold text-slate-800">Pro tip</div>
+          <div class="text-[12px] text-slate-600 mt-1">Make listener wiring lightweight and idempotent so recycled ViewHolders behave predictably.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

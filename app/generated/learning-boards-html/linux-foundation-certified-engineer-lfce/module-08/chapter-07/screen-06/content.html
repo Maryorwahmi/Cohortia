@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Least Privilege</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Run Containers with Least Privilege</h3>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-lg border card-border bg-white p-4 flex flex-col">
+      <div class="text-sm font-semibold">Non-root user example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+FROM alpine:latest
+RUN adduser -D appuser
+USER appuser
+WORKDIR /app
+COPY --chown=appuser:appuser . /app
+CMD ["./my-app"]
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">Remember to chown files copied into the image so the non-root user can access them without errors.</div>
+    </div>
+
+    <div class="w-1/2 rounded-lg border card-border bg-white p-4 flex flex-col">
+      <div class="text-sm font-semibold">Runtime flags and capability control</div>
+      <div class="mt-3 text-sm text-slate-600 space-y-2">
+        <div>Use --cap-drop ALL --cap-add NET_BIND_SERVICE to restrict capabilities to only what the app needs.</div>
+        <div>Run with --read-only and mount writable volumes where necessary to prevent unauthorized writes.</div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">Common mistake: running as root because it's the default. Fix by adding USER and chown in the Dockerfile.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

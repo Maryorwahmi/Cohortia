@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;}</style>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">Comparison</div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 grid grid-rows-2 gap-4">
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">Transparent Proxy</div>
+        <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+          <li>Proxy contains admin and upgrade logic.</li>
+          <li>Proxy distinguishes admin calls from user calls to avoid conflicts.</li>
+          <li>Admin cannot call implementation functions with same signature as proxy functions.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-semibold text-slate-800">UUPS</div>
+        <ul class="text-sm text-slate-600 mt-3 list-disc pl-5 space-y-2">
+          <li>Proxy is minimal: only forwarding logic and implementation pointer.</li>
+          <li>Implementation contains _authorizeUpgrade and upgrade functions.</li>
+          <li>Gas-efficient, but each implementation must include upgrade hooks or upgrades are impossible.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 card p-4">
+      <h3 class="text-lg font-bold text-slate-800">Concrete scenario</h3>
+      <div class="text-sm text-slate-600 mt-3">If you expect frequent upgrades and want low per-call gas cost, UUPS is attractive because the proxy adds minimal overhead. If you prefer centralizing upgrade control and making the proxy explicitly handle admin flows, Transparent Proxy may be clearer. In both cases, protect upgrade authority and test storage compatibility before upgrading.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-2">With UUPS, forgetting to include _authorizeUpgrade in a new implementation will lock the system and prevent future upgrades. With Transparent Proxy, misplacing admin calls can intercept expected implementation behavior.</div>
+      </div>
+    </div>
+  </div>
+</div>

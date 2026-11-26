@@ -1,0 +1,16 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span><span>›</span><span>Chapter 6.2</span><span>›</span><span class="text-slate-700">File Type Variables</span></div><div class="flex flex-col lg:flex-row h-full gap-6"><div class="flex-1 flex flex-col justify-center bg-white rounded-xl p-6 shadow-lg border border-slate-200"><h3 class="text-xl font-bold text-slate-900 mb-4">What are File Type Variables?</h3><p class="text-base text-slate-700 mb-4">For secrets like private keys or certificates, GitLab allows you to define variables that are mounted as temporary files in the runner's environment.</p><ul class="list-disc list-inside text-sm text-slate-700 space-y-2 mb-6"><li class="flex items-start"><span class="mr-2 text-blue-600">•</span><div><strong>Temporary File Creation:</strong> The variable's content is written to a temporary file on the runner.</div></li><li class="flex items-start"><span class="mr-2 text-blue-600">•</span><div><strong>Path Injection:</strong> An environment variable is set, pointing to the path of this temporary file.</div></li><li class="flex items-start"><span class="mr-2 text-blue-600">•</span><div><strong>Reduced Exposure:</strong> Minimizes the risk of the secret being exposed in memory or shell history compared to string variables.</div></li></ul></div><div class="flex-1 flex flex-col justify-center pl-6"><div class="bg-white rounded-xl p-6 shadow-lg border border-slate-200 h-full flex flex-col justify-between"><h3 class="text-xl font-bold text-slate-900 mb-4">Using File Type Variables in Your Pipeline</h3><p class="text-base text-slate-700 mb-4">Your job scripts can then read the content directly from the provided file path.</p><div class="bg-slate-800 text-white rounded-lg p-4 font-mono text-xs overflow-x-auto mb-4" style="tab-size: 2; white-space: pre-wrap;"><pre><code># In GitLab Project Settings > CI/CD > Variables
+Key: SSH_PRIVATE_KEY
+Value: -----BEGIN OPENSSH PRIVATE KEY-----
+       ...
+       -----END OPENSSH PRIVATE KEY-----
+Type: File
+Protected: &#x2713;
+Masked: &#x2713;
+
+# In .gitlab-ci.yml job script
+ssh_job:
+  stage: deploy
+  script:
+    - chmod 600 $SSH_PRIVATE_KEY # Set correct permissions
+    - ssh -i $SSH_PRIVATE_KEY user@your-server "ls -la"
+    - cat $SSH_PRIVATE_KEY # Content will be visible, but variable name is masked</code></pre></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Always use <code>File</code> type variables for private keys and certificates, combined with <code>protected</code> and <code>masked</code> attributes, for maximum security.</p></div></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

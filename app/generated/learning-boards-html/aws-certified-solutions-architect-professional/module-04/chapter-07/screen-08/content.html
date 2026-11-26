@@ -1,0 +1,76 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#f8fafc}
+    pre {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Ubuntu Mono', monospace}
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Automation Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase text-slate-600">Code walkthrough</div>
+      <p class="text-sm text-slate-600 mt-2">This Lambda function iterates regions, filters running instances by an Environment tag, and stops them. Use as a scheduled cost-saver for non-production.</p>
+
+      <pre class="mt-4" style="white-space:pre-wrap; tab-size:2"><code># --- Example Lambda function for stopping non-prod EC2 instances ---
+import boto3
+
+def lambda_handler(event, context):
+  ec2 = boto3.client('ec2')
+  regions = ec2.describe_regions()['Regions']
+
+  for region_data in regions:
+    region = region_data['RegionName']
+    ec2_region = boto3.client('ec2', region_name=region)
+    
+    # Find instances tagged for non-production and running state
+    reservations = ec2_region.describe_instances(
+      Filters=[
+        {'Name': 'tag:Environment', 'Values': ['dev', 'test', 'staging']},
+        {'Name': 'instance-state-name', 'Values': ['running']}
+      ]
+    )['Reservations']
+
+    instances_to_stop = []
+    for reservation in reservations:
+      for instance in reservation['Instances']:
+        instances_to_stop.append(instance['InstanceId'])
+    
+    if instances_to_stop:
+      print(f"Stopping instances in {region}: {instances_to_stop}")
+      ec2_region.stop_instances(InstanceIds=instances_to_stop)
+    else:
+      print(f"No non-production instances to stop in {region}.")
+
+  return {
+    'statusCode': 200,
+    'body': 'Non-production instances stopped.'
+  }</code></pre>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Add a dry-run mode that logs instance IDs without stopping, and require an exempt tag to skip critical instances.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase text-slate-600">How to test safely</div>
+      <ol class="list-decimal ml-4 text-sm text-slate-700 mt-2 space-y-2">
+        <li>Run the function in dry-run mode in a dev account with a known tagged instance.</li>
+        <li>Confirm logs show expected instance IDs and no untagged instances are affected.</li>
+        <li>Enable stop actions after approvals and add a notification step for teams.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Automations save money but require safe defaults: dry-run, logs, exempt tags, and non-production testing.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

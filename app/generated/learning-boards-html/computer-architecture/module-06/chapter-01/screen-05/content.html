@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Register file: Qi and Value</h3>
+      <p class="text-sm text-slate-700 mt-3">Every architectural register tracks which reservation station will produce its next value through Qi. If Qi is zero, the Value field is current and available to issue logic.</p>
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-md bg-slate-50 p-3">
+          <div class="text-sm font-bold text-slate-800">Qi</div>
+          <div class="text-sm text-slate-700 mt-1">Tag of the pending producer reservation station, or 0 if the register is valid.</div>
+        </div>
+        <div class="rounded-md bg-slate-50 p-3">
+          <div class="text-sm font-bold text-slate-800">Value</div>
+          <div class="text-sm text-slate-700 mt-1">Current register value; valid only when Qi = 0.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+      <div class="mt-2 grid gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-bold text-blue-800">Initial state</div>
+          <div class="text-sm text-slate-700 mt-2">R1=5 (Qi=0), R2=3 (Qi=0), R6 pending from RS4 → Qi[R6]=RS4</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-bold text-violet-800">Issue example</div>
+          <div class="text-sm text-slate-700 mt-2">When MUL issues to produce R6, the simulator sets Qi[R6]=RS4. Other instructions that read R6 record Qj=RS4 until RS4 broadcasts.</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+          <p class="text-xs font-medium text-slate-800">Overwriting Qi discards earlier mappings for new readers, but it does not cancel the old instruction's broadcast — the old result can still satisfy stations that were waiting for it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

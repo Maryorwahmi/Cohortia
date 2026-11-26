@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+      <span>›</span>
+      <span>Chapter 3.2</span>
+      <span>›</span>
+      <span class="text-slate-700">User Builder Walkthrough</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm overflow-auto" style="min-height:0">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code (User.java)</div>
+      <div class="rounded-md bg-slate-50 p-3 border">
+        <pre class="text-sm font-mono whitespace-pre-wrap" style="tab-size:2">public class User {
+    private final String firstName;    // Required
+    private final String lastName;     // Required
+    private final int age;             // Optional
+    private final String phone;        // Optional
+    private final String address;      // Optional
+
+    private User(UserBuilder builder) {
+        this.firstName = builder.firstName;
+        this.lastName = builder.lastName;
+        this.age = builder.age;
+        this.phone = builder.phone;
+        this.address = builder.address;
+    }
+
+    public static class UserBuilder {
+        private final String firstName;
+        private final String lastName;
+        private int age = 0;
+        private String phone = null;
+        private String address = null;
+
+        public UserBuilder(String firstName, String lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public UserBuilder age(int age) { this.age = age; return this; }
+        public UserBuilder phone(String phone) { this.phone = phone; return this; }
+        public UserBuilder address(String address) { this.address = address; return this; }
+
+        public User build() {
+            if (age &lt; 0) throw new IllegalArgumentException("Age cannot be negative.");
+            return new User(this);
+        }
+    }
+}
+</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Explanation</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2 flex-1 overflow-auto" style="min-height:0">
+        <li><strong>Private constructor:</strong> only Builder can create User, ensuring controlled instantiation.</li>
+        <li><strong>Final fields:</strong> User fields are final and set once, enforcing immutability.</li>
+        <li><strong>Builder defaults:</strong> Optional fields have defaults so callers only set what matters.</li>
+        <li><strong>Fluent setters:</strong> Calling age().phone().address() improves readability and discoverability.</li>
+        <li><strong>Validation in build:</strong> Central place for checks before object creation.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Inner static Builder gives controlled construction while keeping the final object immutable and validated.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

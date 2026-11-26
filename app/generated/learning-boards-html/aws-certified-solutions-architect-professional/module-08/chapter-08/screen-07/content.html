@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.8</span>
+      <span>›</span>
+      <span class="text-slate-700">AWS FIS Overview</span>
+    </div>
+    <div class="flex h-[68%] gap-4">
+      <div class="w-1/2 rounded-2xl bg-white card-border p-5 shadow-sm">
+        <div class="text-sm font-bold text-slate-700">FIS Building Blocks</div>
+        <div class="mt-3 space-y-3 text-sm text-slate-800">
+          <div><span class="font-semibold">Actions:</span> Faults like terminate-instances or CPU stress.</div>
+          <div><span class="font-semibold">Targets:</span> Resources to affect; by tags, ARNs, or selection modes like PERCENTAGE.</div>
+          <div><span class="font-semibold">Stop Conditions:</span> CloudWatch alarms that stop the experiment automatically.</div>
+          <div><span class="font-semibold">Role:</span> An IAM role with least privilege for FIS to execute actions.</div>
+        </div>
+        <div class="mt-4 rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-1">Use tags and percentage selection to control blast radius precisely and make templates reusable across environments.</div>
+        </div>
+      </div>
+      <div class="w-1/2 rounded-2xl bg-white card-border p-5 shadow-sm">
+        <div class="text-sm font-semibold text-slate-700">Small Template Example</div>
+        <pre class="mono text-sm bg-slate-50 p-3 rounded-md mt-3 overflow-auto">{
+  "description": "Terminate 25% of WebApp instances",
+  "targets": { "WebAppInstances": { "resourceType": "aws:ec2:instance", "selectionMode": "PERCENTAGE(25)", "parameters": { "filters": [{"path": "Tags.Name", "values": ["WebAppInstance"]}, {"path": "State.Name", "values": ["running"]}] } } },
+  "actions": { "TerminateInstances": { "actionId": "aws:ec2:terminate-instances", "parameters": { "instanceIds": "${WebAppInstances}" }, "targets": { "Instances": "WebAppInstances" } } },
+  "stopConditions": [{ "source": "aws:cloudwatch:alarm", "value": "arn:aws:cloudwatch:REGION:ACCOUNT_ID:alarm:WebApp5XXAlarm" }],
+  "roleArn": "arn:aws:iam::ACCOUNT_ID:role/FISExperimentRole"
+}</pre>
+        <div class="mt-3 text-xs text-slate-600">This conceptual JSON shows targets, actions, and stop conditions. Use IAM roles with least privilege when creating templates.</div>
+      </div>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">FIS templates make chaos experiments repeatable, scoped, and safe by design.</p>
+      </div>
+      <div class="rounded-xl bg-white card-border p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check</div>
+        <div class="text-sm text-slate-800 mt-2">Can you name an alarm that would be a good stop condition for your service?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">Terms: 'from' and 'then'</div>
+      <div class="text-sm text-slate-600 mt-3">Use terms to express match criteria and the resulting actions in readable, ordered blocks.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Match conditions (from)</div>
+          <div class="text-sm text-slate-600 mt-2">Source and destination address, ports, protocol, interface, and TCP flags are common matches you can combine.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Actions (then)</div>
+          <div class="text-sm text-slate-600 mt-2">Accept, discard, reject, count, log, and policer define what happens after a match.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Compose terms clearly: specific matches and actions first, general catch-alls last. Name terms to document intent.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Example term sequence</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm">set term allow-ssh-from-mgmt from source-address 192.168.1.10/32
+set term allow-ssh-from-mgmt from destination-port 22
+set term allow-ssh-from-mgmt from protocol tcp
+set term allow-ssh-from-mgmt then accept
+
+set term deny-all-others then discard</pre>
+      <div class="mt-3 text-sm text-slate-600">This shows a specific accept followed by a catch-all discard. The first match stops processing, so order is critical.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use 'count' to observe matches before changing an action to 'discard' or 'accept'.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Placing a broad accept before specific denies prevents the denies from ever running.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

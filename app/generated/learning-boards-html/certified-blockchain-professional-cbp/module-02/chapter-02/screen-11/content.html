@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}.code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space: pre-wrap; tab-size: 2;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Mnemonic Recovery</span>
+  </div>
+
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Conceptual starter code</div>
+      <div class="rounded-lg bg-white p-3 border card-border code">
+        <pre><code># HIGHLY SIMPLIFIED — FOR DEMONSTRATION ONLY
+import hashlib
+
+def mnemonic_to_seed_concept(mnemonic, passphrase=""):
+  combined = (mnemonic + passphrase).encode('utf-8')
+  return hashlib.sha256(combined).hexdigest()
+
+def seed_to_private_key_concept(seed, index=0):
+  input_bytes = (seed + str(index)).encode('utf-8')
+  return hashlib.sha256(input_bytes).hexdigest()
+
+mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+master_seed = mnemonic_to_seed_concept(mnemonic)
+private_key0 = seed_to_private_key_concept(master_seed, index=0)
+print(f"Master seed: {master_seed}")
+print(f"Derived private (index 0): {private_key0}")</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">Exercise: change one word in the mnemonic and re-run to see how the master seed and derived private key change unpredictably.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li>Determinism means the same mnemonic reproduces the same seed and keys.</li>
+        <li>This is a conceptual demonstration; real wallets use PBKDF2 and HMAC-SHA512 for BIP39/BIP32.</li>
+        <li>Never use example code or real mnemonics on insecure devices.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Security note</div>
+          <p class="text-xs font-medium text-slate-800">This sample demonstrates sensitivity to input; protect real mnemonics with offline backups and safe storage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

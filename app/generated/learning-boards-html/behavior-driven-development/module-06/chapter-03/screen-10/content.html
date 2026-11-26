@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#f8fafc;padding:12px;border-radius:6px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor the registration feature</span>
+  </div>
+  <div class="rounded-2xl bg-white p-4 card h-full">
+    <div class="font-bold text-lg text-slate-800">Before</div>
+    <pre class="mt-2 text-sm text-slate-700" style="white-space:pre-wrap;tab-size:2">Feature: User Registration
+
+  Scenario: Successful user registration
+    Given I am on the registration page
+    When I enter "john.doe@example.com" into the email field
+    And I enter "password123" into the password field
+    And I click the "Register" button
+    Then I should see a success message "Registration successful!"
+
+  Scenario: User registration with existing email
+    Given I am on the registration page
+    And a user with email "existing@example.com" already exists
+    When I enter "existing@example.com" into the email field
+    And I enter "securepass" into the password field
+    And I click the "Register" button
+    Then I should see an error message "Email already in use."</pre>
+    <div class="mt-4 font-bold text-lg text-slate-800">After (Scenario Outline)</div>
+    <pre class="mt-2 text-sm text-slate-700" style="white-space:pre-wrap;tab-size:2">Scenario Outline: Registration outcomes
+  Given I am on the registration page
+  And <precondition>
+  When I register with "<email>" and "<password>"
+  Then I should see "<message>"
+
+Examples:
+  | precondition                       | email                    | password    | message                     |
+  |                                   | john.doe@example.com     | password123 | Registration successful!    |
+  | a user with email already exists  | existing@example.com     | securepass  | Email already in use.       |</pre>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

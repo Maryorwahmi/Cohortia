@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Player interact flow: Trace → Check → Call</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800">Player interact flow: Trace → Check → Call</div>
+    <div class="text-sm text-slate-600 mt-1">Implement a robust player's Interact that works with many interactables</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example blueprint flow</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Input Action Interact (Pressed)
+Input Action Interact (Pressed)
+-> Sphere Overlap Actors (
+   World Context: Self,
+   Sphere Pos: GetActorLocation,
+   Radius: 200.0,
+   Out Actors: ForEachLoop)
+-> ForEachLoop (Array Element: TargetActor)
+   -> Does Implement Interface (Object: TargetActor, Interface: BPI_LightSwitch)
+   -> Branch (Condition: Result)
+       True: ToggleLight (Message) (Target: TargetActor)
+       False: continue
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This pattern keeps the player graph short and expressive. Use a break after calling if you only want a single target to respond.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Design choices</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>Use Sphere Overlap for short-range, multi-target interactions.</li>
+        <li>Use Line Trace for precise, aimed interactions.</li>
+        <li>Decide whether one or multiple targets should respond; use ForEach with optional break.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A short trace/check/call pattern keeps player logic stable while enabling any new implementer to respond without changes to the player blueprint.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

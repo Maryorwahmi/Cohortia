@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Fira Code', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter Decorators</span>
+    <span>›</span>
+    <span class="text-slate-700">Wrapper Signatures</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Rule</div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Use *args and **kwargs and return result</h3>
+      <p class="text-sm text-slate-700">These two practices keep wrappers compatible with any function signature and ensure the decorated function's return value is preserved for callers and tests.</p>
+
+      <div class="mt-4">
+        <pre class="code p-3 rounded bg-slate-100 border">def log_call(func):
+  def wrapper(*args, **kwargs):
+    print(f"Calling {func.__name__} with args: {args}, kwargs: {kwargs}")
+    result = func(*args, **kwargs)
+    print(f"{func.__name__} returned: {result}")
+    return result
+  return wrapper
+
+@log_call
+def add(a, b):
+  return a + b
+
+# add(5, 3) returns 8 and prints call info</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <div class="text-sm font-bold text-emerald-700">Pro tip</div>
+          <div class="text-xs text-slate-700 mt-1">If you miss return result you will silently return None and break callers. Always test decorated functions for return values.</div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+          <div class="text-sm font-bold text-amber-700">Method note</div>
+          <div class="text-xs text-slate-700 mt-1">When decorating methods, wrapper still receives self as the first positional argument; you do not need special handling for bound methods.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-3">Check your understanding</div>
+      <div class="rounded-lg p-3 bg-white border border-slate-100">
+        <div class="text-sm font-semibold text-slate-800">Common mistake demo</div>
+        <pre class="code mt-3">def broken(func):
+  def wrapper(*args, **kwargs):
+    func(*args, **kwargs)  # forgot to return
+  return wrapper
+
+@broken
+def get_value():
+  return 42
+
+# get_value() now returns None</pre>
+        <div class="text-xs text-slate-600 mt-3">Fix by storing and returning the original function's result.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

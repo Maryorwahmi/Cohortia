@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} .code-box{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#0f172a10;padding:1rem}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 3.7</span>
+      <span>›</span>
+      <span class="text-slate-700">Class-based Strategy</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <div class="flex flex-col">
+        <div class="text-lg font-bold text-slate-800">Readable class-based implementation</div>
+        <div class="text-sm text-slate-600 mt-2">Below is the class-based shipping strategy from the chapter. Each strategy implements calculate_cost.</div>
+        <div class="mt-3 code-box overflow-auto">
+          <pre><code># Abstract Strategy
+from abc import ABC, abstractmethod
+
+class ShippingStrategy(ABC):
+  @abstractmethod
+  def calculate_cost(self, weight_kg: float) -> float:
+    pass
+
+# Concrete Strategies
+class StandardShipping(ShippingStrategy):
+  def calculate_cost(self, weight_kg: float) -> float:
+    return 5.0 + (weight_kg * 1.5)
+
+class ExpressShipping(ShippingStrategy):
+  def calculate_cost(self, weight_kg: float) -> float:
+    return 15.0 + (weight_kg * 3.0)
+
+class InternationalShipping(ShippingStrategy):
+  def calculate_cost(self, weight_kg: float) -> float:
+    cost = 25.0 + (weight_kg * 5.0)
+    return max(cost, 30.0)
+
+# Context
+class Order:
+  def __init__(self, weight_kg: float, shipping_strategy: ShippingStrategy):
+    self._weight_kg = weight_kg
+    self._shipping_strategy = shipping_strategy
+
+  def set_shipping_strategy(self, strategy: ShippingStrategy):
+    self._shipping_strategy = strategy
+
+  def calculate_total_cost(self):
+    shipping_cost = self._shipping_strategy.calculate_cost(self._weight_kg)
+    item_cost = 50.0
+    return item_cost + shipping_cost</code></pre>
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Explanation and notes</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc ml-4">
+          <li>The Context stores the strategy and delegates the call.</li>
+          <li>Use an abstract base class to enforce the signature across implementations.</li>
+          <li>Avoid side effects like printing from library classes — return values for testability.</li>
+          <li>To switch at runtime, call the setter with a new concrete strategy instance.</li>
+        </ul>
+        <div class="mt-4 p-3 bg-white card">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Check Your Understanding</div>
+          <div class="text-sm text-slate-700 mt-2">How would you add validation to prevent a missing strategy? Consider supplying a default or raising a clear error at construction time.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

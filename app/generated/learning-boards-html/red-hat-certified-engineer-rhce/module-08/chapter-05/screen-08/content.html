@@ -1,0 +1,35 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>SELinux and firewall: frequent causes of inaccessibility</span>
+  </div>
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>Firewalld checks</div>
+      <pre class='mt-2 p-3 bg-slate-50 rounded-lg text-sm' style='white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;'>
+# Inspect public zone rules
+firewall-cmd --list-all --zone=public
+
+# Ensure http and https services are allowed
+# or check open ports
+ss -tunap | grep :80
+</pre>
+      <div class='mt-3 text-sm text-slate-600'>If http/https are missing from allowed services, add them with firewall-cmd --add-service= http --permanent and reload. Always verify after reload.</div>
+    </div>
+    <div class='w-1/2 rounded-2xl bg-white border p-4 shadow-sm' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-bold text-slate-800'>SELinux checks</div>
+      <ul class='mt-2 text-sm text-slate-600 space-y-2'>
+        <li>Check file context: ls -Zd /var/www/html</li>
+        <li>Review AVC denials: /var/log/audit/audit.log for messages labeled avc</li>
+        <li>Temporary test: setenforce 0 to see if access is restored (diagnostic only)</li>
+      </ul>
+      <div class='mt-3 rounded-xl p-3 bg-amber-50 border' style='border-color: rgba(226,232,240,0.9)'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1'>Common Pitfall</div>
+        <div class='text-xs text-slate-800'>Don't leave SELinux disabled. Use semanage fcontext and restorecon to set correct contexts as a permanent fix.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

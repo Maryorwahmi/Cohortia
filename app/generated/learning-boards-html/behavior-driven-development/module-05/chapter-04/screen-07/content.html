@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CI Job Example: GitLab CI</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full grid grid-cols-2 gap-4">
+    <div class="p-4 rounded-lg bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Example .gitlab-ci.yml</div>
+      <div class="mt-3 bg-slate-900 text-slate-50 rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>image: maven:3.8.5-openjdk-17
+
+stages:
+  - build
+  - test
+  - deploy
+
+build_job:
+  stage: build
+  script:
+    - mvn clean install -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+
+bdd_test_job:
+  stage: test
+  script:
+    - mvn test -Dcucumber.options="--tags @smoke"
+  artifacts:
+    when: always
+    paths:
+      - target/cucumber-reports/
+    reports:
+      junit: target/cucumber-reports/cucumber.xml
+  allow_failure: false
+</code></pre>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-lg bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>Use artifacts to retain HTML and JSON outputs for review.</li>
+        <li>reports:junit tells GitLab where to parse test results for the dashboard.</li>
+        <li>allow_failure:false enforces fail-fast so broken behavior stops the pipeline.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Tip</div>
+        <div class="text-sm text-slate-600">Run the job locally first by executing the mvn test command to confirm reports are produced in the expected path.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

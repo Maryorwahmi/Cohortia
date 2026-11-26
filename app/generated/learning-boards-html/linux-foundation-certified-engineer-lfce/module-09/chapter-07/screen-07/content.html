@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 09</span>
+    <span>›</span>
+    <span>Chapter 9.7</span>
+    <span>›</span>
+    <span class="text-slate-700">subprocess.run</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Typical call pattern</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-md p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, 'Roboto Mono', Menlo, monospace;">
+import subprocess
+
+result = subprocess.run(['df', '-h', '/'], capture_output=True, text=True, check=True)
+print('Disk Usage:
+', result.stdout)
+
+try:
+  subprocess.run(['systemctl', 'is-active', 'nginx'], check=True, capture_output=True)
+  print('Nginx is running.')
+except subprocess.CalledProcessError:
+  print('Nginx is not running.')
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-600">Note the use of list arguments and check true. This ensures a CalledProcessError is raised for non-zero exit codes so you can react programmatically.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Tips and pitfalls</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>capture_output=True captures both stdout and stderr.</li>
+        <li>text=True decodes bytes to string using UTF-8 by default.</li>
+        <li>check=True raises CalledProcessError on failures; handle it in except blocks.</li>
+        <li>Use shell=False by default; only use shell=True with sanitized input.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border p-3 bg-rose-50 border-[rgba(239,102,117,0.12)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Warning</div>
+        <p class="text-xs font-medium text-slate-800">Using shell=True with unsanitized input can lead to shell injection vulnerabilities.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

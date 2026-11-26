@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">RedisJSON Examples</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-900 mb-2">Example operations</div>
+      <pre class="bg-slate-100 text-slate-900 p-3 rounded-md text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>from redis.commands.json.path import Path
+
+user_profile = {
+  "name": "Alice Wonderland",
+  "email": "alice@example.com",
+  "address": {"street": "123 Rabbit Hole","city": "Wonderland","zip": "90210"},
+  "interests": ["reading","gardening","chess"]
+}
+
+r.json().set("user:101", Path.root_path(), user_profile)
+retrieved = r.json().get("user:101")
+city = r.json().get("user:101", Path(".address.city"))
+r.json().set("user:101", Path(".email"), "alice.w@newdomain.com")
+r.json().arrappend("user:101", Path(".interests"), "painting")</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">These calls set the document, read the whole document or a path, update one path atomically, and append to an array without rewriting the full document.</div>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-900 mb-2">Practical notes</div>
+      <ul class="text-sm text-slate-600 list-disc ml-4 space-y-2">
+        <li>Use JSON.GET to retrieve a specific path and avoid full document transfer.</li>
+        <li>JSON.SET with a path updates only that path atomically.</li>
+        <li>Append operations like arrappend modify arrays without rewriting the document.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">RedisJSON enables efficient, path-based JSON manipulation so applications can update small parts of large documents quickly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

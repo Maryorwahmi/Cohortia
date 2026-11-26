@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Storage Collisions</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Why slot positions matter</div>
+      <div class="mt-3 text-sm text-slate-700">Solidity assigns storage slots by variable declaration order and type. delegatecall makes implementation expect its own layout but operate on proxy storage. Any change in order or type shifts slots and can corrupt data.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-rose-50 text-rose-700">
+        <div class="text-xs font-bold uppercase tracking-wider">Real consequence</div>
+        <div class="text-sm mt-1">A new variable in LogicV2 can overwrite the proxy's implementation or owner pointer, breaking upgrade controls or allowing takeover.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Prevention strategies</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Reserve explicit slots for proxy bookkeeping using fixed storage slots.</li>
+        <li>Use unstructured storage patterns or storage gap arrays to allow future additions without reordering.</li>
+        <li>Prefer audited upgrade libraries that check layout compatibility when upgrading.</li>
+      </ul>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+      <div class="mt-2 text-sm text-slate-700">Adding a harmless-looking variable is safe. Not true — even small changes can shift slot indices and cause corruption.</div>
+    </div>
+  </div>
+
+  <div class="mt-6 rounded-xl p-3 bg-white card shadow-sm">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Plan storage layout carefully. Treat storage compatibility as a first-class part of upgrade design and testing.</p>
+  </div>
+</div>

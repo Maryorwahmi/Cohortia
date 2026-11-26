@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Health System Activity — Wiring the Pieces</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Starter steps</div>
+      <ol class="text-sm text-slate-600 mt-3 list-decimal pl-5">
+        <li>Create Player with HealthLabel and DamageButton children.</li>
+        <li>Declare signals in Player.gd and use @onready for children.</li>
+        <li>Connect DamageButton pressed to a handler that calls take_damage(10).</li>
+        <li>Emit player_health_changed and player_died where appropriate.</li>
+        <li>In GameManager cache player and connect to its signals.</li>
+      </ol>
+
+      <div class="rounded-lg bg-slate-50 p-3 mt-4">
+        <div class="text-sm font-semibold">Debug checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc pl-5">
+          <li>Are @onready references non-null?</li>
+          <li>Are connect calls executed in _ready after nodes exist?</li>
+          <li>Do handlers match emitted argument counts and types?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-3 border border-slate-100">
+        <div class="text-sm font-semibold">Starter Player.gd snippet</div>
+        <pre class="mono bg-slate-100 rounded-md p-3 mt-2 text-sm" style="white-space: pre-wrap; tab-size: 2;">extends CharacterBody2D
+
+signal player_health_changed(new_health: int, max_health: int)
+signal player_died
+
+@onready var health_label = $HealthLabel
+@onready var damage_button = $DamageButton
+
+var max_health: int = 100
+var current_health: int = 100:
+  set(value):
+    current_health = clamp(value, 0, max_health)
+    health_label.text = "HP: " + str(current_health) + "/" + str(max_health)
+    emit_signal("player_health_changed", current_health, max_health)</pre>
+      </div>
+
+      <div class="rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Activity result</div>
+        <div class="text-sm text-slate-800 mt-2">A DamageButton click calls take_damage, Player updates label and emits signals, GameManager responds to game over.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

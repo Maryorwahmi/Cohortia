@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .monospace{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable Logical WAL</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white p-4 card-border h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">postgresql.conf snippet</div>
+        <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 monospace" style="white-space:pre-wrap; tab-size:2">
+          <pre><code># On the primary server, edit postgresql.conf
+wal_level = logical
+max_replication_slots = 10  -- At least one per subscription
+max_worker_processes = 10   -- Ensure enough workers for logical replication
+</code></pre>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-700">After updating the file you must restart the PostgreSQL service. Reloading is not sufficient because wal_level is not a reloadable parameter. Verify the change by checking the server logs or by querying the current_setting function.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Common mistakes</div>
+        <ul class="list-disc ml-5 mt-2 text-sm text-slate-700">
+          <li>Forgetting to restart after changing wal_level.</li>
+          <li>Setting too few replication slots and preventing new subscriptions from acquiring slots.</li>
+          <li>Not increasing worker processes when you have many subscriptions or logical workers.</li>
+        </ul>
+
+        <div class="mt-4 text-sm text-slate-700">Verify with: SELECT current_setting('wal_level'); and check system logs for logical decoding worker start messages once subscriptions are created.</div>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 p-3 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">wal_level must be logical and resource limits must be sized to match the number of subscriptions and expected workload.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

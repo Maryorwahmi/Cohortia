@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory leak demo</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Leaking example</div>
+      <div class="text-sm text-slate-700 mt-2">A loop allocates ints and never deletes them, causing memory consumption to grow.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-50 rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>void createLeak() {
+  int* data = new int[100];
+  // ... use data ...
+  // forgot delete[] data; -> leak
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Fixed version</div>
+      <div class="text-sm text-slate-700 mt-2">Call delete[] before letting the pointer go out of scope, and set pointer to nullptr.</div>
+
+      <div class="mt-4 bg-slate-900 text-slate-50 rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>void fixLeak() {
+  int* data = new int[100];
+  // ... use data ...
+  delete[] data; // free memory
+  data = nullptr;
+}
+</code></pre>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Always free every allocation on every path, or use RAII wrappers that free automatically.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

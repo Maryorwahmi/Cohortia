@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">logrotate</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white shadow-sm h-2/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Sample config</div>
+        <pre class="bg-slate-100 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+/var/log/apache2/*.log {
+    weekly
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 640 root adm
+    sharedscripts
+    postrotate
+        if /usr/bin/systemctl status apache2 > /dev/null ; then \
+            /usr/bin/systemctl reload apache2 > /dev/null; \
+        fi;
+    endscript
+}
+</pre>
+      </div>
+      <div class="rounded-xl p-4 bg-white shadow-sm h-1/3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Validation steps</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-600">
+          <li>Create or touch the target log file and set expected ownership.</li>
+          <li>Force rotation: run logrotate with -f and check rotated files.</li>
+          <li>Confirm postrotate actions executed and that services continue writing to the new file.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Common pitfalls</div>
+        <ul class="list-disc ml-5 text-sm text-slate-600">
+          <li>Postrotate scripts that fail silently due to wrong paths or missing permissions.</li>
+          <li>Permissions on rotated files preventing services from reopening logs.</li>
+          <li>Not including sharedscripts when rotating multiple related files.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl p-4 bg-emerald-50 border-l-4 border-l-emerald-500 h-1/2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Action card</div>
+        <div class="text-sm text-slate-700">Add the rotation config, force a rotation, and verify both the rotated files and service behavior before declaring the policy complete.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

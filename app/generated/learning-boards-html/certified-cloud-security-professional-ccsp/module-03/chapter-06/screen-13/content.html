@@ -1,0 +1,14 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3.6</span><span>›</span><span>Chapter 3.6</span><span>›</span><span class="text-slate-700">EBS Snapshot Lab</span></div><span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-2">Lab Walkthrough</span><h1 class="text-3xl font-extrabold text-slate-900 mb-3">EBS Snapshot: Creating a Volume Backup</h1><p class="text-base text-slate-600 mb-6">Capturing point-in-time copies of block storage for recovery.</p><div class="flex flex-grow gap-6"><div class="w-1/2 flex flex-col"><div class="bg-slate-800 text-white rounded-xl p-4 flex-grow font-mono text-sm overflow-auto"><pre style="white-space: pre-wrap; tab-size: 2;"><code># 1. Launch an EC2 instance (e.g., t2.micro in us-east-1)
+
+# 2. Connect to the instance and create a dummy file:
+# SSH into your EC2 instance
+sudo su
+echo "This is important data from the EC2 instance." &gt; /home/ec2-user/important_data.txt
+chown ec2-user:ec2-user /home/ec2-user/important_data.txt
+
+# 3. Create an EBS Snapshot of the instance's root volume:
+# Find the Volume ID of your EC2 instance's root volume
+aws ec2 create-snapshot \
+    --volume-id vol-YOUR_VOLUME_ID \
+    --description "Snapshot for CCSP Module 3 Demo" \
+    --tag-specifications 'ResourceType=snapshot,Tags=[{Key=Name,Value=CCSP-Demo-Snapshot}]'</code></pre></div></div><div class="w-1/2 flex flex-col justify-between"><div class="space-y-4"><div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-sm font-semibold text-slate-800 mb-1">Step 1 & 2: Setup</div><p class="text-xs text-slate-600">Launch an EC2 instance and create a sample file. This simulates a real-world scenario where you have critical data on a volume that needs protection.</p></div><div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200"><div class="text-sm font-semibold text-slate-800 mb-1">Step 3: Create Snapshot</div><p class="text-xs text-slate-600">Use the AWS CLI to create a snapshot of the EBS volume. This creates a point-in-time backup. Remember to replace `YOUR_VOLUME_ID` with your actual volume ID.</p></div></div><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">EBS snapshots are fundamental for creating reliable backups of block storage, capturing the entire volume state for future recovery.</p></div></div></div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

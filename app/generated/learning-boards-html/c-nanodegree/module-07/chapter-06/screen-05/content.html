@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .cohortia-bg{background:#ffffff}
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Value capture</div>
+      <div class="mt-2 text-sm text-slate-700">Creates copies of captured variables. Safe when the lambda may outlive locals, often used for thread entry points.</div>
+      <div class="mt-3 text-sm text-slate-600">Example card: snapshot semantics for a thread.</div>
+      <div class="mt-4 rounded-xl bg-slate-50 p-3">
+        <div class="text-xs text-slate-700">Use when: lambda is stored, run asynchronously, or passed to a thread.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Reference capture</div>
+      <div class="mt-2 text-sm text-slate-700">Refers to original variables without copying. Efficient for large read-only structures when lifetime is guaranteed by scope.</div>
+      <div class="mt-3 text-sm text-slate-600">Example card: short callback in the same scope that modifies a local counter.</div>
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs text-slate-700">Use when: lambda is short-lived and you need to modify or avoid copying large objects.</div>
+      </div>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-bold">Concrete example — safe thread capture</div>
+      <div class="mt-2 text-sm text-slate-700">Capture only what the thread needs by value; pass large read-only containers by shared pointer or copy if needed to guarantee lifetime.</div>
+
+      <div class="mt-3 bg-slate-900 rounded-md p-3 text-white"><pre><code>// Safe: capture x by value and message by value
+int x = 10;
+std::string message = "Hi";
+std::thread t([x, message]() {
+  std::cout << "x: " << x << ", msg: " << message << std::endl;
+});
+t.join();
+</code></pre></div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <p class="text-xs text-slate-800">Capturing by reference a local that is destroyed before the thread runs leads to undefined behavior. Always consider object lifetime first.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

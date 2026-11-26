@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Cache-Aside</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Starter Code</div>
+      <pre class="bg-slate-900 text-slate-100 p-3 rounded-md text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+import time
+
+# Simulate a slow database
+user_database = {
+  "user:1": {"name": "Alice", "email": "alice@example.com", "age": 30},
+  "user:2": {"name": "Bob", "email": "bob@example.com", "age": 25}
+}
+
+# Simulate a distributed cache (e.g., Redis client)
+user_cache = {}
+
+def _fetch_from_database(user_id):
+  """Simulates fetching data from a slow database."""
+  print(f"--- Fetching user {user_id} from DATABASE ---")
+  time.sleep(0.5) # Simulate network/DB latency
+  return user_database.get(user_id)
+
+def get_user_profile_cached(user_id):
+  """
+  Implements Cache-Aside strategy for reading user profiles.
+  TODO: Implement cache check, database fetch, and cache population.
+  """
+  # YOUR CODE HERE
+  pass # Replace this line with your implementation
+
+def update_user_profile(user_id, new_data):
+  """
+  Updates user profile in the database and invalidates cache.
+  TODO: Implement database update and cache invalidation.
+  """
+  print(f"--- Updating user {user_id} in DATABASE ---")
+  user_database[user_id] = new_data
+  # YOUR CODE HERE (cache invalidation)
+  print(f"--- User {user_id} updated in DB ---")
+
+# --- Test your implementation ---
+print("--- Initial Reads ---")
+print(get_user_profile_cached("user:1")) # Expected: Cache miss, then data
+print(get_user_profile_cached("user:1")) # Expected: Cache hit, then data
+print(get_user_profile_cached("user:2")) # Expected: Cache miss, then data
+
+print("
+--- Update and Re-read ---")
+update_user_profile("user:1", {"name": "Alicia", "email": "alicia@example.com", "age": 31})
+print(get_user_profile_cached("user:1")) # Expected: Cache miss (due to invalidation), then new data
+print(get_user_profile_cached("user:1")) # Expected: Cache hit, then new data
+</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Instructions: replace the pass and add explicit cache invalidation in update_user_profile. After implementing, run the tests and observe the printed log lines for hits and misses.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example outputs to expect</div>
+      <div class="text-sm text-slate-600">You should see a cache miss on first read, a cache hit on the second read, a cache miss after update due to invalidation, and then a cache hit on the next read.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Extension</div>
+        <div class="text-sm text-slate-600 mt-1">Add TTL to cached entries or single-flight locks to reduce stampede risk as a follow-up exercise.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

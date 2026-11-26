@@ -1,0 +1,61 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Linker Error Walkthrough</span>
+  </div>
+
+  <div class="h-full flex gap-6">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-2xl font-bold text-slate-800">Undefined reference: walkthrough</div>
+      <div class="text-sm text-slate-600 mt-2">Examine which TU performs instantiation and which provides definitions.</div>
+
+      <div class="mt-4 card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Files</div>
+        <div class="text-sm text-slate-700 mt-2">my_template.h (declaration), my_template.cpp (definition), main.cpp (uses template)</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Compiler behavior</div>
+        <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+          <li>Compiling main.cpp: sees declaration, needs printValue&lt;int&gt;, cannot instantiate without definition.</li>
+          <li>Compiling my_template.cpp: has definition but does not instantiate printValue&lt;int&gt; unless used there.</li>
+          <li>Linker: fails to find any object file that contains printValue&lt;int&gt;.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Broken example (simplified)</div>
+        <pre class="mono mt-3 bg-slate-50 p-3 rounded text-sm" style="white-space: pre-wrap; tab-size: 2;"><code>// my_template.h
+template &lt;typename T&gt;
+void printValue(const T&amp; value); // declaration
+
+// my_template.cpp
+#include "my_template.h"
+#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+void printValue(const T&amp; value) {
+  std::cout &lt;&lt; "Value: " &lt;&lt; value &lt;&lt; std::endl;
+}
+
+// main.cpp includes my_template.h and calls printValue(10)
+</code></pre>
+      </div>
+
+      <div class="p-3 rounded-lg bg-amber-50 border border-amber-100">
+        <div class="text-sm font-semibold text-amber-700">Diagnosis checklist</div>
+        <div class="text-sm text-slate-700 mt-2">Check whether the .o files actually contain the instantiated symbol. If not, verify where instantiation should occur and whether the definition is visible there.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">When a needed instantiation is not produced, move the definition into the header or add explicit instantiation for the needed types in a .cpp.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

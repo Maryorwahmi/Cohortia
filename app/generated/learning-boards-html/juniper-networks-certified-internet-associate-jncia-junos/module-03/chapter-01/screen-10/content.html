@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-800">Interface and Route Verification</h3>
+      <p class="text-sm text-slate-600 mt-2">Follow these steps in your lab or on a device to verify interface health and route presence.</p>
+
+      <div class="mt-4">
+        <ol class="list-decimal pl-5 text-sm text-slate-600 space-y-3">
+          <li>Log in and run <span class="mono">show interfaces terse</span> to locate candidate interface name such as ge-0/0/0.</li>
+          <li>Run <span class="mono">show interfaces &lt;interface&gt; extensive</span> and note Link-level, Speed, State, and error counters.</li>
+          <li>Run <span class="mono">show route</span> and search for <span class="mono">0.0.0.0/0</span> to confirm default route and the next-hop address.</li>
+          <li>Run <span class="mono">show system uptime</span> and <span class="mono">show system processes | no-more</span> to check for recent reboots and CPU-intensive processes.</li>
+        </ol>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Document observed counters and next hops. That record helps confirm whether an issue is transient or persistent.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Expected snippets</div>
+      <pre class="mono text-sm bg-slate-50 p-3 mt-2 rounded" style="white-space:pre-wrap;tab-size:2;"># show interfaces terse
+ge-0/0/0                up    up
+# show interfaces ge-0/0/0 extensive
+  Physical link is Up
+  Input errors: 0, Output errors: 0
+# show route
+0.0.0.0/0          *[OSPF/10]
+  > to 192.168.1.2 via ge-0/0/0.0</pre>
+
+      <div class="mt-3 text-sm text-slate-600">If error counters are increasing, focus on physical checks and duplex settings. If the default route is missing, check neighbor adjacency and routing protocol state.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

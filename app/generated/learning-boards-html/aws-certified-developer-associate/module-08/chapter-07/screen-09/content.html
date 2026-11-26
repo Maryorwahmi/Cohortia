@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <div class="text-2xl font-bold text-slate-900 mb-3">S3 Bucket Template Explained</div>
+      <div class="text-sm text-slate-700 mb-3">Parameters let you supply environment-specific values; Resources declare AWS objects; Outputs expose useful values for other stacks or operators.</div>
+      <div class="rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-bold text-slate-800">Common pitfall</div>
+        <div class="text-sm text-slate-700 mt-2">Bucket names must be globally unique. Using a parameter with clear validation helps prevent deployment failures.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800 mb-2">Full template (example)</div>
+      <pre class="rounded bg-slate-50 p-3 text-xs border card-border"><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  This template creates an S3 bucket with versioning enabled.
+Parameters:
+  BucketName:
+    Type: String
+    Description: The name of the S3 bucket to create.
+Resources:
+  MyVersioningBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+Outputs:
+  S3BucketName:
+    Value: !Ref MyVersioningBucket
+  S3BucketARN:
+    Value: !GetAtt MyVersioningBucket.Arn
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

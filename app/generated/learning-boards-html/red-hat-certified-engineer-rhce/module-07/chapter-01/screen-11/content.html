@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><style> .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2;} </style><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span><span>›</span><span>Chapter 7.1</span><span>›</span><span class="text-slate-700">Hands-on Activity</span></div><div class="grid grid-cols-12 gap-4 flex-1">
+  <div class="col-span-7 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full overflow-auto">
+    <div class="text-lg font-bold text-slate-800">Step-by-step commands and snippets</div>
+    <div class="mono mt-3 p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)] rounded-lg">
+<pre class="mono"># 1. Scaffold
+ansible-galaxy init webserver
+
+# 2. Populate tasks/main.yml (add install, template, service)
+# 3. Create templates/nginx.conf.j2 with {{ nginx_port | default(80) }}
+
+# 4. defaults/main.yml
+---
+nginx_port: 80
+
+# 5. handlers/main.yml
+---
+- name: Restart Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted</pre>
+    </div>
+    <div class="mt-3 text-sm text-slate-600">Remember to commit the role directory and ensure your inventory defines the webservers group pointing to a RHEL host.</div>
+  </div>
+  <div class="col-span-5 rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex flex-col">
+    <div class="text-sm font-semibold text-slate-700">Run and verify</div>
+    <div class="mono mt-3 p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">$ ansible-playbook -i inventory deploy_web.yml
+# Verify on target:
+$ systemctl status nginx
+$ curl localhost:8080</div>
+    <div class="mt-3 text-sm text-slate-600">Common error: missing become: yes in the playbook will prevent package installation. Add become where necessary.</div>
+  </div>
+</div><style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

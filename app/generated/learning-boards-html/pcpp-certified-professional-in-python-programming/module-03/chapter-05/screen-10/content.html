@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 03</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 grow min-h-0">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Timer decorator</div>
+      <div class="text-sm text-slate-600 mt-2">A wrapper must accept any call signature and return the wrapped function's result.</div>
+
+      <div class="mt-4">
+        <pre><code>import time
+
+def timer_decorator(func):
+  def wrapper(*args, **kwargs):
+    start_time = time.perf_counter()
+    result = func(*args, **kwargs)
+    end_time = time.perf_counter()
+    print(f"Function '{func.__name__}' executed in {end_time - start_time:.4f} seconds.")
+    return result
+  return wrapper
+
+@timer_decorator
+def calculate_sum(a, b):
+  time.sleep(0.1)
+  return a + b
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Common mistakes</div>
+      <div class="mt-3 text-sm text-slate-700">
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Forgetting *args/**kwargs in the wrapper signature.</li>
+          <li>Not returning the wrapped function’s result, producing unexpected None.</li>
+          <li>Not preserving metadata; use functools.wraps when appropriate.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-500">Try applying two function decorators and observe which wrapper runs first. Remember that decorator syntax applies them bottom-up at definition time but calls execute outermost wrapper first.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

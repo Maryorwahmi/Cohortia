@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Inspecting results</span>
+    </div>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4">
+    <div class="col-span-7 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Pattern: register then evaluate</div>
+      <p class="mt-2 text-sm text-slate-600">Register results from shell/command tasks and write explicit failed_when expressions. Avoid hiding logic inside complex shell invocations.</p>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded"><code>- name: Ensure a package is NOT installed (custom success condition)
+  ansible.builtin.shell: dpkg -s unwanted-package &gt; /dev/null 2&gt;&amp;1
+  register: pkg_check
+  failed_when: pkg_check.rc == 0
+  changed_when: false</code></pre>
+
+      <div class="mt-3">
+        <div class="p-3 rounded-lg bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-1">Use result.stdout and simple substring checks when a zero rc isn't enough to detect problems.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-xl bg-white p-4 card shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation bullets</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>rc is the return code: zero usually means success, non-zero usually means failure.</li>
+        <li>stdout may include keywords or status strings that indicate failure despite rc == 0.</li>
+        <li>stderr contains error messages; checking it can surface silent failures.</li>
+        <li>Explicit conditions improve readability and reduce accidental masking of issues.</li>
+      </ul>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check your understanding</div>
+        <div class="text-sm text-slate-700 mt-2">If a script returns 1 for a benign condition, how would you write failed_when so Ansible treats 1 as success? Answer: failed_when: script_output.rc == 2 (example uses rc equality to indicate critical errors).</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

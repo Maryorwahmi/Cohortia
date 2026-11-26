@@ -1,0 +1,34 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Comparison</span>
+    <span>›</span>
+    <span class='text-slate-700'>Index Trade-offs</span>
+  </div>
+
+  <div class='grid grid-cols-3 gap-4 h-full'>
+    <div class='col-span-2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-sm font-bold text-slate-800'>Read benefit vs write cost</div>
+      <div class='mt-3 text-sm text-slate-700'>Each index speeds some queries but increases the work performed during writes. The impact grows with write volume and index width. Favor indexes that provide the most benefit per maintenance byte.</div>
+
+      <div class='mt-4 grid grid-cols-2 gap-3'>
+        <div class='rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-bold uppercase tracking-wider text-slate-500'>When to add</div>
+          <div class='text-sm text-slate-700 mt-2'>High-frequency read patterns that materially reduce latency or CPU when indexed.</div>
+        </div>
+        <div class='rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-bold uppercase tracking-wider text-rose-600'>When to remove</div>
+          <div class='text-sm text-slate-700 mt-2'>Indexes with low idx_scan counts, high size, and measurable write overhead.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-4'>
+      <div class='text-xs font-bold uppercase tracking-wider text-amber-700'>Quick checklist</div>
+      <ul class='mt-3 text-sm text-slate-700 space-y-2'>
+        <li>• Measure read benefit with EXPLAIN ANALYZE before and after adding an index.</li>
+        <li>• Measure write latency under realistic load.</li>
+        <li>• Prefer targeted indexes to broad ones when possible.</li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Red Phase — Test</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code example</div>
+      <div class="mt-3">
+        <pre class="bg-slate-900 text-slate-50 rounded-lg p-3"><code># test_order_processor.py
+import pytest
+from order_processor import OrderProcessor  # class not implemented yet
+from unittest.mock import Mock
+
+def test_process_new_order_successfully():
+    mock_payment_gateway = Mock()
+    mock_inventory_service = Mock()
+    processor = OrderProcessor(mock_payment_gateway, mock_inventory_service)
+
+    order_details = {"order_id": "ORD001", "items": [{"product_id": "P001", "quantity": 2}], "total_amount": 200.00}
+
+    confirmation = processor.process_order(order_details)
+
+    assert confirmation["status"] == "confirmed"
+    assert confirmation["order_id"] == "ORD001"
+    mock_payment_gateway.charge.assert_called_once_with(200.00)
+    mock_inventory_service.deduct_stock.assert_called_once_with("P001", 2)</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm text-slate-700">This test names the API and interactions. Notice how constructor injection and collaborator method names are determined by the assertions.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Teaching points</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Tests define the constructor signature by showing which dependencies must exist.</li>
+        <li>Asserting calls on mocks clarifies collaborator APIs and interaction patterns.</li>
+        <li>Avoid asserting internal state; prefer observable results and interactions.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Asserting private internals can lock you into brittle designs. Test the observable contract instead.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

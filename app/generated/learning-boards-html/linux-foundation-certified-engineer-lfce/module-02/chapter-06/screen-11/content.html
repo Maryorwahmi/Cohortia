@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.panel{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px;padding:12px}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 panel">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Comparison</div>
+      <div class="text-xl font-semibold text-slate-800 mt-2">I/O schedulers at a glance</div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded bg-blue-50 border border-blue-100">
+          <div class="font-semibold text-slate-800">noop</div>
+          <div class="text-xs text-slate-700 mt-1">Simple FIFO. Low overhead; good for SSDs and hypervisor-managed storage.</div>
+        </div>
+        <div class="p-3 rounded bg-blue-50 border border-blue-100">
+          <div class="font-semibold text-slate-800">deadline / mq-deadline</div>
+          <div class="text-xs text-slate-700 mt-1">Prioritizes reads, reduces latency; useful for databases and latency-sensitive services.</div>
+        </div>
+        <div class="p-3 rounded bg-blue-50 border border-blue-100">
+          <div class="font-semibold text-slate-800">cfq / bfq</div>
+          <div class="text-xs text-slate-700 mt-1">Fairness-oriented; cfq is deprecated on many kernels, bfq targets fairness on certain devices.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="panel">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Commands</div>
+        <pre class="mt-2"><code>cat /sys/block/sda/queue/scheduler
+echo deadline | sudo tee /sys/block/sda/queue/scheduler
+# Persistent: add elevator=deadline to GRUB_CMDLINE_LINUX and update-grub</code></pre>
+      </div>
+      <div class="panel bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-1">Assuming the kernel scheduler always improves performance; on SSDs, minimal scheduling often wins because the device handles queuing internally.</div>
+      </div>
+      <div class="panel bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Benchmark scheduler changes with realistic workloads and prefer noop or mq-deadline for modern SSD environments unless specific latency or fairness needs exist.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

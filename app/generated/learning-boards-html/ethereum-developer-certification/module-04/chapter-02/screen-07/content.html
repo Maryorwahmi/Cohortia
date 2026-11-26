@@ -1,0 +1,83 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]">
+  <style>pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2} .card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="card bg-white p-4 shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter: ERC20Token.sol</div>
+      <pre class="mt-3 rounded bg-slate-100 p-3"><code>// contracts/ERC20Token.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ERC20Token {
+    string public name = "MyToken";
+    string public symbol = "MTK";
+    uint8 public decimals = 18;
+    uint public totalSupply;
+
+    mapping(address => uint) public balanceOf;
+    mapping(address => mapping(address => uint)) public allowance;
+
+    event Transfer(address indexed from, address indexed to, uint value);
+    event Approval(address indexed owner, address indexed spender, uint value);
+
+    constructor(uint _initialSupply) {
+        totalSupply = _initialSupply;
+        balanceOf[msg.sender] = _initialSupply;
+    }
+
+    function transfer(address _to, uint _value) public returns (bool success) {
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    function approve(address _spender, uint _value) public returns (bool success) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+
+    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        require(allowance[_from][msg.sender] >= _value, "Insufficient allowance");
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+}
+</code></pre>
+    </div>
+    <div class="card bg-white p-4 shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter: TokenSale.sol</div>
+      <pre class="mt-3 rounded bg-slate-100 p-3"><code>// contracts/TokenSale.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./ERC20Token.sol";
+
+contract TokenSale {
+    ERC20Token public token;
+    uint public tokenPrice; // Price in Wei per token
+
+    event TokensPurchased(address indexed buyer, uint amount, uint value);
+
+    constructor(address _tokenAddress, uint _tokenPrice) {
+        token = ERC20Token(_tokenAddress);
+        tokenPrice = _tokenPrice;
+    }
+
+    // TODO: Implement buyTokens() function
+    // It should be payable.
+    // Calculate tokens to buy based on msg.value and tokenPrice.
+    // Transfer Ether to this contract.
+    // Transfer tokens from this contract to msg.sender.
+    // Emit TokensPurchased event.
+    // Add require statements for sufficient Ether and token balance.
+}
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

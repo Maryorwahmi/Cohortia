@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">What /etc/sudoers controls</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Core idea</div>
+      <div class="mt-2 text-sm text-slate-700">Sudoers defines who can run what as whom, on which hosts, and whether a password is required.</div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Key elements</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li><strong>%group</strong> — applies rule to members of a group.</li>
+          <li><strong>Host list</strong> — where the rule applies, often ALL for all hosts.</li>
+          <li><strong>Run-as</strong> — which user the command runs as, e.g., (ALL) or (root).</li>
+          <li><strong>Command list</strong> — exact commands permitted, prefer full paths.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-600">Misconception</div>
+        <div class="mt-2 text-sm text-slate-700">Sudoers is not a free-form file; poor syntax can block all sudo activity. Use visudo or Ansible validate to avoid this.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat sudoers as a strict policy file: prefer modular drop-ins, full paths, and syntax validation to keep admin access safe.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+        <div class="mt-2 text-sm text-slate-700">A drop-in file for web_admins might read:</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm overflow-auto"><code># /etc/sudoers.d/web_admins
+%web_admins ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart httpd, /usr/bin/systemctl status httpd
+%web_admins ALL=(ALL) /usr/bin/chown *, /usr/bin/chmod *</code></pre>
+      </div>
+
+      <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Why modular files help</div>
+        <div class="mt-2 text-sm text-slate-700">Modularity isolates team grants so a syntax error in one file doesn't require editing a large central sudoers file to fix it.</div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

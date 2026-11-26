@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Redis Cluster</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase">How it works</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Sharding by hash slots with replicas per master</div>
+      <div class="mt-4 text-sm text-slate-600">Each master owns a set of hash slots. Clients contact the appropriate master for a given key. Replicas provide redundancy and are promoted on failure.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border text-sm text-slate-600">Automatic failover per shard</div>
+        <div class="rounded-lg p-3 bg-white border text-sm text-slate-600">Horizontal memory and write scaling</div>
+        <div class="rounded-lg p-3 bg-white border text-sm text-slate-600">Operational: slot rebalancing and coordinated persistence</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white border p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase">Operational concerns</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600">
+        <li>Multi-key operations across slots are limited; design key prefixes to co-locate related keys when needed.</li>
+        <li>Backups must include every master and be coordinated for consistent recovery.</li>
+        <li>Monitor CLUSTER FAILOVER_STATE and slot distribution to spot issues early.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Example constraint</div>
+        <p class="text-sm text-slate-600">A transaction touching keys that map to different hash slots cannot be executed atomically across shards without special handling, which affects application design.</p>
+      </div>
+    </div>
+  </div>
+</div>

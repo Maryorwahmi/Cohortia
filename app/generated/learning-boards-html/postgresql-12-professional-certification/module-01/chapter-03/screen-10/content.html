@@ -1,0 +1,24 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Process Flow</span>
+      <span class="text-slate-700">Allow remote connections</span>
+    </div>
+    <div class="text-xl font-bold text-slate-900 mt-2">Editing configs to permit remote access</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="font-bold text-slate-800">postgresql.conf change</div>
+      <pre class="mt-2 bg-slate-50 border rounded p-2 text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;"># allow all interfaces
+listen_addresses = '*'
+# ensure port is as configured
+port = 5432</pre>
+    </div>
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="font-bold text-slate-800">pg_hba.conf example</div>
+      <pre class="mt-2 bg-slate-50 border rounded p-2 text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;"># allow password auth from anywhere (restrict in production)
+host all all 0.0.0.0/0 md5</pre>
+    </div>
+    <div class="col-span-2 mt-3 text-sm text-slate-600">After editing both files, restart the service. Test from a remote client and tighten pg_hba.conf to specific networks instead of wide CIDR blocks. Remember that firewall rules are the next step to allow TCP 5432 through Windows Firewall.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

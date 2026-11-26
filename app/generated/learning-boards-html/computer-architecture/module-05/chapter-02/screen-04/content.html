@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span>›</span>
+      <span class="text-slate-700">Fetch Challenges</span>
+    </div>
+    <h2 class="text-xl font-bold text-slate-900 mt-2">Why fetching multiple instructions per cycle is hard</h2>
+    <p class="text-sm text-slate-600 mt-1">Understand the three reasons a fetch pipeline cannot always deliver steady packs of instructions.</p>
+  </div>
+
+  <div class="flex gap-4 flex-1">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Detailed points</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 space-y-2 flex-1">
+        <li><strong>Cache line boundaries:</strong> An instruction may span lines, requiring two L1I accesses and alignment logic before decode.</li>
+        <li><strong>Taken branches:</strong> Redirects create bubbles; even a correct prediction often wastes a cycle while the fetch stream re-targets.</li>
+        <li><strong>Variable-length ISAs:</strong> Without predecoding, the fetcher can’t know where one instruction ends and the next begins, making parallel fetch tricky.</li>
+        <li><strong>Combined effect:</strong> These issues force multi-line fetch, speculative fetch, and buffering rather than a single fast read per cycle.</li>
+      </ul>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Concrete example</div>
+          <div class="text-sm text-slate-700">A 64-byte line holds 16 fixed 4-byte instructions. If the fifth instruction starts at byte 60, bytes for that instruction live across two lines and two reads are needed to fetch a continuous stream of decoded instructions.</div>
+        </div>
+        <div class="rounded-xl bg-rose-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Common misconception</div>
+          <div class="text-sm text-slate-700">Thinking in bytes per cycle alone ignores ordering and boundaries; bytes are necessary but not sufficient for several-instruction delivery when instructions cross boundaries.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Analogy & takeaway</div>
+      <div class="text-sm text-slate-700">Imagine a delivery truck that can carry four packages. If a package is half in one warehouse and half in another, the truck must visit both warehouses before delivering the package — the trip becomes less efficient. Likewise, taken-branch detours waste a delivery trip. The solution is to add sorting workers (predecoder) and a loading dock (instruction queue) so the factory keeps working while the truck resolves its route.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Fetch bandwidth depends on instruction layout and control flow; caches, predictors, and buffers are co-designed to hide boundaries and redirects.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

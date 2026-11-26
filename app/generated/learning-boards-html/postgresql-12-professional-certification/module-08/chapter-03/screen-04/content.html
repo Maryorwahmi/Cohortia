@@ -1,0 +1,45 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>CPU Utilization and I/O Wait</span>
+  </div>
+  <div class='flex gap-4 h-[calc(100%-40px)]'>
+    <div class='w-1/2 rounded-2xl bg-white border p-4' style='border-color:rgba(226,232,240,0.9)'>
+      <div class='text-xs font-bold uppercase text-slate-500 mb-2'>Comparison</div>
+      <h2 class='text-xl font-semibold text-slate-800 mb-2'>CPU breakdown: user · system · iowait</h2>
+      <p class='text-sm text-slate-700 mb-3'>Read these fields before deciding on scaling or tuning. They point to compute, kernel, or storage waits respectively.</p>
+      <div class='grid grid-cols-1 gap-3'>
+        <div class='p-3 rounded-lg bg-blue-50'>
+          <div class='font-semibold text-slate-800'>Example: CPU-bound task</div>
+          <pre style='white-space:pre-wrap;tab-size:2;background:#ffffff;padding:8px;border-radius:8px;border:1px solid rgba(226,232,240,0.9);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace'><code>-- A CPU-heavy PL/pgSQL loop
+SELECT cpu_intensive_task();
+-- Observe htop: high %user on postgres workers, low iowait</code></pre>
+        </div>
+        <div class='p-3 rounded-lg bg-emerald-50'>
+          <div class='font-semibold text-slate-800'>Example: I/O-heavy task</div>
+          <pre style='white-space:pre-wrap;tab-size:2;background:#ffffff;padding:8px;border-radius:8px;border:1px solid rgba(226,232,240,0.9);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace'><code>iostat -x 1
+# Watch %util and await increase during large writes or scans</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class='w-1/2 rounded-2xl bg-white border p-4 flex flex-col justify-between' style='border-color:rgba(226,232,240,0.9)'>
+      <div>
+        <div class='text-xs font-bold uppercase text-slate-500 mb-2'>Indicators to check</div>
+        <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+          <li>High %user: check heavy SQL, functions, or background workers.</li>
+          <li>High %system: kernel-level activity, often tied to I/O or context switches.</li>
+          <li>High iowait: storage responses are slow — investigate with iostat.</li>
+        </ul>
+      </div>
+      <div class='mt-3 space-y-2'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Distinguish compute vs storage waits from CPU columns; match with iostat to choose the right remedy.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

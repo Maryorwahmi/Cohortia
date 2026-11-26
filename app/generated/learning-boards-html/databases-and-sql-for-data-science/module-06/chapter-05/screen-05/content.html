@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace; white-space:pre-wrap; tab-size:2;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Dead Tuples & Bloat</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">What is a dead tuple?</div>
+        <p class="text-sm text-slate-700 mb-2">A dead tuple is a previously valid row version no longer visible to any transaction. It remains in the data file until reclaimed.</p>
+        <div class="text-sm text-slate-700">
+          <ul class="list-disc pl-4 space-y-2">
+            <li>Accumulation causes table and index bloat.</li>
+            <li>Increased physical size leads to higher I/O and slower scans.</li>
+            <li>Reclaiming space can be internal or returned to the OS depending on the command.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+        <div class="text-sm text-slate-700">Basic VACUUM reclaims space for reuse inside the database but does not always shrink the file seen by the operating system. VACUUM FULL does, but it locks the table.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white card-border p-4 shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Example scenario</div>
+        <div class="text-sm text-slate-700 mb-2">A log_events table receives 100,000 inserts then half are deleted. pg_relation_size reports a large file despite fewer rows. This is classic bloat that VACUUM addresses.</div>
+        <div class="rounded-lg bg-emerald-50 p-3 text-sm text-slate-800">Check: SELECT pg_size_pretty(pg_relation_size('log_events'));</div>
+      </div>
+
+      <div class="rounded-xl bg-white card-border p-3 shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Watch table size and scan times. Bloat is a performance and storage risk; reclaim proactively.</p>
+      </div>
+    </div>
+  </div>
+</div>

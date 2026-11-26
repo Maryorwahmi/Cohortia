@@ -1,7 +1,7 @@
 import { Files } from "@cloudflare/sandbox";
 import { DurableObject } from "cloudflare:workers";
 
-type Language = "c" | "cpp" | "c++" | "python";
+type Language = "c" | "cpp" | "c++" | "python" | "javascript" | "shell" | "sql";
 
 type CompileProbe = {
   id: string;
@@ -39,7 +39,8 @@ function json(value: unknown, status = 200): Response {
 }
 
 function isNativeLanguage(value: unknown): value is Language {
-  return value === "c" || value === "cpp" || value === "c++" || value === "python";
+  return value === "c" || value === "cpp" || value === "c++" || value === "python"
+    || value === "javascript" || value === "shell" || value === "sql";
 }
 
 function safeFilePath(path: string): string | null {
@@ -105,7 +106,11 @@ function truncate(value: string): string {
 export class Sandbox extends DurableObject<Env> {
   async execute(request: ExecuteRequest) {
     const isPython = request.language === "python";
-    const compiler = isPython ? null : compilerFor(request.language);
+    const isJavaScript = request.language === "javascript";
+    const isShell = request.language === "shell";
+    const isSql = request.language === "sql";
+    const isInterpreted = isPython || isJavaScript || isShell || isSql;
+    const compiler = isInterpreted ? null : compilerFor(request.language);
     const activeFile = safeFilePath(request.activeFilePath);
     if (!activeFile) return { ok: false, error: "The active source file path is invalid." };
 
@@ -114,13 +119,17 @@ export class Sandbox extends DurableObject<Env> {
     if (!Object.prototype.hasOwnProperty.call(request.files, activeFile)) {
       return { ok: false, error: "The active source file is not included in the workspace." };
     }
-    const sourcePaths = isPython ? [] : Object.keys(request.files)
+    const sourcePaths = isInterpreted ? [] : Object.keys(request.files)
       .filter((filePath) => compiler!.extension.test(filePath))
       .map((filePath) => `${workspace}/${safeFilePath(filePath)}`);
-    if (isPython && !/\.py$/i.test(activeFile)) {
-      return { ok: false, error: "The active source file must be a Python file." };
+    const expectedExtension = isPython ? /\.py$/i
+      : isJavaScript ? /\.(js|mjs|cjs)$/i
+        : isShell ? /\.(sh|bash|zsh)$/i
+          : isSql ? /\.(sql|sqlite)$/i : null;
+    if (isInterpreted && expectedExtension && !expectedExtension.test(activeFile)) {
+      return { ok: false, error: `The active source file does not match the ${request.language} runtime.` };
     }
-    if (!isPython && (!sourcePaths.length || !sourcePaths.includes(activePath))) {
+    if (!isInterpreted && (!sourcePaths.length || !sourcePaths.includes(activePath))) {
       return { ok: false, error: `No matching ${request.language === "c" ? "C" : "C++"} source file is available to compile.` };
     }
 
@@ -154,7 +163,7 @@ export class Sandbox extends DurableObject<Env> {
     let sanitizers: string[] = [];
     let compileStdout = "";
     let compileStderr = "";
-    if (!isPython) {
+    if (!isInterpreted) {
       const compile = await container.exec([
         "timeout", "12s", compiler!.compiler, compiler!.standard, "-O0", "-Wall", "-Wextra",
         ...(request.enableSanitizers ? ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"] : []),
@@ -172,7 +181,13 @@ export class Sandbox extends DurableObject<Env> {
 
     const runCommand = isPython
       ? `timeout 5s python3 '${activePath}'`
-      : `${request.enableSanitizers ? "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 " : ""}timeout 5s ${workspace}/program`;
+      : isJavaScript
+        ? `timeout 5s node '${activePath}'`
+        : isShell
+          ? `timeout 5s bash '${activePath}'`
+          : isSql
+            ? `timeout 5s sqlite3 '${workspace}/practical.sqlite' < '${activePath}'`
+            : `${request.enableSanitizers ? "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 " : ""}timeout 5s ${workspace}/program`;
     const run = await container.exec([
       "sh", "-c",
       `${runCommand} < '${stdinPath}' > '${stdoutPath}' 2> '${stderrPath}'; status=$?; printf '%s' "$status" > '${exitCodePath}'; head -c ${MAX_OUTPUT_BYTES} '${stdoutPath}'; head -c ${MAX_OUTPUT_BYTES} '${stderrPath}' >&2`,
@@ -197,6 +212,7 @@ export class Sandbox extends DurableObject<Env> {
     }
     const compileProbes = [];
     for (const probe of request.compileProbes || []) {
+      if (!compiler) continue;
       const probePath = `${workspace}/_cohortia-probe-${probe.id}.cpp`;
       const probeOutputPath = `${workspace}/_cohortia-probe-${probe.id}`;
       await files.writeFile(probePath, probe.source);

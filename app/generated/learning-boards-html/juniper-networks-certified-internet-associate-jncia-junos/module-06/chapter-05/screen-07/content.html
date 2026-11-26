@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} .proc-step{background:#f8fafc;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9)}</style>
+
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">IKE Phase 1</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-[72%]">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="proc-step">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step 1</div>
+        <div class="text-sm font-bold text-slate-800 mt-1">Negotiate IKE proposal</div>
+        <div class="text-sm text-slate-700 mt-2">Peers agree on encryption, hash, DH group and lifetime for the IKE SA.</div>
+      </div>
+
+      <div class="proc-step">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step 2</div>
+        <div class="text-sm font-bold text-slate-800 mt-1">Authenticate peers</div>
+        <div class="text-sm text-slate-700 mt-2">Use a pre-shared key or certificates; authentication must match exactly on both ends.</div>
+      </div>
+
+      <div class="proc-step">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Step 3</div>
+        <div class="text-sm font-bold text-slate-800 mt-1">Establish IKE SA</div>
+        <div class="text-sm text-slate-700 mt-2">A secure control channel is formed; it protects Phase 2 negotiations and key exchange.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Junos configuration mapping</div>
+      <p class="text-sm text-slate-600 mt-2">An ike proposal lists algorithms. An ike policy references that proposal and sets the authentication method and pre-shared key. The ike gateway ties the policy to a remote peer address and an external interface.</p>
+
+      <div class="mt-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">CLI example (conceptual)</div>
+        <pre class="mt-2 rounded-md bg-slate-900 text-white p-3" style="white-space:pre-wrap;tab-size:2;"><code># ike proposal
+set security ike proposal ike-prop-aes256-sha256-g14 authentication-algorithm sha-256
+set security ike proposal ike-prop-aes256-sha256-g14 encryption-algorithm aes-256-cbc
+set security ike proposal ike-prop-aes256-sha256-g14 dh-group group14
+
+# ike policy and pre-shared key
+set security ike policy ike-pol-psk mode main
+set security ike policy ike-pol-psk proposals ike-prop-aes256-sha256-g14
+set security ike policy ike-pol-psk pre-shared-key ascii-text "MyStrongVPNKey123!"
+</code></pre>
+
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Phase 1 secures negotiations only; user data encryption happens in Phase 2.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

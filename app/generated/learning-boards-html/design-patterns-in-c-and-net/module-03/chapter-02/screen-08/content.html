@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full flex gap-6">
+    <div class="w-1/2">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">CoffeeDecorator & Concrete Decorators</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2">
+<pre><code>public abstract class CoffeeDecorator : ICoffee
+{
+  protected ICoffee _decoratedCoffee;
+
+  public CoffeeDecorator(ICoffee coffee)
+  {
+    _decoratedCoffee = coffee;
+  }
+
+  public virtual string GetDescription()
+  {
+    return _decoratedCoffee.GetDescription();
+  }
+
+  public virtual double GetCost()
+  {
+    return _decoratedCoffee.GetCost();
+  }
+}
+
+public class MilkDecorator : CoffeeDecorator
+{
+  public MilkDecorator(ICoffee coffee) : base(coffee) { }
+
+  public override string GetDescription()
+  {
+    return _decoratedCoffee.GetDescription() + ", with Milk";
+  }
+
+  public override double GetCost()
+  {
+    return _decoratedCoffee.GetCost() + 1.5;
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 border h-full">
+        <div class="text-sm font-semibold text-slate-800">Testing the chain</div>
+        <div class="text-sm text-slate-600 mt-2">Compose: var coffee = new SugarDecorator(new MilkDecorator(new SimpleCoffee())); Verify the description includes both toppings and the cost is the sum of base and toppings.</div>
+
+        <div class="mt-6 rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common pitfall</div>
+          <div class="text-sm text-slate-800 mt-2">Avoid decorators that perform unrelated responsibilities or that change return semantics expected by the interface; keep each decorator focused and predictable.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

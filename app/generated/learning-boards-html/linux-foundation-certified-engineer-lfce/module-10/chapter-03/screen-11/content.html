@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Troubleshooting</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Common memory issues</h3>
+      <div class="mt-3 grid gap-3">
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-sm font-bold text-rose-700">OOM (Out of Memory)</div>
+          <div class="text-xs text-slate-700 mt-1">System and swap exhausted; kernel may kill processes.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-sm font-bold text-rose-700">Thrashing</div>
+          <div class="text-xs text-slate-700 mt-1">Sustained swapping with high si/so and poor throughput.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-sm font-bold text-amber-700">Memory leaks</div>
+          <div class="text-xs text-slate-700 mt-1">Processes with steadily rising RES over time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Diagnostic flow</div>
+      <ol class="text-xs text-slate-600 pl-4 mt-2 list-decimal">
+        <li>Run free -h and note 'available' and swap usage.</li>
+        <li>Run vmstat with short intervals to observe si/so and bi/bo trends.</li>
+        <li>Use top/htop to find processes with large or growing RES.</li>
+        <li>Check sar -r logs to confirm long-term trends or leaks.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-600">Example: a background job that slowly increases RES each day will show up in sar -r and top; plan a controlled restart and code inspection.</div>
+
+      <div class="mt-auto grid grid-cols-2 gap-3">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Clearing cache to 'fix' memory signs causes reduced performance and masks the real issue.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">Document changes and observe vmstat after each change to confirm improvement before persisting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
