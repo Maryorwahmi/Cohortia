@@ -594,34 +594,42 @@ export default function LearningBoardPage({
       setCourseCatalog(null);
 
       try {
-        const { course, chapters } = await learningBoardsApi.getCourseChapters(previewCourseId);
-        const modules = Array.from(new Set(chapters.map((chapter) => chapter.module)))
-          .sort((a, b) => a - b)
-          .map((module) => ({
-            module,
-            chapters: chapters
-              .filter((chapter) => chapter.module === module)
-              .sort((a, b) => a.chapter - b.chapter)
-              .map((chapter) => ({ chapter: chapter.chapter, title: chapter.chapterTitle, manifest: '' })),
-          }));
+        // The selected lesson already gives us the chapter coordinates. Load the
+        // chapter immediately instead of waiting for the full course catalog first.
+        // The catalog is only needed for the chapter picker and can arrive later.
+        const requestedModule = Number(previewModule);
+        const requestedChapterNumber = Number(previewChapter);
+        const courseChaptersPromise = learningBoardsApi.getCourseChapters(previewCourseId);
+        // Attach a rejection handler immediately because the chapter request is
+        // intentionally awaited first and the catalog is allowed to finish later.
+        void courseChaptersPromise.catch(() => undefined);
+        let chapterData: Awaited<ReturnType<typeof learningBoardsApi.getChapter>>;
 
+        try {
+          chapterData = await learningBoardsApi.getChapter(
+            previewCourseId,
+            requestedModule,
+            requestedChapterNumber,
+          );
+        } catch (chapterError) {
+          // If an old/stale local selection points at a missing chapter, use the
+          // first chapter from the catalog as a compatibility fallback.
+          const status = (chapterError as { status?: number })?.status;
+          if (status !== 404) throw chapterError;
+          const { chapters } = await courseChaptersPromise;
+          const requestedChapter = chapters.find(
+            (chapter) => chapter.module === requestedModule && chapter.chapter === requestedChapterNumber,
+          ) || chapters[0];
+          if (!requestedChapter) throw chapterError;
+          chapterData = await learningBoardsApi.getChapter(
+            previewCourseId,
+            requestedChapter.module,
+            requestedChapter.chapter,
+          );
+        }
         if (cancelled) return;
-        setCourseCatalog({ course: course.course, courseId: course.courseId, modules });
 
-        const requestedChapter = chapters.find(
-          (chapter) => chapter.module === Number(previewModule) && chapter.chapter === Number(previewChapter)
-        ) || chapters[0];
-        if (!requestedChapter) throw new Error(`Course "${previewCourseId}" has no imported chapters.`);
-
-        const chapterData = await learningBoardsApi.getChapter(
-          previewCourseId,
-          requestedChapter.module,
-          requestedChapter.chapter
-        );
-        if (cancelled) return;
-
-        if (requestedChapter.module !== Number(previewModule)) setPreviewModule(String(requestedChapter.module).padStart(2, '0'));
-        if (requestedChapter.chapter !== Number(previewChapter)) setPreviewChapter(String(requestedChapter.chapter).padStart(2, '0'));
+        // Do not hold the visible board hostage to the catalog request.
         setGeneratedPreview({
           course: chapterData.course,
           courseId: chapterData.courseId,
@@ -640,6 +648,27 @@ export default function LearningBoardPage({
             .join('\n\n'),
           generatedAt: new Date().toISOString(),
         });
+
+        // Populate the picker in the background. This request is intentionally
+        // non-blocking for the first screen.
+        void courseChaptersPromise.then(({ course, chapters }) => {
+          if (cancelled) return;
+          const modules = Array.from(new Set(chapters.map((chapter) => chapter.module)))
+            .sort((a, b) => a - b)
+            .map((module) => ({
+              module,
+              chapters: chapters
+                .filter((chapter) => chapter.module === module)
+                .sort((a, b) => a.chapter - b.chapter)
+                .map((chapter) => ({ chapter: chapter.chapter, title: chapter.chapterTitle, manifest: '' })),
+            }));
+          setCourseCatalog({ course: course.course, courseId: course.courseId, modules });
+        }).catch(() => {
+          // The chapter is still usable when the optional catalog request fails.
+        });
+
+        if (chapterData.module !== requestedModule) setPreviewModule(String(chapterData.module).padStart(2, '0'));
+        if (chapterData.chapter !== requestedChapterNumber) setPreviewChapter(String(chapterData.chapter).padStart(2, '0'));
         setPracticalCompleted(!chapterData.practical);
         setShowChapterAssessment(false);
         setVisionBoardsCatalog(null);

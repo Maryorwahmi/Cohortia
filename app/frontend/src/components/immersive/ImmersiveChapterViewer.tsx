@@ -369,7 +369,13 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
         <div className="relative aspect-video h-auto max-h-full w-full max-w-[1600px] overflow-hidden border border-slate-200 bg-white shadow-xl">
           {!hasHtmlScreen && <FallbackScreen screen={screen} />}
           {screens
-            .filter((item) => item.content?.html?.trim() && (item.screen === screen.screen || item.screen === screens[index + 1]?.screen))
+            // Loading two sandboxed documents at once doubles the external
+            // Tailwind/animation script work on the first screen. Only warm the
+            // next screen after the active one has finished loading.
+            .filter((item) => item.content?.html?.trim() && (
+              item.screen === screen.screen
+              || (screenReady && item.screen === screens[index + 1]?.screen)
+            ))
             .map((item) => {
               const active = item.screen === screen.screen;
               return (

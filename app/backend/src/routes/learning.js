@@ -1140,11 +1140,36 @@ publicLearning.get('/boards/:courseId', async (c) => {
       .where(eq(learningBoardCourses.courseId, courseId))
       .limit(1),
     db
-      .select()
+      // The chapter picker only needs identity and display metadata. Avoid
+      // transferring manifestData/assessmentData for every chapter.
+      .select({
+        id: learningBoardChapters.id,
+        courseId: learningBoardChapters.courseId,
+        module: learningBoardChapters.module,
+        chapter: learningBoardChapters.chapter,
+        moduleTitle: learningBoardChapters.moduleTitle,
+        chapterTitle: learningBoardChapters.chapterTitle,
+        presentationMode: learningBoardChapters.presentationMode,
+        screensCount: learningBoardChapters.screensCount,
+        createdAt: learningBoardChapters.createdAt,
+        updatedAt: learningBoardChapters.updatedAt,
+      })
       .from(learningBoardChapters)
       .where(eq(learningBoardChapters.courseId, courseId)),
     db
-      .select()
+      // Practical sourceContent/metadata can be hundreds of KB per row. The
+      // catalog only needs enough fields to synthesize missing chapters; the
+      // practical title is a safe fallback when a chapter row is absent.
+      .select({
+        id: learningBoardPracticals.id,
+        courseId: learningBoardPracticals.courseId,
+        module: learningBoardPracticals.module,
+        chapter: learningBoardPracticals.chapter,
+        title: learningBoardPracticals.title,
+        category: learningBoardPracticals.category,
+        createdAt: learningBoardPracticals.createdAt,
+        updatedAt: learningBoardPracticals.updatedAt,
+      })
       .from(learningBoardPracticals)
       .where(eq(learningBoardPracticals.courseId, courseId)),
   ]);
@@ -1223,27 +1248,31 @@ publicLearning.get('/boards/:courseId/:module/:chapter', authMiddleware, async (
     item?.moduleNumber === moduleNum && item?.chapterNumber === chapterNum
   ));
 
-  const chapterData = await db
-    .select()
-    .from(learningBoardChapters)
-    .where(
-      and(
-        eq(learningBoardChapters.courseId, courseId),
-        eq(learningBoardChapters.module, moduleNum),
-        eq(learningBoardChapters.chapter, chapterNum)
+  // These reads are independent. Keeping them in one round-trip group matters
+  // for the hosted libSQL database, where each sequential query adds network
+  // latency before the first screen can be rendered.
+  const [chapterData, practicalRows] = await Promise.all([
+    db
+      .select()
+      .from(learningBoardChapters)
+      .where(
+        and(
+          eq(learningBoardChapters.courseId, courseId),
+          eq(learningBoardChapters.module, moduleNum),
+          eq(learningBoardChapters.chapter, chapterNum)
+        )
       )
-    )
-    .limit(1);
-
-  const practicalRows = await db
-    .select()
-    .from(learningBoardPracticals)
-    .where(and(
-      eq(learningBoardPracticals.courseId, courseId),
-      eq(learningBoardPracticals.module, moduleNum),
-      eq(learningBoardPracticals.chapter, chapterNum)
-    ))
-    .limit(1);
+      .limit(1),
+    db
+      .select()
+      .from(learningBoardPracticals)
+      .where(and(
+        eq(learningBoardPracticals.courseId, courseId),
+        eq(learningBoardPracticals.module, moduleNum),
+        eq(learningBoardPracticals.chapter, chapterNum)
+      ))
+      .limit(1),
+  ]);
 
   if (chapterData.length === 0 && practicalRows.length === 0 && !courseManifestPractical) {
     return c.json({ success: false, error: 'Chapter not found' }, 404);
@@ -1252,8 +1281,11 @@ publicLearning.get('/boards/:courseId/:module/:chapter', authMiddleware, async (
   const accessResponse = await checkRequestChapterAccess(c, courseId, moduleNum, chapterNum, true);
   if (accessResponse) return accessResponse;
 
-  // Get all screens for this chapter
-  const screens = await db
+  // Start the remaining independent reads together. Practical files/tasks and
+  // assessment metadata are not needed to decide which screens to render, but
+  // the API response needs all of them, so overlapping the network round trips
+  // shortens the total response time.
+  const screensPromise = db
     .select()
     .from(learningBoardScreens)
     .where(
@@ -1263,6 +1295,20 @@ publicLearning.get('/boards/:courseId/:module/:chapter', authMiddleware, async (
         eq(learningBoardScreens.chapter, chapterNum)
       )
     );
+  const importedAssessmentPromise = db
+    .select({
+      id: csAssessments.id,
+      totalQuestions: csAssessments.totalQuestions,
+      passingScore: sql`50`,
+    })
+    .from(csAssessments)
+    .where(and(
+      eq(csAssessments.courseId, courseId),
+      eq(csAssessments.module, moduleNum),
+      eq(csAssessments.chapter, chapterNum)
+    ))
+    .orderBy(desc(csAssessments.updatedAt))
+    .limit(1);
 
   // Parse manifest data if it exists
   const chapterRecord = chapterData[0] || null;
@@ -1426,20 +1472,10 @@ publicLearning.get('/boards/:courseId/:module/:chapter', authMiddleware, async (
       tasks,
     };
   }
-  const importedAssessment = await db
-    .select({
-      id: csAssessments.id,
-      totalQuestions: csAssessments.totalQuestions,
-      passingScore: sql`50`,
-    })
-    .from(csAssessments)
-    .where(and(
-      eq(csAssessments.courseId, courseId),
-      eq(csAssessments.module, moduleNum),
-      eq(csAssessments.chapter, chapterNum)
-    ))
-    .orderBy(desc(csAssessments.updatedAt))
-    .limit(1);
+  const [screens, importedAssessment] = await Promise.all([
+    screensPromise,
+    importedAssessmentPromise,
+  ]);
 
   let assessment = stripPrivateAssessmentFields(storedAssessment);
   if (importedAssessment.length > 0) {

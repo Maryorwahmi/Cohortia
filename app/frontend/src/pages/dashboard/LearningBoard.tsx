@@ -109,7 +109,7 @@ export default function LearningBoard() {
   const [adminAccessLoading, setAdminAccessLoading] = useState(false);
   const [adminAccessError, setAdminAccessError] = useState('');
   const {track, milestones, lessons, completedSteps, loading, error, completeLesson} = useTrackCurriculum();
-  const {manifest, loading: manifestLoading} = useCourseManifest(track?.id);
+  const {manifest} = useCourseManifest(track?.id);
 
   if (!user) {
     return null;
@@ -212,7 +212,10 @@ export default function LearningBoard() {
     await completeLesson(lessonId);
   };
 
-  if (loading || manifestLoading || adminAccessLoading) {
+  // The database-backed board can render without the optional static manifest.
+  // Do not keep the entire page on a blank loader while that secondary asset
+  // is fetched; the manifest is used to enrich chapter metadata when it lands.
+  if (loading || adminAccessLoading) {
     return (
       <div className="min-h-screen bg-immersive-bg flex items-center justify-center">
         <div className="animate-pulse text-immersive-secondary font-mono text-sm">Loading learning board...</div>
