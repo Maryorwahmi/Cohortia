@@ -49,3 +49,31 @@ test("rejects a prompt larger than the TPM budget without waiting or trying API 
     globalThis.fetch = originalFetch;
   }
 });
+
+test("marks incomplete non-truncated JSON as retryable", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      candidates: [{
+        content: {parts: [{text: '{"incomplete":'}]},
+        finishReason: "STOP",
+      }],
+    }),
+  });
+
+  try {
+    const result = await generateCompleteJson({
+      prompt: "Generate a short JSON object.",
+      maxTokens: 100,
+      maxContinuations: 0,
+      model: "test-model",
+    });
+
+    assert.equal(result.success, false);
+    assert.equal(result.retryable, true);
+    assert.match(result.error, /incomplete JSON/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

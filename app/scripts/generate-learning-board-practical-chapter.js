@@ -1558,7 +1558,7 @@ phase's narration against its displayText before returning the response.`
           const repairError = new Error(
             `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair failed after ${maxChapterRepairAttempts} attempts: ${lastValidationError?.message || "unknown validation error"}`,
           );
-          repairError.retryable = false;
+          repairError.retryable = true;
           throw repairError;
         }
     normalized = [repairedEntry];

@@ -130,7 +130,15 @@ function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function generateChapterWithRetries(options, chapterKey, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
+async function generateChapterWithRetries(
+  options,
+  chapterKey,
+  outputRoot,
+  resolvedCourseId,
+  syllabusPath,
+  repoRoot,
+  { runChapter = generateChapter, pause = wait } = {},
+) {
   const retryLimit = positiveIntegerOption(options["chapter-retries"], 3);
   let lastError;
   let attemptsMade = 0;
@@ -140,7 +148,7 @@ async function generateChapterWithRetries(options, chapterKey, outputRoot, resol
       const retryOptions = attempt === 1
         ? options
         : { ...options, force: false };
-      return await generateChapter({
+      return await runChapter({
         ...retryOptions,
         course: undefined,
         "course-id": resolvedCourseId,
@@ -160,7 +168,7 @@ async function generateChapterWithRetries(options, chapterKey, outputRoot, resol
       const delaySeconds = Math.min(60, 5 * (2 ** (attempt - 1)));
       console.warn(`Chapter ${chapterKey} attempt ${attempt}/${retryLimit} failed: ${error.message}`);
       console.warn(`Retrying chapter ${chapterKey} in ${delaySeconds}s.`);
-      await wait(delaySeconds * 1000);
+      await pause(delaySeconds * 1000);
     }
   }
   const attemptLabel = attemptsMade === 1 ? "attempt" : "attempts";
@@ -486,4 +494,4 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     });
 }
 
-export { generateCourse, parseChapterKeys, rejectBatchGenerationOptions };
+export { generateChapterWithRetries, generateCourse, parseChapterKeys, rejectBatchGenerationOptions };

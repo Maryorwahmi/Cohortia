@@ -626,6 +626,6 @@ export async function generateCompleteJson({ prompt, systemPrompt, responseSchem
       ? 'Gemini response was truncated before valid JSON could be completed'
       : 'Gemini returned incomplete JSON without a token-limit finish reason',
     raw: fullText,
-    retryable: false,
+    retryable: !responseWasTruncated,
   };
 }

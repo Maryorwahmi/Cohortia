@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
+  generateChapterWithRetries,
   generateCourse,
   parseChapterKeys,
   rejectBatchGenerationOptions,
@@ -42,6 +43,58 @@ test("removed batch options are rejected", () => {
       option,
     );
   }
+});
+
+test("retries a chapter when practical repair fails recoverably", async () => {
+  const repairError = new Error("Practical validation repair did not pass.");
+  repairError.retryable = true;
+  let attempts = 0;
+
+  const result = await generateChapterWithRetries(
+    {},
+    "1.1",
+    "output",
+    "test-course",
+    "syllabus.md",
+    "repo",
+    {
+      runChapter: async () => {
+        attempts += 1;
+        if (attempts === 1) throw repairError;
+        return {status: "generated"};
+      },
+      pause: async () => {},
+    },
+  );
+
+  assert.equal(attempts, 2);
+  assert.equal(result.status, "generated");
+});
+
+test("does not retry a non-retryable chapter failure", async () => {
+  const fatalError = new Error("Quota exhausted.");
+  fatalError.retryable = false;
+  let attempts = 0;
+
+  await assert.rejects(
+    generateChapterWithRetries(
+      {},
+      "1.1",
+      "output",
+      "test-course",
+      "syllabus.md",
+      "repo",
+      {
+        runChapter: async () => {
+          attempts += 1;
+          throw fatalError;
+        },
+        pause: async () => {},
+      },
+    ),
+    /failed after 1 attempt: Quota exhausted/,
+  );
+  assert.equal(attempts, 1);
 });
 
 test("course dry-run schedules each selected chapter as a separate unit", async (t) => {
