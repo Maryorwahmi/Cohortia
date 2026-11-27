@@ -117,8 +117,9 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             : "";
   const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
   const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
+  const signupFlow = new URLSearchParams(location.search).get("signup") === "1";
   const shouldOpenBuilder = showOnboardingMessage
-    || new URLSearchParams(location.search).get("signup") === "1"
+    || signupFlow
     || new URLSearchParams(location.search).get("builder") === "1";
 
   useEffect(() => {
@@ -424,7 +425,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate("/careers")}
+                    onClick={() => { setBuilderMode("single_course"); setCourseError(""); }}
                     className="rounded-3xl border border-immersive-border bg-immersive-card p-6 text-left transition hover:border-[#FF4B3E] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] sm:p-8"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-immersive-secondary/10 text-immersive-secondary"><BookOpen aria-hidden="true" className="h-6 w-6" /></span>
@@ -500,7 +501,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
                     <button type="button" onClick={() => setBuilderMode("choice")} className="rounded-xl border border-immersive-border px-4 py-3 text-sm font-bold text-immersive-text-secondary transition hover:border-[#FF4B3E] hover:text-immersive-text-primary">Back</button>
                     <button type="button" onClick={() => void continueWithCourse()} disabled={!selectedCourseId || courseSubmitting} className="inline-flex items-center gap-2 rounded-xl bg-[#FF4B3E] px-5 py-3 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
                       {courseSubmitting && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}
-                      {userProfile ? "Save course and continue" : "Continue to sign up"}
+                      {userProfile ? "Save course and continue" : signupFlow ? "Select course" : "Continue to sign up"}
                       <ArrowRight aria-hidden="true" className="h-4 w-4" />
                     </button>
                   </div>
