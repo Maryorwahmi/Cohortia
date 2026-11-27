@@ -410,6 +410,16 @@ export interface AdminCourse extends CatalogCourse {
   access: { screens: boolean; assessments: boolean; practicals: boolean; other: boolean };
 }
 
+export type AdminCourseFilter = 'all' | 'screens-ready' | 'screens-pending' | 'assessments' | 'practicals' | 'other';
+
+export interface AdminCoursesQuery {
+  page: number;
+  pageSize?: number;
+  search?: string;
+  filter?: AdminCourseFilter;
+  courseId?: string;
+}
+
 export interface AdminManagedUser {
   id: string;
   name: string;
@@ -434,7 +444,23 @@ export const adminApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  getCourses: () => fetchApi<{success: boolean; data?: {courses: AdminCourse[]; isAlphaAdmin: boolean}; error?: string}>('/admin/courses'),
+  getCourses: (query: AdminCoursesQuery) => {
+    const params = new URLSearchParams();
+    params.set('page', String(query.page));
+    if (query.pageSize !== undefined) params.set('pageSize', String(query.pageSize));
+    if (query.search) params.set('search', query.search);
+    if (query.filter) params.set('filter', query.filter);
+    if (query.courseId) params.set('courseId', query.courseId);
+    return fetchApi<{
+      success: boolean;
+      data?: {
+        courses: AdminCourse[];
+        isAlphaAdmin: boolean;
+        pagination: {page: number; pageSize: number; total: number; hasMore: boolean};
+      };
+      error?: string;
+    }>(`/admin/courses?${params.toString()}`);
+  },
   getUsers: () => fetchApi<{success: boolean; data?: {users: AdminManagedUser[]}; error?: string}>('/admin/users'),
   saveUserAccess: async (userId: string, coursePermissions: AdminCoursePermission[]) => {
     const response = await fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/users/${encodeURIComponent(userId)}/access`, {

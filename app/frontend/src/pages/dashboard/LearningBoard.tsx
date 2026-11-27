@@ -149,7 +149,7 @@ export default function LearningBoard() {
     let cancelled = false;
     setAdminAccessLoading(true);
     setAdminAccessError('');
-    adminApi.getCourses()
+    adminApi.getCourses({page: 1, pageSize: 1, courseId: adminCourseContext.courseId})
       .then((response) => {
         if (cancelled) return;
         const course = response.data?.courses.find((item) => item.id === adminCourseContext.courseId);

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { and, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, desc, eq, exists, inArray, like, not, notInArray, or, sql } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { db } from '../db/index.js';
@@ -47,7 +47,6 @@ import {
   users,
 } from '../db/schema.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { desc, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteR2Object, isR2Configured } from '../lib/r2Storage.js';
 import { enforceRateLimits } from '../lib/rateLimit.js';
@@ -206,49 +205,178 @@ admin.post('/mailing/send', async (c) => {
 
 admin.get('/courses', async (c) => {
   const user = c.get('user');
+  const alphaAdmin = isAlphaAdmin(c);
+  const requestedPage = Number.parseInt(c.req.query('page') || '1', 10);
+  const requestedPageSize = Number.parseInt(c.req.query('pageSize') || '30', 10);
+  const page = Number.isFinite(requestedPage) ? Math.min(Math.max(requestedPage, 1), 100000) : 1;
+  const pageSize = Number.isFinite(requestedPageSize) ? Math.min(Math.max(requestedPageSize, 1), 100) : 30;
+  const offset = (page - 1) * pageSize;
+  const courseId = (c.req.query('courseId') || '').trim().slice(0, 200);
+  const search = (c.req.query('search') || '').trim().slice(0, 120);
+  const filter = c.req.query('filter') || 'all';
+
+  const hasScreens = exists(
+    db.select({ id: learningBoardScreens.id })
+      .from(learningBoardScreens)
+      .where(eq(learningBoardScreens.courseId, catalogCourses.id)),
+  );
+  const hasPractical = exists(
+    db.select({ id: learningBoardPracticals.id })
+      .from(learningBoardPracticals)
+      .where(eq(learningBoardPracticals.courseId, catalogCourses.id)),
+  );
+  const hasChapterAssessment = exists(
+    db.select({ id: learningBoardChapters.id })
+      .from(learningBoardChapters)
+      .where(and(
+        eq(learningBoardChapters.courseId, catalogCourses.id),
+        sql`${learningBoardChapters.assessmentData} is not null and ${learningBoardChapters.assessmentData} != ''`,
+      )),
+  );
+  const hasAssessment = or(
+    exists(
+      db.select({ id: csAssessments.id })
+        .from(csAssessments)
+        .where(eq(csAssessments.courseId, catalogCourses.id)),
+    ),
+    hasChapterAssessment,
+  );
+
+  const conditions = [];
+  if (!alphaAdmin) {
+    conditions.push(exists(
+      db.select({ courseId: adminCoursePermissions.courseId })
+        .from(adminCoursePermissions)
+        .where(and(
+          eq(adminCoursePermissions.adminUserId, user.id),
+          eq(adminCoursePermissions.courseId, catalogCourses.id),
+          or(
+            eq(adminCoursePermissions.canViewScreens, true),
+            eq(adminCoursePermissions.canTakeAssessments, true),
+            eq(adminCoursePermissions.canUsePracticals, true),
+            eq(adminCoursePermissions.canViewOther, true),
+          ),
+        )),
+    ));
+  }
+  if (courseId) conditions.push(eq(catalogCourses.id, courseId));
+  if (search) {
+    const searchPattern = `%${search}%`;
+    conditions.push(or(
+      like(catalogCourses.title, searchPattern),
+      like(catalogCourses.provider, searchPattern),
+      like(catalogCourses.category, searchPattern),
+      like(catalogCourses.subcategory, searchPattern),
+      like(catalogCourses.marketCategory, searchPattern),
+      like(catalogCourses.marketSubcategory, searchPattern),
+    ));
+  }
+  if (filter === 'screens-ready') conditions.push(hasScreens);
+  if (filter === 'screens-pending') conditions.push(not(hasScreens));
+  if (filter === 'assessments') conditions.push(hasAssessment);
+  if (filter === 'practicals') conditions.push(hasPractical);
+  if (filter === 'other') conditions.push(and(not(hasScreens), not(hasAssessment), not(hasPractical)));
+
+  const where = conditions.length ? and(...conditions) : undefined;
+  const [countRows, courses] = await Promise.all([
+    db.select({ total: sql`count(*)` }).from(catalogCourses).where(where),
+    db.select()
+      .from(catalogCourses)
+      .where(where)
+      .orderBy(asc(catalogCourses.title), asc(catalogCourses.id))
+      .limit(pageSize)
+      .offset(offset),
+  ]);
+  const total = Number(countRows[0]?.total || 0);
+  const courseIds = courses.map((course) => course.id);
+
+  if (!courseIds.length) {
+    return c.json({
+      success: true,
+      data: {
+        courses: [],
+        isAlphaAdmin: alphaAdmin,
+        pagination: { page, pageSize, total, hasMore: false },
+      },
+    });
+  }
+
   const [
-    courses,
-    permissions,
-    boardChapters,
-    boardScreens,
-    practicals,
-    assessments,
+    screenRows,
+    chapterAssessmentRows,
+    practicalRows,
+    assessmentRows,
+    permissionRows,
   ] = await Promise.all([
-    db.select().from(catalogCourses),
-    db.select().from(adminCoursePermissions).where(eq(adminCoursePermissions.adminUserId, user.id)),
-    db.select({
-      courseId: learningBoardChapters.courseId,
-      assessmentData: learningBoardChapters.assessmentData,
-    }).from(learningBoardChapters),
-    db.select({ courseId: learningBoardScreens.courseId }).from(learningBoardScreens),
-    db.select({ courseId: learningBoardPracticals.courseId }).from(learningBoardPracticals),
-    db.select({ courseId: csAssessments.courseId }).from(csAssessments),
+    db.selectDistinct({ courseId: learningBoardScreens.courseId })
+      .from(learningBoardScreens)
+      .where(inArray(learningBoardScreens.courseId, courseIds)),
+    db.selectDistinct({ courseId: learningBoardChapters.courseId })
+      .from(learningBoardChapters)
+      .where(and(
+        inArray(learningBoardChapters.courseId, courseIds),
+        sql`${learningBoardChapters.assessmentData} is not null and ${learningBoardChapters.assessmentData} != ''`,
+      )),
+    db.selectDistinct({ courseId: learningBoardPracticals.courseId })
+      .from(learningBoardPracticals)
+      .where(inArray(learningBoardPracticals.courseId, courseIds)),
+    db.selectDistinct({ courseId: csAssessments.courseId })
+      .from(csAssessments)
+      .where(inArray(csAssessments.courseId, courseIds)),
+    alphaAdmin
+      ? Promise.resolve([])
+      : db.select()
+        .from(adminCoursePermissions)
+        .where(and(
+          eq(adminCoursePermissions.adminUserId, user.id),
+          inArray(adminCoursePermissions.courseId, courseIds),
+        )),
   ]);
 
-  const coursePermissions = new Map(permissions.map((permission) => [permission.courseId, permission]));
+  const screenCourseIds = new Set(screenRows.map((row) => row.courseId));
+  const assessmentCourseIds = new Set([
+    ...chapterAssessmentRows.map((row) => row.courseId),
+    ...assessmentRows.map((row) => row.courseId),
+  ]);
+  const practicalCourseIds = new Set(practicalRows.map((row) => row.courseId));
+  const permissionsByCourseId = new Map(permissionRows.map((permission) => [permission.courseId, permission]));
   const result = courses.map((course) => {
-    const chapters = boardChapters.filter((chapter) => chapter.courseId === course.id);
-    const permission = coursePermissions.get(course.id);
-    const availability = {
-      screens: boardScreens.some((screen) => screen.courseId === course.id),
-      assessments: assessments.some((assessment) => assessment.courseId === course.id)
-        || chapters.some((chapter) => Boolean(chapter.assessmentData)),
-      practicals: practicals.some((practical) => practical.courseId === course.id),
+    const screens = screenCourseIds.has(course.id);
+    const assessments = assessmentCourseIds.has(course.id);
+    const practicals = practicalCourseIds.has(course.id);
+    const permission = permissionsByCourseId.get(course.id);
+    return {
+      ...course,
+      availability: {
+        screens,
+        assessments,
+        practicals,
+        other: !screens && !assessments && !practicals,
+      },
+      access: alphaAdmin
+        ? { screens: true, assessments: true, practicals: true, other: true }
+        : {
+            screens: Boolean(permission?.canViewScreens),
+            assessments: Boolean(permission?.canTakeAssessments),
+            practicals: Boolean(permission?.canUsePracticals),
+            other: Boolean(permission?.canViewOther),
+          },
     };
-    const access = isAlphaAdmin(c)
-      ? { screens: true, assessments: true, practicals: true, other: true }
-      : {
-          screens: Boolean(permission?.canViewScreens),
-          assessments: Boolean(permission?.canTakeAssessments),
-          practicals: Boolean(permission?.canUsePracticals),
-          other: Boolean(permission?.canViewOther),
-        };
+  });
 
-    availability.other = !availability.screens && !availability.assessments && !availability.practicals;
-    return { ...course, availability, access };
-  }).filter((course) => isAlphaAdmin(c) || Object.values(course.access).some(Boolean));
-
-  return c.json({ success: true, data: { courses: result, isAlphaAdmin: isAlphaAdmin(c) } });
+  return c.json({
+    success: true,
+    data: {
+      courses: result,
+      isAlphaAdmin: alphaAdmin,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        hasMore: offset + courses.length < total,
+      },
+    },
+  });
 });
 
 admin.get('/users', async (c) => {

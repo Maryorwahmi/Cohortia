@@ -1,12 +1,15 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {BookOpen, Check, ClipboardCheck, Search, ShieldCheck, TerminalSquare, Trash2, UserRoundCog, X} from 'lucide-react';
-import {adminApi, AdminCourse, AdminCoursePermission, AdminManagedUser} from '../../services/api';
+import {adminApi, AdminCourse, AdminCourseFilter, AdminCoursePermission, AdminManagedUser} from '../../services/api';
 import {useAuth} from '../../context/AuthContext';
 
 type PermissionKey = 'screens' | 'assessments' | 'practicals' | 'other';
-type CourseFilter = 'all' | 'screens-ready' | 'screens-pending' | 'assessments' | 'practicals' | 'other';
+type CourseFilter = AdminCourseFilter;
 type CourseGrantMap = Record<string, Record<PermissionKey, boolean>>;
+
+const COURSE_PAGE_SIZE = 30;
+const COURSE_BULK_PAGE_SIZE = 100;
 
 const permissionLabels: Record<PermissionKey, string> = {
   screens: 'Learning screens',
@@ -40,25 +43,96 @@ export default function AdminDashboard() {
   const [deleteEmailConfirmation, setDeleteEmailConfirmation] = useState('');
   const [communityReports, setCommunityReports] = useState<Array<Record<string, any>>>([]);
   const [communityStats, setCommunityStats] = useState({totalPosts: 0, openReports: 0, hiddenPosts: 0});
+  const [courseTotal, setCourseTotal] = useState(0);
+  const [coursePage, setCoursePage] = useState(1);
+  const [courseHasMore, setCourseHasMore] = useState(false);
+  const [courseListLoading, setCourseListLoading] = useState(true);
+  const [loadingMoreCourses, setLoadingMoreCourses] = useState(false);
+  const [selectingMatchingCourses, setSelectingMatchingCourses] = useState(false);
+  const courseRequestId = useRef(0);
+  const bulkSelectionRequestId = useRef(0);
+  const [courseQueryReady, setCourseQueryReady] = useState(false);
+  const loadedCourseQuery = useRef('');
 
   const loadData = async () => {
     setLoading(true);
     setError('');
+    const requestId = ++courseRequestId.current;
+    setCourseListLoading(true);
+    setLoadingMoreCourses(false);
+    const backgroundRequests = Promise.all([
+      adminApi.getCommunityReports(),
+      adminApi.getCommunityStats(),
+      user?.adminRole === 'alpha' ? adminApi.getUsers() : Promise.resolve(null),
+    ])
+      .then(([reportResponse, statsResponse, userResponse]) => {
+        setCommunityReports(reportResponse.data?.reports || []);
+        setCommunityStats(statsResponse.data || {totalPosts: 0, openReports: 0, hiddenPosts: 0});
+        if (userResponse) setUsers(userResponse.data?.users || []);
+      })
+      .catch((loadError) => {
+        setError(loadError instanceof Error ? loadError.message : 'Could not load admin data.');
+      });
     try {
-      const courseResponse = await adminApi.getCourses();
-      setCourses(courseResponse.data?.courses || []);
-      setIsAlphaAdmin(Boolean(courseResponse.data?.isAlphaAdmin));
-      const [reportResponse, statsResponse] = await Promise.all([adminApi.getCommunityReports(), adminApi.getCommunityStats()]);
-      setCommunityReports(reportResponse.data?.reports || []);
-      setCommunityStats(statsResponse.data || {totalPosts: 0, openReports: 0, hiddenPosts: 0});
-      if (user?.adminRole === 'alpha') {
-        const userResponse = await adminApi.getUsers();
-        setUsers(userResponse.data?.users || []);
+      const courseResponse = await adminApi.getCourses({
+        page: 1,
+        pageSize: COURSE_PAGE_SIZE,
+        search,
+        filter: courseFilter,
+      });
+      if (requestId === courseRequestId.current) {
+        const pageData = courseResponse.data;
+        setCourses(pageData?.courses || []);
+        setCourseTotal(pageData?.pagination.total || 0);
+        setCoursePage(pageData?.pagination.page || 1);
+        setCourseHasMore(Boolean(pageData?.pagination.hasMore));
+        setIsAlphaAdmin(Boolean(pageData?.isAlphaAdmin));
+        loadedCourseQuery.current = JSON.stringify([search, courseFilter]);
+        setCourseQueryReady(true);
       }
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : 'Could not load admin access.');
     } finally {
+      if (requestId === courseRequestId.current) setCourseListLoading(false);
       setLoading(false);
+    }
+    void backgroundRequests;
+  };
+
+  const fetchCoursePage = async (
+    page: number,
+    append: boolean,
+    requestId: number = ++courseRequestId.current,
+    query = search,
+    filter = courseFilter,
+  ) => {
+    if (append) setLoadingMoreCourses(true);
+    else setCourseListLoading(true);
+    try {
+      const response = await adminApi.getCourses({
+        page,
+        pageSize: COURSE_PAGE_SIZE,
+        search: query,
+        filter,
+      });
+      if (requestId !== courseRequestId.current) return;
+      const pageData = response.data;
+      const nextCourses = pageData?.courses || [];
+      setCourses((current) => append ? [...current, ...nextCourses] : nextCourses);
+      setCourseTotal(pageData?.pagination.total || 0);
+      setCoursePage(pageData?.pagination.page || page);
+      setCourseHasMore(Boolean(pageData?.pagination.hasMore));
+      setIsAlphaAdmin(Boolean(pageData?.isAlphaAdmin));
+      if (!append) loadedCourseQuery.current = JSON.stringify([query, filter]);
+    } catch (loadError) {
+      if (requestId === courseRequestId.current) {
+        setError(loadError instanceof Error ? loadError.message : 'Could not load courses.');
+      }
+    } finally {
+      if (requestId === courseRequestId.current) {
+        setCourseListLoading(false);
+        setLoadingMoreCourses(false);
+      }
     }
   };
 
@@ -69,6 +143,25 @@ export default function AdminDashboard() {
     }
     void loadData();
   }, [user?.adminRole, navigate]);
+
+  useEffect(() => {
+    if (!courseQueryReady) return;
+    const queryKey = JSON.stringify([search, courseFilter]);
+    if (loadedCourseQuery.current === queryKey) return;
+    const requestId = ++courseRequestId.current;
+    bulkSelectionRequestId.current += 1;
+    setSelectingMatchingCourses(false);
+    setCourses([]);
+    setCourseTotal(0);
+    setCoursePage(1);
+    setCourseHasMore(false);
+    setCourseListLoading(true);
+    setLoadingMoreCourses(false);
+    const timer = window.setTimeout(() => {
+      void fetchCoursePage(1, false, requestId, search, courseFilter);
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [search, courseFilter, courseQueryReady]);
 
   useEffect(() => {
     const selected = users.find((account) => account.id === selectedUserId);
@@ -86,20 +179,7 @@ export default function AdminDashboard() {
     ])));
   }, [selectedUserId, users]);
 
-  const visibleCourses = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return courses.filter((course) => {
-      const matchesSearch = !query
-        || `${course.title} ${course.marketCategory || course.category} ${course.marketSubcategory || course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query);
-      const matchesFilter = courseFilter === 'all'
-        || (courseFilter === 'screens-ready' && course.availability.screens)
-        || (courseFilter === 'screens-pending' && !course.availability.screens)
-        || (courseFilter === 'assessments' && course.availability.assessments)
-        || (courseFilter === 'practicals' && course.availability.practicals)
-        || (courseFilter === 'other' && course.availability.other);
-      return matchesSearch && matchesFilter;
-    });
-  }, [courses, courseFilter, search]);
+  const visibleCourses = courses;
 
   const managedAdmins = users.filter((account) => account.adminRole === 'admin');
   const selectedUser = users.find((account) => account.id === selectedUserId);
@@ -114,33 +194,68 @@ export default function AdminDashboard() {
     }));
   };
 
-  const selectMatchingCourses = () => {
-    setGrants((current) => {
-      const next = {...current};
-      for (const course of visibleCourses) {
-        const available = {
-          screens: course.availability.screens,
-          assessments: course.availability.assessments,
-          practicals: course.availability.practicals,
-          other: course.availability.other,
-        };
-        const selected = {...(current[course.id] || emptyGrant())};
-        if (courseFilter === 'all' || courseFilter === 'screens-ready') {
-          for (const permission of Object.keys(permissionLabels) as PermissionKey[]) {
-            selected[permission] = available[permission];
+  const selectMatchingCourses = async () => {
+    const requestId = ++bulkSelectionRequestId.current;
+    const requestedSearch = search;
+    const requestedFilter = courseFilter;
+    setSelectingMatchingCourses(true);
+    setError('');
+    try {
+      const firstPage = await adminApi.getCourses({
+        page: 1,
+        pageSize: COURSE_BULK_PAGE_SIZE,
+        search: requestedSearch,
+        filter: requestedFilter,
+      });
+      const pageData = firstPage.data;
+      const pageCount = Math.ceil((pageData?.pagination.total || 0) / COURSE_BULK_PAGE_SIZE);
+      const remainingPages = await Promise.all(Array.from(
+        {length: Math.max(0, pageCount - 1)},
+        (_, index) => adminApi.getCourses({
+          page: index + 2,
+          pageSize: COURSE_BULK_PAGE_SIZE,
+          search: requestedSearch,
+          filter: requestedFilter,
+        }),
+      ));
+      if (requestId !== bulkSelectionRequestId.current) return;
+      const matchingCourses = [
+        ...(pageData?.courses || []),
+        ...remainingPages.flatMap((response) => response.data?.courses || []),
+      ];
+      setGrants((current) => {
+        const next = {...current};
+        for (const course of matchingCourses) {
+          const available = course.availability;
+          const selected = {...(current[course.id] || emptyGrant())};
+          if (courseFilter === 'all' || courseFilter === 'screens-ready') {
+            for (const permission of Object.keys(permissionLabels) as PermissionKey[]) {
+              selected[permission] = available[permission];
+            }
+          } else if (courseFilter === 'screens-pending') {
+            selected.screens = false;
+            selected.assessments = available.assessments;
+            selected.practicals = available.practicals;
+            selected.other = available.other;
+          } else if (available[courseFilter]) {
+            selected[courseFilter] = true;
           }
-        } else if (courseFilter === 'screens-pending') {
-          selected.screens = false;
-          selected.assessments = available.assessments;
-          selected.practicals = available.practicals;
-          selected.other = available.other;
-        } else if (available[courseFilter]) {
-          selected[courseFilter] = true;
+          next[course.id] = selected;
         }
-        next[course.id] = selected;
+        return next;
+      });
+    } catch (selectionError) {
+      if (requestId === bulkSelectionRequestId.current) {
+        setError(selectionError instanceof Error ? selectionError.message : 'Could not select matching courses.');
       }
-      return next;
-    });
+    } finally {
+      if (requestId === bulkSelectionRequestId.current) setSelectingMatchingCourses(false);
+    }
+  };
+
+  const loadMoreCourses = () => {
+    if (!courseHasMore || loadingMoreCourses || courseListLoading) return;
+    void fetchCoursePage(coursePage + 1, true);
   };
 
   const saveAccess = async () => {
@@ -322,13 +437,13 @@ export default function AdminDashboard() {
                 ))}
                 <button
                   type="button"
-                  onClick={selectMatchingCourses}
-                  disabled={!visibleCourses.length || (courseFilter === 'other' && !visibleCourses.some((course) => course.availability.other))}
+                  onClick={() => void selectMatchingCourses()}
+                  disabled={!courseTotal || selectingMatchingCourses}
                   className="ml-auto rounded-lg bg-immersive-primary px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {courseFilter === 'all'
-                    ? 'Select all available access'
-                    : courseFilter === 'screens-ready'
+                  {selectingMatchingCourses
+                    ? 'Selecting matching courses…'
+                    : courseFilter === 'all' || courseFilter === 'screens-ready'
                       ? 'Select all available access'
                       : courseFilter === 'screens-pending'
                         ? 'Select available access (no screens)'
@@ -336,7 +451,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
               <p className="mt-2 text-xs text-immersive-text-secondary">
-                {visibleCourses.length} matching course{visibleCourses.length === 1 ? '' : 's'}.{' '}
+                {courseTotal} matching course{courseTotal === 1 ? '' : 's'}; showing {visibleCourses.length} so far.{' '}
                 “Screens in database” is based on imported screen records. “No screens yet” includes courses with no learning-board screens saved in the database; bulk access never grants screen permission to those courses.
               </p>
               <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -362,6 +477,18 @@ export default function AdminDashboard() {
                   );
                 })}
               </div>
+              {courseHasMore && (
+                <div className="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={loadMoreCourses}
+                    disabled={courseListLoading || loadingMoreCourses}
+                    className="rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary disabled:cursor-wait disabled:opacity-50"
+                  >
+                    {loadingMoreCourses ? 'Loading more courses…' : `Show more courses (${visibleCourses.length} of ${courseTotal})`}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </section>
@@ -415,16 +542,24 @@ export default function AdminDashboard() {
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-extrabold text-immersive-text-primary">Available courses</h2>
-            <p className="text-xs text-immersive-text-secondary">{courses.length} course{courses.length === 1 ? '' : 's'} available to this account</p>
+            <p className="text-xs text-immersive-text-secondary">
+              Showing {visibleCourses.length} of {courseTotal} course{courseTotal === 1 ? '' : 's'} available to this account
+            </p>
           </div>
           <label className="relative block w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-immersive-text-secondary" />
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search courses" className="w-full rounded-xl border border-immersive-border bg-immersive-card py-2.5 pl-9 pr-3 text-sm text-immersive-text-primary" />
           </label>
         </div>
-        {visibleCourses.length === 0 ? (
+        {courseListLoading && visibleCourses.length === 0 ? (
+          <div role="status" className="rounded-2xl border border-dashed border-immersive-border p-8 text-center text-sm text-immersive-text-secondary">
+            Loading courses…
+          </div>
+        ) : visibleCourses.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-immersive-border p-8 text-center text-sm text-immersive-text-secondary">
-            {courses.length ? 'No courses match your search.' : 'No course access has been assigned to your admin account yet.'}
+            {search.trim() || courseFilter !== 'all'
+              ? 'No courses match your search or filter.'
+              : 'No course access has been assigned to your admin account yet.'}
           </div>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
@@ -472,6 +607,21 @@ export default function AdminDashboard() {
                 </div>
               </article>
             ))}
+          </div>
+        )}
+        {visibleCourses.length > 0 && courseHasMore && (
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <p className="text-xs text-immersive-text-secondary">
+              Showing {visibleCourses.length} of {courseTotal} matching courses
+            </p>
+            <button
+              type="button"
+              onClick={loadMoreCourses}
+              disabled={courseListLoading || loadingMoreCourses}
+              className="rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary disabled:cursor-wait disabled:opacity-50"
+            >
+              {loadingMoreCourses ? 'Loading more courses…' : 'Show more courses'}
+            </button>
           </div>
         )}
       </section>

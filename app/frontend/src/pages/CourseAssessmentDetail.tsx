@@ -44,7 +44,7 @@ export default function CourseAssessmentDetail() {
       try {
         setLoading(true);
         if (user?.adminRole) {
-          const access = await adminApi.getCourses();
+          const access = await adminApi.getCourses({page: 1, pageSize: 1, courseId});
           const course = access.data?.courses.find((item) => item.id === courseId);
           if (!course?.access.assessments) {
             setError('Your admin account does not have assessment access for this course.');
